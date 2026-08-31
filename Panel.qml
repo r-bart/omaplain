@@ -26,9 +26,8 @@ Item {
     opened = true
     feedback = ""
     fieldError = ""
-    Qt.callLater(function() {
-      if (root.opened) cleanButton.forceActiveFocus()
-    })
+    scroll.contentY = 0
+    initialFocusTimer.restart()
   }
 
   function close() {
@@ -135,6 +134,21 @@ Item {
     interval: 1500
     repeat: false
     onTriggered: root.feedback = ""
+  }
+
+  Timer {
+    id: initialFocusTimer
+    interval: 80
+    repeat: false
+    onTriggered: {
+      if (!root.opened) return
+      scroll.contentY = 0
+      cleanButton.forceActiveFocus()
+      Qt.callLater(function() {
+        scroll.contentY = 0
+        root.reveal(cleanButton)
+      })
+    }
   }
 
   PanelWindow {
