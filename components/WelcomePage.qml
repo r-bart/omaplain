@@ -7,6 +7,7 @@ Item {
   id: root
 
   property bool returning: false
+  property bool motionEnabled: true
 
   signal startRequested()
   signal dismissRequested()
@@ -46,6 +47,7 @@ Item {
       spacing: Style.space(14)
 
       TransformationIllustration {
+        motionEnabled: root.motionEnabled
         width: parent.width
         height: Style.space(190)
         variant: "transform"
@@ -107,9 +109,12 @@ Item {
           delegate: BorderSurface {
             required property var modelData
             width: (features.width - (features.columns - 1) * features.columnSpacing) / features.columns
-            implicitHeight: features.columns === 1
-              ? featureCopy.implicitHeight + Style.space(24)
-              : Style.space(108)
+            // Alto mínimo para que las tres midan igual en una fila, pero
+            // nunca menor que su contenido: una altura fija a secas se
+            // rompe en cuanto alguien sube el tamaño de fuente del tema.
+            implicitHeight: Math.max(
+              featureCopy.implicitHeight + Style.space(24),
+              features.columns === 1 ? 0 : Style.space(108))
             radius: Math.max(0, Style.cornerRadius - Style.space(2))
             color: Style.normalFillFor(Color.popups.text, Color.accent)
             borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
@@ -118,18 +123,29 @@ Item {
               id: featureCopy
               anchors.left: parent.left
               anchors.right: parent.right
-              anchors.verticalCenter: parent.verticalCenter
+              // Anclado arriba, no centrado: centrando, cada tarjeta coloca
+              // su texto según lo que ocupe, y los tres cuerpos acababan a
+              // alturas distintas dentro de una misma fila.
+              anchors.top: parent.top
+              anchors.topMargin: Style.space(12)
               anchors.leftMargin: Style.space(12)
               anchors.rightMargin: Style.space(12)
               spacing: Style.space(4)
 
               Text {
+                id: featureTitle
                 width: parent.width
+                // Reserva las dos líneas del título más largo, de modo que
+                // los cuerpos arranquen a la misma altura en las tres.
+                height: features.columns === 1
+                  ? implicitHeight
+                  : Math.max(implicitHeight, Math.round(font.pixelSize * 2.6))
                 text: modelData.title
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall
                 font.bold: true
+                verticalAlignment: Text.AlignTop
                 wrapMode: Text.WordWrap
               }
 

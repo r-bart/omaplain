@@ -7,6 +7,46 @@ Item {
 
   property string variant: "transform"
 
+  // Un solo momento orquestado, no cinco efectos sueltos: las líneas de
+  // ruido de la hoja copiada se encogen hasta desaparecer y el visto
+  // aterriza al final. Es la promesa del producto contada en movimiento,
+  // y ocurre una vez — un bucle ambiente aquí sería decoración.
+  //
+  // La fase F conducirá `motionEnabled`; con él en falso todo se pinta ya
+  // en su estado final, sin recorrido.
+  property bool motionEnabled: true
+
+  // 0 = recién llegado, 1 = transformación consumada.
+  property real progress: motionEnabled ? 0 : 1
+  readonly property real entered: motionEnabled ? enterFactor : 1
+  property real enterFactor: 0
+
+  function play() {
+    if (!motionEnabled) { progress = 1; enterFactor = 1; return }
+    enterFactor = 0
+    progress = 0
+    sequence.restart()
+  }
+
+  Component.onCompleted: play()
+  onMotionEnabledChanged: play()
+  onVisibleChanged: if (visible) play()
+
+  SequentialAnimation {
+    id: sequence
+    // Entrada: nunca desde scale(0); la escena siempre tiene forma.
+    NumberAnimation {
+      target: root; property: "enterFactor"; from: 0; to: 1
+      duration: 260; easing.type: Easing.OutCubic
+    }
+    PauseAnimation { duration: 90 }
+    // Y la transformación, que es lo único que de verdad cuenta algo.
+    NumberAnimation {
+      target: root; property: "progress"; from: 0; to: 1
+      duration: 620; easing.type: Easing.InOutCubic
+    }
+  }
+
   implicitWidth: Style.space(248)
   implicitHeight: Style.space(168)
   Accessible.ignored: true
@@ -16,7 +56,8 @@ Item {
     width: Style.space(248)
     height: Style.space(168)
     anchors.centerIn: parent
-    scale: Math.min(1, root.width / width, root.height / height)
+    scale: Math.min(1, root.width / width, root.height / height) * (0.965 + 0.035 * root.entered)
+    opacity: root.entered
     transformOrigin: Item.Center
 
     Rectangle {
@@ -57,10 +98,20 @@ Item {
             font.letterSpacing: Style.spaceReal(0.8)
           }
 
+          // Las de acento son el ruido: encogen hasta nada. Las neutras se
+          // quedan, que es exactamente lo que hace el producto.
           Rectangle { width: parent.width * 0.84; height: Style.space(6); radius: height / 2; color: Color.popups.background }
-          Rectangle { width: parent.width * 0.58; height: Style.space(6); radius: height / 2; color: Color.accent }
+          Rectangle {
+            width: parent.width * 0.58 * (1 - root.progress)
+            height: Style.space(6); radius: height / 2; color: Color.accent
+            opacity: 1 - root.progress * 0.6
+          }
           Rectangle { width: parent.width * 0.76; height: Style.space(6); radius: height / 2; color: Util.alpha(Color.popups.background, 0.74) }
-          Rectangle { width: parent.width * 0.46; height: Style.space(6); radius: height / 2; color: Color.accent }
+          Rectangle {
+            width: parent.width * 0.46 * (1 - root.progress)
+            height: Style.space(6); radius: height / 2; color: Color.accent
+            opacity: 1 - root.progress * 0.6
+          }
         }
       }
 
@@ -69,7 +120,10 @@ Item {
         y: Style.space(20)
         width: Style.space(116)
         height: Style.space(126)
-        rotation: 5
+        // Se endereza un grado al consumarse: la copia limpia se asienta.
+        rotation: 5 - root.progress
+        scale: 0.98 + 0.02 * root.progress
+        transformOrigin: Item.Center
         radius: Math.max(2, Style.cornerRadius - Style.space(2))
         color: Color.popups.text
         borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
@@ -109,6 +163,12 @@ Item {
           anchors.bottom: parent.bottom
           anchors.margins: Style.space(10)
           color: Color.accent
+          // Entra en el último tercio, con un punto de rebote. Nunca desde
+          // cero: aparece pequeño, no de la nada.
+          readonly property real landing: Math.max(0, (root.progress - 0.62) / 0.38)
+          opacity: landing
+          scale: 0.72 + 0.28 * landing
+          transformOrigin: Item.Center
 
           Text {
             anchors.centerIn: parent
@@ -127,6 +187,9 @@ Item {
         radius: width / 2
         anchors.centerIn: parent
         color: Color.accent
+        // Un único empujón a mitad de recorrido, cuando el ruido se va.
+        scale: 1 + 0.14 * Math.sin(Math.PI * Math.min(1, root.progress / 0.7))
+        transformOrigin: Item.Center
 
         Text {
           anchors.centerIn: parent

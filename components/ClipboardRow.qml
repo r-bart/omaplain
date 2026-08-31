@@ -35,9 +35,12 @@ Item {
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: parent.top
-      height: Style.space(32)
+      // Mínimo, no fijo: con un tamaño de fuente mayor el rótulo crecería
+      // por encima de una altura escrita a mano.
+      height: Math.max(Style.space(32), headerLabel.implicitHeight + Style.space(12))
 
       Text {
+        id: headerLabel
         anchors.left: parent.left
         anchors.leftMargin: Style.space(10)
         anchors.verticalCenter: parent.verticalCenter

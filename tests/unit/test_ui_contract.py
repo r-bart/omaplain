@@ -162,6 +162,71 @@ class UiContractTests(unittest.TestCase):
                         f"{path.name}: Qt.rgba con matiz propio -> {match.group(0)}",
                     )
 
+    def test_the_first_run_ends_in_settings_with_a_visible_way_out(self) -> None:
+        # 0006: los ajustes se enseñan, no se imponen. Sin salida rotulada
+        # y visible dejarían de ser un paso y pasarían a ser una barrera.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        advance = re.search(r"function advanceTour\(\) \{(?P<body>.*?)\n  \}", panel, re.DOTALL)
+        self.assertIsNotNone(advance)
+        self.assertIn("showOnboardingSettings()", advance.group("body"))
+        self.assertIn('learningOrigin === "first-run"', advance.group("body"))
+
+        # Dos salidas: el control de la cabecera y el botón del final.
+        self.assertIn('"Saltar', panel)
+        self.assertIn('onClicked: root.finishOnboarding()', panel)
+
+        # Y ambas terminan en la pantalla principal, no en los ajustes.
+        finish = re.search(r"function finishOnboarding\(\) \{(?P<body>.*?)\n  \}", panel, re.DOTALL)
+        self.assertIsNotNone(finish)
+        self.assertIn('panelPage = "clipboard"', finish.group("body"))
+        self.assertIn("markOnboardingComplete()", finish.group("body"))
+
+    def test_the_onboarding_marker_moves_when_the_screen_does(self) -> None:
+        # La pantalla principal es otra cosa desde 0007, así que quien venía
+        # de la 0.1.0 tiene que ver una vez qué ha cambiado.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        self.assertIn("readonly property int onboardingVersion: 2", panel)
+
+    def test_the_illustration_has_a_reduced_motion_path(self) -> None:
+        art = (REPO / "components" / "TransformationIllustration.qml").read_text(encoding="utf-8")
+        self.assertIn("property bool motionEnabled", art)
+        # Con el movimiento apagado se pinta ya en su estado final, no a
+        # medio recorrido: la ilustración tiene que contar lo mismo quieta.
+        self.assertIn("motionEnabled ? 0 : 1", art)
+        for user in ("WelcomePage.qml", "TourPage.qml"):
+            with self.subTest(file=user):
+                source = (REPO / "components" / user).read_text(encoding="utf-8")
+                self.assertIn("motionEnabled: root.motionEnabled", source)
+
+    def test_the_entrance_plays_once_and_never_loops(self) -> None:
+        # Un bucle ambiente en una ilustración de onboarding es decoración,
+        # y encima compite con el texto que la acompaña.
+        art = (REPO / "components" / "TransformationIllustration.qml").read_text(encoding="utf-8")
+        code = "\n".join(line.split("//", 1)[0] for line in art.splitlines())
+        self.assertNotIn("loops:", code)
+        self.assertNotIn("Animation.Infinite", code)
+        self.assertNotIn("running: true", code)
+
+    def test_the_entrance_animates_nothing_that_costs_a_layout(self) -> None:
+        # transform y opacity van en la GPU; animar x, y o anchors obliga a
+        # recomponer en cada fotograma.
+        art = (REPO / "components" / "TransformationIllustration.qml").read_text(encoding="utf-8")
+        animated = re.findall(r'property:\s*"(?P<name>[^"]+)"', art)
+        allowed = {"enterFactor", "progress"}
+        for name in animated:
+            with self.subTest(property=name):
+                self.assertIn(name, allowed)
+
+    def test_welcome_cards_line_up_their_bodies(self) -> None:
+        # Centrando el contenido, cada tarjeta lo colocaba según lo que
+        # ocupara su título, y los tres cuerpos caían a alturas distintas.
+        welcome = (REPO / "components" / "WelcomePage.qml").read_text(encoding="utf-8")
+        self.assertIn("anchors.top: parent.top", welcome)
+        self.assertIn("Math.round(font.pixelSize * 2.6)", welcome)
+        # Y el alto de la tarjeta es un mínimo, no un número: si alguien
+        # sube el tamaño de fuente del tema, el texto no se sale.
+        self.assertIn("implicitHeight: Math.max(", welcome)
+
     def test_the_everyday_header_teaches_nothing(self) -> None:
         # 0004 dijo que la primera apertura es educativa y las siguientes van
         # a la accion. No se cumplio: el heroe se quedo fijo en la vista

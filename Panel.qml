@@ -79,7 +79,10 @@ Item {
   readonly property var settings: service && service.settings ? service.settings : ({})
   readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "io.github.r-bart.omaplain"
   readonly property string watcherState: service ? service.watcherState : "starting"
-  readonly property int onboardingVersion: 1
+  readonly property int onboardingVersion: 2
+  // Marca el paso de ajustes del recorrido inicial: se enseñan, no se
+  // imponen, así que llevan una salida visible y rotulada (decisión 0006).
+  property bool onboardingSettings: false
 
   function ruleLabel(rule) {
     if (rule === "tracking") return "Parámetros de seguimiento"
@@ -90,6 +93,7 @@ Item {
   }
 
   function togglePage() {
+    if (onboardingSettings) { finishOnboarding(); return }
     panelPage = panelPage === "settings" ? "clipboard" : "settings"
     scroll.contentY = 0
     Qt.callLater(root.applyViewFocus)
@@ -159,7 +163,28 @@ Item {
       tourStep += 1
       return
     }
-    showMain(true)
+    // Primera vez: los ajustes son el último paso del recorrido, con
+    // salida. Repitiendo el tour desde ajustes, se vuelve por donde vino.
+    if (learningOrigin === "first-run") showOnboardingSettings()
+    else showMain(true)
+  }
+
+  function showOnboardingSettings() {
+    onboardingSettings = true
+    panelPage = "settings"
+    viewMode = "main"
+    scroll.contentY = 0
+    Qt.callLater(root.applyViewFocus)
+  }
+
+  // Salga o configure, el recorrido termina siempre en la pantalla
+  // principal, con su portapapeles real delante.
+  function finishOnboarding() {
+    onboardingSettings = false
+    panelPage = "clipboard"
+    markOnboardingComplete()
+    scroll.contentY = 0
+    Qt.callLater(root.applyViewFocus)
   }
 
   function retreatTour() {
@@ -404,13 +429,19 @@ Item {
               anchors.right: parent.right
               anchors.verticalCenter: parent.verticalCenter
               implicitHeight: Style.space(44)
-              text: root.panelPage === "settings" ? "󰅁  Volver" : "󰢻  Opciones"
-              tooltipText: root.panelPage === "settings" ? "Volver al portapapeles" : "Abrir opciones"
+              text: root.onboardingSettings
+                ? "Saltar  󰅂"
+                : (root.panelPage === "settings" ? "󰅁  Volver" : "󰢻  Opciones")
+              tooltipText: root.onboardingSettings
+                ? "Saltar los ajustes e ir al panel"
+                : (root.panelPage === "settings" ? "Volver al portapapeles" : "Abrir opciones")
               focusable: true
               bordered: true
               foreground: root.panelPage === "settings" ? Color.accent : Util.alpha(Color.popups.text, 0.68)
               Accessible.role: Accessible.Button
-              Accessible.name: root.panelPage === "settings" ? "Volver al portapapeles" : "Abrir opciones"
+              Accessible.name: root.onboardingSettings
+                ? "Saltar los ajustes e ir al panel"
+                : (root.panelPage === "settings" ? "Volver al portapapeles" : "Abrir opciones")
               Accessible.onPressAction: root.togglePage()
               onClicked: root.togglePage()
             }
@@ -633,6 +664,49 @@ Item {
               width: contentColumn.width
               visible: root.panelPage === "settings"
               spacing: Style.space(12)
+
+              // Último paso del recorrido. Los ajustes se enseñan, no se
+              // imponen: aquí se explica por qué estás viéndolos, y hay dos
+              // salidas — una en la cabecera y otra al final de la lista.
+              BorderSurface {
+                width: parent.width
+                visible: root.onboardingSettings
+                implicitHeight: bandCopy.implicitHeight + Style.space(24)
+                radius: Style.cornerRadius
+                color: Style.normalFillFor(Color.popups.text, Color.accent)
+                borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
+
+                Column {
+                  id: bandCopy
+                  anchors.left: parent.left
+                  anchors.right: parent.right
+                  anchors.verticalCenter: parent.verticalCenter
+                  anchors.leftMargin: Style.space(14)
+                  anchors.rightMargin: Style.space(14)
+                  spacing: Style.space(4)
+
+                  Text {
+                    text: "Último paso"
+                    color: Color.accent
+                    font.family: Style.font.family
+                    font.pixelSize: Style.font.caption
+                    font.bold: true
+                    font.capitalization: Font.AllUppercase
+                    font.letterSpacing: Style.spaceReal(0.9)
+                  }
+
+                  Text {
+                    width: parent.width
+                    text: "Esto es lo que puedes ajustar. Ya viene todo configurado de forma segura, así que puedes dejarlo tal cual."
+                    color: Util.alpha(Color.popups.text, 0.78)
+                    font.family: Style.font.family
+                    font.pixelSize: Style.font.bodySmall
+                    lineHeightMode: Text.ProportionalHeight
+                    lineHeight: 1.45
+                    wrapMode: Text.WordWrap
+                  }
+                }
+              }
 
               Text {
                 text: "Modo"
@@ -957,6 +1031,15 @@ Item {
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
                 font.bold: true
+              }
+
+              PrimaryButton {
+                id: onboardingDoneButton
+                width: parent.width
+                visible: root.onboardingSettings
+                text: "Abrir OmaPlain"
+                iconText: "✓"
+                onClicked: root.finishOnboarding()
               }
 
               Text {

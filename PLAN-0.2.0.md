@@ -49,7 +49,7 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 | C. Contrato `peek` | Terminada | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
 | D. Pantalla principal | Terminada | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
 | D2. Privacidad por app | Pendiente | Listas `alwaysCovered` y `blockedApps` | Una app bloqueada no devuelve contenido ni pidiéndolo |
-| E. Onboarding | Pendiente | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
+| E. Onboarding | Terminada | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
 | F. Microinteracciones | Pendiente | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
 | G. Cierre `0.2.0` | Pendiente | Release local validada | `develop` fusionado y CHANGELOG sin sección pendiente |
 
@@ -232,12 +232,12 @@ Bloqueada por `B.2`.
 
 ### Trabajo
 
-- [ ] `E.1` Reordenar el recorrido según `0006`.
-- [ ] `E.2` Adaptar el tour: la demostración segura ya existe y sigue anclada al
+- [x] `E.1` Reordenar el recorrido según `0006`.
+- [x] `E.2` Adaptar el tour: la demostración segura ya existe y sigue anclada al
       motor por `test_demo_sample.py`.
-- [ ] `E.3` El recorrido termina en la pantalla principal con el portapapeles
+- [x] `E.3` El recorrido termina en la pantalla principal con el portapapeles
       real delante.
-- [ ] `E.4` `onboardingVersion` sube a `2`; quien venía de la `0.1.0` ve una vez
+- [x] `E.4` `onboardingVersion` sube a `2`; quien venía de la `0.1.0` ve una vez
       qué ha cambiado.
 
 ---
@@ -305,6 +305,7 @@ lo que no se ha visto es la combinación.
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Fase E | El recorrido pasa por Ajustes con dos salidas visibles; ilustración animada con vía de movimiento reducido |
 | 2026-08-31 | Verificación | Arrastre y deriva comprobados con puntero real; seis de siete estados vistos en el panel |
 | 2026-08-31 | Fase D | Chips MIME, estados de bypass y desglose con su ajuste. Portapapeles vacío deja de contarse como error. Seis estados verificados en el panel real |
 | 2026-08-31 | Fase D (parcial) | Panel partido en dos páginas: portapapeles y ajustes tras el engranaje. Veredicto, dos filas, desglose y acciones debajo. Verificado en el panel real |

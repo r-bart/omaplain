@@ -7,6 +7,7 @@ Item {
   id: root
 
   property int step: 0
+  property bool motionEnabled: true
   property bool replaying: false
 
   signal backRequested()
@@ -116,6 +117,7 @@ Item {
       }
 
       TransformationIllustration {
+        motionEnabled: root.motionEnabled
         width: parent.width
         height: Style.space(220)
         variant: root.illustrationVariant
