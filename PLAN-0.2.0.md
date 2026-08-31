@@ -48,6 +48,7 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 | B. Decisiones | Terminada | `0005` y `0006` aceptadas | El criterio de auditoría de contenido es verificable de nuevo |
 | C. Contrato `peek` | Terminada | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
 | D. Pantalla principal | Pendiente | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
+| D2. Privacidad por app | Pendiente | Listas `alwaysCovered` y `blockedApps` | Una app bloqueada no devuelve contenido ni pidiéndolo |
 | E. Onboarding | Pendiente | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
 | F. Microinteracciones | Pendiente | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
 | G. Cierre `0.2.0` | Pendiente | Release local validada | `develop` fusionado y CHANGELOG sin sección pendiente |
@@ -182,6 +183,46 @@ contra el motor real.
 - Los diez estados se ven correctos en el panel real, no sólo en tests.
 - Cambiar de portapapeles vuelve a cubrir.
 - Nada de lo sensible se puede destapar por ninguna vía.
+
+---
+
+## 7bis. Fase D2 — Privacidad por aplicación
+
+Dos listas nuevas, pedidas el 31 de agosto. Hoy sólo se cubre lo que Wayland
+marca como sensible, y el usuario sabe cosas que Wayland no sabe.
+
+Ambas se deciden en `0008` antes de escribir código, porque tocan la frontera
+que fijó la `0005`.
+
+| Lista | Qué hace | Dónde se aplica |
+|---|---|---|
+| `sourceExclusions` (existe) | Lo copiado ahí no se limpia | helper |
+| `targetExclusions` (existe) | «Pegar limpio» no actúa ahí | helper |
+| **`alwaysCovered`** (nueva) | Llega siempre cubierto; el ojo lo levanta y vuelve a cubrirse en la copia siguiente | panel, con la marca que da el helper |
+| **`blockedApps`** (nueva) | OmaPlain ni lee ni muestra; el panel dice «aplicación excluida» | **helper**, nunca la UI |
+
+### Trabajo
+
+- [ ] `D2.1` Decisión `0008` con las cuatro listas y por qué son cuatro y no dos.
+- [ ] `D2.2` El demonio recuerda la **clase de la aplicación de origen** del
+      último evento. Es metadato, no contenido: la `0007` prohíbe recordar el
+      texto, no de dónde vino.
+- [ ] `D2.3` `peek` devuelve `blocked` sin contenido cuando el origen está en
+      `blockedApps`. La negativa vive en el helper, como la de lo sensible.
+- [ ] `D2.4` `peek` marca `cover: true` cuando el origen está en `alwaysCovered`.
+- [ ] `D2.5` La ruta automática también salta `blockedApps`: si no se lee, no se
+      limpia.
+- [ ] `D2.6` Sección «Privacidad» en ajustes con las dos listas nuevas,
+      separadas de las de limpieza.
+- [ ] `D2.7` Tests: una muestra marcada copiada desde una app bloqueada no
+      aparece en la respuesta de `peek`; y `alwaysCovered` no se puede
+      convertir en revelado permanente.
+
+### Criterios de salida
+
+- Una app bloqueada no devuelve contenido ni pidiéndolo explícitamente.
+- Una app siempre cubierta vuelve a cubrirse en la copia siguiente, aunque se
+  hubiera levantado el ojo.
 
 ---
 
