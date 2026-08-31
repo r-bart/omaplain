@@ -26,12 +26,12 @@ Column {
     {
       "original": "https://ejemplo.com/pan-de-masa-madre?utm_source=boletin&utm_medium=email&fbclid=IwAR9x&porciones=8#horneado​",
       "cleaned": "https://ejemplo.com/pan-de-masa-madre?porciones=8#horneado",
-      "outcome": "Fuera tres parámetros de seguimiento y un carácter invisible que no se veía. La página, las porciones y el punto al que apunta siguen ahí."
+      "outcome": "demo.outcome1"
     },
     {
       "original": "https://ejemplo.com/factura.pdf?expires=1735689600&signature=ab12cd34",
       "cleaned": "https://ejemplo.com/factura.pdf?expires=1735689600&signature=ab12cd34",
-      "outcome": "Sin cambios: esta URL va firmada y recortarla la rompería. Ante la duda, OmaPlain prefiere no tocar nada."
+      "outcome": "demo.outcome2"
     }
   ]
 
@@ -84,7 +84,7 @@ Column {
   Text {
     width: parent.width
     visible: root.revealed
-    text: root.sample.outcome
+    text: Strings.t(root.sample.outcome, root.lang)
     color: Util.alpha(Color.popups.text, 0.72)
     font.family: Style.font.family
     font.pixelSize: Style.font.caption

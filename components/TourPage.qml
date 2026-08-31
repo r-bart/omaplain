@@ -235,7 +235,7 @@ Item {
         PrimaryButton {
           id: nextButton
           width: (tourActions.width - (tourActions.columns - 1) * tourActions.columnSpacing) / tourActions.columns
-          text: root.step === root.stepCount - 1 ? Strings.t("onboarding.done", root.lang) : Strings.t("tour.next", root.lang)
+          text: root.step === root.stepCount - 1 ? Strings.t("tour.finish", root.lang) : Strings.t("tour.next", root.lang)
           iconText: root.step === root.stepCount - 1 ? "✓" : "→"
           onActiveFocusChanged: if (activeFocus) root.reveal(nextButton)
           onClicked: root.nextRequested()

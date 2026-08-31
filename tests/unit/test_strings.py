@@ -76,6 +76,31 @@ class CatalogueTests(unittest.TestCase):
         stale = sorted(k for k in self.LEGITIMATELY_IDENTICAL if self.en[k] != self.es[k])
         self.assertEqual(stale, [], f"excepciones que ya no hacen falta: {stale}")
 
+    def test_no_qml_speaks_spanish_behind_the_catalogue(self) -> None:
+        """Ninguna cadena visible puede quedarse fuera del catálogo.
+
+        La migración se hizo buscando una lista de propiedades, y las que
+        no estaban en ella se escaparon enteras: `description:`, los
+        `outcome` de la demostración, la pista del campo de exclusión y
+        una etiqueta de la ilustración. Todas se quedaron en español, y en
+        inglés se habrían visto tal cual.
+
+        El acento es la señal: si una cadena del QML lleva uno, es prosa
+        para leer y le toca estar en `Strings.js`.
+        """
+        accented = re.compile(r'"[^"]*[áéíóúüñÁÉÍÓÚÑ¿¡][^"]*"')
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        for path in files:
+            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                code = line.split("//", 1)[0]
+                if "Strings." in code:
+                    continue
+                with self.subTest(file=path.name, line=number):
+                    self.assertIsNone(
+                        accented.search(code),
+                        f"español fuera del catálogo: {code.strip()[:70]}",
+                    )
+
     def test_the_locale_maps_to_one_of_the_two(self) -> None:
         source = CATALOGUE.read_text(encoding="utf-8")
         self.assertIn("function fromLocale", source)

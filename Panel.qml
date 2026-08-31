@@ -256,7 +256,7 @@ Item {
     var result = name === "cleanNow" ? service.cleanNow() : service.skipNext()
     if (result === "busy") {
       feedbackError = false
-      feedback = "OmaPlain ya está procesando otra acción"
+      feedback = Strings.t("err.busy", root.lang)
       feedbackTimer.restart()
     }
   }
@@ -266,12 +266,12 @@ Item {
     var value = classField.text.trim()
     var result = service.addExclusion(scope, value)
     if (result === "invalid") {
-      fieldError = "Introduce una clase de aplicación válida"
+      fieldError = Strings.t("err.invalidClass", root.lang)
       Qt.callLater(function() { root.reveal(fieldMessage) })
       return
     }
     if (result === "duplicate") {
-      fieldError = "Esta aplicación ya está excluida"
+      fieldError = Strings.t("err.duplicate", root.lang)
       Qt.callLater(function() { root.reveal(fieldMessage) })
       return
     }
@@ -576,6 +576,7 @@ Item {
               // Cuando sólo se retira el formato, las dos filas salen
               // idénticas: el cambio hay que enseñarlo aquí o no se ve.
               MimeChips {
+                lang: root.lang
                 width: parent.width
                 visible: root.peekFormatOnly
                 types: root.peekTypes
@@ -585,6 +586,7 @@ Item {
               // De un bypass no se enseña contenido, pero sí de qué está
               // hecho: es lo que permite entender por qué no se toca.
               MimeChips {
+                lang: root.lang
                 width: parent.width
                 visible: !root.peekReady && root.peekTypes.length > 0
                 types: root.peekTypes
@@ -912,8 +914,8 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: Strings.t("settings.trim2", root.lang)
-                description: "No modifica la indentación ni los saltos."
+                label: Strings.t("settings.trim", root.lang)
+                description: Strings.t("settings.trim.desc", root.lang)
                 checked: root.setting("trimTrailingWhitespace", false)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("trimTrailingWhitespace", !checked)
@@ -932,7 +934,7 @@ Item {
                 width: parent.width
                 implicitHeight: Style.space(44)
                 text: service && service.currentAppClass
-                  ? "Excluir " + service.currentAppClass + " del modo automático"
+                  ? Strings.f("excl.detect", root.lang, service.currentAppClass)
                   : Strings.t("excl.detected", root.lang)
                 focusable: true
                 bordered: true
@@ -1003,7 +1005,7 @@ Item {
                 Accessible.name: Strings.t("excl.class", root.lang)
                 Accessible.description: root.fieldError !== ""
                   ? root.fieldError
-                  : "Clase exacta de Hyprland que se excluirá"
+                  : Strings.t("excl.class.hint", root.lang)
                 inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
                 onAccepted: root.submitExclusion("source")
                 onTextChanged: if (root.fieldError !== "") root.fieldError = ""

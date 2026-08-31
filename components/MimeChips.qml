@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 // Los tipos que ofrece el portapapeles, en pastillas.
 //
@@ -14,6 +15,8 @@ import qs.Ui
 Flow {
   id: root
 
+  property string lang: "en"
+
   property var types: []
   property var typesAfter: []
   readonly property bool comparing: typesAfter && typesAfter.length > 0
@@ -22,8 +25,8 @@ Flow {
 
   Accessible.role: Accessible.StaticText
   Accessible.name: comparing
-    ? "Ofrecía " + types.join(", ") + ". Quedaría " + typesAfter.join(", ") + "."
-    : "El portapapeles ofrece " + types.join(", ") + "."
+    ? Strings.f("chips.a11y", root.lang, types.join(", "), typesAfter.join(", "))
+    : Strings.f("chips.plain.a11y", root.lang, types.join(", "))
 
   Repeater {
     model: root.types

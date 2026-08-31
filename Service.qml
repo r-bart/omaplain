@@ -35,6 +35,13 @@ Item {
   property int restartAttempt: 0
   property double lastErrorNotificationMs: 0
   property var settings: ({})
+  // El servicio notifica aunque el panel esté cerrado, así que resuelve el
+  // idioma por su cuenta en vez de heredarlo.
+  readonly property string lang: {
+    var chosen = String(settings && settings.language ? settings.language : "auto")
+    if (chosen === "en" || chosen === "es") return chosen
+    return Strings.fromLocale(Qt.locale().name)
+  }
   property var status: ({
     version: 1,
     watcher: "starting",
@@ -150,8 +157,8 @@ Item {
     lastErrorNotificationMs = now
     notifyProcess.command = [
       "notify-send", "--app-name", "OmaPlain", "--urgency", "critical",
-      "OmaPlain no está observando",
-      "Abre el panel para revisar el servicio. El portapapeles original sigue intacto."
+      Strings.t("notify.title", root.lang),
+      Strings.t("notify.body", root.lang)
     ]
     notifyProcess.running = true
   }

@@ -225,7 +225,7 @@ Item {
           spacing: Style.space(9)
 
           Repeater {
-            model: ["Imágenes", "Archivos", "Secretos"]
+            model: [Strings.t("art.images", root.lang), Strings.t("art.files", root.lang), Strings.t("art.secrets", root.lang)]
             delegate: Row {
               required property string modelData
               spacing: Style.space(8)
@@ -289,7 +289,7 @@ Item {
 
           Repeater {
             model: [
-              { label: "Automático", active: true },
+              { label: Strings.t("art.automatic", root.lang), active: true },
               { label: Strings.t("art.skip", root.lang), active: false },
               { label: Strings.t("art.exclude", root.lang), active: false }
             ]
