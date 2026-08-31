@@ -433,13 +433,18 @@ Item {
             height: Style.space(38)
 
             Text {
+              id: brandText
               anchors.left: parent.left
               anchors.verticalCenter: parent.verticalCenter
               text: Strings.t("app.name", root.lang)
               color: Color.popups.text
               font.family: Style.font.family
-              font.pixelSize: Style.font.subtitle
+              // Un escalón por encima del subtítulo, pero sin llegar al del
+              // veredicto: la cabecera es identidad, no contenido, y si
+              // empatan compiten por la misma mirada.
+              font.pixelSize: Style.font.title
               font.bold: true
+              font.letterSpacing: -Style.spaceReal(0.2)
             }
 
             Button {
