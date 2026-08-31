@@ -132,6 +132,13 @@ class PeekTests(unittest.TestCase):
                 self.assertEqual(answer["reason"], reason)
                 self.assertNotIn(MARK, json.dumps(answer, ensure_ascii=False))
 
+    def test_peek_calls_an_empty_clipboard_empty(self) -> None:
+        self.backend.types = []
+        answer = self.daemon.peek()
+        self.assertEqual(answer["result"], "ok")
+        self.assertEqual(answer["reason"], "empty")
+        self.assertFalse(answer["eligible"])
+
     # ----------------------------------------------------------- no persiste
 
     def test_peek_leaves_no_trace_of_the_content_anywhere(self) -> None:

@@ -52,7 +52,24 @@ class ClipboardBackend:
         return result.stdout
 
     def list_types(self) -> list[str]:
-        output = self._capture(["wl-paste", "--list-types"])
+        """Los tipos que ofrece el portapapeles; lista vacía si no hay nada.
+
+        `wl-paste --list-types` sale con código de error tanto cuando algo
+        va mal como cuando simplemente no hay nada copiado. Tratar los dos
+        casos igual convertía un portapapeles vacío —un estado corriente,
+        el que tienes al arrancar la sesión— en un fallo: el panel decía
+        «error» y el contador de la sesión se apuntaba una incidencia.
+
+        Se distinguen por la salida. Si el comando se ejecutó y no imprimió
+        nada, no hay tipos que listar. Si imprimió algo y aun así falló, es
+        un fallo de verdad y se propaga.
+        """
+        try:
+            output = self._capture(["wl-paste", "--list-types"])
+        except ClipboardError as error:
+            if str(error) == "command_failed":
+                return []
+            raise
         return [line.decode("utf-8", "replace").strip() for line in output.splitlines() if line.strip()]
 
     def read(self, mime: str, maximum: int) -> bytes:

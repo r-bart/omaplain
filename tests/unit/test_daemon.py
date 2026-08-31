@@ -75,6 +75,17 @@ class DaemonTests(unittest.TestCase):
         self.assertEqual(result["result"], "cleaned")
         self.assertEqual(result["reason"], "rich_text")
 
+    def test_an_empty_clipboard_is_a_state_and_not_an_error(self) -> None:
+        # `wl-paste --list-types` sale con error cuando no hay nada copiado.
+        # Tratarlo como fallo convertia el portapapeles vacio —el que tienes
+        # al arrancar la sesion— en una incidencia contada.
+        self.backend.types = []
+        generation = self.daemon._next_generation()
+        result = self.daemon.automatic_event("data", generation)
+        self.assertEqual(result["result"], "bypassed")
+        self.assertEqual(result["reason"], "empty")
+        self.assertEqual(self.backend.writes, [])
+
     def test_sensitive_event_never_lists_or_reads_types(self) -> None:
         generation = self.daemon._next_generation()
         result = self.daemon.automatic_event("sensitive", generation)

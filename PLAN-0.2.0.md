@@ -47,7 +47,7 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 | A. Desatascar | Terminada | Panel con sus controles visibles | Los nueve toggles se renderizan en el panel real |
 | B. Decisiones | Terminada | `0005` y `0006` aceptadas | El criterio de auditoría de contenido es verificable de nuevo |
 | C. Contrato `peek` | Terminada | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
-| D. Pantalla principal | Pendiente | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
+| D. Pantalla principal | Terminada salvo `D.8` | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
 | D2. Privacidad por app | Pendiente | Listas `alwaysCovered` y `blockedApps` | Una app bloqueada no devuelve contenido ni pidiéndolo |
 | E. Onboarding | Pendiente | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
 | F. Microinteracciones | Pendiente | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
@@ -168,13 +168,13 @@ contra el motor real.
 - [x] `D.2a` Separar enseñar de informar ([`0007`](./docs/decisions/0007-la-pantalla-frecuente-informa.md)):
       `StatusHeader` pierde el titular y la ilustración, que se quedan en
       bienvenida y tour. Verificado en el panel real.
-- [ ] `D.3` Cubierta por defecto, con ojo por fila y barrido si `D.1` lo permite.
+- [x] `D.3` Cubierta por defecto, con ojo por fila y barrido si `D.1` lo permite.
       El ojo es la ruta de teclado y manda; el barrido es el adorno.
-- [ ] `D.4` Estados de bypass —imagen, archivos, sensible— y portapapeles vacío.
-- [ ] `D.5` Chips de tipos MIME para el caso «formato enriquecido», donde el
+- [x] `D.4` Estados de bypass —imagen, archivos, sensible— y portapapeles vacío.
+- [x] `D.5` Chips de tipos MIME para el caso «formato enriquecido», donde el
       texto no cambia y el diff no sirve.
 - [x] `D.6` Botón «Opciones» y la página de ajustes como segunda vista.
-- [ ] `D.7` Recorrido completo por teclado y semántica accesible: mientras hay
+- [x] `D.7` Recorrido completo por teclado y semántica accesible: mientras hay
       cubierta, el texto no se anuncia.
 - [ ] `D.8` Verificación en el panel real de los diez estados, con capturas.
 
@@ -297,6 +297,7 @@ código:
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Fase D | Chips MIME, estados de bypass y desglose con su ajuste. Portapapeles vacío deja de contarse como error. Seis estados verificados en el panel real |
 | 2026-08-31 | Fase D (parcial) | Panel partido en dos páginas: portapapeles y ajustes tras el engranaje. Veredicto, dos filas, desglose y acciones debajo. Verificado en el panel real |
 | 2026-08-31 | Decisión `0007` | La pantalla frecuente informa y la primera enseña; el héroe educativo sale de la vista diaria. Sin memoria del contenido |
 | 2026-08-31 | Spike `D.1` | `destination-out` soportado y 1,5 ms por fotograma; la cubierta va con `Canvas` |

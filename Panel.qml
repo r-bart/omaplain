@@ -57,6 +57,20 @@ Item {
   }
 
   readonly property var peekApplied: peek && peek.applied ? peek.applied : []
+  readonly property var peekTypes: peek && peek.types ? peek.types : []
+  readonly property var peekTypesAfter: peek && peek.typesAfter ? peek.typesAfter : []
+  // El único caso en que el texto no cambia y sí se reescribe: se retira la
+  // versión con formato. Ahí el antes y el después son los tipos.
+  readonly property bool peekFormatOnly: peekChanges
+    && String(peek.original || "") === String(peek.cleaned || "")
+
+  function settingFor(rule) {
+    if (rule === "tracking") return "Seguimiento"
+    if (rule === "invisible") return "Invisibles"
+    if (rule === "line_endings") return "Saltos"
+    if (rule === "rich_text") return "Formato"
+    return ""
+  }
 
   readonly property var peek: service && service.peekResult ? service.peekResult : ({ eligible: false })
   readonly property bool peekReady: peek && peek.eligible === true
@@ -499,6 +513,23 @@ Item {
                 onFocusEntered: function(item) { root.reveal(item) }
               }
 
+              // Cuando sólo se retira el formato, las dos filas salen
+              // idénticas: el cambio hay que enseñarlo aquí o no se ve.
+              MimeChips {
+                width: parent.width
+                visible: root.peekFormatOnly
+                types: root.peekTypes
+                typesAfter: root.peekTypesAfter
+              }
+
+              // De un bypass no se enseña contenido, pero sí de qué está
+              // hecho: es lo que permite entender por qué no se toca.
+              MimeChips {
+                width: parent.width
+                visible: !root.peekReady && root.peekTypes.length > 0
+                types: root.peekTypes
+              }
+
               // El desglose: qué regla actuó y qué ajuste la gobierna.
               Column {
                 width: parent.width
@@ -507,16 +538,35 @@ Item {
 
                 Repeater {
                   model: root.peekApplied
-                  delegate: Text {
+                  delegate: Item {
                     required property string modelData
                     width: clipboardPage.width
-                    text: "✕  " + root.ruleLabel(modelData)
-                    color: Util.alpha(Color.popups.text, 0.72)
-                    font.family: Style.font.family
-                    font.pixelSize: Style.font.bodySmall
-                    wrapMode: Text.WordWrap
+                    height: Math.max(ruleText.implicitHeight, ruleChip.implicitHeight)
+
                     Accessible.role: Accessible.StaticText
                     Accessible.name: "Se retira: " + root.ruleLabel(modelData)
+                      + ", según el ajuste " + root.settingFor(modelData)
+
+                    Text {
+                      id: ruleText
+                      anchors.left: parent.left
+                      anchors.right: ruleChip.left
+                      anchors.rightMargin: Style.space(8)
+                      anchors.verticalCenter: parent.verticalCenter
+                      text: "✕  " + root.ruleLabel(modelData)
+                      color: Util.alpha(Color.popups.text, 0.72)
+                      font.family: Style.font.family
+                      font.pixelSize: Style.font.bodySmall
+                      wrapMode: Text.WordWrap
+                    }
+
+                    Chip {
+                      id: ruleChip
+                      anchors.right: parent.right
+                      anchors.verticalCenter: parent.verticalCenter
+                      label: root.settingFor(modelData)
+                      visible: label !== ""
+                    }
                   }
                 }
               }
@@ -524,6 +574,9 @@ Item {
               Grid {
                 id: clipboardActions
                 width: parent.width
+                // De una imagen, un archivo o un secreto no hay nada que
+                // aplicar ni que omitir: no se llegó a mirar.
+                visible: root.peekReady
                 columns: width < Style.space(410) ? 1 : 2
                 columnSpacing: Style.space(8)
                 rowSpacing: Style.space(8)
@@ -558,7 +611,11 @@ Item {
                 width: parent.width
                 text: root.feedback !== ""
                   ? root.feedback
-                  : "El original permanece intacto si la limpieza no es segura."
+                  : (root.peekReady
+                    ? "El original permanece intacto si la limpieza no es segura."
+                    : (root.peek && root.peek.reason === "sensitive"
+                      ? "Revelar no está disponible para contenido marcado como sensible."
+                      : "No hay nada que limpiar, así que no hay acción que ofrecer."))
                 color: root.feedback !== ""
                   ? (root.feedbackError ? Color.urgent : Color.popups.text)
                   : Util.alpha(Color.popups.text, 0.68)
