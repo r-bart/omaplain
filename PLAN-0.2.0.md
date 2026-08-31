@@ -48,11 +48,11 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 | B. Decisiones | Terminada | `0005` y `0006` aceptadas | El criterio de auditoría de contenido es verificable de nuevo |
 | C. Contrato `peek` | Terminada | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
 | D. Pantalla principal | Terminada | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
-| D2. Privacidad por app | Pendiente | Listas `alwaysCovered` y `blockedApps` | Una app bloqueada no devuelve contenido ni pidiéndolo |
+| D2. Privacidad por app | Terminada | Listas `alwaysCovered` y `blockedApps` | Una app bloqueada no devuelve contenido ni pidiéndolo |
 | E. Onboarding | Terminada | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
-| F. Microinteracciones | Pendiente | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
+| F. Microinteracciones | Terminada | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
 | H. Bilingüe | Terminada | Catálogo en inglés y español | Las dos tablas comparten claves y marcadores |
-| G. Cierre `0.2.0` | Pendiente | Release local validada | `develop` fusionado y CHANGELOG sin sección pendiente |
+| G. Cierre `0.2.0` | Lista para la prueba final | Release local validada | `develop` fusionado y CHANGELOG sin sección pendiente |
 
 Las tres pendientes están desarrolladas en detalle —con sus decisiones tomadas,
 sus riesgos y sus criterios verificables— en
@@ -209,19 +209,19 @@ que fijó la `0005`.
 
 ### Trabajo
 
-- [ ] `D2.1` Decisión `0009` con las cuatro listas y por qué son cuatro y no dos.
+- [x] `D2.1` Decisión `0009` con las cuatro listas y por qué son cuatro y no dos.
       (Era `0008` cuando se escribió esta fase; ese número se lo llevó el estado vacío.)
-- [ ] `D2.2` El demonio recuerda la **clase de la aplicación de origen** del
+- [x] `D2.2` El demonio recuerda la **clase de la aplicación de origen** del
       último evento. Es metadato, no contenido: la `0007` prohíbe recordar el
       texto, no de dónde vino.
-- [ ] `D2.3` `peek` devuelve `blocked` sin contenido cuando el origen está en
+- [x] `D2.3` `peek` devuelve `blocked` sin contenido cuando el origen está en
       `blockedApps`. La negativa vive en el helper, como la de lo sensible.
-- [ ] `D2.4` `peek` marca `cover: true` cuando el origen está en `alwaysCovered`.
-- [ ] `D2.5` La ruta automática también salta `blockedApps`: si no se lee, no se
+- [x] `D2.4` `peek` marca `cover: true` cuando el origen está en `alwaysCovered`.
+- [x] `D2.5` La ruta automática también salta `blockedApps`: si no se lee, no se
       limpia.
-- [ ] `D2.6` Sección «Privacidad» en ajustes con las dos listas nuevas,
+- [x] `D2.6` Sección «Privacidad» en ajustes con las dos listas nuevas,
       separadas de las de limpieza.
-- [ ] `D2.7` Tests: una muestra marcada copiada desde una app bloqueada no
+- [x] `D2.7` Tests: una muestra marcada copiada desde una app bloqueada no
       aparece en la respuesta de `peek`; y `alwaysCovered` no se puede
       convertir en revelado permanente.
 
@@ -253,14 +253,14 @@ Bloqueada por `B.2`.
 
 ### Trabajo
 
-- [ ] `F.1` Traer el patrón `motionEnabled` de OmaPilot: propiedad que los
+- [x] `F.1` Traer el patrón `motionEnabled` de OmaPilot: propiedad que los
       componentes aceptan y las probes conducen, no un ajuste de usuario. Esto
       abre la puerta que `0004` dejó cerrada.
-- [ ] `F.2` Enmendar `0004` registrando que la puerta queda abierta y por qué.
-- [ ] `F.3` Confirmación visual de la transformación (prioridad alta nº1).
-- [ ] `F.4` Estado «omitir una copia» en el héroe (nº2).
-- [ ] `F.5` Los cuatro puntos de prioridad media de `UX-OPPORTUNITIES.md`.
-- [ ] `F.6` El carrusel del estado vacío cicla sin fin y sin forma de pararlo,
+- [x] `F.2` Enmendar `0004` registrando que la puerta queda abierta y por qué.
+- [x] `F.3` Confirmación visual de la transformación (prioridad alta nº1).
+- [x] `F.4` Estado «omitir una copia» en el héroe (nº2).
+- [x] `F.5` Los cuatro puntos de prioridad media de `UX-OPPORTUNITIES.md`.
+- [x] `F.6` El carrusel del estado vacío cicla sin fin y sin forma de pararlo,
       que es lo que pide la WCAG 2.2.2. El componente ya acepta `motionEnabled`
       y se queda quieto con él en falso; lo que falta es quién lo conduce, y
       eso es `F.1`.
@@ -283,12 +283,12 @@ Bloqueada por `B.2`.
 
 ## 10. Fase G — Cierre `0.2.0`
 
-- [ ] `G.1` Repetir matriz de compatibilidad y soak.
-- [ ] `G.2` Auditoría de privacidad con el criterio nuevo de `B.3`.
-- [ ] `G.3` Validador oficial de plugins.
-- [ ] `G.4` CHANGELOG: cerrar la sección «Sin publicar» en una `0.2.0`.
+- [x] `G.1` Repetir matriz de compatibilidad y soak.
+- [x] `G.2` Auditoría de privacidad con el criterio nuevo de `B.3`.
+- [x] `G.3` Validador oficial de plugins.
+- [x] `G.4` CHANGELOG: cerrar la sección «Sin publicar» en una `0.2.0`.
 - [ ] `G.5` Fusionar `develop` en `main` y etiquetar.
-- [ ] `G.6` Notas de release, incluida la advertencia de pantalla compartida.
+- [x] `G.6` Notas de release, incluida la advertencia de pantalla compartida.
 
 ---
 
@@ -323,6 +323,9 @@ lo que no se ha visto es la combinación.
 | Fecha | Hito | Resultado |
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
+| 2026-08-31 | Fase G | `0.2.0` lista para la prueba final: CHANGELOG cerrado, notas de release, matriz revisada y auditoría de privacidad limpia. `G.5` queda fuera a propósito: fusionar y etiquetar es la puerta que cruza quien prueba |
+| 2026-08-31 | Fase F | Un ajuste conduce el movimiento en los cinco componentes, sello de confirmación, estado de omitir visible y dos divulgaciones. Dos fallos invisibles cazados: claves duplicadas y una clave que el panel pedía sin existir |
+| 2026-08-31 | Fase D2 | Dos listas nuevas con la `0009` delante. La negativa vive en el helper, antes de leer. Comprobado sobre el socket real con muestra marcada |
 | 2026-08-31 | Estado vacío (dibujos) | Tres siluetas distintas, peine y motas atados al mismo avance, coreografía por turno con la tarjeta quieta. Ejemplos al catálogo y comprobados contra el motor en los dos idiomas |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
 | 2026-08-31 | Bilingüe | 163 claves en inglés y español, selector en ajustes y `auto` desde el locale. Verificado en pantalla en los dos idiomas |

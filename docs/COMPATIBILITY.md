@@ -12,6 +12,24 @@ Matriz observada sobre el baseline descrito en [BASELINE.md](./BASELINE.md). Los
 | Captura/imagen | Payload PNG controlado | `image/png` | Sin intervención del watcher textual |
 | Clipboard vacío | Estado `nil`/`clear` | Sin tipos | Bypass `empty` |
 
+## Revisión para la 0.2.0
+
+La matriz de arriba sigue vigente: el motor de clasificación no cambió en esta
+versión, y el soak de 28.800 eventos y el benchmark se repitieron sobre el
+estado final sin desviaciones.
+
+Lo que la `0.2.0` añade por encima de ella son dos negativas nuevas, y ésas no
+dependen del MIME sino de la aplicación de origen:
+
+| Caso | Evidencia | Decisión |
+|---|---|---|
+| Copia desde una app en `blockedApps` | Copia real desde `foot` con el terminal en la lista | `source_blocked`, sin contenido ni tipos |
+| Copia desde una app en `alwaysCovered` | Copia real desde `foot` con el terminal en la lista | Llega marcada; el vaho no se levanta |
+
+Pendiente de ver pintado, no de clasificar: el portapapeles que ofrece
+`text/html` y `text/plain` a la vez. El motivo y los tres caminos que se
+intentaron están en [TEST-REPORT-0.2.0.md](TEST-REPORT-0.2.0.md).
+
 ## MIME observados
 
 ### Chromium

@@ -2,7 +2,7 @@
 
 OmaPlain limpia texto del portapapeles en Omarchy: retira formato enriquecido, parámetros de seguimiento de URLs completas, finales de línea incompatibles y un conjunto conservador de caracteres invisibles. Archivos, imágenes, secretos marcados y formatos estructurales se dejan intactos.
 
-La versión actual es `0.1.0`. Funciona enteramente en local, no tiene telemetría, no abre conexiones de red y no mantiene un historial propio.
+La versión actual es `0.2.0`. Funciona enteramente en local, no tiene telemetría, no abre conexiones de red y no mantiene un historial propio.
 
 ## Funciones
 

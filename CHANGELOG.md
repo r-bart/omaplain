@@ -2,20 +2,75 @@
 
 Todos los cambios relevantes de OmaPlain se documentan aquí.
 
-## Sin publicar
+## 0.2.0 — 2026-08-31
+
+Esta versión rehace el panel entero. La `0.1.0` funcionaba y no se dejaba
+mirar: enseñaba una ilustración donde debía enseñar tu portapapeles, y sus
+nueve controles no se veían por un import que faltaba.
 
 ### Añadido
 
-- Demostración segura en el paso 2 del tour: «Probar con un ejemplo» transforma texto propio del plugin, nunca el portapapeles, y es reversible. Un par de ejemplos enseña lo que se retira y lo que se respeta.
-- Estado vacío en «Aplicaciones excluidas»: con las dos listas vacías, la sección explica qué hace excluir una aplicación como origen y como destino en vez de saltar al campo técnico.
+- **Previsualización del portapapeles.** La pantalla principal enseña lo que
+  tienes copiado y cómo quedaría, cubierto por un vaho que se levanta con el
+  ojo o limpiándolo con el dedo. El contenido viaja por el socket y muere con
+  la respuesta: no se guarda en ninguna parte ([`0005`](docs/decisions/0005-previsualizacion-del-portapapeles.md)).
+- **Privacidad por aplicación.** Dos listas nuevas: las que llegan sin poder
+  destaparse y las que OmaPlain ni lee ni enseña. La negativa vive en el
+  helper, antes de leer, y no la levanta ninguna acción manual
+  ([`0009`](docs/decisions/0009-privacidad-por-aplicacion.md)).
+- **Inglés y español**, con selector y `auto` desde el locale del sistema.
+- **Estado vacío que enseña.** Con el portapapeles vacío, un carrusel de tres
+  ejemplos reales —un enlace con seguimiento, un párrafo con un invisible, una
+  copia con formato— pierde lo que sobra delante de ti
+  ([`0008`](docs/decisions/0008-el-estado-vacio.md)).
+- **Demostración segura en el tour**: transforma texto propio del plugin, nunca
+  el portapapeles, y es reversible.
+- **Ajuste «Reducir movimiento»** que apaga las animaciones en toda la app.
+- **Chips de tipos MIME**, la única forma de enseñar la retirada de formato:
+  ahí no cambia ni un carácter.
+- **Estado vacío en «Aplicaciones excluidas»**, que explica qué hace excluir
+  antes de que haya nada que excluir.
+- **Confirmación visual** de la limpieza manual, y el estado «omitir la próxima
+  copia» visible en la cabecera.
+- **Explicación desplegable** de por qué el original puede seguir en el
+  historial de Omarchy.
 
-### Mejorado
+### Cambiado
 
-- Estabilidad visual del panel: estado, ayuda, feedback y validación conservan su espacio.
-- Los errores de exclusión entran automáticamente en el área visible y se limpian al corregir el campo.
-- El label de clase enfoca su campo y el teclado predictivo queda desactivado para identificadores técnicos.
-- Los botones de exclusión se apilan en paneles estrechos.
-- El encabezado reserva espacio para estados de dos líneas sin desplazar las acciones.
+- **La primera experiencia enseña; la de todos los días informa.** El titular
+  educativo y la ilustración salen de la pantalla frecuente y se quedan en la
+  bienvenida y el tour, que es donde tienen trabajo
+  ([`0007`](docs/decisions/0007-la-pantalla-frecuente-informa.md)).
+- **El panel se parte en dos páginas**: el portapapeles y los ajustes, detrás
+  del engranaje.
+- El recorrido de primera ejecución pasa por los ajustes, con dos salidas
+  visibles ([`0006`](docs/decisions/0006-orden-del-onboarding.md)).
+- Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
+  que vienen puestos se quedan a la vista.
+- Copy revisado de arriba abajo, en los dos idiomas.
+
+### Arreglado
+
+- **Los nueve controles del panel eran invisibles.** `SettingRow.qml` usaba
+  `Style.space()` sin importar `qs.Commons`, así que su altura colapsaba a
+  cero. Se publicó así en la `0.1.0`.
+- **El ojo se quedaba levantado al cambiar de copia**, de modo que revelar una
+  vez enseñaba lo siguiente sin que nadie lo pidiera.
+- **Un portapapeles vacío se contaba como error** de inspección.
+- **`peek` decía «ya está limpio»** de un portapapeles con formato que sí se
+  iba a reescribir.
+- **El servicio no formaba su notificación de error**: llamaba al catálogo sin
+  importarlo y lanzaba `ReferenceError` en cada arranque.
+- La ayuda de la CLI imprimía `==SUPPRESS==` como si fuera un comando.
+
+### Seguridad
+
+- El contenido del portapapeles puede llegar al panel; **no puede quedar
+  escrito en ninguna parte**: ni estado, ni configuración, ni log, ni
+  notificación, ni traza, ni truncado, ni resumido.
+- `peek` es inerte: no avanza la generación, no consume la omisión, no escribe
+  en el portapapeles y no toca el disco.
+- De una aplicación bloqueada no se enseña ni la lista de tipos.
 
 ## 0.1.0 — 2026-08-31
 
