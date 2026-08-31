@@ -54,6 +54,11 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 | H. Bilingüe | Terminada | Catálogo en inglés y español | Las dos tablas comparten claves y marcadores |
 | G. Cierre `0.2.0` | Pendiente | Release local validada | `develop` fusionado y CHANGELOG sin sección pendiente |
 
+Las tres pendientes están desarrolladas en detalle —con sus decisiones tomadas,
+sus riesgos y sus criterios verificables— en
+[`PLAN-CIERRE-0.2.0.md`](./PLAN-CIERRE-0.2.0.md). Lo de aquí abajo se queda
+como índice.
+
 ---
 
 ## 4. Fase A — Desatascar
