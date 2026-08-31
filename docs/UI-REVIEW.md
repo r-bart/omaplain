@@ -1,42 +1,67 @@
 # Revisión de interfaz
 
-Fecha: 31 de agosto de 2026. Panel probado en Omarchy Shell a 2560×1440 con el tema oscuro activo.
+Fecha: 31 de agosto de 2026. Panel probado en Omarchy Shell a 2048×1152 y
+2560×1440 con el tema oscuro Nightcall.
 
 ## Resultado
 
-La interfaz queda aprobada para la prueba de aceptación local. Mantiene el lenguaje visual nativo de Omarchy y no incorpora sombras, gradientes, paleta ni movimiento propios.
+La dirección **Transformación** queda aprobada para la prueba de aceptación
+local. La experiencia tiene tres superficies coherentes:
 
-La revisión cubrió código, render real, ratón, teclado, foco, scroll, validación y feedback. Se corrigieron estos hallazgos:
+1. Una bienvenida de primera ejecución que explica valor, límites y privacidad.
+2. Un tour de tres pasos sobre copia, limpieza segura y control.
+3. El panel frecuente, con la misma metáfora visual en un encabezado compacto.
 
-- Los mensajes de acción y ayuda ya no aparecen retirando o añadiendo altura al layout.
-- Los cambios de estado de una línea a dos conservan la altura mínima del encabezado.
-- Un error de exclusión se muestra junto al campo y el scroll lo lleva al viewport.
-- El error solo se limpia al editar el valor, no al perder el foco con el mismo valor inválido.
-- El label de clase enfoca el campo; `Enter` envía y el input usa texto de 16 px.
-- Los dos botones de exclusión pasan a una columna cuando el ancho disponible es menor de 360 px.
+La bienvenida deja de aparecer cuando `onboardingVersion` alcanza `1`. Tanto
+ella como el tour se pueden abrir de nuevo desde «Ayuda y aprendizaje» sin
+alterar la configuración.
 
-## Superficies y movimiento
+## Hallazgos corregidos
 
-La jerarquía existente es la adecuada: scrim, tarjeta principal, encabezado, acciones y controles. Todos usan `BorderSurface`, `Button`, `Toggle`, `TextField`, colores y bordes del sistema. Añadir elevación propia rompería la adaptación a temas de Omarchy.
+| Antes | Después | Por qué |
+| --- | --- | --- |
+| El encabezado comunicaba sólo nombre y estado. | La copia con ruido se transforma visualmente en texto uniforme junto a la promesa «Texto limpio, sin sorpresas». | La función se entiende antes de leer los ajustes. |
+| Las dos acciones principales ocupaban todo el ancho y competían entre sí. | «Limpiar portapapeles ahora» usa el acento; omitir queda como acción secundaria. | Una sola acción primaria fija la jerarquía. |
+| Una primera apertura llevaba directamente a controles técnicos. | La bienvenida explica qué cambia, qué se protege y dónde vive el historial. | La confianza precede a la configuración. |
+| La guía no tenía una ruta de retorno. | Dos controles en Ajustes repiten la bienvenida o el tour y restauran foco y scroll al volver. | La ayuda deja de ser desechable sin desorientar. |
+| En una ventana baja, el foco de una acción final podía quedar fuera del viewport. | Bienvenida y tour revelan el control enfocado dentro de su `Flickable`. | El recorrido completo sigue siendo visible por teclado. |
 
-No se añadieron animaciones. Es una utilidad frecuente y orientada a teclado; las transiciones de color de los controles nativos ya comunican hover, pulsación y foco sin introducir latencia ni movimiento. Por tanto, el plugin no necesita una excepción adicional para movimiento reducido.
+## Superficies, tipografía y movimiento
 
-## Evidencia automatizada
+- Todos los colores, bordes, radios, tamaños y espaciados proceden de `Color`,
+  `Border` y `Style`; no hay colores de tema fijados en el QML.
+- La ilustración es QML nativo, usa tres roles cromáticos y se ignora en el
+  árbol accesible porque el texto contiguo comunica la misma información.
+- Los titulares usan la escala de Omarchy, leading compacto y cortes manuales
+  sólo donde la composición lo necesita.
+- No se añadieron animaciones de entrada ni cambios de paso. La utilidad es
+  frecuente y Quickshell no expone todavía una preferencia de movimiento
+  reducido. Los controles conservan únicamente el feedback cromático nativo.
 
-- Validador oficial del manifiesto: correcto.
+## Evidencia
+
+- Primera ejecución: bienvenida → tres pasos → panel.
+- Persistencia: cierre y reapertura aterrizan directamente en el panel.
+- Revisión: bienvenida y tour abren desde Ajustes y regresan al mismo scroll.
+- Teclado: foco inicial, `Tab`, `Shift+Tab`, `Return`, `Space` y `Escape`.
+- Servicio: watcher `running`, automático activo y `configWarnings` vacío.
+- Validador oficial: correcto.
 - Suite: 45 pruebas, 0 fallos.
-- Benchmark: p95 de 1,938 ms para 1 MiB en esta ejecución.
-- Soak acelerado de ocho horas: 28.800 eventos, una escritura y cero errores.
-- `git diff --check`: correcto.
+- Soak acelerado: 28.800 eventos, una escritura y cero errores.
 
 ## Prueba de aceptación del usuario
 
-1. Abre el panel con `omarchy-shell shell summon io.github.r-bart.omaplain '{}'`.
-2. Comprueba que entiendes en menos de cinco segundos el estado, la acción principal y cómo omitir una copia.
-3. Recorre todo con `Tab` y `Shift+Tab`; el foco debe ser visible y el panel debe hacer scroll sin perderlo.
-4. En «Clase de aplicación», pulsa `Enter` con el campo vacío. El error debe quedar visible. Escribe un carácter: debe volver inmediatamente al texto de ayuda.
-5. Pulsa «Limpiar portapapeles ahora» con un texto con formato no sensible. El resultado debe aparecer bajo las acciones sin desplazar «Modo».
-6. Desactiva y reactiva «Limpiar automáticamente». El texto de contexto debe cambiar sin saltos y el historial nativo debe seguir disponible.
-7. Cierra con `Escape`, vuelve a abrir y confirma que el foco inicial está en «Limpiar portapapeles ahora».
+1. Para revisar la experiencia ahora, abre el panel y usa `Shift+Tab` desde la
+   acción principal: llegarás a «Repetir mini tour» y «Revisar bienvenida».
+2. Comprueba que la bienvenida explica en menos de diez segundos qué limpia y
+   qué conserva.
+3. Completa los tres pasos con teclado y confirma que «Abrir OmaPlain» termina
+   en el panel habitual.
+4. Reabre el panel: la bienvenida no debe aparecer de nuevo.
+5. En Ajustes, repite cualquiera de las dos guías y sal; el scroll debe volver
+   a «Ayuda y aprendizaje».
+6. Cambia temporalmente «Limpiar automáticamente» y confirma que estado, texto
+   auxiliar y color cambian juntos sin mover la estructura del encabezado.
 
-No uses secretos reales para la prueba. Un texto como `Hola` con negrita y una URL de prueba con `utm_source` son suficientes.
+No uses secretos reales para la prueba. Un texto con negrita y una URL de
+ejemplo con `utm_source` son suficientes.

@@ -62,7 +62,8 @@ Item {
       sourceExclusions: [],
       targetExclusions: [],
       maxBytes: 1048576,
-      notifyOnError: true
+      notifyOnError: true,
+      onboardingVersion: 0
     }
   }
 
@@ -180,7 +181,7 @@ Item {
       "automatic", "stripFormatting", "removeTracking", "removeInvisible",
       "normalizeLineEndings", "normalizeQuotes", "normalizeLists",
       "normalizeUnicodeNfc", "trimTrailingWhitespace", "sourceExclusions",
-      "targetExclusions", "maxBytes", "notifyOnError"
+      "targetExclusions", "maxBytes", "notifyOnError", "onboardingVersion"
     ]
     if (allowed.indexOf(String(name)) === -1 || !shell || typeof shell.updateEntryInline !== "function")
       return false

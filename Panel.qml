@@ -17,13 +17,25 @@ Item {
   property string feedback: ""
   property bool feedbackError: false
   property bool focusReady: false
+  property string viewMode: "main"
+  property string learningOrigin: "first-run"
+  property string tourEntry: "welcome"
+  property int tourStep: 0
+  property real savedSettingsScroll: 0
+  property string mainFocusTarget: "clean"
 
   readonly property var settings: service && service.settings ? service.settings : ({})
   readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "io.github.r-bart.omaplain"
   readonly property string watcherState: service ? service.watcherState : "starting"
+  readonly property int onboardingVersion: 1
 
   function open(payloadJson) {
     if (service) service.captureCurrentApp()
+    viewMode = Number(setting("onboardingVersion", 0)) >= onboardingVersion ? "main" : "welcome"
+    learningOrigin = viewMode === "welcome" ? "first-run" : "main"
+    tourEntry = "welcome"
+    tourStep = 0
+    mainFocusTarget = "clean"
     opened = true
     feedback = ""
     fieldError = ""
@@ -45,6 +57,53 @@ Item {
     else close()
   }
 
+  function markOnboardingComplete() {
+    if (service && Number(setting("onboardingVersion", 0)) < onboardingVersion)
+      service.updateSetting("onboardingVersion", onboardingVersion)
+  }
+
+  function showWelcome(origin) {
+    learningOrigin = origin || "settings"
+    if (learningOrigin === "settings") {
+      savedSettingsScroll = scroll.contentY
+      mainFocusTarget = "welcome"
+    }
+    viewMode = "welcome"
+  }
+
+  function showTour(origin, entry) {
+    learningOrigin = origin || "settings"
+    tourEntry = entry || "settings"
+    if (learningOrigin === "settings" && viewMode === "main") {
+      savedSettingsScroll = scroll.contentY
+      mainFocusTarget = "tour"
+    }
+    tourStep = 0
+    viewMode = "tour"
+  }
+
+  function showMain(markComplete) {
+    if (markComplete) markOnboardingComplete()
+    viewMode = "main"
+  }
+
+  function advanceTour() {
+    if (tourStep < 2) {
+      tourStep += 1
+      return
+    }
+    showMain(true)
+  }
+
+  function retreatTour() {
+    if (tourStep > 0) {
+      tourStep -= 1
+      return
+    }
+    if (tourEntry === "welcome") viewMode = "welcome"
+    else showMain(false)
+  }
+
   function setting(name, fallback) {
     var value = settings ? settings[name] : undefined
     return value === undefined || value === null ? fallback : value
@@ -58,7 +117,7 @@ Item {
     if (!setting("automatic", true)) return "La limpieza automática está pausada. Las acciones manuales siguen disponibles."
     if (service.status && service.status.skipNext === true) return "Se omitirá la próxima copia elegible."
     if (service.status && service.status.lastResult === "cleaned") return "Listo · última limpieza completada"
-    return "Listo para limpiar texto elegible."
+    return "OmaPlain ordena el formato y deja intacto todo lo que no puede limpiar con seguridad."
   }
 
   function historyDetail() {
@@ -125,7 +184,7 @@ Item {
   }
 
   function reveal(item) {
-    if (!focusReady || !item || !contentColumn) return
+    if (viewMode !== "main" || !focusReady || !item || !contentColumn) return
     var point = item.mapToItem(contentColumn, 0, 0)
     var top = point.y
     var bottom = top + item.height
@@ -135,6 +194,11 @@ Item {
   }
 
   onOpenedChanged: if (!opened) feedbackTimer.stop()
+  onViewModeChanged: {
+    if (!opened) return
+    focusReady = false
+    initialFocusTimer.restart()
+  }
 
   Connections {
     target: root.service
@@ -157,12 +221,23 @@ Item {
     repeat: false
     onTriggered: {
       if (!root.opened) return
-      scroll.contentY = 0
       focusScope.forceActiveFocus()
-      cleanButton.forceActiveFocus()
+      if (root.viewMode === "welcome") {
+        welcomePage.forceInitialFocus()
+      } else if (root.viewMode === "tour") {
+        tourPage.forceInitialFocus()
+      } else {
+        scroll.contentY = root.learningOrigin === "settings" ? root.savedSettingsScroll : 0
+        if (root.mainFocusTarget === "welcome") welcomeReplayButton.forceActiveFocus()
+        else if (root.mainFocusTarget === "tour") tourReplayButton.forceActiveFocus()
+        else cleanButton.forceActiveFocus()
+      }
       Qt.callLater(function() {
-        scroll.contentY = 0
         root.focusReady = true
+        if (root.viewMode === "main") {
+          if (root.mainFocusTarget === "welcome") root.reveal(welcomeReplayButton)
+          else if (root.mainFocusTarget === "tour") root.reveal(tourReplayButton)
+        }
       })
     }
   }
@@ -204,6 +279,34 @@ Item {
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
+        WelcomePage {
+          id: welcomePage
+          anchors.fill: parent
+          visible: root.viewMode === "welcome"
+          enabled: visible
+          returning: root.learningOrigin === "settings"
+          onStartRequested: root.showTour(root.learningOrigin, "welcome")
+          onDismissRequested: root.showMain(true)
+        }
+
+        TourPage {
+          id: tourPage
+          anchors.fill: parent
+          visible: root.viewMode === "tour"
+          enabled: visible
+          step: root.tourStep
+          replaying: root.learningOrigin === "settings"
+          onBackRequested: root.retreatTour()
+          onNextRequested: root.advanceTour()
+          onDismissRequested: root.showMain(true)
+        }
+
+        Item {
+          id: mainPage
+          anchors.fill: parent
+          visible: root.viewMode === "main"
+          enabled: visible
+
         Column {
           id: primaryColumn
           anchors.top: parent.top
@@ -218,40 +321,45 @@ Item {
             detail: root.statusDetail()
           }
 
-          Button {
-            id: cleanButton
+          Grid {
+            id: primaryActions
             width: parent.width
-            implicitHeight: 48
-            text: service && service.actionBusy ? "Limpiando…" : "Limpiar portapapeles ahora"
-            iconText: service && service.actionBusy ? "" : "󰅍"
-            focusable: true
-            bordered: true
-            selected: true
-            foreground: Color.popups.text
-            enabled: service && !service.actionBusy
-            Accessible.role: Accessible.Button
-            Accessible.name: text
-            Accessible.onPressAction: root.runAction("cleanNow")
-            onClicked: root.runAction("cleanNow")
-          }
+            columns: width < Style.space(410) ? 1 : 2
+            columnSpacing: Style.space(8)
+            rowSpacing: Style.space(8)
 
-          Button {
-            id: skipButton
-            width: parent.width
-            implicitHeight: 44
-            text: service && service.status && service.status.skipNext ? "Se omitirá la próxima copia" : "Omitir la próxima copia"
-            focusable: true
-            bordered: true
-            foreground: Color.popups.text
-            enabled: service && !service.actionBusy
-            Accessible.role: Accessible.Button
-            Accessible.name: text
-            Accessible.onPressAction: root.runAction("skipNext")
-            onClicked: root.runAction("skipNext")
+            PrimaryButton {
+              id: cleanButton
+              width: primaryActions.columns === 1
+                ? primaryActions.width
+                : Math.round((primaryActions.width - primaryActions.columnSpacing) * 0.58)
+              text: service && service.actionBusy ? "Limpiando…" : "Limpiar portapapeles ahora"
+              iconText: service && service.actionBusy ? "" : "󰅍"
+              enabled: service && !service.actionBusy
+              onClicked: root.runAction("cleanNow")
+            }
+
+            Button {
+              id: skipButton
+              width: primaryActions.columns === 1
+                ? primaryActions.width
+                : primaryActions.width - cleanButton.width - primaryActions.columnSpacing
+              implicitHeight: Style.space(44)
+              text: service && service.status && service.status.skipNext ? "Se omitirá la próxima copia" : "Omitir la próxima copia"
+              focusable: true
+              bordered: true
+              foreground: Color.popups.text
+              enabled: service && !service.actionBusy
+              Accessible.role: Accessible.Button
+              Accessible.name: text
+              Accessible.onPressAction: root.runAction("skipNext")
+              onClicked: root.runAction("skipNext")
+            }
           }
 
           Text {
             width: parent.width
+            height: Math.max(implicitHeight, Style.space(32))
             text: root.feedback !== ""
               ? root.feedback
               : "El original permanece intacto si la limpieza no es segura."
@@ -539,6 +647,65 @@ Item {
             }
 
             Text {
+              text: "Ayuda y aprendizaje"
+              color: Color.popups.text
+              font.family: Style.font.family
+              font.pixelSize: Style.font.subtitle
+              font.bold: true
+            }
+
+            Text {
+              width: parent.width
+              text: "Vuelve a la explicación inicial o repite el recorrido sin cambiar tu configuración."
+              color: Util.alpha(Color.popups.text, 0.68)
+              font.family: Style.font.family
+              font.pixelSize: Style.font.bodySmall
+              lineHeightMode: Text.ProportionalHeight
+              lineHeight: 1.45
+              wrapMode: Text.WordWrap
+            }
+
+            Grid {
+              id: learningActions
+              width: parent.width
+              columns: width < Style.space(360) ? 1 : 2
+              columnSpacing: Style.space(8)
+              rowSpacing: Style.space(8)
+
+              Button {
+                id: welcomeReplayButton
+                width: (learningActions.width - (learningActions.columns - 1) * learningActions.columnSpacing) / learningActions.columns
+                implicitHeight: Style.space(44)
+                text: "Revisar bienvenida"
+                focusable: true
+                bordered: true
+                foreground: Color.popups.text
+                Accessible.role: Accessible.Button
+                Accessible.name: text
+                Accessible.description: "Abre de nuevo la explicación de OmaPlain"
+                Accessible.onPressAction: root.showWelcome("settings")
+                onActiveFocusChanged: if (activeFocus) root.reveal(welcomeReplayButton)
+                onClicked: root.showWelcome("settings")
+              }
+
+              Button {
+                id: tourReplayButton
+                width: (learningActions.width - (learningActions.columns - 1) * learningActions.columnSpacing) / learningActions.columns
+                implicitHeight: Style.space(44)
+                text: "Repetir mini tour"
+                focusable: true
+                bordered: true
+                foreground: Color.popups.text
+                Accessible.role: Accessible.Button
+                Accessible.name: text
+                Accessible.description: "Inicia de nuevo el recorrido de tres pasos"
+                Accessible.onPressAction: root.showTour("settings", "settings")
+                onActiveFocusChanged: if (activeFocus) root.reveal(tourReplayButton)
+                onClicked: root.showTour("settings", "settings")
+              }
+            }
+
+            Text {
               text: "Privacidad"
               color: Color.popups.text
               font.family: Style.font.family
@@ -555,6 +722,7 @@ Item {
               wrapMode: Text.WordWrap
             }
           }
+        }
         }
       }
     }
