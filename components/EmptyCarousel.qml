@@ -22,15 +22,15 @@ Item {
   // resto. Sin ajuste de línea y con altura fija, porque si cada elemento
   // midiera distinto el panel entero cambiaría de tamaño cada 2,6 segundos.
   readonly property var samples: [
-    { kind: "empty.kind.link",
+    { kind: "empty.kind.link", art: "link",
       head: "tienda.ejemplo.com/zapatillas?",
       spare: "utm_source=boletin&utm_medium=email&",
       tail: "talla=42" },
-    { kind: "empty.kind.text",
+    { kind: "empty.kind.text", art: "text",
       head: "El pan de masa madre",
       spare: "·ZWSP·",
       tail: " necesita 12 horas." },
-    { kind: "empty.kind.rich",
+    { kind: "empty.kind.rich", art: "rich",
       head: "Resumen ejecutivo  ",
       spare: "+ text/html",
       tail: "" }
@@ -42,7 +42,7 @@ Item {
   implicitWidth: Style.space(460)
   // Alta lo justo para la tarjeta y su aire: el hueco muerto era el motivo
   // por el que esta pantalla se rehízo.
-  implicitHeight: Style.space(96)
+  implicitHeight: Style.space(124)
 
   Accessible.role: Accessible.StaticText
   Accessible.name: Strings.t("empty.art.a11y", root.lang)
@@ -83,7 +83,8 @@ Item {
     id: card
     anchors.centerIn: parent
     width: parent.width
-    height: kind.implicitHeight + body.implicitHeight + Style.space(30)
+    height: Math.max(specimen.implicitHeight + Style.space(22),
+                     kind.implicitHeight + body.implicitHeight + Style.space(30))
     radius: Style.cornerRadius
     color: Style.normalFillFor(Color.popups.text, Color.accent)
     borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
@@ -92,8 +93,19 @@ Item {
     // La tarjeta entra entera; sólo lo que sobra se peina después.
     opacity: root.motionEnabled ? Math.min(1, root.combed * 3 + 0.35) : 1
 
-    Column {
+    // El dibujo a la izquierda, pegado al texto que describe: los dos
+    // pierden lo que sobra con el mismo `combed`, en un solo gesto.
+    CopySpecimen {
+      id: specimen
       anchors.left: parent.left
+      anchors.leftMargin: Style.space(12)
+      anchors.verticalCenter: parent.verticalCenter
+      kind: root.sample.art
+      combed: root.combed
+    }
+
+    Column {
+      anchors.left: specimen.right
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
       anchors.leftMargin: Style.space(14)

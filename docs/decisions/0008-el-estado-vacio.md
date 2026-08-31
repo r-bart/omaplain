@@ -19,16 +19,22 @@ carácter invisible que no se ve, el `text/html` que desaparece.
 
 ## Decisión
 
-**Carrusel.** Una cosa copiable cada vez, en una tarjeta centrada: qué es, cómo
-llega, y lo que sobra encogiéndose hasta desaparecer en su sitio. Al terminar,
-pasa a la siguiente.
+**Carrusel.** Una cosa copiable cada vez, en una tarjeta: su pieza gráfica, qué
+es, cómo llega, y lo que sobra encogiéndose hasta desaparecer. Al terminar, pasa
+a la siguiente.
+
+Cada ejemplo trae su propio dibujo, en el lenguaje de hojas de la bienvenida: un
+enlace con su cola de seguimiento, un párrafo con el invisible colado entre
+renglones, y dos hojas superpuestas de las que la de formato desaparece. Dibujo
+y texto comparten el mismo avance, así que pierden lo que sobra **en un solo
+gesto** en vez de contar dos historias a destiempo.
 
 | Valor | Elegido |
 |---|---|
 | Permanencia por elemento | 2600 ms |
 | Transición | 620 ms |
 | Curva | `cubic-bezier(0.32, 0.72, 0, 1)` |
-| Altura de la tarjeta | fija, dimensionada para el ejemplo más largo |
+| Altura de la tarjeta | fija, la marca el dibujo |
 | Cuerpo | una sola línea, sin ajuste de línea |
 
 La altura fija y la línea única no son detalles de estilo: con altura variable,
