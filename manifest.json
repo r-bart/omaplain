@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "omapaste.cleaner",
+  "name": "OmaPaste",
+  "version": "0.1.0",
+  "author": "OmaPaste contributors",
+  "license": "GPL-3.0-or-later",
+  "description": "Paste clean text by default while preserving files, images and secrets.",
+  "kinds": [
+    "service",
+    "panel"
+  ],
+  "entryPoints": {
+    "service": "Service.qml",
+    "panel": "Panel.qml"
+  }
+}
+

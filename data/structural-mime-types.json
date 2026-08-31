@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "exact": [
+    "text/uri-list",
+    "x-special/gnome-copied-files",
+    "application/x-kde-cutselection",
+    "application/vnd.portal.filetransfer",
+    "application/x-openoffice-embed-source-xml",
+    "application/x-openoffice-objectdescriptor-xml",
+    "application/x-openoffice-sylk",
+    "application/x-openoffice-dif",
+    "application/x-openoffice-biff-5",
+    "application/x-openoffice-biff-8",
+    "application/x-libreoffice-tsvc",
+    "application/x-libreoffice-emf",
+    "application/x-qt-windows-mime;value=\"FileNameW\"",
+    "application/x-qt-windows-mime;value=\"Shell IDList Array\""
+  ],
+  "prefixes": [
+    "application/x-openoffice-",
+    "application/x-libreoffice-",
+    "application/vnd.oasis.opendocument.",
+    "application/x-kde-ark-",
+    "application/x-qt-windows-mime"
+  ]
+}
+
