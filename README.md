@@ -13,6 +13,7 @@ La versión actual es `0.1.0`. Funciona enteramente en local, no tiene telemetr�
 - Reglas independientes para formato, tracking, invisibles, finales de línea, comillas, viñetas, Unicode NFC y espacios finales.
 - Exclusiones exactas por clase de aplicación, tanto de origen como de destino.
 - Panel nativo de Omarchy Shell, operable con teclado y sin previsualizar contenido.
+- Bienvenida de primera ejecución y tour de tres pasos, ambos revisables desde el panel.
 - Bypass fail-open: ante una duda o error, conserva el portapapeles original.
 
 OmaPlain no reemplaza el historial de Omarchy, no sincroniza dispositivos y no procesa la selección primaria de Wayland.
