@@ -13,6 +13,9 @@ Item {
   property bool returning: false
   property bool motionEnabled: true
 
+  // Lo que mide de verdad, para que el panel pueda ajustarse a ello.
+  readonly property real contentHeight: content.implicitHeight + Style.space(56)
+
   signal startRequested()
   signal dismissRequested()
 

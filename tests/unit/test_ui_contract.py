@@ -277,7 +277,15 @@ class UiContractTests(unittest.TestCase):
             p.name for p in files
             if "TransformationIllustration {" in p.read_text(encoding="utf-8")
         )
-        self.assertEqual(users, ["TourPage.qml", "WelcomePage.qml"])
+        self.assertEqual(users, ["Panel.qml", "TourPage.qml", "WelcomePage.qml"])
+
+        # Panel.qml es la excepción que 0007 registra, y sólo vale para el
+        # portapapeles vacío: sin nada que informar, enseñar no compite con
+        # ningún contenido. El guarda comprueba la condición, no el fichero.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        for block in re.finditer(r"TransformationIllustration \{(?P<body>.*?)\n\s{14}\}", panel, re.DOTALL):
+            with self.subTest(block=block.group("body")[:40]):
+                self.assertIn("visible: root.peekEmpty", block.group("body"))
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
         # La etiqueta larga desbordaba el padding del botón. Vive ahora en

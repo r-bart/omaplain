@@ -66,6 +66,8 @@ Item {
       : Strings.t("detail.clean", root.lang)
   }
 
+  readonly property bool peekEmpty: peek && peek.eligible !== true
+    && String(peek.reason || "") === "empty"
   readonly property var peekApplied: peek && peek.applied ? peek.applied : []
   readonly property var peekTypes: peek && peek.types ? peek.types : []
   readonly property var peekTypesAfter: peek && peek.typesAfter ? peek.typesAfter : []
@@ -381,7 +383,23 @@ Item {
         id: card
         anchors.centerIn: parent
         width: Math.min(Style.space(520), parent.width - Style.space(32))
-        height: Math.min(Style.space(720), parent.height - Style.space(32))
+
+        // La altura sigue al contenido. Antes era fija, así que un estado
+        // corto —una imagen, un secreto, el portapapeles vacío— dejaba
+        // cientos de píxeles muertos debajo del texto.
+        //
+        // Sólo hay techo, para que los ajustes no se coman la pantalla. No
+        // hay suelo: el estado más corto —el portapapeles vacío— ya trae
+        // cabecera, estado, veredicto, explicación y nota, así que un
+        // mínimo no protegía de nada y sólo dejaba hueco muerto debajo.
+        readonly property real contentHeight: {
+          if (root.viewMode === "welcome") return welcomePage.contentHeight
+          if (root.viewMode === "tour") return tourPage.contentHeight
+          return Style.space(20) + primaryColumn.implicitHeight
+               + Style.space(12) + contentColumn.implicitHeight
+               + Style.space(20)
+        }
+        height: Math.min(Style.space(720), contentHeight, parent.height - Style.space(32))
         radius: Style.cornerRadius
         color: Color.popups.background
         borderSpec: Border.surfaceSpec("popups", "border", Color.popups.border, Math.max(1, Style.normalBorderWidth))
@@ -573,6 +591,17 @@ Item {
                 onFocusEntered: function(item) { root.reveal(item) }
               }
 
+              // Un portapapeles vacío no es un error ni una lista sin
+              // elementos: es la pantalla que ve alguien que acaba de
+              // llegar. Así que enseña de qué va esto y ofrece aprenderlo.
+              TransformationIllustration {
+                lang: root.lang
+                width: parent.width
+                height: Style.space(150)
+                visible: root.peekEmpty
+                variant: "waiting"
+              }
+
               // Cuando sólo se retira el formato, las dos filas salen
               // idénticas: el cambio hay que enseñarlo aquí o no se ve.
               MimeChips {
@@ -694,8 +723,29 @@ Item {
                 }
               }
 
+              Button {
+                id: emptyHowButton
+                width: parent.width
+                visible: root.peekEmpty
+                implicitHeight: Style.space(44)
+                text: Strings.t("empty.how", root.lang)
+                iconText: "→"
+                focusable: true
+                bordered: true
+                foreground: Color.accent
+                Accessible.role: Accessible.Button
+                Accessible.name: Strings.t("empty.how", root.lang)
+                Accessible.description: Strings.t("empty.how.a11y", root.lang)
+                Accessible.onPressAction: root.showTour("main", "main")
+                onActiveFocusChanged: if (activeFocus) root.reveal(emptyHowButton)
+                onClicked: root.showTour("main", "main")
+              }
+
               Text {
                 width: parent.width
+                // En el vacío la nota sobra: decía «no hay acción que
+                // ofrecer» justo debajo del botón que ofrece una.
+                visible: !root.peekEmpty || root.feedback !== ""
                 text: root.feedback !== ""
                   ? root.feedback
                   : (root.peekReady

@@ -57,7 +57,7 @@ var EN = {
   "verdict.image": "An image is left alone",
   "verdict.files": "Files, untouched",
   "verdict.structured": "Structured format, untouched",
-  "verdict.empty": "Nothing copied yet",
+  "verdict.empty": "Waiting for your next copy",
   "verdict.preparing": "Getting ready…",
 
   "detail.cleanable": "This is how it stands and how it would end up.",
@@ -66,7 +66,7 @@ var EN = {
   "detail.sensitive": "Your password manager marked this copy. OmaPlain does not read it, does not show it and does not rewrite it.",
   "detail.image": "OmaPlain does not even read it. Screenshots reach their destination byte for byte.",
   "detail.files": "Copying files moves paths and permissions. Rewriting that would break the paste.",
-  "detail.empty": "Copy something and you will see here what OmaPlain would do with it.",
+  "detail.empty": "Copy anything and this screen shows what OmaPlain would do with it — before it does it.",
 
   // --- Filas ---
   "row.now": "Now",
@@ -220,6 +220,8 @@ var EN = {
   "chips.plain.a11y": "The clipboard offers %1.",
   "notify.title": "OmaPlain stopped cleaning",
   "notify.body": "Open the panel to check the service. What you copied is intact.",
+  "empty.how": "See how it works",
+  "empty.how.a11y": "Opens the three-step walkthrough",
   "art.copied": "Copied",
   "art.clean": "Clean"
 };
@@ -267,7 +269,7 @@ var ES = {
   "verdict.image": "Una imagen no se toca",
   "verdict.files": "Archivos, intactos",
   "verdict.structured": "Formato estructurado, intacto",
-  "verdict.empty": "Nada copiado todavía",
+  "verdict.empty": "Esperando tu próxima copia",
   "verdict.preparing": "Preparando…",
 
   "detail.cleanable": "Así está ahora y así quedaría.",
@@ -276,7 +278,7 @@ var ES = {
   "detail.sensitive": "Tu gestor de contraseñas marcó esta copia. OmaPlain no la lee, no la muestra y no la reescribe.",
   "detail.image": "OmaPlain ni la lee. Las capturas llegan a su destino byte a byte.",
   "detail.files": "Copiar archivos mueve rutas y permisos. Reescribir eso rompería el pegado.",
-  "detail.empty": "Copia algo y aquí verás qué haría OmaPlain con ello.",
+  "detail.empty": "Copia cualquier cosa y esta pantalla te enseñará qué haría OmaPlain con ello, antes de hacerlo.",
 
   "row.now": "Ahora",
   "row.would": "Quedaría",
@@ -419,6 +421,8 @@ var ES = {
   "chips.plain.a11y": "El portapapeles ofrece %1.",
   "notify.title": "OmaPlain ha dejado de limpiar",
   "notify.body": "Abre el panel para revisar el servicio. Lo que copiaste está intacto.",
+  "empty.how": "Ver cómo funciona",
+  "empty.how.a11y": "Abre el recorrido de tres pasos",
   "art.copied": "Copiado",
   "art.clean": "Limpio"
 };

@@ -344,5 +344,73 @@ Item {
         }
       }
     }
+    // «waiting» — el portapapeles vacío. No dibuja una ausencia sino una
+    // disposición: una hoja preparada, con el sitio de las líneas marcado
+    // pero sin líneas todavía. El acento se reserva para el punto que
+    // señala dónde aterrizará lo próximo que copies.
+    Item {
+      anchors.fill: parent
+      visible: root.variant === "waiting"
+
+      BorderSurface {
+        id: sheet
+        width: Style.space(150)
+        height: Style.space(132)
+        anchors.centerIn: parent
+        rotation: -3
+        radius: Math.max(2, Style.cornerRadius - Style.space(2))
+        color: Style.normalFillFor(Color.popups.text, Color.accent)
+        borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
+
+        Column {
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.leftMargin: Style.space(18)
+          anchors.rightMargin: Style.space(18)
+          spacing: Style.space(10)
+
+          // Renglones fantasma: el hueco donde caerá el texto, no el texto.
+          Repeater {
+            model: [0.9, 0.66, 0.8]
+            delegate: Rectangle {
+              required property real modelData
+              required property int index
+              width: parent.width * modelData
+              height: Style.space(7)
+              radius: height / 2
+              color: Util.alpha(Color.popups.text, 0.16 - index * 0.03)
+            }
+          }
+        }
+      }
+
+      // El punto de llegada, en acento, medio fuera de la hoja: lo próximo
+      // que copies entra por aquí.
+      Rectangle {
+        width: Style.space(30)
+        height: width
+        radius: width / 2
+        anchors.horizontalCenter: sheet.horizontalCenter
+        anchors.horizontalCenterOffset: Style.space(56)
+        anchors.verticalCenter: sheet.verticalCenter
+        anchors.verticalCenterOffset: Style.space(42)
+        color: Color.accent
+        // Entra con la escena, sin bucle: es un adorno, no un latido.
+        opacity: root.entered
+        scale: 0.8 + 0.2 * root.entered
+        transformOrigin: Item.Center
+
+        Text {
+          anchors.centerIn: parent
+          text: "+"
+          color: Color.background
+          font.family: Style.font.family
+          font.pixelSize: Style.font.heading
+          font.bold: true
+        }
+      }
+    }
+
   }
 }
