@@ -585,42 +585,67 @@ Item {
                 types: root.peekTypes
               }
 
-              // El desglose: qué regla actuó y qué ajuste la gobierna.
-              Column {
+              // El desglose es una cuenta de lo que pasa, no unas frases
+              // sueltas: una sola superficie, con las filas separadas por un
+              // filete y cada ajuste pegado a la suya.
+              BorderSurface {
                 width: parent.width
                 visible: root.peekChanges
-                spacing: Style.space(6)
+                implicitHeight: breakdownRows.implicitHeight
+                radius: Style.cornerRadius
+                color: Style.normalFillFor(Color.popups.text, Color.accent)
+                borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
+                clip: true
 
-                Repeater {
-                  model: root.peekApplied
-                  delegate: Item {
-                    required property string modelData
-                    width: clipboardPage.width
-                    height: Math.max(ruleText.implicitHeight, ruleChip.implicitHeight)
+                Column {
+                  id: breakdownRows
+                  anchors.left: parent.left
+                  anchors.right: parent.right
+                  anchors.top: parent.top
 
-                    Accessible.role: Accessible.StaticText
-                    Accessible.name: Strings.f("rule.removed.a11y", root.lang, root.ruleLabel(modelData), root.settingFor(modelData))
+                  Repeater {
+                    model: root.peekApplied
+                    delegate: Item {
+                      required property string modelData
+                      required property int index
+                      width: breakdownRows.width
+                      height: Math.max(Style.space(38), ruleText.implicitHeight + Style.space(16))
 
-                    Text {
-                      id: ruleText
-                      anchors.left: parent.left
-                      anchors.right: ruleChip.left
-                      anchors.rightMargin: Style.space(8)
-                      anchors.verticalCenter: parent.verticalCenter
-                      text: "✕  " + root.ruleLabel(modelData)
-                      color: Util.alpha(Color.popups.text, 0.72)
-                      font.family: Style.font.family
-                      font.pixelSize: Style.font.bodySmall
-                      wrapMode: Text.WordWrap
-                    }
+                      Accessible.role: Accessible.StaticText
+                      Accessible.name: Strings.f("rule.removed.a11y", root.lang, root.ruleLabel(modelData), root.settingFor(modelData))
 
-                    Chip {
+                      // Filete entre filas, nunca encima de la primera.
+                      Rectangle {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        height: Math.max(1, Style.normalBorderWidth)
+                        color: Util.alpha(Color.popups.text, 0.14)
+                        visible: index > 0
+                      }
 
-                      id: ruleChip
-                      anchors.right: parent.right
-                      anchors.verticalCenter: parent.verticalCenter
-                      label: root.settingFor(modelData)
-                      visible: label !== ""
+                      Text {
+                        id: ruleText
+                        anchors.left: parent.left
+                        anchors.leftMargin: Style.space(11)
+                        anchors.right: ruleChip.left
+                        anchors.rightMargin: Style.space(8)
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "✕  " + root.ruleLabel(modelData)
+                        color: Util.alpha(Color.popups.text, 0.72)
+                        font.family: Style.font.family
+                        font.pixelSize: Style.font.bodySmall
+                        wrapMode: Text.WordWrap
+                      }
+
+                      Chip {
+                        id: ruleChip
+                        anchors.right: parent.right
+                        anchors.rightMargin: Style.space(11)
+                        anchors.verticalCenter: parent.verticalCenter
+                        label: root.settingFor(modelData)
+                        visible: label !== ""
+                      }
                     }
                   }
                 }
