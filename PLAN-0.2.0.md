@@ -61,14 +61,14 @@ de onboarding hoy no pinta ni un control.
 
 ### Trabajo
 
-- [ ] `A.1` Añadir `import qs.Commons` a `components/SettingRow.qml`.
-- [ ] `A.2` Añadir un test de contrato general: todo `.qml` que use `Style`,
+- [x] `A.1` Añadir `import qs.Commons` a `components/SettingRow.qml`.
+- [x] `A.2` Añadir un test de contrato general: todo `.qml` que use `Style`,
       `Color`, `Util` o `Border` debe importar `qs.Commons`. Un import que falta
       no lo detecta un test que sólo busca cadenas.
-- [ ] `A.3` Verificar en el panel real, tras `omarchy restart shell`, que los
+- [x] `A.3` Verificar en el panel real, tras `omarchy restart shell`, que los
       nueve controles se renderizan y responden.
-- [ ] `A.4` Documentar en `README.md` que recargar QML exige reiniciar el shell.
-- [ ] `A.5` Registrar en `docs/TEST-REPORT.md` que la `0.1.0` se publicó con
+- [x] `A.4` Documentar en `README.md` que recargar QML exige reiniciar el shell.
+- [x] `A.5` Registrar en `docs/TEST-REPORT.md` que la `0.1.0` se publicó con
       todos los toggles invisibles, y por qué la suite no lo detectó.
 
 ### Criterios de salida
@@ -85,18 +85,18 @@ invariante documentado del proyecto.
 
 ### Trabajo
 
-- [ ] `B.1` Escribir `docs/decisions/0005-previsualizacion-del-portapapeles.md`.
+- [x] `B.1` Escribir `docs/decisions/0005-previsualizacion-del-portapapeles.md`.
       Revierte el «Evitar: mostrar una previsualización del contenido real del
       portapapeles» de `UX-OPPORTUNITIES.md` y fija la distinción que salva el
       invariante: **el contenido puede llegar al panel; no puede persistirse**.
-- [ ] `B.2` Escribir `docs/decisions/0006-orden-del-onboarding.md`. **Puerta de
+- [x] `B.2` Escribir `docs/decisions/0006-orden-del-onboarding.md`. **Puerta de
       decisión, ver abajo.**
-- [ ] `B.3` Reformular `F4.5` y la «Definición operativa de terminado» de
+- [x] `B.3` Reformular `F4.5` y la «Definición operativa de terminado» de
       `PLAN.md`: la auditoría deja de buscar contenido en la UI y pasa a
       buscarlo en logs, estado en disco, notificaciones y `stdout`/`stderr`.
-- [ ] `B.4` Actualizar `UX-OPPORTUNITIES.md` retirando el «Evitar» revertido y
+- [x] `B.4` Actualizar `UX-OPPORTUNITIES.md` retirando el «Evitar» revertido y
       anotando la regla que lo sustituye.
-- [ ] `B.5` Actualizar `SECURITY.md` con el nuevo modelo: qué se muestra, qué no
+- [x] `B.5` Actualizar `SECURITY.md` con el nuevo modelo: qué se muestra, qué no
       se muestra nunca, y qué ve alguien que esté compartiendo pantalla.
 
 ### Puerta de decisión — orden del onboarding
