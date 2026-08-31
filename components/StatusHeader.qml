@@ -15,7 +15,7 @@ BorderSurface {
   readonly property color stateColor: failed ? Color.urgent : (healthy ? Color.accent : Color.muted)
 
   implicitWidth: Style.space(460)
-  implicitHeight: content.implicitHeight + Style.space(32)
+  implicitHeight: Math.max(Style.space(80), content.implicitHeight + Style.space(32))
   radius: Style.cornerRadius
   color: Style.normalFillFor(Color.popups.text, Color.accent)
   borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
@@ -76,4 +76,3 @@ BorderSurface {
     }
   }
 }
-

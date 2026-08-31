@@ -61,6 +61,14 @@ Item {
     return "Listo para limpiar texto elegible."
   }
 
+  function historyDetail() {
+    if (!setting("automatic", true))
+      return "La limpieza manual y «pegar limpio» siguen disponibles."
+    if (setting("removeTracking", true) || setting("removeInvisible", true))
+      return "El historial puede conservar también el original cuando cambian caracteres."
+    return "La copia automática conserva los caracteres del texto."
+  }
+
   function actionMessage(raw) {
     var data = {}
     try { data = JSON.parse(String(raw || "{}")) } catch (error) {}
@@ -94,10 +102,12 @@ Item {
     var result = service.addExclusion(scope, value)
     if (result === "invalid") {
       fieldError = "Introduce una clase de aplicación válida"
+      Qt.callLater(function() { root.reveal(fieldMessage) })
       return
     }
     if (result === "duplicate") {
       fieldError = "Esta aplicación ya está excluida"
+      Qt.callLater(function() { root.reveal(fieldMessage) })
       return
     }
     fieldError = ""
@@ -107,6 +117,7 @@ Item {
   function excludeDetected() {
     if (!service || !service.currentAppClass) {
       fieldError = "No se ha detectado una aplicación"
+      Qt.callLater(function() { root.reveal(fieldMessage) })
       return
     }
     classField.text = service.currentAppClass
@@ -135,7 +146,7 @@ Item {
 
   Timer {
     id: feedbackTimer
-    interval: 1500
+    interval: 2500
     repeat: false
     onTriggered: root.feedback = ""
   }
@@ -240,14 +251,17 @@ Item {
           }
 
           Text {
-            visible: root.feedback !== ""
             width: parent.width
-            text: root.feedback
-            color: root.feedbackError ? Color.urgent : Color.popups.text
+            text: root.feedback !== ""
+              ? root.feedback
+              : "El original permanece intacto si la limpieza no es segura."
+            color: root.feedback !== ""
+              ? (root.feedbackError ? Color.urgent : Color.popups.text)
+              : Util.alpha(Color.popups.text, 0.62)
             font.family: Style.font.family
-            font.pixelSize: Style.font.body
+            font.pixelSize: Style.font.caption
             wrapMode: Text.WordWrap
-            Accessible.role: Accessible.AlertMessage
+            Accessible.role: root.feedback !== "" ? Accessible.AlertMessage : Accessible.StaticText
             Accessible.name: text
           }
         }
@@ -293,10 +307,8 @@ Item {
             }
 
             Text {
-              visible: root.setting("automatic", true)
-                && (root.setting("removeTracking", true) || root.setting("removeInvisible", true))
               width: parent.width
-              text: "El historial puede conservar también el original cuando cambian caracteres."
+              text: root.historyDetail()
               color: Util.alpha(Color.popups.text, 0.68)
               font.family: Style.font.family
               font.pixelSize: Style.font.caption
@@ -441,11 +453,18 @@ Item {
             }
 
             Text {
+              id: classFieldLabel
               text: "Clase de aplicación"
               color: Color.popups.text
               font.family: Style.font.family
               font.pixelSize: Style.font.body
               font.bold: true
+
+              MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: classField.forceActiveFocus()
+              }
             }
 
             TextField {
@@ -457,19 +476,24 @@ Item {
               selectByMouse: true
               maximumLength: 256
               Accessible.name: "Clase de aplicación"
-              Accessible.description: "Clase exacta de Hyprland que se excluirá"
+              Accessible.description: root.fieldError !== ""
+                ? root.fieldError
+                : "Clase exacta de Hyprland que se excluirá"
+              inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
               onAccepted: root.submitExclusion("source")
-              onEditingFinished: if (root.fieldError !== "" && text.trim() !== "") root.fieldError = ""
+              onTextChanged: if (root.fieldError !== "") root.fieldError = ""
               onActiveFocusChanged: if (activeFocus) root.reveal(classField)
             }
 
-            Row {
+            Grid {
               width: parent.width
-              spacing: Style.space(8)
+              columns: width < Style.space(360) ? 1 : 2
+              columnSpacing: Style.space(8)
+              rowSpacing: Style.space(8)
 
               Button {
                 id: addSourceButton
-                width: (parent.width - parent.spacing) / 2
+                width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
                 implicitHeight: 44
                 text: "Añadir como origen"
                 focusable: true
@@ -484,7 +508,7 @@ Item {
 
               Button {
                 id: addTargetButton
-                width: (parent.width - parent.spacing) / 2
+                width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
                 implicitHeight: 44
                 text: "Añadir como destino"
                 focusable: true
@@ -499,15 +523,19 @@ Item {
             }
 
             Text {
-              visible: root.fieldError !== ""
+              id: fieldMessage
               width: parent.width
-              text: "⚠ " + root.fieldError
-              color: Color.urgent
+              text: root.fieldError !== ""
+                ? "⚠ " + root.fieldError
+                : "Distingue entre mayúsculas y minúsculas."
+              color: root.fieldError !== ""
+                ? Color.urgent
+                : Util.alpha(Color.popups.text, 0.62)
               font.family: Style.font.family
               font.pixelSize: Style.font.caption
               wrapMode: Text.WordWrap
-              Accessible.role: Accessible.AlertMessage
-              Accessible.name: root.fieldError
+              Accessible.role: root.fieldError !== "" ? Accessible.AlertMessage : Accessible.StaticText
+              Accessible.name: text
             }
 
             Text {

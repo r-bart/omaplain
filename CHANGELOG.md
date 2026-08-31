@@ -2,6 +2,16 @@
 
 Todos los cambios relevantes de OmaPlain se documentan aquí.
 
+## Sin publicar
+
+### Mejorado
+
+- Estabilidad visual del panel: estado, ayuda, feedback y validación conservan su espacio.
+- Los errores de exclusión entran automáticamente en el área visible y se limpian al corregir el campo.
+- El label de clase enfoca su campo y el teclado predictivo queda desactivado para identificadores técnicos.
+- Los botones de exclusión se apilan en paneles estrechos.
+- El encabezado reserva espacio para estados de dos líneas sin desplazar las acciones.
+
 ## 0.1.0 — 2026-08-31
 
 Primera versión local lista para catálogo.
