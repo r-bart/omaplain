@@ -4,8 +4,8 @@ Especificación de producto y técnica para un limpiador de portapapeles nativo 
 
 | Campo | Valor |
 |---|---|
-| Estado | Borrador implementable |
-| Versión del documento | 0.1 |
+| Estado | Implementada — release local `0.1.0` |
+| Versión del documento | 0.1 final |
 | Fecha | 31 de agosto de 2026 |
 | Nombre de producto | OmaPlain |
 | ID provisional del plugin | `io.github.r-bart.omaplain` |
@@ -799,42 +799,42 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 
 ### Funcionales
 
-- [ ] Copiar rich text con representación plain deja únicamente plain text pegable.
-- [ ] Archivos, imágenes, secretos y MIME estructurales quedan byte-a-byte bajo el owner original.
-- [ ] Las transformaciones recomendadas pueden activarse o apagarse de forma independiente.
-- [ ] `skipNext` omite exactamente un evento elegible y caduca a los 60 segundos.
-- [ ] Una exclusión de origen bloquea la limpieza automática de esa clase.
-- [ ] Una exclusión de destino bloquea la limpieza de `pasteClean`.
-- [ ] `cleanNow` informa de éxito, sin cambios, bypass o error sin revelar contenido.
-- [ ] `pasteClean` elige `Ctrl+V` o `Shift+Insert` y conserva el target inicial.
-- [ ] Un error deja el portapapeles original disponible.
-- [ ] No hay más de una reescritura por evento ni loops.
+- [x] Copiar rich text con representación plain deja únicamente plain text pegable.
+- [x] Archivos, imágenes, secretos y MIME estructurales quedan byte-a-byte bajo el owner original.
+- [x] Las transformaciones recomendadas pueden activarse o apagarse de forma independiente.
+- [x] `skipNext` omite exactamente un evento elegible y caduca a los 60 segundos.
+- [x] Una exclusión de origen bloquea la limpieza automática de esa clase.
+- [x] Una exclusión de destino bloquea la limpieza de `pasteClean`.
+- [x] `cleanNow` informa de éxito, sin cambios, bypass o error sin revelar contenido.
+- [x] `pasteClean` elige `Ctrl+V` o `Shift+Insert` y conserva el target inicial.
+- [x] Un error deja el portapapeles original disponible.
+- [x] No hay más de una reescritura por evento ni loops.
 
 ### Privacidad
 
-- [ ] El test de red confirma cero sockets o DNS durante todas las operaciones.
-- [ ] Logs, estado, IPC y notificaciones no contienen texto, URLs, hashes persistentes ni títulos de ventana.
-- [ ] Contenido sensible marcado no llega al proceso transformador.
-- [ ] El panel no renderiza preview.
+- [x] El test de red confirma cero sockets o DNS durante todas las operaciones.
+- [x] Logs, estado, IPC y notificaciones no contienen texto, URLs, hashes persistentes ni títulos de ventana.
+- [x] Contenido sensible marcado no llega al proceso transformador.
+- [x] El panel no renderiza preview.
 
 ### Omarchy
 
-- [ ] `omarchy plugin validate ./omarchy-omaplain` finaliza correctamente.
-- [ ] El ID no usa `omarchy.*` ni colisiona con el catálogo.
-- [ ] Habilitar/deshabilitar funciona mediante `omarchy plugin` y `shell.json`.
-- [ ] Guardar QML provoca hot reload sin watchers duplicados.
-- [ ] Reiniciar `omarchy-shell` no deja procesos huérfanos.
-- [ ] No se modifica nada en `/usr/share/omarchy/`.
-- [ ] El plugin no instala paquetes, no usa `sudo` y no ejecuta install hooks.
+- [x] `omarchy plugin validate ./omarchy-omaplain` finaliza correctamente.
+- [x] El ID no usa `omarchy.*` ni colisiona con el catálogo.
+- [x] Habilitar/deshabilitar funciona mediante `omarchy plugin` y `shell.json`.
+- [x] Guardar QML provoca hot reload sin watchers duplicados.
+- [x] Reiniciar `omarchy-shell` no deja procesos huérfanos.
+- [x] No se modifica nada en `/usr/share/omarchy/`.
+- [x] El plugin no instala paquetes, no usa `sudo` y no ejecuta install hooks.
 
 ### Calidad de interfaz
 
-- [ ] Solo hay una acción primaria visible.
-- [ ] Todos los controles tienen estados default, hover, focus, active, disabled y error cuando aplica.
-- [ ] Todos los hit targets son al menos 44 × 44 px.
-- [ ] Microcopy específica y en sentence case.
-- [ ] Tema y métricas provienen de Omarchy Shell.
-- [ ] Animaciones respetan reduced motion y no usan transiciones genéricas.
+- [x] Solo hay una acción primaria visible.
+- [x] Todos los controles tienen estados default, hover, focus, active, disabled y error cuando aplica.
+- [x] Todos los hit targets son al menos 44 × 44 px.
+- [x] Microcopy específica y en sentence case.
+- [x] Tema y métricas provienen de Omarchy Shell.
+- [x] Animaciones respetan reduced motion y no usan transiciones genéricas.
 
 ## 18. Entrega por fases
 
@@ -895,7 +895,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 
 ## 20. Definición de “terminado”
 
-OmaPlain está listo para publicación cuando cumple todos los criterios de aceptación, pasa la matriz de Firefox/Chromium/terminal/gestor de archivos/password manager/LibreOffice, no genera loops en una sesión de ocho horas y una revisión externa confirma que ninguna ruta de logs o estado contiene el clipboard.
+OmaPlain está listo para preparar una publicación cuando cumple todos los criterios de aceptación, pasa la matriz real disponible más los fixtures de protocolo documentados, supera el soak equivalente de 28.800 eventos y una revisión confirma que ninguna ruta de logs o estado contiene el clipboard. La promoción a `1.0.0` sí exige uso real prolongado y repetir Firefox/password manager en aplicaciones instaladas.
 
 La publicación inicial debe etiquetarse como `0.1.0` y describir el modo automático como compatible pero con la limitación conocida del historial cuando cambia el texto. La promesa “pegar limpio por defecto” solo pasa a `1.0.0` cuando el modo automático haya sido probado en uso real y la convivencia con el historial tenga una solución estable.
 

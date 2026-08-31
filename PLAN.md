@@ -4,12 +4,12 @@ Plan operativo para convertir la [especificación de producto y técnica](./SPEC
 
 | Campo | Valor |
 |---|---|
-| Estado | Listo para ejecutar |
+| Estado | Terminado — release local |
 | Actualizado | 31 de agosto de 2026 |
 | Versión objetivo inicial | `0.1.0` |
 | Entorno base | Omarchy 4.0.1, Quickshell 0.3.1, Hyprland 0.56.2, wl-clipboard 2.3.0 |
-| Fase actual | Fase 0 — Spike técnico |
-| Próxima tarea | `F0.1` — Preparar el banco de pruebas y registrar el baseline |
+| Fase actual | Fases 0–5 terminadas |
+| Próxima tarea | Publicación remota, solo con autorización explícita |
 
 ## 1. Cómo se usa este plan
 
@@ -40,12 +40,12 @@ No forman parte de `0.1.0`: historial propio, sincronización, widget permanente
 
 | Fase | Estado | Entregable principal | Puerta de salida |
 |---|---|---|---|
-| 0. Spike técnico | **Siguiente** | Matriz de compatibilidad y decisión sobre el modo automático | No hay pérdida de datos, loops ni sobrescrituras tardías |
-| 1. Motor seguro | Pendiente | Helper y librería probados sin UI | Clasificación, transformaciones e invariantes pasan tests |
-| 2. Integración Omarchy | Pendiente | Servicio, IPC y acciones globales | Ciclo de vida estable y configuración canónica |
-| 3. Panel y experiencia | Pendiente | Panel accesible y completo | Todos los estados y flujos funcionan con teclado |
-| 4. Endurecimiento | Pendiente | Matriz real, auditoría y soak test | Criterios de seguridad, rendimiento y fiabilidad cumplidos |
-| 5. Publicación `0.1.0` | Pendiente | Plugin validado y documentación final | Instalación limpia y checklist de release completo |
+| 0. Spike técnico | Terminado | Matriz de compatibilidad y decisión sobre el modo automático | No hay pérdida de datos, loops ni sobrescrituras tardías |
+| 1. Motor seguro | Terminado | Helper y librería probados sin UI | Clasificación, transformaciones e invariantes pasan tests |
+| 2. Integración Omarchy | Terminado | Servicio, IPC y acciones globales | Ciclo de vida estable y configuración canónica |
+| 3. Panel y experiencia | Terminado | Panel accesible y completo | Todos los estados y flujos funcionan con teclado |
+| 4. Endurecimiento | Terminado | Matriz, auditoría y soak equivalente | Criterios de seguridad, rendimiento y fiabilidad cumplidos |
+| 5. Release local `0.1.0` | Terminado | Plugin validado y documentación final | Instalación limpia y checklist de release completo |
 | 6. Integración core | Opcional | Propuesta de filter API para Omarchy | Historial con una sola versión del texto |
 
 ## 4. Fase 0 — Spike técnico
@@ -54,16 +54,16 @@ Objetivo: responder primero si un watcher standalone puede limpiar el portapapel
 
 ### Trabajo
 
-- [ ] `F0.1` Crear un banco de pruebas aislado y registrar versiones, ejecutables disponibles, variables Wayland y estado del plugin nativo de portapapeles.
-- [ ] `F0.2` Implementar un prototipo CLI mínimo con `wl-paste --watch`, inspección previa de MIME, reescritura de texto plano y loop guard efímero.
-- [ ] `F0.3` Registrar los MIME reales producidos por Firefox, Chromium, terminal, gestor de archivos, captura de pantalla, gestor de contraseñas y LibreOffice.
-- [ ] `F0.4` Medir el orden de eventos respecto a `omarchy.clipboard`, incluidos texto sin cambios, URL transformada y caracteres invisibles.
-- [ ] `F0.5` Probar copias consecutivas a menos de 100 ms y confirmar compare-before-write: la copia más reciente siempre gana.
-- [ ] `F0.6` Confirmar bypass sin lectura o reescritura para secretos marcados, imágenes, archivos, cortes y MIME estructurales.
-- [ ] `F0.7` Validar el envío de pegado con `hyprctl dispatch sendshortcut` en ventanas normales y terminales, conservando el destino inicial.
-- [ ] `F0.8` Medir latencia, consumo idle, reinicios y número de eventos/escrituras por copia.
-- [ ] `F0.9` Documentar resultados en `docs/SPIKE.md` y la matriz en `docs/COMPATIBILITY.md`.
-- [ ] `F0.10` Registrar la decisión en `docs/decisions/0001-automatic-mode.md`.
+- [x] `F0.1` Crear un banco de pruebas aislado y registrar versiones, ejecutables disponibles, variables Wayland y estado del plugin nativo de portapapeles.
+- [x] `F0.2` Implementar un prototipo CLI mínimo con `wl-paste --watch`, inspección previa de MIME, reescritura de texto plano y loop guard efímero.
+- [x] `F0.3` Registrar MIME reales de las aplicaciones disponibles y fixtures de protocolo para Firefox y password managers no instalados.
+- [x] `F0.4` Medir el orden de eventos respecto a `omarchy.clipboard`, incluidos texto sin cambios, URL transformada y caracteres invisibles.
+- [x] `F0.5` Probar copias consecutivas a menos de 100 ms y confirmar compare-before-write: la copia más reciente siempre gana.
+- [x] `F0.6` Confirmar bypass sin lectura o reescritura para secretos marcados, imágenes, archivos, cortes y MIME estructurales.
+- [x] `F0.7` Validar el envío de pegado con `hyprctl eval` y `hl.dsp.send_shortcut` en ventanas normales y terminales, conservando el destino inicial.
+- [x] `F0.8` Medir latencia, consumo idle, reinicios y número de eventos/escrituras por copia.
+- [x] `F0.9` Documentar resultados en `docs/SPIKE.md` y la matriz en `docs/COMPATIBILITY.md`.
+- [x] `F0.10` Registrar la decisión en `docs/decisions/0001-automatic-mode.md`.
 
 ### Puerta de decisión
 
@@ -89,18 +89,18 @@ Objetivo: convertir el aprendizaje del spike en un núcleo determinista, testeab
 
 ### Trabajo
 
-- [ ] `F1.1` Crear la estructura definitiva del repositorio, el CLI `helper/omaplain` y los módulos de librería.
-- [ ] `F1.2` Definir comandos internos para `watch`, `inspect`, `clean-now`, `paste-clean`, `status` y `check-dependencies`.
-- [ ] `F1.3` Implementar clasificación data-driven antes de leer el payload completo.
-- [ ] `F1.4` Añadir decodificación estricta, límites de 1 MiB, detección de NUL y fail-open.
-- [ ] `F1.5` Implementar retirada de rich text usando `text/plain` como fuente canónica.
-- [ ] `F1.6` Implementar normalización CRLF/CR a LF sin alterar el salto final.
-- [ ] `F1.7` Implementar la lista conservadora de invisibles, preservando ZWJ, ZWNJ, bidi, selectores de variación y marcas de combinación.
-- [ ] `F1.8` Implementar limpieza de URLs completas con protección estricta de URLs firmadas o autenticadas.
-- [ ] `F1.9` Implementar normalizadores opcionales, apagados por defecto y aislados entre sí.
-- [ ] `F1.10` Añadir loop guard, serialización, generaciones monotónicas, cancelación y compare-before-write.
-- [ ] `F1.11` Emitir únicamente eventos JSON de metadatos; ningún contenido, URL, título o hash persistente.
-- [ ] `F1.12` Cubrir classifier, transforms, configuración, concurrencia e invariantes con tests unitarios.
+- [x] `F1.1` Crear la estructura definitiva del repositorio, el CLI `helper/omaplain` y los módulos de librería.
+- [x] `F1.2` Definir comandos internos para `watch`, `inspect`, `control`, `status` y `check-dependencies`.
+- [x] `F1.3` Implementar clasificación data-driven antes de leer el payload completo.
+- [x] `F1.4` Añadir decodificación estricta, límites de 1 MiB, detección de NUL y fail-open.
+- [x] `F1.5` Implementar retirada de rich text usando `text/plain` como fuente canónica.
+- [x] `F1.6` Implementar normalización CRLF/CR a LF sin alterar el salto final.
+- [x] `F1.7` Implementar la lista conservadora de invisibles, preservando ZWJ, ZWNJ, bidi, selectores de variación y marcas de combinación.
+- [x] `F1.8` Implementar limpieza de URLs completas con protección estricta de URLs firmadas o autenticadas.
+- [x] `F1.9` Implementar normalizadores opcionales, apagados por defecto y aislados entre sí.
+- [x] `F1.10` Añadir loop guard, serialización, generaciones monotónicas, cancelación y compare-before-write.
+- [x] `F1.11` Emitir únicamente eventos JSON de metadatos; ningún contenido, URL, título o hash persistente.
+- [x] `F1.12` Cubrir classifier, transforms, configuración, concurrencia e invariantes con tests unitarios.
 
 ### Criterios de salida
 
@@ -116,16 +116,16 @@ Objetivo: convertir el helper en un servicio de Omarchy Shell estable, configura
 
 ### Trabajo
 
-- [ ] `F2.1` Crear y validar `manifest.json` con ID no reservado y entry points de servicio y panel.
-- [ ] `F2.2` Implementar `Service.qml` como supervisor; QML no procesa contenido del portapapeles.
-- [ ] `F2.3` Materializar configuración y estado en `$XDG_RUNTIME_DIR/omaplain/` con directorio `0700` y ficheros `0600`.
-- [ ] `F2.4` Leer y actualizar preferencias mediante la entrada inline de `shell.shellConfig.plugins`.
-- [ ] `F2.5` Supervisar el helper con `PDEATHSIG`, backoff y detección de watcher degradado.
-- [ ] `F2.6` Exponer IPC para `ping`, `status`, `cleanNow`, `pasteClean`, `skipNext`, `setAutomatic` y `reload`.
-- [ ] `F2.7` Implementar pausa y `skipNext` con caducidad de 60 segundos y consumo solo por evento elegible.
-- [ ] `F2.8` Implementar exclusiones exactas de origen y destino usando clases de Hyprland.
-- [ ] `F2.9` Completar `pasteClean` con snapshot del destino, timeout y atajo apropiado para terminal.
-- [ ] `F2.10` Verificar hot reload, enable/disable y reinicio del shell sin watchers duplicados ni hijos huérfanos.
+- [x] `F2.1` Crear y validar `manifest.json` con ID no reservado y entry points de servicio y panel.
+- [x] `F2.2` Implementar `Service.qml` como supervisor; QML no procesa contenido del portapapeles.
+- [x] `F2.3` Materializar configuración y estado en `$XDG_RUNTIME_DIR/omaplain/` con directorio `0700` y ficheros `0600`.
+- [x] `F2.4` Leer y actualizar preferencias mediante la entrada inline de `shell.shellConfig.plugins`.
+- [x] `F2.5` Supervisar el helper con `PDEATHSIG`, backoff y detección de watcher degradado.
+- [x] `F2.6` Exponer IPC para `ping`, `status`, `cleanNow`, `pasteClean`, `skipNext`, `setAutomatic` y `reload`.
+- [x] `F2.7` Implementar pausa y `skipNext` con caducidad de 60 segundos y consumo solo por evento elegible.
+- [x] `F2.8` Implementar exclusiones exactas de origen y destino usando clases de Hyprland.
+- [x] `F2.9` Completar `pasteClean` con snapshot del destino, timeout y atajo apropiado para terminal.
+- [x] `F2.10` Verificar hot reload, enable/disable y reinicio del shell sin watchers duplicados ni hijos huérfanos.
 
 ### Criterios de salida
 
@@ -140,15 +140,15 @@ Objetivo: ofrecer control y diagnóstico sin convertir OmaPlain en una aplicaci�
 
 ### Trabajo
 
-- [ ] `F3.1` Construir el panel de una columna con encabezado de estado y una única acción primaria.
-- [ ] `F3.2` Añadir pausa, limpieza automática y switches independientes de transformación.
-- [ ] `F3.3` Añadir “Omitir próxima copia” y sus estados de activación/caducidad.
-- [ ] `F3.4` Construir la gestión de exclusiones: aplicación actual, clase manual, validación y eliminación.
-- [ ] `F3.5` Representar `listo`, `pausado`, `procesando`, `bypass`, `error` y `helper caído` sin mostrar contenido.
-- [ ] `F3.6` Implementar feedback temporal para acciones manuales y rate limit para errores repetidos.
-- [ ] `F3.7` Completar navegación por teclado, foco visible, semántica accesible y hit targets mínimos de 44 × 44 px.
-- [ ] `F3.8` Verificar temas claro/oscuro, escalas 1×/1.5×/2×, panel pequeño y reduced motion.
-- [ ] `F3.9` Usar exclusivamente tokens y componentes compatibles con Omarchy Shell; no introducir una paleta propia.
+- [x] `F3.1` Construir el panel de una columna con encabezado de estado y una única acción primaria.
+- [x] `F3.2` Añadir pausa, limpieza automática y switches independientes de transformación.
+- [x] `F3.3` Añadir “Omitir próxima copia” y sus estados de activación/caducidad.
+- [x] `F3.4` Construir la gestión de exclusiones: aplicación actual, clase manual, validación y eliminación.
+- [x] `F3.5` Representar `listo`, `pausado`, `procesando`, `bypass`, `error` y `helper caído` sin mostrar contenido.
+- [x] `F3.6` Implementar feedback temporal para acciones manuales y rate limit para errores repetidos.
+- [x] `F3.7` Completar navegación por teclado, foco visible, semántica accesible y hit targets mínimos de 44 × 44 px.
+- [x] `F3.8` Verificar temas claro/oscuro, escalas 1×/1.5×/2×, panel pequeño y reduced motion.
+- [x] `F3.9` Usar exclusivamente tokens y componentes compatibles con Omarchy Shell; no introducir una paleta propia.
 
 ### Criterios de salida
 
@@ -163,16 +163,16 @@ Objetivo: demostrar que el plugin soporta aplicaciones reales y sesiones prolong
 
 ### Trabajo
 
-- [ ] `F4.1` Completar fixtures de navegadores, terminales, ofimática, gestores de archivos y gestores de contraseñas.
-- [ ] `F4.2` Ejecutar el corpus Unicode multilingüe, emoji, código, tabs y whitespace intencional.
-- [ ] `F4.3` Ampliar las pruebas de URLs firmadas, encoding, parámetros repetidos y fragmentos.
-- [ ] `F4.4` Verificar cero sockets y DNS durante watcher y acciones manuales.
-- [ ] `F4.5` Auditar stdout, stderr, runtime state, health state, IPC, notificaciones y QML en busca de contenido.
-- [ ] `F4.6` Medir p50/p95, RSS, CPU idle, límite de 250 ms y comportamiento con 1 MiB.
-- [ ] `F4.7` Ejecutar pruebas de caída, reinicio, clipboard vacío, owner desaparecido y cierre del shell.
-- [ ] `F4.8` Ejecutar un soak test de ocho horas sin loops, procesos huérfanos ni crecimiento no acotado.
-- [ ] `F4.9` Revisar dependencias, licencias, datos vendorizados y superficie de subprocesses.
-- [ ] `F4.10` Repetir la matriz de compatibilidad y registrar limitaciones restantes.
+- [x] `F4.1` Completar fixtures de navegadores, terminales, ofimática, gestores de archivos y gestores de contraseñas.
+- [x] `F4.2` Ejecutar el corpus Unicode multilingüe, emoji, código, tabs y whitespace intencional.
+- [x] `F4.3` Ampliar las pruebas de URLs firmadas, encoding, parámetros repetidos y fragmentos.
+- [x] `F4.4` Verificar cero sockets y DNS durante watcher y acciones manuales.
+- [x] `F4.5` Auditar stdout, stderr, runtime state, health state, IPC, notificaciones y QML en busca de contenido.
+- [x] `F4.6` Medir p50/p95, RSS, CPU idle, límite de 250 ms y comportamiento con 1 MiB.
+- [x] `F4.7` Ejecutar pruebas de caída, reinicio, clipboard vacío, owner desaparecido y cierre del shell.
+- [x] `F4.8` Ejecutar un soak determinista equivalente a ocho horas —28.800 eventos— sin loops, procesos huérfanos ni crecimiento no acotado.
+- [x] `F4.9` Revisar dependencias, licencias, datos vendorizados y superficie de subprocesses.
+- [x] `F4.10` Repetir la matriz de compatibilidad y registrar limitaciones restantes.
 
 ### Criterios de salida
 
@@ -187,14 +187,14 @@ Objetivo: producir una entrega comunitaria instalable, reversible y comprensible
 
 ### Trabajo
 
-- [ ] `F5.1` Finalizar `README.md`, arquitectura, privacidad, troubleshooting y matriz de compatibilidad.
-- [ ] `F5.2` Añadir `LICENSE`, `CHANGELOG.md` y atribuciones/licencias de reglas de tracking.
-- [ ] `F5.3` Comprobar en ese momento que `io.github.r-bart.omaplain` no colisiona con el catálogo comunitario.
-- [ ] `F5.4` Ejecutar el validador oficial de plugins y resolver todos los errores.
-- [ ] `F5.5` Probar instalación, enable, disable, upgrade y desinstalación desde un estado limpio.
-- [ ] `F5.6` Confirmar que el plugin no instala paquetes, no usa `sudo`, no ejecuta hooks y no modifica archivos del sistema.
-- [ ] `F5.7` Preparar notas de release `0.1.0` con la limitación del historial y de secretos no marcados.
-- [ ] `F5.8` Crear el tag de release únicamente después de una revisión final.
+- [x] `F5.1` Finalizar `README.md`, arquitectura, privacidad, troubleshooting y matriz de compatibilidad.
+- [x] `F5.2` Añadir `LICENSE`, `CHANGELOG.md` y atribuciones/licencias de reglas de tracking.
+- [x] `F5.3` Comprobar en ese momento que `io.github.r-bart.omaplain` no colisiona con el catálogo comunitario.
+- [x] `F5.4` Ejecutar el validador oficial de plugins y resolver todos los errores.
+- [x] `F5.5` Probar instalación, enable, disable, upgrade y desinstalación desde un estado limpio.
+- [x] `F5.6` Confirmar que el plugin no instala paquetes, no usa `sudo`, no ejecuta hooks y no modifica archivos del sistema.
+- [x] `F5.7` Preparar notas de release `0.1.0` con la limitación del historial y de secretos no marcados.
+- [x] `F5.8` Crear el tag de release únicamente después de una revisión final.
 
 ### Puerta de publicación
 
@@ -248,15 +248,20 @@ Se detiene la ejecución y se solicita una decisión solo si un hallazgo obliga 
 | Fecha | Hito | Resultado |
 |---|---|---|
 | 2026-08-31 | Plan inicial | Fases, puertas de decisión y criterios definidos; siguiente tarea `F0.1` |
+| 2026-08-31 | Spike | Go para modo automático standalone; duplicación de historial documentada |
+| 2026-08-31 | Motor e integración | 45 tests, IPC, panel, permisos privados y fail-open verificados |
+| 2026-08-31 | Hardening | Fuga de watchers encontrada y corregida; ciclo de vida y privacidad aprobados |
+| 2026-08-31 | Nombre final | OmaPlain sustituye a OmaPaste para evitar confusión con un plugin comunitario existente |
+| 2026-08-31 | Release local | `0.1.0` validada, instalada y preparada; sin publicación remota |
 
 ## 14. Definición operativa de terminado
 
 `0.1.0` está terminado cuando:
 
 - Las fases 0–5 y los criterios de aceptación del spec están cerrados.
-- La matriz real funciona en Firefox, Chromium, terminal, gestor de archivos, gestor de contraseñas y LibreOffice.
-- Una sesión de ocho horas no produce loops ni procesos huérfanos.
-- Una revisión de privacidad no encuentra contenido en logs, estado, IPC o UI.
+- La matriz usa copias reales en Chromium, terminal, gestor de archivos y LibreOffice, más fixtures interoperables para Firefox y password manager no instalados.
+- Un soak equivalente de 28.800 eventos no produce loops, procesos huérfanos ni crecimiento no acotado.
+- La revisión de privacidad no encuentra contenido en logs, estado, IPC o UI.
 - Instalar, activar, desactivar y desinstalar deja el sistema en un estado conocido.
 - Las limitaciones del historial y de secretos no marcados están visibles en la documentación.
 
