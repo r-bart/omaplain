@@ -146,16 +146,38 @@ class PeekTests(unittest.TestCase):
     def test_peek_is_reachable_as_a_command(self) -> None:
         self.assertEqual(self.daemon.command("peek")["result"], "ok")
 
-    def test_peek_is_not_exposed_on_the_command_line(self) -> None:
-        # `peek` responde contenido, y `control` lo imprimiria por stdout:
-        # justo uno de los sitios que la auditoria reformulada por 0005 tiene
-        # que barrer, ademas del historial y el scrollback de quien lo llame.
-        # El panel lo alcanza por el socket; nada mas lo necesita.
+    def test_peek_is_reachable_but_never_advertised(self) -> None:
+        """El panel necesita transporte; nadie más necesita encontrarlo.
+
+        El panel sólo habla con el helper leyendo la tubería de un proceso
+        que lanza, así que `peek` tiene que existir en la CLI. Lo que no
+        puede es anunciarse: quien lo teclee por curiosidad se lleva el
+        contenido del portapapeles al scrollback y al historial. El repo ya
+        resuelve esto con `emit-event`, oculto con `argparse.SUPPRESS`.
+        """
         from omaplain_lib import cli
 
+        parser = cli._parser()
+        actions = [a for a in parser._actions if hasattr(a, "choices") and a.choices]
+        subcommands = {}
+        for action in actions:
+            if isinstance(action.choices, dict):
+                subcommands = action.choices
+                break
+        self.assertIn("peek", subcommands, "el panel se quedó sin transporte")
+
+        helptext = parser.format_help()
+        self.assertNotIn("peek", helptext, "peek aparece en el --help")
+        # `help=argparse.SUPPRESS` no oculta un subcomando: argparse imprime
+        # literalmente "==SUPPRESS==". Lo que oculta es no declarar `help`,
+        # y hace falta un `metavar` propio o la lista entre llaves lo delata.
+        self.assertNotIn("SUPPRESS", helptext)
+        self.assertNotIn("emit-event", helptext, "la fontanería interna se anuncia")
+
+        # Y sigue fuera de la lista que un humano navega en `control`.
         source = Path(cli.__file__).read_text(encoding="utf-8")
         choices = re.search(r'control\.add_argument\("name", choices=\((?P<list>[^)]*)\)', source)
-        self.assertIsNotNone(choices, "cambio la forma de declarar los comandos de control")
+        self.assertIsNotNone(choices, "cambió la forma de declarar los comandos de control")
         self.assertNotIn("peek", choices.group("list"))
 
 

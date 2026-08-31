@@ -20,7 +20,7 @@ from .transform import TransformBypass, transform
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="omaplain", description="Clean text on the Wayland clipboard safely.")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command", required=True, metavar="<comando>")
 
     commands.add_parser("check-dependencies", help="Check required runtime commands.")
     commands.add_parser("inspect", help="Inspect clipboard types without printing its content.")
@@ -39,8 +39,16 @@ def _parser() -> argparse.ArgumentParser:
     watch.add_argument("--status", required=True)
     watch.add_argument("--socket", required=True)
 
-    emit = commands.add_parser("emit-event", help=argparse.SUPPRESS)
+    emit = commands.add_parser("emit-event")
     emit.add_argument("--socket", required=True)
+
+    # Fontaneria interna del panel, como `emit-event`: oculta del `--help`
+    # a proposito. `peek` responde con contenido del portapapeles, y ese
+    # contenido no debe acabar en el scrollback ni en el historial de nadie
+    # que lo teclee por curiosidad. El panel lo lanza y lee la tuberia; ahi
+    # no hay terminal, historial ni fichero de por medio.
+    peek = commands.add_parser("peek")
+    peek.add_argument("--socket", required=True)
 
     control = commands.add_parser("control", help="Call the running daemon.")
     control.add_argument("--socket", required=True)
@@ -133,6 +141,10 @@ def main(argv: list[str] | None = None) -> int:
         state = os.environ.get("CLIPBOARD_STATE", "data")
         socket_request(args.socket, {"kind": "event", "state": state}, timeout=0.4)
         return 0
+    if args.command == "peek":
+        response = socket_request(args.socket, {"kind": "command", "name": "peek"})
+        _print_json(response)
+        return 0 if response.get("result") != "error" else 1
     if args.command == "control":
         response = socket_request(args.socket, {"kind": "command", "name": args.name})
         _print_json(response)
