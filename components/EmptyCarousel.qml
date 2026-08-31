@@ -38,20 +38,17 @@ Item {
   // Cada ejemplo se parte en tres: lo que se queda, lo que sobra, y el
   // resto. Sin ajuste de línea y con altura fija, porque si cada elemento
   // midiera distinto el panel entero cambiaría de tamaño cada 2,6 segundos.
+  //
+  // Las tres partes salen del catálogo, no de aquí: escritas en el QML se
+  // quedaron en español, y en inglés la pantalla enseñaba una interfaz
+  // traducida con ejemplos sin traducir.
   readonly property var samples: [
-    { kind: "empty.kind.link", art: "link",
-      head: "tienda.com/zapatillas?",
-      spare: "utm_source=boletin&",
-      tail: "talla=42" },
-    { kind: "empty.kind.text", art: "text",
-      head: "El pan de masa madre",
-      spare: "·ZWSP·",
-      tail: " necesita 12 horas." },
-    { kind: "empty.kind.rich", art: "rich",
-      head: "Resumen ejecutivo  ",
-      spare: "+ text/html",
-      tail: "" }
+    { kind: "empty.kind.link", art: "link", text: "empty.sample.link" },
+    { kind: "empty.kind.text", art: "text", text: "empty.sample.text" },
+    { kind: "empty.kind.rich", art: "rich", text: "empty.sample.rich" }
   ]
+
+  function part(name) { return Strings.t(root.sample.text + "." + name, root.lang) }
 
   property int index: 0
   readonly property var sample: samples[index % samples.length]
@@ -204,7 +201,7 @@ Item {
         spacing: 0
 
         Text {
-          text: root.sample.head
+          text: root.part("head")
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.bodySmall
@@ -219,7 +216,7 @@ Item {
           clip: true
           Text {
             id: spare
-            text: root.sample.spare
+            text: root.part("spare")
             color: Color.accent
             opacity: 1 - root.combed * 0.5
             font.family: Style.font.family
@@ -228,7 +225,7 @@ Item {
         }
 
         Text {
-          text: root.sample.tail
+          text: root.part("tail")
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.bodySmall

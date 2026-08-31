@@ -81,6 +81,11 @@ pantalla no podía demostrar sin contenido real.
 - El ciclo se detiene con el panel cerrado y bajo movimiento reducido, donde se
   queda en el primer ejemplo con lo que sobra ya retirado, sin marcas de
   posición y sin reservarles sitio.
-- Los ejemplos salen del motor, como los del tour, y un test los comprueba
-  contra `transform()` para que la pantalla no prometa una limpieza que ya no
-  ocurra.
+- Los ejemplos salen del catálogo y se comprueban contra el motor, como los
+  del tour, para que la pantalla no prometa una limpieza que ya no ocurra. Se
+  comprueban **una vez por idioma**: escritos en el QML se quedaron en español,
+  y la guardia que caza prosa fuera del catálogo usa el acento como señal, que
+  `El pan de masa madre` no lleva.
+- El ejemplo con formato dice qué se retira en palabras —«en negrita y con
+  color»— en vez de en tipos MIME. El desglose ya enseña `text/html` a quien
+  quiera el detalle; una pantalla de bienvenida no es el sitio.

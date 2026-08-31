@@ -226,6 +226,19 @@ var EN = {
   "empty.kind.text": "A paragraph copied from a page",
   "empty.kind.rich": "Text with formatting from an editor",
   "empty.art.a11y": "Examples of what you can copy, with what OmaPlain would remove marked in the accent colour.",
+  // Los tres ejemplos del carrusel, partidos en lo que se queda, lo que
+  // sobra y el resto. `tests/unit/test_empty_samples.py` pasa cada uno por
+  // el motor en los dos idiomas: si una regla cambia, la pantalla no puede
+  // seguir prometiendo una limpieza que ya no ocurre.
+  "empty.sample.link.head": "shop.com/sneakers?",
+  "empty.sample.link.spare": "utm_source=newsletter&",
+  "empty.sample.link.tail": "size=42",
+  "empty.sample.text.head": "Sourdough bread",
+  "empty.sample.text.spare": "·ZWSP·",
+  "empty.sample.text.tail": " needs 12 hours.",
+  "empty.sample.rich.head": "Executive summary",
+  "empty.sample.rich.spare": ", in bold and in colour",
+  "empty.sample.rich.tail": ".",
   "art.copied": "Copied",
   "art.clean": "Clean"
 };
@@ -431,6 +444,17 @@ var ES = {
   "empty.kind.text": "Un párrafo copiado de una web",
   "empty.kind.rich": "Texto con formato de un editor",
   "empty.art.a11y": "Ejemplos de lo que puedes copiar, con lo que OmaPlain retiraría marcado en color de acento.",
+  // Ver la nota de la tabla inglesa: estos tres se comprueban contra el
+  // motor, y el del enlace tiene que perder exactamente su `utm_`.
+  "empty.sample.link.head": "tienda.com/zapatillas?",
+  "empty.sample.link.spare": "utm_source=boletin&",
+  "empty.sample.link.tail": "talla=42",
+  "empty.sample.text.head": "El pan de masa madre",
+  "empty.sample.text.spare": "·ZWSP·",
+  "empty.sample.text.tail": " necesita 12 horas.",
+  "empty.sample.rich.head": "Resumen ejecutivo",
+  "empty.sample.rich.spare": ", en negrita y con color",
+  "empty.sample.rich.tail": ".",
   "art.copied": "Copiado",
   "art.clean": "Limpio"
 };

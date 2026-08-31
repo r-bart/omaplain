@@ -61,6 +61,8 @@ class CatalogueTests(unittest.TestCase):
         "app.name": "la marca",
         "state.a11y": "sólo la marca y los marcadores",
         "setting.invisible": "«Invisibles» se escribe igual en los dos idiomas",
+        "empty.sample.text.spare": "la etiqueta de un carácter que no se puede enseñar",
+        "empty.sample.rich.tail": "un punto y nada más",
     }
 
     def test_spanish_is_not_a_copy_of_english(self) -> None:
