@@ -57,3 +57,29 @@ Se mantiene el modo automático en `0.1.0` porque:
 
 El modo automático se presentará como compatible con una limitación conocida, no como integración transaccional con el historial. Una filter API upstream queda como mejora posterior y no como dependencia de la primera release.
 
+## Spike `D.1` — la cubierta en QML
+
+**Fecha:** 31 de agosto de 2026. **Pregunta:** ¿se puede llevar a QML la
+cubierta de vaho del prototipo, que se borra arrastrando?
+
+Dos incógnitas, las dos medidas y no supuestas. La consola de `qml6` no llega
+en este entorno, así que ambos spikes devuelven su veredicto en el código de
+salida y lo comprueban leyendo píxeles con `getImageData`, no a ojo.
+
+| Pregunta | Método | Resultado |
+|---|---|---|
+| ¿`Canvas` soporta `globalCompositeOperation = "destination-out"`? | Pintar opaco, borrar un disco, leer el alfa dentro y fuera | **Sí.** Centro transparente, esquina opaca |
+| ¿Cuánto cuesta repintar la neblina entera? | 60 repintados de 46 degradados radiales sobre 500×104 | **1,5 ms por fotograma** |
+
+A 30 fps el presupuesto es de 33,3 ms, así que la neblina ocupa un 4,5 % de
+él. Cabe de sobra incluso dibujando cada degradado uno a uno, que es el peor
+caso: en QML no hay un lienzo auxiliar cómodo del que hacer `drawImage`, así
+que no se puede pre-renderizar la textura como en el prototipo HTML.
+
+**Decisión:** la cubierta se implementa con `Canvas`, con el barrido en una
+máscara aparte igual que en el prototipo. No hacen falta ni `ShaderEffect` ni
+la cubierta lisa de reserva.
+
+**Salvedad:** la medida es con `-platform offscreen` en este equipo. Falta
+confirmarla en el panel real, cosa que hace `D.8`.
+

@@ -158,10 +158,10 @@ contra el motor real.
 
 ### Trabajo
 
-- [ ] `D.1` **Spike:** confirmar que `Canvas` de QtQuick soporta
-      `globalCompositeOperation = "destination-out"` con rendimiento aceptable
-      dentro del panel. Si no, la cubierta se resuelve con un `ShaderEffect` o,
-      en el peor caso, con una cubierta lisa y sin barrido.
+- [x] `D.1` **Spike terminado.** `destination-out` funciona en `Canvas`, y
+      repintar la neblina entera cuesta **1,5 ms por fotograma** — un 4,5 % del
+      presupuesto a 30 fps. No hacen falta `ShaderEffect` ni cubierta de
+      reserva. Medido en `docs/SPIKE.md`.
 - [ ] `D.2` Vista principal: estado, veredicto, subtítulo, dos filas de altura
       fija, desglose y acciones.
 - [ ] `D.3` Cubierta por defecto, con ojo por fila y barrido si `D.1` lo permite.
@@ -253,6 +253,7 @@ código:
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Spike `D.1` | `destination-out` soportado y 1,5 ms por fotograma; la cubierta va con `Canvas` |
 | 2026-08-31 | Fase C | `peek` inerte: no escribe, no consume la omisión, no avanza la generación y no llega a la CLI. 13 tests nuevos |
 | 2026-08-31 | Fase B | `0005` y `0006` aceptadas; `F1.11`, `F4.5`, criterios de terminado, UX-OPPORTUNITIES y SECURITY reformulados |
 
