@@ -44,6 +44,44 @@ class CatalogueTests(unittest.TestCase):
                 with self.subTest(lang=lang, key=key):
                     self.assertTrue(value.strip(), "cadena vacía")
 
+    def test_no_key_is_declared_twice(self) -> None:
+        """Una clave repetida no da error: en JavaScript gana la última.
+
+        Añadiendo la sección de privacidad se coló un segundo
+        `privacy.title`, y no lo vio nadie: `_table` construye un
+        diccionario, así que las duplicadas se colapsan en silencio y todos
+        los demás tests siguen en verde. Aquí se leen las claves en bruto.
+        """
+        source = CATALOGUE.read_text(encoding="utf-8")
+        for name in ("EN", "ES"):
+            body = re.search(rf"var {name} = \{{(?P<body>.*?)\n\}};", source, re.DOTALL)
+            self.assertIsNotNone(body, f"no encuentro la tabla {name}")
+            keys = re.findall(r'"([^"]+)":\s*"', body.group("body"))
+            repeated = sorted({key for key in keys if keys.count(key) > 1})
+            with self.subTest(table=name):
+                self.assertEqual(repeated, [], f"claves declaradas dos veces: {repeated}")
+
+    def test_every_key_the_panel_asks_for_exists(self) -> None:
+        """Una clave que no está se pinta tal cual, en mayúsculas, en pantalla.
+
+        Pasó: la cabecera enseñó `STATE.SKIPPING` durante media tarde. El
+        script que añadía las cadenas se abortó por otra cosa, el QML quedó
+        pidiendo una clave que nadie había escrito, y ningún test lo vio
+        porque ninguno miraba la pareja pide/existe. Se comprueba lo que el
+        QML pide con una cadena literal; lo que compone al vuelo no se puede
+        comprobar aquí y por eso el carrusel tiene su propio test.
+        """
+        asked: set[str] = set()
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        for path in files:
+            source = path.read_text(encoding="utf-8")
+            asked |= set(re.findall(r'Strings\.[tf]\(\s*"([^"]+)"', source))
+        self.assertTrue(asked, "no se encontró ninguna clave pedida desde el QML")
+        for lang, table in (("en", self.en), ("es", self.es)):
+            missing = sorted(asked - set(table))
+            with self.subTest(lang=lang):
+                self.assertEqual(missing, [], f"el panel pide claves que no existen: {missing}")
+
     def test_placeholders_match_between_languages(self) -> None:
         # Una traducción que pierde un %1 deja un hueco en la frase; una que
         # inventa uno imprime el marcador tal cual delante del usuario.

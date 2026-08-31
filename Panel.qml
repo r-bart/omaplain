@@ -27,6 +27,18 @@ Item {
   property bool showBefore: false
   property bool showAfter: false
   property string privacyError: ""
+  // F.3: dura 1,5 s desde que el helper confirma que limpió de verdad.
+  property bool cleanConfirmed: false
+  // F.5: el desplegable del historial nace cerrado y no se recuerda: es una
+  // explicación, no un ajuste.
+  property bool historyOpen: false
+  // Igual que el del historial: nacen cerrados y no se recuerdan. Son
+  // ajustes que la mayoría no toca, no una preferencia sobre la vista.
+  property bool optionalOpen: false
+  // F.5: mientras el foco siga en los botones del resultado, el mensaje no
+  // se va solo. Leerlo con el teclado no puede depender de leer rápido.
+  readonly property bool holdingFeedback: (applyButton && applyButton.activeFocus)
+    || (skipButton2 && skipButton2.activeFocus)
   // La pantalla frecuente informa; los ajustes viven detrás del engranaje.
   property string panelPage: "clipboard"
 
@@ -385,14 +397,29 @@ Item {
     function onLastActionJsonChanged() {
       root.feedback = root.actionMessage(root.service.lastActionJson)
       if (root.feedback !== "") feedbackTimer.restart()
+      var data = {}
+      try { data = JSON.parse(String(root.service.lastActionJson || "{}")) } catch (error) {}
+      if (data.result === "cleaned") {
+        root.cleanConfirmed = true
+        confirmTimer.restart()
+      }
     }
+  }
+
+  Timer {
+    id: confirmTimer
+    interval: 1500
+    repeat: false
+    onTriggered: root.cleanConfirmed = false
   }
 
   Timer {
     id: feedbackTimer
     interval: 2500
     repeat: false
-    onTriggered: root.feedback = ""
+    // Con el foco puesto en el resultado, el mensaje se queda: se vuelve a
+    // armar el reloj en vez de borrarlo.
+    onTriggered: if (root.holdingFeedback) feedbackTimer.restart(); else root.feedback = ""
   }
 
   Timer {
@@ -554,6 +581,7 @@ Item {
             visible: root.panelPage === "clipboard"
             state: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
             detail: root.statusDetail()
+            skipping: service && service.status && service.status.skipNext === true
           }
 
           Text {
@@ -622,6 +650,7 @@ Item {
                 label: root.peekChanges ? Strings.t("row.now", root.lang) : Strings.t("row.single", root.lang)
                 body: root.peekReady ? String(root.peek.original || "") : ""
                 shown: root.showBefore
+                confirmed: root.cleanConfirmed
                 locked: root.peekCovered
                 motionEnabled: root.motionEnabled
                 seed: 11
@@ -638,6 +667,7 @@ Item {
                 label: Strings.t("row.would", root.lang)
                 body: root.peekChanges ? String(root.peek.cleaned || "") : ""
                 shown: root.showAfter
+                confirmed: root.cleanConfirmed
                 locked: root.peekCovered
                 motionEnabled: root.motionEnabled
                 seed: 29
@@ -949,6 +979,37 @@ Item {
                 wrapMode: Text.WordWrap
               }
 
+              // F.5: la explicación completa cabe aquí, desplegable, y no en
+              // un tooltip: lo que hace falta leer despacio no puede vivir
+              // colgado del ratón, donde el teclado no llega.
+              Button {
+                id: historyWhyButton
+                width: parent.width
+                implicitHeight: Style.space(44)
+                text: (root.historyOpen ? "▾  " : "▸  ") + Strings.t("history.why", root.lang)
+                focusable: true
+                bordered: true
+                foreground: Util.alpha(Color.popups.text, 0.68)
+                Accessible.role: Accessible.Button
+                Accessible.name: Strings.t("history.why", root.lang)
+                Accessible.description: Strings.t("history.why.body", root.lang)
+                Accessible.onPressAction: root.historyOpen = !root.historyOpen
+                onActiveFocusChanged: if (activeFocus) root.reveal(historyWhyButton)
+                onClicked: root.historyOpen = !root.historyOpen
+              }
+
+              Text {
+                width: parent.width
+                visible: root.historyOpen
+                text: Strings.t("history.why.body", root.lang)
+                color: Util.alpha(Color.popups.text, 0.72)
+                font.family: Style.font.family
+                font.pixelSize: Style.font.bodySmall
+                wrapMode: Text.WordWrap
+                lineHeightMode: Text.ProportionalHeight
+                lineHeight: 1.4
+              }
+
               Text {
                 text: Strings.t("settings.cleaning", root.lang)
                 color: Color.popups.text
@@ -993,16 +1054,29 @@ Item {
                 onClicked: if (service) service.updateSetting("normalizeLineEndings", !checked)
               }
 
-              Text {
-                text: Strings.t("settings.optional", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
+              // F.5: los cuatro opcionales van bajo divulgación. La nota que
+              // lo condicionaba decía «si el panel sigue creciendo»; con la
+              // sección de privacidad, creció. Los cuatro que sí vienen
+              // puestos de fábrica se quedan a la vista, porque explican lo
+              // que el producto hace por defecto.
+              Button {
+                id: optionalButton
+                width: parent.width
+                implicitHeight: Style.space(44)
+                text: (root.optionalOpen ? "▾  " : "▸  ") + Strings.t("settings.optional", root.lang)
+                focusable: true
+                bordered: true
+                foreground: Color.popups.text
+                Accessible.role: Accessible.Button
+                Accessible.name: Strings.t("settings.optional", root.lang)
+                Accessible.onPressAction: root.optionalOpen = !root.optionalOpen
+                onActiveFocusChanged: if (activeFocus) root.reveal(optionalButton)
+                onClicked: root.optionalOpen = !root.optionalOpen
               }
 
               SettingRow {
                 width: parent.width
+                visible: root.optionalOpen
                 label: Strings.t("settings.quotes", root.lang)
                 description: Strings.t("settings.quotes.desc", root.lang)
                 checked: root.setting("normalizeQuotes", false)
@@ -1012,6 +1086,7 @@ Item {
 
               SettingRow {
                 width: parent.width
+                visible: root.optionalOpen
                 label: Strings.t("settings.bullets", root.lang)
                 description: Strings.t("settings.bullets.desc", root.lang)
                 checked: root.setting("normalizeLists", false)
@@ -1021,6 +1096,7 @@ Item {
 
               SettingRow {
                 width: parent.width
+                visible: root.optionalOpen
                 label: Strings.t("settings.nfc", root.lang)
                 description: Strings.t("settings.nfc.desc", root.lang)
                 checked: root.setting("normalizeUnicodeNfc", false)
@@ -1030,6 +1106,7 @@ Item {
 
               SettingRow {
                 width: parent.width
+                visible: root.optionalOpen
                 label: Strings.t("settings.trim", root.lang)
                 description: Strings.t("settings.trim.desc", root.lang)
                 checked: root.setting("trimTrailingWhitespace", false)
@@ -1046,6 +1123,15 @@ Item {
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
                 font.bold: true
+              }
+
+              Text {
+                width: parent.width
+                text: Strings.t("privacy.body", root.lang)
+                color: Util.alpha(Color.popups.text, 0.72)
+                font.family: Style.font.family
+                font.pixelSize: Style.font.bodySmall
+                wrapMode: Text.WordWrap
               }
 
               // Lo que la lista no puede garantizar, dicho aquí y no en una
@@ -1395,14 +1481,6 @@ Item {
                 }
               }
 
-              Text {
-                text: Strings.t("privacy.title", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
-              }
-
               PrimaryButton {
                 id: onboardingDoneButton
                 width: parent.width
@@ -1412,14 +1490,6 @@ Item {
                 onClicked: root.finishOnboarding()
               }
 
-              Text {
-                width: parent.width
-                text: Strings.t("privacy.body", root.lang)
-                color: Util.alpha(Color.popups.text, 0.72)
-                font.family: Style.font.family
-                font.pixelSize: Style.font.bodySmall
-                wrapMode: Text.WordWrap
-              }
             }
           }
         }

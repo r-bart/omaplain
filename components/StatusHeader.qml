@@ -22,12 +22,23 @@ Item {
 
   property string state: "starting"
   property string detail: Strings.t("state.preparing", root.lang)
+  // F.4: omitir la próxima copia era un estado sólo textual, en la línea de
+  // detalle. Aquí cambia el estado, que es donde se mira. Sin cuenta atrás:
+  // expira por evento o por tiempo, y un reloj añade presión sin ayudar a
+  // decidir nada.
+  property bool skipping: false
 
   readonly property bool healthy: state === "running"
   readonly property bool paused: state === "paused"
   readonly property bool failed: ["degraded", "missing_dependencies", "config_error", "stopped"].indexOf(state) !== -1
-  readonly property string stateLabel: failed ? Strings.t("state.attention", root.lang) : (paused ? Strings.t("state.paused", root.lang) : (healthy ? Strings.t("state.active", root.lang) : Strings.t("state.starting", root.lang)))
-  readonly property color stateColor: failed ? Color.urgent : (healthy ? Color.accent : Color.muted)
+  readonly property string stateLabel: failed
+    ? Strings.t("state.attention", root.lang)
+    : (skipping
+      ? Strings.t("state.skipping", root.lang)
+      : (paused
+        ? Strings.t("state.paused", root.lang)
+        : (healthy ? Strings.t("state.active", root.lang) : Strings.t("state.starting", root.lang))))
+  readonly property color stateColor: failed ? Color.urgent : (healthy && !skipping ? Color.accent : Color.muted)
 
   implicitWidth: Style.space(460)
   implicitHeight: lines.implicitHeight

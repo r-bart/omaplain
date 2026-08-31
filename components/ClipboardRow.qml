@@ -27,6 +27,9 @@ Item {
   readonly property bool revealed: root.shown && !root.locked
   property int seed: 7
   property bool motionEnabled: true
+  // F.3: se acaba de limpiar de verdad. El sello conecta el clic con el
+  // resultado sin depender sólo del mensaje de texto de más abajo.
+  property bool confirmed: false
 
   signal revealRequested()
   signal hideRequested()
@@ -125,6 +128,37 @@ Item {
           wrapMode: Text.WrapAnywhere
           Accessible.role: Accessible.StaticText
           Accessible.name: root.revealed ? root.body : ""
+        }
+      }
+
+      // Sólo opacidad y escala, y por debajo de 220 ms: esto responde a una
+      // acción, así que va en el tope de las respuestas, no en el de las
+      // demostraciones.
+      Rectangle {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: Style.space(10)
+        width: Style.space(30)
+        height: width
+        radius: width / 2
+        color: Color.accent
+        z: 2
+        visible: opacity > 0.01
+        opacity: root.confirmed ? 1 : 0
+        scale: root.confirmed ? 1 : 0.92
+        transformOrigin: Item.Center
+        Accessible.ignored: true
+
+        Behavior on opacity { NumberAnimation { duration: root.motionEnabled ? 180 : 0; easing.type: Easing.OutCubic } }
+        Behavior on scale { NumberAnimation { duration: root.motionEnabled ? 180 : 0; easing.type: Easing.OutCubic } }
+
+        Text {
+          anchors.centerIn: parent
+          text: "✓"
+          color: Color.background
+          font.family: Style.font.family
+          font.pixelSize: Style.font.title
+          font.bold: true
         }
       }
 

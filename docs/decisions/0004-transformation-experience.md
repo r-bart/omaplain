@@ -47,3 +47,33 @@ recuperar el control antes de confiarle el portapapeles.
   ejecución.
 - Una versión futura puede incrementar `onboardingVersion` si necesita enseñar
   un cambio de comportamiento material.
+
+## Enmienda — 31 de agosto de 2026
+
+La decisión dejó fuera la animación con este motivo:
+
+> No promover todavía la animación de entrada del prototipo. El panel es una
+> utilidad frecuente y Quickshell no expone una preferencia de movimiento
+> reducido; la revisión de microinteracciones se hará como una fase separada.
+
+La fase separada es la `F`, y la puerta queda abierta. Lo que ha cambiado no es
+que Quickshell exponga ahora esa preferencia —sigue sin exponerla, comprobado en
+`Commons/`— sino que **la conduce el usuario**: un ajuste «Reducir movimiento»
+que apaga el movimiento en toda la app.
+
+El plan de la fase decía «propiedad que los componentes aceptan y las probes
+conducen, no un ajuste de usuario». Se cambia por un motivo concreto: el
+carrusel del estado vacío cicla sin fin, y sin un mando accesible no hay forma
+de pararlo, que es lo que pide la WCAG 2.2.2. Una propiedad que sólo conducen
+las pruebas es una vía de movimiento reducido que ningún usuario puede tomar.
+
+Con eso, las animaciones que la `0004` aplazó entran, separadas en dos topes
+que no se mezclan:
+
+- **Respuesta a una acción** —el sello de la limpieza, la pulsación—: por debajo
+  de 300 ms y sólo `transform` y `opacity`.
+- **Demostraciones** —la ilustración de la bienvenida, el carrusel—: duran lo
+  que hace falta para leerlas, porque nadie las ha pedido y están ahí para eso.
+
+Lo que la `0004` descartaba sigue descartado: no se anima la apertura habitual
+del panel ni se escalonan sus controles.
