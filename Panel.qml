@@ -193,10 +193,75 @@ Item {
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
+        Column {
+          id: primaryColumn
+          anchors.top: parent.top
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.margins: Style.space(20)
+          spacing: Style.space(12)
+
+          StatusHeader {
+            width: parent.width
+            state: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
+            detail: root.statusDetail()
+          }
+
+          Button {
+            id: cleanButton
+            width: parent.width
+            implicitHeight: 48
+            text: service && service.actionBusy ? "Limpiando…" : "Limpiar portapapeles ahora"
+            iconText: service && service.actionBusy ? "" : "󰅍"
+            focusable: true
+            bordered: true
+            selected: true
+            foreground: Color.popups.text
+            enabled: service && !service.actionBusy
+            Accessible.role: Accessible.Button
+            Accessible.name: text
+            Accessible.onPressAction: root.runAction("cleanNow")
+            onClicked: root.runAction("cleanNow")
+          }
+
+          Button {
+            id: skipButton
+            width: parent.width
+            implicitHeight: 44
+            text: service && service.status && service.status.skipNext ? "Se omitirá la próxima copia" : "Omitir la próxima copia"
+            focusable: true
+            bordered: true
+            foreground: Color.popups.text
+            enabled: service && !service.actionBusy
+            Accessible.role: Accessible.Button
+            Accessible.name: text
+            Accessible.onPressAction: root.runAction("skipNext")
+            onClicked: root.runAction("skipNext")
+          }
+
+          Text {
+            visible: root.feedback !== ""
+            width: parent.width
+            text: root.feedback
+            color: root.feedbackError ? Color.urgent : Color.popups.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.body
+            wrapMode: Text.WordWrap
+            Accessible.role: Accessible.AlertMessage
+            Accessible.name: text
+          }
+        }
+
         Flickable {
           id: scroll
-          anchors.fill: parent
-          anchors.margins: Style.space(20)
+          anchors.top: primaryColumn.bottom
+          anchors.topMargin: Style.space(12)
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.bottom: parent.bottom
+          anchors.leftMargin: Style.space(20)
+          anchors.rightMargin: Style.space(20)
+          anchors.bottomMargin: Style.space(20)
           contentWidth: width
           contentHeight: contentColumn.implicitHeight
           clip: true
@@ -208,58 +273,6 @@ Item {
             id: contentColumn
             width: scroll.width - (scroll.contentHeight > scroll.height ? Style.space(12) : 0)
             spacing: Style.space(12)
-
-            StatusHeader {
-              width: parent.width
-              state: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
-              detail: root.statusDetail()
-            }
-
-            Button {
-              id: cleanButton
-              width: parent.width
-              implicitHeight: 48
-              text: service && service.actionBusy ? "Limpiando…" : "Limpiar portapapeles ahora"
-              iconText: service && service.actionBusy ? "" : "󰅍"
-              focusable: true
-              bordered: true
-              selected: true
-              foreground: Color.popups.text
-              enabled: service && !service.actionBusy
-              Accessible.role: Accessible.Button
-              Accessible.name: text
-              Accessible.onPressAction: root.runAction("cleanNow")
-              onActiveFocusChanged: if (activeFocus) root.reveal(cleanButton)
-              onClicked: root.runAction("cleanNow")
-            }
-
-            Button {
-              id: skipButton
-              width: parent.width
-              implicitHeight: 44
-              text: service && service.status && service.status.skipNext ? "Se omitirá la próxima copia" : "Omitir la próxima copia"
-              focusable: true
-              bordered: true
-              foreground: Color.popups.text
-              enabled: service && !service.actionBusy
-              Accessible.role: Accessible.Button
-              Accessible.name: text
-              Accessible.onPressAction: root.runAction("skipNext")
-              onActiveFocusChanged: if (activeFocus) root.reveal(skipButton)
-              onClicked: root.runAction("skipNext")
-            }
-
-            Text {
-              visible: root.feedback !== ""
-              width: parent.width
-              text: root.feedback
-              color: root.feedbackError ? Color.urgent : Color.popups.text
-              font.family: Style.font.family
-              font.pixelSize: Style.font.body
-              wrapMode: Text.WordWrap
-              Accessible.role: Accessible.AlertMessage
-              Accessible.name: text
-            }
 
             Text {
               text: "Modo"
