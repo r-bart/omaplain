@@ -26,6 +26,10 @@ Item {
   property bool reloadPending: false
   property bool actionBusy: actionProcess.running
   property string lastActionJson: "{}"
+  // Lo que el panel esta enseñando ahora mismo. Vive aqui y en ningun otro
+  // sitio: no se persiste, no se registra y se tira al cerrar el panel.
+  property var peekResult: ({ eligible: false, reason: "unknown", types: [] })
+  property bool peekBusy: peekProcess.running
   property string currentAppClass: ""
   property string dependencyError: ""
   property int restartAttempt: 0
@@ -165,6 +169,22 @@ Item {
     reloadPending = false
     reloadProcess.command = [helperPath, "control", "--socket", socketPath, "reload"]
     reloadProcess.running = true
+  }
+
+  // Pedir un vistazo es una lectura: no consume la omision pendiente, no
+  // avanza la generacion y no cuenta como operacion. Todo eso lo garantiza
+  // el helper; aqui solo se transporta.
+  function requestPeek() {
+    if (peekProcess.running || socketPath === "" || helperPath === "") return "busy"
+    peekProcess.command = [helperPath, "peek", "--socket", socketPath]
+    peekProcess.running = true
+    return "accepted"
+  }
+
+  // El contenido muere con el panel. Si se quedase, un segundo vistazo
+  // podria enseñar por un instante lo que habia en el portapapeles anterior.
+  function forgetPeek() {
+    peekResult = { eligible: false, reason: "unknown", types: [] }
   }
 
   function cleanNow() { return runAction("cleanNow") }
@@ -308,6 +328,22 @@ Item {
       var text = String(actionOutput.text || "{}").trim()
       root.lastActionJson = text || "{}"
       root.reloadStatus()
+    }
+  }
+
+  Process {
+    id: peekProcess
+    stdout: StdioCollector { id: peekOutput; waitForEnd: true }
+    onExited: function(exitCode) {
+      var text = String(peekOutput.text || "").trim()
+      if (text === "") { root.forgetPeek(); return }
+      try {
+        root.peekResult = JSON.parse(text)
+      } catch (error) {
+        // El mensaje de error no lleva el texto: una traza con el contenido
+        // dentro seria justo la fuga que 0005 prohibe.
+        root.forgetPeek()
+      }
     }
   }
 

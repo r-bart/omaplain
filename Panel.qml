@@ -23,6 +23,12 @@ Item {
   property int tourStep: 0
   property real savedSettingsScroll: 0
   property string mainFocusTarget: "clean"
+  property bool showBefore: false
+  property bool showAfter: false
+
+  readonly property var peek: service && service.peekResult ? service.peekResult : ({ eligible: false })
+  readonly property bool peekReady: peek && peek.eligible === true
+  readonly property bool peekChanges: peekReady && peek.changed === true
 
   readonly property var settings: service && service.settings ? service.settings : ({})
   readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "io.github.r-bart.omaplain"
@@ -37,6 +43,7 @@ Item {
     tourStep = 0
     mainFocusTarget = "clean"
     opened = true
+    if (service) service.requestPeek()
     feedback = ""
     fieldError = ""
     focusReady = false
@@ -398,6 +405,30 @@ Item {
             id: contentColumn
             width: scroll.width - (scroll.contentHeight > scroll.height ? Style.space(12) : 0)
             spacing: Style.space(12)
+
+            ClipboardRow {
+              width: contentColumn.width
+              visible: root.peekReady
+              label: root.peekChanges ? "Ahora" : "En el portapapeles"
+              body: root.peekReady ? String(root.peek.original || "") : ""
+              shown: root.showBefore
+              seed: 11
+              onRevealRequested: root.showBefore = true
+              onHideRequested: root.showBefore = false
+              onFocusEntered: function(item) { root.reveal(item) }
+            }
+
+            ClipboardRow {
+              width: contentColumn.width
+              visible: root.peekChanges
+              label: "Quedaría"
+              body: root.peekChanges ? String(root.peek.cleaned || "") : ""
+              shown: root.showAfter
+              seed: 29
+              onRevealRequested: root.showAfter = true
+              onHideRequested: root.showAfter = false
+              onFocusEntered: function(item) { root.reveal(item) }
+            }
 
             Text {
               text: "Modo"
