@@ -164,6 +164,9 @@ contra el motor real.
       reserva. Medido en `docs/SPIKE.md`.
 - [ ] `D.2` Vista principal: estado, veredicto, subtítulo, dos filas de altura
       fija, desglose y acciones.
+- [x] `D.2a` Separar enseñar de informar ([`0007`](./docs/decisions/0007-la-pantalla-frecuente-informa.md)):
+      `StatusHeader` pierde el titular y la ilustración, que se quedan en
+      bienvenida y tour. Verificado en el panel real.
 - [ ] `D.3` Cubierta por defecto, con ojo por fila y barrido si `D.1` lo permite.
       El ojo es la ruta de teclado y manda; el barrido es el adorno.
 - [ ] `D.4` Estados de bypass —imagen, archivos, sensible— y portapapeles vacío.
@@ -253,6 +256,7 @@ código:
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Decisión `0007` | La pantalla frecuente informa y la primera enseña; el héroe educativo sale de la vista diaria. Sin memoria del contenido |
 | 2026-08-31 | Spike `D.1` | `destination-out` soportado y 1,5 ms por fotograma; la cubierta va con `Canvas` |
 | 2026-08-31 | Fase C | `peek` inerte: no escribe, no consume la omisión, no avanza la generación y no llega a la CLI. 13 tests nuevos |
 | 2026-08-31 | Fase B | `0005` y `0006` aceptadas; `F1.11`, `F4.5`, criterios de terminado, UX-OPPORTUNITIES y SECURITY reformulados |

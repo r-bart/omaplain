@@ -26,6 +26,15 @@ def _contrast_with_alpha(foreground: str, background: str, alpha: float) -> floa
     return (light + 0.05) / (dark + 0.05)
 
 
+def _shows(source: str, phrase: str) -> str | None:
+    """Devuelve la línea que *muestra* la frase, ignorando comentarios."""
+    for line in source.splitlines():
+        code = line.split("//", 1)[0]
+        if "text:" in code and phrase in code:
+            return line.strip()
+    return None
+
+
 class UiContractTests(unittest.TestCase):
     def test_secondary_text_alpha_passes_reference_palettes(self) -> None:
         palettes = {
@@ -126,6 +135,33 @@ class UiContractTests(unittest.TestCase):
         self.assertIsNotNone(reset)
         self.assertIn("revealed = false", reset.group("body"))
         self.assertIn("sampleIndex = 0", reset.group("body"))
+
+    def test_the_everyday_header_teaches_nothing(self) -> None:
+        # 0004 dijo que la primera apertura es educativa y las siguientes van
+        # a la accion. No se cumplio: el heroe se quedo fijo en la vista
+        # principal repitiendo, palabra por palabra, el titular de la
+        # bienvenida. 0007 lo separo; esto vigila que no vuelva.
+        header = (REPO / "components" / "StatusHeader.qml").read_text(encoding="utf-8")
+        # Se busca en la asignacion, no en el fichero entero: el invariante
+        # es sobre lo que se muestra, y el comentario cita la frase retirada
+        # justo para explicar por que ya no esta.
+        self.assertIsNone(_shows(header, "sin sorpresas"))
+        self.assertNotIn("TransformationIllustration {", header)
+
+    def test_the_welcome_headline_lives_in_exactly_one_place(self) -> None:
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        owners = [p.name for p in files if _shows(p.read_text(encoding="utf-8"), "sin sorpresas")]
+        self.assertEqual(owners, ["WelcomePage.qml"], "el titular de bienvenida se repite")
+
+    def test_the_illustration_stays_in_the_first_experience(self) -> None:
+        # Ensena la transformacion en abstracto: util una vez, decorativo
+        # despues. Solo la bienvenida y el tour tienen esa excusa.
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        users = sorted(
+            p.name for p in files
+            if "TransformationIllustration {" in p.read_text(encoding="utf-8")
+        )
+        self.assertEqual(users, ["TourPage.qml", "WelcomePage.qml"])
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
         panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
