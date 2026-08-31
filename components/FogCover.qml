@@ -37,14 +37,29 @@ Canvas {
     requestPaint()
   }
 
-  // Sobre el panel oscuro, un lavanda medio: condensación iluminada de
-  // refilón, no un rectángulo blanco cegador dentro de una interfaz oscura.
-  readonly property color body: Color.popups.background.hslLightness < 0.5
-    ? Qt.rgba(0.486, 0.459, 0.596, 1)
-    : Qt.rgba(0.953, 0.937, 0.910, 1)
-  readonly property color hintInk: Color.popups.background.hslLightness < 0.5
-    ? Qt.rgba(0.969, 0.961, 1, 0.86)
-    : Qt.rgba(0.376, 0.353, 0.314, 0.78)
+  // Todo el vaho se deriva de los tokens del tema. La primera versión
+  // llevaba un lavanda fijado a mano, que sobre un tema verde o ámbar
+  // seguía siendo lila: una paleta propia colada por la puerta de atrás,
+  // justo lo que F3.9 prohíbe.
+  function mix(a, b, t) {
+    return Qt.rgba(a.r + (b.r - a.r) * t,
+                   a.g + (b.g - a.g) * t,
+                   a.b + (b.b - a.b) * t, 1)
+  }
+
+  // A medio camino entre el fondo y el texto del panel: sea cual sea el
+  // tema, queda a un tono que ni se confunde con la superficie ni
+  // deslumbra, y siempre tapa el texto que hay debajo.
+  readonly property color body: mix(Color.popups.background, Color.popups.text, 0.55)
+
+  // La condensación coge la luz, así que el moteado tira siempre hacia el
+  // extremo claro del tema, sea el fondo o el texto quien lo tenga.
+  readonly property color glint: Color.popups.background.hslLightness > Color.popups.text.hslLightness
+    ? Color.popups.background : Color.popups.text
+  // Y la pista, hacia el extremo contrario al cuerpo del vaho.
+  readonly property color hintInk: body.hslLightness > 0.5
+    ? Util.alpha(mix(Color.popups.text, Color.popups.background, 0.15), 0.82)
+    : Util.alpha(glint, 0.88)
 
   onPaint: {
     var ctx = getContext("2d")
@@ -91,9 +106,9 @@ Canvas {
       var r = radius * (0.55 + ((n % 7) / 7) * 0.9)
       var g = ctx.createRadialGradient(x, y, 0, x, y, r)
       var a = alpha * (0.4 + ((n % 5) / 5) * 0.6)
-      g.addColorStop(0, Qt.rgba(1, 1, 1, a))
-      g.addColorStop(0.6, Qt.rgba(1, 1, 1, a * 0.35))
-      g.addColorStop(1, Qt.rgba(1, 1, 1, 0))
+      g.addColorStop(0, Util.alpha(root.glint, a))
+      g.addColorStop(0.6, Util.alpha(root.glint, a * 0.35))
+      g.addColorStop(1, Util.alpha(root.glint, 0))
       ctx.fillStyle = g
       ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill()
     }

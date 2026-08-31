@@ -136,6 +136,32 @@ class UiContractTests(unittest.TestCase):
         self.assertIn("revealed = false", reset.group("body"))
         self.assertIn("sampleIndex = 0", reset.group("body"))
 
+    def test_no_qml_introduces_a_palette_of_its_own(self) -> None:
+        """F3.9: todo color sale del tema, para que la app lo siga al 100 %.
+
+        `FogCover` nació incumpliéndolo: llevaba un lavanda escrito a mano
+        que sobre un tema verde o ámbar seguía siendo lila. Un color con
+        matiz propio es una paleta propia aunque sólo sean dos líneas.
+
+        Se permiten los neutros puros —`Qt.rgba(0,0,0,a)` y
+        `Qt.rgba(1,1,1,a)`— porque en un Canvas no eligen color: son la
+        plantilla alfa de un `destination-out`.
+        """
+        hexish = re.compile(r'"#[0-9a-fA-F]{3,8}"')
+        rgba = re.compile(r"Qt\.rgba\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)")
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        for path in files:
+            source = path.read_text(encoding="utf-8")
+            code = "\n".join(line.split("//", 1)[0] for line in source.splitlines())
+            with self.subTest(file=path.name):
+                self.assertIsNone(hexish.search(code), "color hexadecimal literal")
+                for match in rgba.finditer(code):
+                    channels = {round(float(v), 4) for v in match.groups()}
+                    self.assertEqual(
+                        len(channels), 1,
+                        f"{path.name}: Qt.rgba con matiz propio -> {match.group(0)}",
+                    )
+
     def test_the_everyday_header_teaches_nothing(self) -> None:
         # 0004 dijo que la primera apertura es educativa y las siguientes van
         # a la accion. No se cumplio: el heroe se quedo fijo en la vista

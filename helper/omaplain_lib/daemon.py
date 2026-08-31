@@ -317,14 +317,30 @@ class OmaPlainDaemon:
 
         before, clipped_before = self._clip(before)
         after, clipped_after = self._clip(after)
+
+        # `changed` es lo que decide el panel, y tiene que significar «esto
+        # se reescribiria», no «el texto seria distinto». Retirar formato
+        # enriquecido no cambia un solo caracter y sin embargo reescribe: la
+        # version con formato desaparece. Preguntarle a transformed.changed
+        # hacia que el panel dijera «ya esta limpio» de algo que si se iba a
+        # limpiar, que es justo la mentira que estos paneles no pueden decir.
+        rewrites = operation.result == "ready"
+        applied = list(transformed.transformations) if transformed else []
+        if rewrites and not applied:
+            applied = [operation.reason]
+
         answer.update(
             original=before,
             cleaned=after,
-            applied=list(transformed.transformations) if transformed else [],
-            changed=bool(transformed.changed) if transformed else False,
+            applied=applied,
+            changed=rewrites,
             truncated=clipped_before or clipped_after,
             bytes=len(original),
         )
+        # Los tipos que quedarian: retirar el formato deja solo el texto
+        # plano, y ese es el unico cambio visible en ese caso.
+        if rewrites and mime:
+            answer["typesAfter"] = [mime]
         return answer
 
     def command(self, name: str) -> dict[str, object]:

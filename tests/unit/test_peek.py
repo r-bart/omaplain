@@ -60,6 +60,36 @@ class PeekTests(unittest.TestCase):
         self.daemon.clean_now()
         self.assertEqual(self.backend.writes[-1].decode("utf-8"), preview["cleaned"])
 
+    def test_peek_reports_a_rewrite_even_when_the_text_is_identical(self) -> None:
+        # Retirar formato enriquecido no cambia un carácter: lo que desaparece
+        # es la versión con formato. Si `changed` mirase sólo al texto, el
+        # panel diría «ya está limpio» de algo que sí se va a reescribir.
+        self.backend.types = ["text/html", "text/plain"]
+        self.backend.payload = b"Resumen ejecutivo"
+        answer = self.daemon.peek()
+        self.assertTrue(answer["changed"], "peek no ve la retirada de formato")
+        self.assertIn("rich_text", answer["applied"])
+        self.assertEqual(answer["original"], answer["cleaned"])
+        # Y el cambio que sí se puede enseñar son los tipos.
+        self.assertEqual(answer["typesAfter"], ["text/plain"])
+
+    def test_peek_and_clean_now_agree_about_whether_anything_happens(self) -> None:
+        for types, payload in (
+            (["text/html", "text/plain"], b"Resumen ejecutivo"),
+            (["text/plain"], b"https://ejemplo.com/a?utm_source=x"),
+            (["text/plain"], b"nada que hacer"),
+        ):
+            with self.subTest(types=types):
+                self.setUp()
+                self.backend.types = types
+                self.backend.payload = payload
+                preview = self.daemon.peek()
+                result = self.daemon.clean_now()
+                self.assertEqual(
+                    preview["changed"], result["result"] == "cleaned",
+                    "el panel promete algo distinto de lo que hace el motor",
+                )
+
     def test_peek_marks_a_clipboard_that_needs_no_change(self) -> None:
         self.backend.payload = b"nada que limpiar"
         answer = self.daemon.peek()
