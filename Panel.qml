@@ -16,6 +16,7 @@ Item {
   property string fieldError: ""
   property string feedback: ""
   property bool feedbackError: false
+  property bool focusReady: false
 
   readonly property var settings: service && service.settings ? service.settings : ({})
   readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "omapaste.cleaner"
@@ -26,12 +27,15 @@ Item {
     opened = true
     feedback = ""
     fieldError = ""
+    focusReady = false
     scroll.contentY = 0
     initialFocusTimer.restart()
   }
 
   function close() {
     opened = false
+    focusReady = false
+    initialFocusTimer.stop()
     feedbackTimer.stop()
     fieldError = ""
   }
@@ -110,7 +114,7 @@ Item {
   }
 
   function reveal(item) {
-    if (!item || !contentColumn) return
+    if (!focusReady || !item || !contentColumn) return
     var point = item.mapToItem(contentColumn, 0, 0)
     var top = point.y
     var bottom = top + item.height
@@ -138,15 +142,16 @@ Item {
 
   Timer {
     id: initialFocusTimer
-    interval: 80
+    interval: 180
     repeat: false
     onTriggered: {
       if (!root.opened) return
       scroll.contentY = 0
+      focusScope.forceActiveFocus()
       cleanButton.forceActiveFocus()
       Qt.callLater(function() {
         scroll.contentY = 0
-        root.reveal(cleanButton)
+        root.focusReady = true
       })
     }
   }
