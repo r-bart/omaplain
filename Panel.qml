@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Wayland
 import qs.Commons
 import qs.Ui
+import "components/Strings.js" as Strings
 import "components"
 
 Item {
@@ -28,32 +29,41 @@ Item {
   // La pantalla frecuente informa; los ajustes viven detrás del engranaje.
   property string panelPage: "clipboard"
 
+  // Del ajuste del usuario, y si está en «auto» del locale del sistema.
+  // Se pasa a cada componente en vez de guardarlo en el módulo JS, para que
+  // los bindings se reevalúen solos al cambiarlo.
+  readonly property string lang: {
+    var chosen = String(setting("language", "auto"))
+    if (chosen === "en" || chosen === "es") return chosen
+    return Strings.fromLocale(Qt.locale().name)
+  }
+
   readonly property string peekVerdict: {
-    if (!service) return "Preparando…"
+    if (!service) return Strings.t("verdict.preparing", root.lang)
     if (!peek || peek.eligible !== true) {
       var why = peek ? String(peek.reason || "") : ""
-      if (why === "sensitive") return "Marcado como sensible"
-      if (why === "image") return "Una imagen no se toca"
-      if (why === "files") return "Archivos, intactos"
-      if (why === "empty") return "Nada copiado todavía"
-      if (why === "structured") return "Formato estructurado, intacto"
-      return "Nada que limpiar aquí"
+      if (why === "sensitive") return Strings.t("verdict.sensitive", root.lang)
+      if (why === "image") return Strings.t("verdict.image", root.lang)
+      if (why === "files") return Strings.t("verdict.files", root.lang)
+      if (why === "empty") return Strings.t("verdict.empty", root.lang)
+      if (why === "structured") return Strings.t("verdict.structured", root.lang)
+      return Strings.t("verdict.nothing", root.lang)
     }
-    return peekChanges ? "Esto se puede limpiar" : "Ya está limpio"
+    return peekChanges ? Strings.t("verdict.cleanable", root.lang) : Strings.t("verdict.clean", root.lang)
   }
 
   readonly property string peekDetail: {
     if (!peek || peek.eligible !== true) {
       var why = peek ? String(peek.reason || "") : ""
-      if (why === "sensitive") return "Tu gestor de contraseñas marcó esta copia. OmaPlain no la lee, no la muestra y no la reescribe."
-      if (why === "image") return "OmaPlain ni la lee. Las capturas llegan a su destino byte a byte."
-      if (why === "files") return "Copiar archivos mueve rutas y permisos. Reescribir eso rompería el pegado."
-      if (why === "empty") return "Copia algo y aquí verás qué haría OmaPlain con ello."
-      return "OmaPlain lo ha mirado y lo deja como está."
+      if (why === "sensitive") return Strings.t("detail.sensitive", root.lang)
+      if (why === "image") return Strings.t("detail.image", root.lang)
+      if (why === "files") return Strings.t("detail.files", root.lang)
+      if (why === "empty") return Strings.t("detail.empty", root.lang)
+      return Strings.t("detail.nothing", root.lang)
     }
     return peekChanges
-      ? "Así está ahora y así quedaría."
-      : "OmaPlain lo ha mirado y no hay nada que retirar."
+      ? Strings.t("detail.cleanable", root.lang)
+      : Strings.t("detail.clean", root.lang)
   }
 
   readonly property var peekApplied: peek && peek.applied ? peek.applied : []
@@ -65,10 +75,10 @@ Item {
     && String(peek.original || "") === String(peek.cleaned || "")
 
   function settingFor(rule) {
-    if (rule === "tracking") return "Seguimiento"
-    if (rule === "invisible") return "Invisibles"
-    if (rule === "line_endings") return "Saltos"
-    if (rule === "rich_text") return "Formato"
+    if (rule === "tracking") return Strings.t("setting.tracking", root.lang)
+    if (rule === "invisible") return Strings.t("setting.invisible", root.lang)
+    if (rule === "line_endings") return Strings.t("setting.line_endings", root.lang)
+    if (rule === "rich_text") return Strings.t("setting.rich_text", root.lang)
     return ""
   }
 
@@ -85,11 +95,15 @@ Item {
   property bool onboardingSettings: false
 
   function ruleLabel(rule) {
-    if (rule === "tracking") return "Parámetros de seguimiento"
-    if (rule === "invisible") return "Caracteres invisibles"
-    if (rule === "line_endings") return "Finales de línea CRLF"
-    if (rule === "rich_text") return "Formato enriquecido"
+    if (rule === "tracking") return Strings.t("rule.tracking", root.lang)
+    if (rule === "invisible") return Strings.t("rule.invisible", root.lang)
+    if (rule === "line_endings") return Strings.t("rule.line_endings", root.lang)
+    if (rule === "rich_text") return Strings.t("rule.rich_text", root.lang)
     return rule
+  }
+
+  function chooseLanguage(value) {
+    if (service) service.updateSetting("language", value)
   }
 
   function togglePage() {
@@ -202,38 +216,38 @@ Item {
   }
 
   function statusDetail() {
-    if (!service) return "El servicio todavía no está disponible."
-    if (service.dependencyError !== "") return "Faltan dependencias: " + service.dependencyError
-    if (watcherState === "degraded") return "El watcher ha fallado varias veces. Las acciones manuales siguen disponibles."
-    if (watcherState === "restarting") return "Reiniciando el watcher…"
-    if (!setting("automatic", true)) return "La limpieza automática está pausada. Las acciones manuales siguen disponibles."
-    if (service.status && service.status.skipNext === true) return "Se omitirá la próxima copia elegible."
-    if (service.status && service.status.lastResult === "cleaned") return "Listo · última limpieza completada"
-    return "OmaPlain ordena el formato y deja intacto todo lo que no puede limpiar con seguridad."
+    if (!service) return Strings.t("status.unavailable", root.lang)
+    if (service.dependencyError !== "") return Strings.f("status.deps", root.lang, service.dependencyError)
+    if (watcherState === "degraded") return Strings.t("status.degraded", root.lang)
+    if (watcherState === "restarting") return Strings.t("status.restarting", root.lang)
+    if (!setting("automatic", true)) return Strings.t("status.paused", root.lang)
+    if (service.status && service.status.skipNext === true) return Strings.t("status.willskip", root.lang)
+    if (service.status && service.status.lastResult === "cleaned") return Strings.t("status.done", root.lang)
+    return Strings.t("status.idle", root.lang)
   }
 
   function historyDetail() {
     if (!setting("automatic", true))
-      return "La limpieza manual y «pegar limpio» siguen disponibles."
+      return Strings.t("hint.manual", root.lang)
     if (setting("removeTracking", true) || setting("removeInvisible", true))
-      return "El historial puede conservar también el original cuando cambian caracteres."
-    return "La copia automática conserva los caracteres del texto."
+      return Strings.t("settings.history", root.lang)
+    return Strings.t("hint.chars", root.lang)
   }
 
   function actionMessage(raw) {
     var data = {}
     try { data = JSON.parse(String(raw || "{}")) } catch (error) {}
     feedbackError = data.result === "error"
-    if (data.result === "cleaned") return "Portapapeles limpio"
-    if (data.result === "unchanged") return "Ya estaba limpio"
-    if (data.reason === "image") return "No se ha modificado: es una imagen"
-    if (data.reason === "files") return "No se ha modificado: contiene archivos"
-    if (data.reason === "sensitive") return "Contenido sensible protegido"
-    if (data.reason === "too_large") return "No se ha modificado: supera 1 MB"
-    if (data.reason === "target_excluded" || data.reason === "source_excluded") return "No se ha modificado: aplicación excluida"
-    if (data.result === "bypassed") return "No se ha modificado: contenido no compatible"
-    if (data.result === "ok") return "Se omitirá la próxima copia"
-    if (data.result === "error") return "No se pudo limpiar. El texto original sigue intacto."
+    if (data.result === "cleaned") return Strings.t("fb.cleaned", root.lang)
+    if (data.result === "unchanged") return Strings.t("fb.unchanged", root.lang)
+    if (data.reason === "image") return Strings.t("fb.image", root.lang)
+    if (data.reason === "files") return Strings.t("fb.files", root.lang)
+    if (data.reason === "sensitive") return Strings.t("fb.sensitive", root.lang)
+    if (data.reason === "too_large") return Strings.t("fb.large", root.lang)
+    if (data.reason === "target_excluded" || data.reason === "source_excluded") return Strings.t("fb.excluded", root.lang)
+    if (data.result === "bypassed") return Strings.t("fb.bypassed", root.lang)
+    if (data.result === "ok") return Strings.t("fb.skip", root.lang)
+    if (data.result === "error") return Strings.t("fb.error", root.lang)
     return ""
   }
 
@@ -267,7 +281,7 @@ Item {
 
   function excludeDetected() {
     if (!service || !service.currentAppClass) {
-      fieldError = "No se ha detectado una aplicación"
+      fieldError = Strings.t("excl.undetected", root.lang)
       Qt.callLater(function() { root.reveal(fieldMessage) })
       return
     }
@@ -375,6 +389,8 @@ Item {
         MouseArea { anchors.fill: parent; onClicked: {} }
 
         WelcomePage {
+
+          lang: root.lang
           id: welcomePage
           anchors.fill: parent
           visible: root.viewMode === "welcome"
@@ -385,6 +401,8 @@ Item {
         }
 
         TourPage {
+
+          lang: root.lang
           id: tourPage
           anchors.fill: parent
           visible: root.viewMode === "tour"
@@ -417,7 +435,7 @@ Item {
             Text {
               anchors.left: parent.left
               anchors.verticalCenter: parent.verticalCenter
-              text: "OmaPlain"
+              text: Strings.t("app.name", root.lang)
               color: Color.popups.text
               font.family: Style.font.family
               font.pixelSize: Style.font.subtitle
@@ -430,18 +448,18 @@ Item {
               anchors.verticalCenter: parent.verticalCenter
               implicitHeight: Style.space(44)
               text: root.onboardingSettings
-                ? "Saltar  󰅂"
-                : (root.panelPage === "settings" ? "󰅁  Volver" : "󰢻  Opciones")
+                ? Strings.t("nav.skip", root.lang)
+                : (root.panelPage === "settings" ? Strings.t("nav.back", root.lang) : Strings.t("nav.options", root.lang))
               tooltipText: root.onboardingSettings
-                ? "Saltar los ajustes e ir al panel"
-                : (root.panelPage === "settings" ? "Volver al portapapeles" : "Abrir opciones")
+                ? Strings.t("nav.skip.a11y", root.lang)
+                : (root.panelPage === "settings" ? Strings.t("nav.back.a11y", root.lang) : Strings.t("nav.options.a11y", root.lang))
               focusable: true
               bordered: true
               foreground: root.panelPage === "settings" ? Color.accent : Util.alpha(Color.popups.text, 0.68)
               Accessible.role: Accessible.Button
               Accessible.name: root.onboardingSettings
-                ? "Saltar los ajustes e ir al panel"
-                : (root.panelPage === "settings" ? "Volver al portapapeles" : "Abrir opciones")
+                ? Strings.t("nav.skip.a11y", root.lang)
+                : (root.panelPage === "settings" ? Strings.t("nav.back.a11y", root.lang) : Strings.t("nav.options.a11y", root.lang))
               Accessible.onPressAction: root.togglePage()
               onClicked: root.togglePage()
             }
@@ -456,6 +474,8 @@ Item {
           }
 
           StatusHeader {
+
+            lang: root.lang
             width: parent.width
             visible: root.panelPage === "clipboard"
             state: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
@@ -521,9 +541,11 @@ Item {
               spacing: Style.space(12)
 
               ClipboardRow {
+
+                lang: root.lang
                 width: contentColumn.width
                 visible: root.peekReady
-                label: root.peekChanges ? "Ahora" : "En el portapapeles"
+                label: root.peekChanges ? Strings.t("row.now", root.lang) : Strings.t("row.single", root.lang)
                 body: root.peekReady ? String(root.peek.original || "") : ""
                 shown: root.showBefore
                 seed: 11
@@ -533,9 +555,11 @@ Item {
               }
 
               ClipboardRow {
+
+                lang: root.lang
                 width: contentColumn.width
                 visible: root.peekChanges
-                label: "Quedaría"
+                label: Strings.t("row.would", root.lang)
                 body: root.peekChanges ? String(root.peek.cleaned || "") : ""
                 shown: root.showAfter
                 seed: 29
@@ -575,8 +599,7 @@ Item {
                     height: Math.max(ruleText.implicitHeight, ruleChip.implicitHeight)
 
                     Accessible.role: Accessible.StaticText
-                    Accessible.name: "Se retira: " + root.ruleLabel(modelData)
-                      + ", según el ajuste " + root.settingFor(modelData)
+                    Accessible.name: Strings.f("rule.removed.a11y", root.lang, root.ruleLabel(modelData), root.settingFor(modelData))
 
                     Text {
                       id: ruleText
@@ -592,6 +615,7 @@ Item {
                     }
 
                     Chip {
+
                       id: ruleChip
                       anchors.right: parent.right
                       anchors.verticalCenter: parent.verticalCenter
@@ -615,7 +639,7 @@ Item {
                 PrimaryButton {
                   id: applyButton
                   width: (clipboardActions.width - (clipboardActions.columns - 1) * clipboardActions.columnSpacing) / clipboardActions.columns
-                  text: service && service.actionBusy ? "Limpiando…" : "Aplicar al portapapeles"
+                  text: service && service.actionBusy ? Strings.t("action.applying", root.lang) : Strings.t("action.apply", root.lang)
                   iconText: service && service.actionBusy ? "" : "󰅍"
                   enabled: service && !service.actionBusy && root.peekChanges
                   onClicked: root.runAction("cleanNow")
@@ -625,7 +649,7 @@ Item {
                   id: skipButton2
                   width: (clipboardActions.width - (clipboardActions.columns - 1) * clipboardActions.columnSpacing) / clipboardActions.columns
                   implicitHeight: Style.space(44)
-                  text: service && service.status && service.status.skipNext ? "Próxima copia omitida" : "Omitir la próxima copia"
+                  text: service && service.status && service.status.skipNext ? Strings.t("action.skipped", root.lang) : Strings.t("action.skip", root.lang)
                   focusable: true
                   bordered: true
                   foreground: Color.popups.text
@@ -643,10 +667,10 @@ Item {
                 text: root.feedback !== ""
                   ? root.feedback
                   : (root.peekReady
-                    ? "El original permanece intacto si la limpieza no es segura."
+                    ? Strings.t("footnote.safe", root.lang)
                     : (root.peek && root.peek.reason === "sensitive"
-                      ? "Revelar no está disponible para contenido marcado como sensible."
-                      : "No hay nada que limpiar, así que no hay acción que ofrecer."))
+                      ? Strings.t("footnote.sensitive", root.lang)
+                      : Strings.t("footnote.nothing", root.lang)))
                 color: root.feedback !== ""
                   ? (root.feedbackError ? Color.urgent : Color.popups.text)
                   : Util.alpha(Color.popups.text, 0.68)
@@ -686,7 +710,7 @@ Item {
                   spacing: Style.space(4)
 
                   Text {
-                    text: "Último paso"
+                    text: Strings.t("onboarding.last", root.lang)
                     color: Color.accent
                     font.family: Style.font.family
                     font.pixelSize: Style.font.caption
@@ -697,7 +721,7 @@ Item {
 
                   Text {
                     width: parent.width
-                    text: "Esto es lo que puedes ajustar. Ya viene todo configurado de forma segura, así que puedes dejarlo tal cual."
+                    text: Strings.t("onboarding.last.body", root.lang)
                     color: Util.alpha(Color.popups.text, 0.78)
                     font.family: Style.font.family
                     font.pixelSize: Style.font.bodySmall
@@ -708,8 +732,50 @@ Item {
                 }
               }
 
+              // El idioma va el primero: si alguien abre los ajustes por no
+              // entender la interfaz, es lo primero que necesita encontrar.
               Text {
-                text: "Modo"
+                text: Strings.t("settings.language", root.lang)
+                color: Color.popups.text
+                font.family: Style.font.family
+                font.pixelSize: Style.font.subtitle
+                font.bold: true
+              }
+
+              Grid {
+                id: languageChoices
+                width: parent.width
+                columns: width < Style.space(360) ? 1 : 3
+                columnSpacing: Style.space(8)
+                rowSpacing: Style.space(8)
+
+                Repeater {
+                  model: [
+                    { value: "auto", key: "settings.language.auto" },
+                    { value: "en", key: "settings.language.en" },
+                    { value: "es", key: "settings.language.es" }
+                  ]
+                  delegate: Button {
+                    required property var modelData
+                    readonly property bool chosen: String(root.setting("language", "auto")) === modelData.value
+                    width: (languageChoices.width - (languageChoices.columns - 1) * languageChoices.columnSpacing) / languageChoices.columns
+                    implicitHeight: Style.space(44)
+                    text: Strings.t(modelData.key, root.lang)
+                    focusable: true
+                    bordered: true
+                    foreground: chosen ? Color.accent : Util.alpha(Color.popups.text, 0.68)
+                    Accessible.role: Accessible.RadioButton
+                    Accessible.name: text
+                    Accessible.checked: chosen
+                    Accessible.onPressAction: root.chooseLanguage(modelData.value)
+                    onActiveFocusChanged: if (activeFocus) root.reveal(this)
+                    onClicked: root.chooseLanguage(modelData.value)
+                  }
+                }
+              }
+
+              Text {
+                text: Strings.t("settings.mode", root.lang)
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
@@ -719,8 +785,8 @@ Item {
               SettingRow {
                 id: automaticToggle
                 width: parent.width
-                label: "Limpiar automáticamente"
-                description: "Convierte en texto limpio cada copia que sea segura."
+                label: Strings.t("settings.automatic", root.lang)
+                description: Strings.t("settings.automatic.desc", root.lang)
                 checked: root.setting("automatic", true)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("automatic", !checked)
@@ -736,7 +802,7 @@ Item {
               }
 
               Text {
-                text: "Limpieza"
+                text: Strings.t("settings.cleaning", root.lang)
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
@@ -745,8 +811,8 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Retirar formato"
-                description: "Pega usando solo la representación de texto plano."
+                label: Strings.t("settings.formatting", root.lang)
+                description: Strings.t("settings.formatting.desc", root.lang)
                 checked: root.setting("stripFormatting", true)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("stripFormatting", !checked)
@@ -754,8 +820,8 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Retirar parámetros de seguimiento"
-                description: "Solo actúa cuando todo el contenido es una URL segura."
+                label: Strings.t("settings.tracking", root.lang)
+                description: Strings.t("settings.tracking.desc", root.lang)
                 checked: root.setting("removeTracking", true)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("removeTracking", !checked)
@@ -763,8 +829,8 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Retirar invisibles no semánticos"
-                description: "Conserva emoji, escritura RTL y marcas de idioma."
+                label: Strings.t("settings.invisible", root.lang)
+                description: Strings.t("settings.invisible.desc", root.lang)
                 checked: root.setting("removeInvisible", true)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("removeInvisible", !checked)
@@ -772,15 +838,15 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Normalizar finales de línea"
-                description: "Convierte CRLF y CR en LF sin quitar el salto final."
+                label: Strings.t("settings.endings", root.lang)
+                description: Strings.t("settings.endings.desc", root.lang)
                 checked: root.setting("normalizeLineEndings", true)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("normalizeLineEndings", !checked)
               }
 
               Text {
-                text: "Opcionales"
+                text: Strings.t("settings.optional", root.lang)
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
@@ -789,8 +855,8 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Normalizar comillas"
-                description: "Convierte comillas tipográficas en comillas rectas."
+                label: Strings.t("settings.quotes", root.lang)
+                description: Strings.t("settings.quotes.desc", root.lang)
                 checked: root.setting("normalizeQuotes", false)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("normalizeQuotes", !checked)
@@ -798,8 +864,8 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Normalizar viñetas"
-                description: "Convierte viñetas al inicio de línea en guiones."
+                label: Strings.t("settings.bullets", root.lang)
+                description: Strings.t("settings.bullets.desc", root.lang)
                 checked: root.setting("normalizeLists", false)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("normalizeLists", !checked)
@@ -807,8 +873,8 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Normalizar Unicode NFC"
-                description: "Puede cambiar la representación exacta del texto."
+                label: Strings.t("settings.nfc", root.lang)
+                description: Strings.t("settings.nfc.desc", root.lang)
                 checked: root.setting("normalizeUnicodeNfc", false)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("normalizeUnicodeNfc", !checked)
@@ -816,7 +882,7 @@ Item {
 
               SettingRow {
                 width: parent.width
-                label: "Retirar espacios al final de línea"
+                label: Strings.t("settings.trim2", root.lang)
                 description: "No modifica la indentación ni los saltos."
                 checked: root.setting("trimTrailingWhitespace", false)
                 onFocusEntered: function(item) { root.reveal(item) }
@@ -824,7 +890,7 @@ Item {
               }
 
               Text {
-                text: "Aplicaciones excluidas"
+                text: Strings.t("excl.title", root.lang)
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
@@ -837,7 +903,7 @@ Item {
                 implicitHeight: Style.space(44)
                 text: service && service.currentAppClass
                   ? "Excluir " + service.currentAppClass + " del modo automático"
-                  : "Excluir la aplicación detectada"
+                  : Strings.t("excl.detected", root.lang)
                 focusable: true
                 bordered: true
                 foreground: Color.popups.text
@@ -849,11 +915,12 @@ Item {
               }
 
               EmptyState {
+
                 width: contentColumn.width
                 visible: root.setting("sourceExclusions", []).length === 0
                   && root.setting("targetExclusions", []).length === 0
-                title: "Ninguna aplicación excluida"
-                body: "OmaPlain limpia el texto que copies en cualquier aplicación. Excluye una como origen para que lo que copies en ella pase intacto, o como destino para no pegar limpio dentro de ella."
+                title: Strings.t("excl.none.title", root.lang)
+                body: Strings.t("excl.none.body", root.lang)
               }
 
               Repeater {
@@ -862,7 +929,7 @@ Item {
                   required property string modelData
                   width: contentColumn.width
                   appClass: modelData
-                  scopeLabel: "Origen · modo automático"
+                  scopeLabel: Strings.t("excl.source", root.lang)
                   onFocusEntered: function(item) { root.reveal(item) }
                   onRemoveRequested: function(value) { if (service) service.removeExclusion("source", value) }
                 }
@@ -874,7 +941,7 @@ Item {
                   required property string modelData
                   width: contentColumn.width
                   appClass: modelData
-                  scopeLabel: "Destino · pegar limpio"
+                  scopeLabel: Strings.t("excl.target", root.lang)
                   onFocusEntered: function(item) { root.reveal(item) }
                   onRemoveRequested: function(value) { if (service) service.removeExclusion("target", value) }
                 }
@@ -882,7 +949,7 @@ Item {
 
               Text {
                 id: classFieldLabel
-                text: "Clase de aplicación"
+                text: Strings.t("excl.class", root.lang)
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
@@ -903,7 +970,7 @@ Item {
                 placeholderText: "org.example.Application"
                 selectByMouse: true
                 maximumLength: 256
-                Accessible.name: "Clase de aplicación"
+                Accessible.name: Strings.t("excl.class", root.lang)
                 Accessible.description: root.fieldError !== ""
                   ? root.fieldError
                   : "Clase exacta de Hyprland que se excluirá"
@@ -923,7 +990,7 @@ Item {
                   id: addSourceButton
                   width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
                   implicitHeight: Style.space(44)
-                  text: "Añadir como origen"
+                  text: Strings.t("excl.addSource", root.lang)
                   focusable: true
                   bordered: true
                   foreground: Color.popups.text
@@ -938,7 +1005,7 @@ Item {
                   id: addTargetButton
                   width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
                   implicitHeight: Style.space(44)
-                  text: "Añadir como destino"
+                  text: Strings.t("excl.addTarget", root.lang)
                   focusable: true
                   bordered: true
                   foreground: Color.popups.text
@@ -955,7 +1022,7 @@ Item {
                 width: parent.width
                 text: root.fieldError !== ""
                   ? "⚠ " + root.fieldError
-                  : "Distingue entre mayúsculas y minúsculas."
+                  : Strings.t("excl.case", root.lang)
                 color: root.fieldError !== ""
                   ? Color.urgent
                   : Util.alpha(Color.popups.text, 0.68)
@@ -967,7 +1034,7 @@ Item {
               }
 
               Text {
-                text: "Ayuda y aprendizaje"
+                text: Strings.t("help.title", root.lang)
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
@@ -976,7 +1043,7 @@ Item {
 
               Text {
                 width: parent.width
-                text: "Vuelve a la explicación inicial o repite el recorrido sin cambiar tu configuración."
+                text: Strings.t("help.body", root.lang)
                 color: Util.alpha(Color.popups.text, 0.68)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall
@@ -996,13 +1063,13 @@ Item {
                   id: welcomeReplayButton
                   width: (learningActions.width - (learningActions.columns - 1) * learningActions.columnSpacing) / learningActions.columns
                   implicitHeight: Style.space(44)
-                  text: "Revisar bienvenida"
+                  text: Strings.t("help.welcome", root.lang)
                   focusable: true
                   bordered: true
                   foreground: Color.popups.text
                   Accessible.role: Accessible.Button
                   Accessible.name: text
-                  Accessible.description: "Abre de nuevo la explicación de OmaPlain"
+                  Accessible.description: Strings.t("help.welcome.a11y", root.lang)
                   Accessible.onPressAction: root.showWelcome("settings")
                   onActiveFocusChanged: if (activeFocus) root.reveal(welcomeReplayButton)
                   onClicked: root.showWelcome("settings")
@@ -1012,13 +1079,13 @@ Item {
                   id: tourReplayButton
                   width: (learningActions.width - (learningActions.columns - 1) * learningActions.columnSpacing) / learningActions.columns
                   implicitHeight: Style.space(44)
-                  text: "Repetir mini tour"
+                  text: Strings.t("help.tour", root.lang)
                   focusable: true
                   bordered: true
                   foreground: Color.popups.text
                   Accessible.role: Accessible.Button
                   Accessible.name: text
-                  Accessible.description: "Inicia de nuevo el recorrido de tres pasos"
+                  Accessible.description: Strings.t("help.tour.a11y", root.lang)
                   Accessible.onPressAction: root.showTour("settings", "settings")
                   onActiveFocusChanged: if (activeFocus) root.reveal(tourReplayButton)
                   onClicked: root.showTour("settings", "settings")
@@ -1026,7 +1093,7 @@ Item {
               }
 
               Text {
-                text: "Privacidad"
+                text: Strings.t("privacy.title", root.lang)
                 color: Color.popups.text
                 font.family: Style.font.family
                 font.pixelSize: Style.font.subtitle
@@ -1037,14 +1104,14 @@ Item {
                 id: onboardingDoneButton
                 width: parent.width
                 visible: root.onboardingSettings
-                text: "Abrir OmaPlain"
+                text: Strings.t("onboarding.done", root.lang)
                 iconText: "✓"
                 onClicked: root.finishOnboarding()
               }
 
               Text {
                 width: parent.width
-                text: "Todo ocurre en este equipo. OmaPlain no guarda el texto copiado. El historial pertenece a Omarchy."
+                text: Strings.t("privacy.body", root.lang)
                 color: Util.alpha(Color.popups.text, 0.72)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall

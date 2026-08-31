@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 // A demonstration that never reads the clipboard. Both samples and both
 // results are literals, and tests/unit/test_demo_sample.py pushes each
@@ -8,6 +9,9 @@ import qs.Ui
 // something the engine stopped doing.
 Column {
   id: root
+
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
 
   property int sampleIndex: 0
   property bool revealed: false
@@ -43,7 +47,7 @@ Column {
 
   Text {
     width: parent.width
-    text: "Demostración · texto de ejemplo, nunca tu portapapeles"
+    text: Strings.t("demo.label", root.lang)
     color: Color.accent
     font.family: Style.font.family
     font.pixelSize: Style.font.caption
@@ -100,7 +104,7 @@ Column {
       id: revealButton
       width: (demoActions.width - (demoActions.columns - 1) * demoActions.columnSpacing) / demoActions.columns
       implicitHeight: Style.space(44)
-      text: root.revealed ? "Ver el original" : "Probar con un ejemplo"
+      text: root.revealed ? Strings.t("demo.original", root.lang) : Strings.t("demo.try", root.lang)
       focusable: true
       bordered: true
       foreground: Color.popups.text
@@ -115,12 +119,12 @@ Column {
       id: cycleButton
       width: (demoActions.width - (demoActions.columns - 1) * demoActions.columnSpacing) / demoActions.columns
       implicitHeight: Style.space(44)
-      text: "Otro ejemplo"
+      text: Strings.t("demo.other", root.lang)
       focusable: true
       bordered: true
       foreground: Util.alpha(Color.popups.text, 0.68)
       Accessible.role: Accessible.Button
-      Accessible.name: "Otro ejemplo de demostración"
+      Accessible.name: Strings.t("demo.other.a11y", root.lang)
       Accessible.onPressAction: root.nextSample()
       onActiveFocusChanged: if (activeFocus) root.focusEntered(cycleButton)
       onClicked: root.nextSample()
@@ -128,7 +132,7 @@ Column {
   }
 
   // Cycling starts each sample at its original, or the second one would open
-  // already answered and the button would read "Ver el original" for a
+  // already answered and the button would read Strings.t("demo.original", root.lang) for a
   // result nobody asked to see.
   function nextSample() {
     revealed = false

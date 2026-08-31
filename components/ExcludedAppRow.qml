@@ -1,9 +1,13 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 Item {
   id: root
+
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
 
   property string appClass: ""
   property string scopeLabel: "Origen"
@@ -47,13 +51,13 @@ Item {
     anchors.right: parent.right
     anchors.verticalCenter: parent.verticalCenter
     implicitHeight: Style.space(44)
-    text: "Quitar"
-    tooltipText: "Quitar " + root.appClass
+    text: Strings.t("excl.remove", root.lang)
+    tooltipText: Strings.f("excl.remove.a11y", root.lang, root.appClass)
     focusable: true
     bordered: true
     foreground: Color.popups.text
     Accessible.role: Accessible.Button
-    Accessible.name: "Quitar " + root.appClass
+    Accessible.name: Strings.f("excl.remove.a11y", root.lang, root.appClass)
     Accessible.onPressAction: root.removeRequested(root.appClass)
     onActiveFocusChanged: if (activeFocus) root.focusEntered(removeButton)
     onClicked: root.removeRequested(root.appClass)

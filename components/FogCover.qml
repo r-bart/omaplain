@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 // La cubierta de vaho. Tapa el contenido hasta que alguien pide verlo, y
 // se puede limpiar arrastrando encima como el vaho de un espejo.
@@ -16,11 +17,14 @@ import qs.Ui
 Canvas {
   id: root
 
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
+
   // La fase F conducirá esta propiedad. Hasta entonces se queda en true,
   // que es el comportamiento de hoy.
   property bool motionEnabled: true
   property int seed: 7
-  property string hint: "Arrastra para limpiar"
+  property string hint: Strings.t("fog.hint", root.lang)
 
   signal cleared()
 

@@ -172,7 +172,7 @@ class UiContractTests(unittest.TestCase):
         self.assertIn('learningOrigin === "first-run"', advance.group("body"))
 
         # Dos salidas: el control de la cabecera y el botón del final.
-        self.assertIn('"Saltar', panel)
+        self.assertIn('"nav.skip"', panel)
         self.assertIn('onClicked: root.finishOnboarding()', panel)
 
         # Y ambas terminan en la pantalla principal, no en los ajustes.
@@ -227,6 +227,25 @@ class UiContractTests(unittest.TestCase):
         # sube el tamaño de fuente del tema, el texto no se sale.
         self.assertIn("implicitHeight: Math.max(", welcome)
 
+    def test_no_qml_carries_an_escaped_quote_where_a_string_should_be(self) -> None:
+        """QML no es JavaScript dentro de una cadena de Python.
+
+        Migrar el texto al catálogo se hizo con un script, y un `\\"` se
+        coló en ocho componentes: `property string lang: \\"en\\"`. El QML
+        dejó de compilar y el panel no montaba. Contar llaves no lo vio
+        —estaban equilibradas— y ningún test lo vio tampoco, porque todos
+        leen el fichero como texto. Lo cazó el shell al cargarlo.
+        """
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        for path in files:
+            source = path.read_text(encoding="utf-8")
+            for number, line in enumerate(source.splitlines(), 1):
+                code = line.split("//", 1)[0]
+                # `\n` y `\"` dentro de una cadena ya abierta son legítimos;
+                # lo que no lo es nunca es abrir la cadena con `\"`.
+                with self.subTest(file=path.name, line=number):
+                    self.assertNotRegex(code, r':\s*\\"', "cadena abierta con comilla escapada")
+
     def test_the_everyday_header_teaches_nothing(self) -> None:
         # 0004 dijo que la primera apertura es educativa y las siguientes van
         # a la accion. No se cumplio: el heroe se quedo fijo en la vista
@@ -240,9 +259,15 @@ class UiContractTests(unittest.TestCase):
         self.assertNotIn("TransformationIllustration {", header)
 
     def test_the_welcome_headline_lives_in_exactly_one_place(self) -> None:
+        # Con el catálogo, «una sola vez» pasa a ser «una sola clave»: sólo
+        # la bienvenida puede pedir welcome.title.
         files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
-        owners = [p.name for p in files if _shows(p.read_text(encoding="utf-8"), "sin sorpresas")]
+        owners = [p.name for p in files if '"welcome.title"' in p.read_text(encoding="utf-8")]
         self.assertEqual(owners, ["WelcomePage.qml"], "el titular de bienvenida se repite")
+        # Y nadie escribe la frase a pelo en el QML.
+        for path in files:
+            with self.subTest(file=path.name):
+                self.assertIsNone(_shows(path.read_text(encoding="utf-8"), "sin sorpresas"))
 
     def test_the_illustration_stays_in_the_first_experience(self) -> None:
         # Ensena la transformacion en abstracto: util una vez, decorativo
@@ -255,9 +280,14 @@ class UiContractTests(unittest.TestCase):
         self.assertEqual(users, ["TourPage.qml", "WelcomePage.qml"])
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
-        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
-        self.assertIn('"Próxima copia omitida"', panel)
-        self.assertNotIn('? "Se omitirá la próxima copia" :', panel)
+        # La etiqueta larga desbordaba el padding del botón. Vive ahora en
+        # el catálogo, y la restricción aplica a los dos idiomas.
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        self.assertIn('"action.skipped": "Próxima copia omitida"', catalogue)
+        self.assertIn('"action.skipped": "Next copy skipped"', catalogue)
+        for label in re.findall(r'"action\.skipped":\s*"([^"]+)"', catalogue):
+            with self.subTest(label=label):
+                self.assertLessEqual(len(label), 26, "no cabe en el botón")
 
 
 if __name__ == "__main__":

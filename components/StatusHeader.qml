@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 // El estado del servicio en la pantalla frecuente. Nada más.
 //
@@ -16,20 +17,23 @@ import qs.Ui
 Item {
   id: root
 
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
+
   property string state: "starting"
-  property string detail: "Preparando el servicio…"
+  property string detail: Strings.t("state.preparing", root.lang)
 
   readonly property bool healthy: state === "running"
   readonly property bool paused: state === "paused"
   readonly property bool failed: ["degraded", "missing_dependencies", "config_error", "stopped"].indexOf(state) !== -1
-  readonly property string stateLabel: failed ? "Necesita atención" : (paused ? "Pausado" : (healthy ? "Activo" : "Iniciando"))
+  readonly property string stateLabel: failed ? Strings.t("state.attention", root.lang) : (paused ? Strings.t("state.paused", root.lang) : (healthy ? Strings.t("state.active", root.lang) : Strings.t("state.starting", root.lang)))
   readonly property color stateColor: failed ? Color.urgent : (healthy ? Color.accent : Color.muted)
 
   implicitWidth: Style.space(460)
   implicitHeight: lines.implicitHeight
 
   Accessible.role: Accessible.StaticText
-  Accessible.name: "OmaPlain, " + stateLabel + ". " + detail
+  Accessible.name: Strings.f("state.a11y", root.lang, stateLabel, detail)
 
   Column {
     id: lines

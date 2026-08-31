@@ -67,7 +67,10 @@ Item {
       targetExclusions: [],
       maxBytes: 1048576,
       notifyOnError: true,
-      onboardingVersion: 0
+      onboardingVersion: 0,
+      // Sólo de interfaz: el helper no lo necesita y lo ignora al leer la
+      // configuración. «auto» toma el idioma del locale del sistema.
+      language: "auto"
     }
   }
 
@@ -201,7 +204,8 @@ Item {
       "automatic", "stripFormatting", "removeTracking", "removeInvisible",
       "normalizeLineEndings", "normalizeQuotes", "normalizeLists",
       "normalizeUnicodeNfc", "trimTrailingWhitespace", "sourceExclusions",
-      "targetExclusions", "maxBytes", "notifyOnError", "onboardingVersion"
+      "targetExclusions", "maxBytes", "notifyOnError", "onboardingVersion",
+      "language"
     ]
     if (allowed.indexOf(String(name)) === -1 || !shell || typeof shell.updateEntryInline !== "function")
       return false

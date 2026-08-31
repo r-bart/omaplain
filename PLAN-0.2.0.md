@@ -51,6 +51,7 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 | D2. Privacidad por app | Pendiente | Listas `alwaysCovered` y `blockedApps` | Una app bloqueada no devuelve contenido ni pidiéndolo |
 | E. Onboarding | Terminada | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
 | F. Microinteracciones | Pendiente | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
+| H. Bilingüe | Terminada | Catálogo en inglés y español | Las dos tablas comparten claves y marcadores |
 | G. Cierre `0.2.0` | Pendiente | Release local validada | `develop` fusionado y CHANGELOG sin sección pendiente |
 
 ---
@@ -305,6 +306,7 @@ lo que no se ha visto es la combinación.
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Bilingüe | 163 claves en inglés y español, selector en ajustes y `auto` desde el locale. Verificado en pantalla en los dos idiomas |
 | 2026-08-31 | Fase E | El recorrido pasa por Ajustes con dos salidas visibles; ilustración animada con vía de movimiento reducido |
 | 2026-08-31 | Verificación | Arrastre y deriva comprobados con puntero real; seis de siete estados vistos en el panel |
 | 2026-08-31 | Fase D | Chips MIME, estados de bypass y desglose con su ajuste. Portapapeles vacío deja de contarse como error. Seis estados verificados en el panel real |

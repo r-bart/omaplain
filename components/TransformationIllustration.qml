@@ -1,9 +1,13 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 Item {
   id: root
+
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
 
   property string variant: "transform"
 
@@ -89,7 +93,7 @@ Item {
           spacing: Style.space(8)
 
           Text {
-            text: "Copiado"
+            text: Strings.t("art.copied", root.lang)
             color: Color.popups.background
             font.family: Style.font.family
             font.pixelSize: Style.font.caption
@@ -134,7 +138,7 @@ Item {
           spacing: Style.space(8)
 
           Text {
-            text: "Limpio"
+            text: Strings.t("art.clean", root.lang)
             color: Color.popups.background
             font.family: Style.font.family
             font.pixelSize: Style.font.caption
@@ -286,8 +290,8 @@ Item {
           Repeater {
             model: [
               { label: "Automático", active: true },
-              { label: "Omitir una copia", active: false },
-              { label: "Excluir aplicaciones", active: false }
+              { label: Strings.t("art.skip", root.lang), active: false },
+              { label: Strings.t("art.exclude", root.lang), active: false }
             ]
             delegate: Row {
               required property var modelData

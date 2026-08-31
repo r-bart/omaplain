@@ -59,11 +59,19 @@ class DemoSampleTests(unittest.TestCase):
                 self.assertNotIn(forbidden, source)
 
     def test_the_demo_is_labelled_as_a_demonstration(self) -> None:
+        # La copia se mudó al catálogo bilingüe, así que la promesa se
+        # comprueba ahí y en los dos idiomas: rotularla sólo en uno la
+        # dejaría a medias para la mitad de la gente.
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        for key in ("demo.label", "demo.try", "demo.original"):
+            with self.subTest(key=key):
+                self.assertEqual(catalogue.count(f'"{key}":'), 2, "falta en un idioma")
+        self.assertIn("nunca tu portapapeles", catalogue)
+        self.assertIn("never your clipboard", catalogue)
+        # Y el componente sigue usándolas.
         source = COMPONENT.read_text(encoding="utf-8")
-        self.assertIn("nunca tu portapapeles", source)
-        self.assertIn("Probar con un ejemplo", source)
-        # Reversible: el mismo control devuelve al original.
-        self.assertIn("Ver el original", source)
+        for key in ("demo.label", "demo.try", "demo.original"):
+            self.assertIn(f'"{key}"', source)
 
 
 if __name__ == "__main__":

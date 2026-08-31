@@ -2,9 +2,13 @@ import QtQuick
 import QtQuick.Controls as QQC
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 Item {
   id: root
+
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
 
   property int step: 0
   property bool motionEnabled: true
@@ -16,19 +20,19 @@ Item {
 
   readonly property int stepCount: 3
   readonly property string stepTitle: [
-    "Copia como siempre",
-    "Limpia sólo lo que sobra",
-    "Tú mantienes el control"
+    Strings.t("tour.1.title", root.lang),
+    Strings.t("tour.2.title", root.lang),
+    Strings.t("tour.3.title", root.lang)
   ][Math.max(0, Math.min(stepCount - 1, step))]
   readonly property string stepBody: [
-    "OmaPlain observa las nuevas copias de texto y las limpia automáticamente cuando es seguro. No necesitas cambiar de atajo.",
-    "Retira formato enriquecido, parámetros de seguimiento de URLs completas y caracteres invisibles no semánticos.",
-    "Limpia manualmente, omite la próxima copia o excluye una aplicación. El historial sigue siendo el de Omarchy."
+    Strings.t("tour.1.body", root.lang),
+    Strings.t("tour.2.body", root.lang),
+    Strings.t("tour.3.body", root.lang)
   ][Math.max(0, Math.min(stepCount - 1, step))]
   readonly property string stepNote: [
-    "Imágenes y archivos pasan intactos.",
-    "Ante una duda, conserva el original.",
-    "Todo ocurre en este equipo."
+    Strings.t("tour.1.note", root.lang),
+    Strings.t("tour.2.note", root.lang),
+    Strings.t("tour.3.note", root.lang)
   ][Math.max(0, Math.min(stepCount - 1, step))]
   readonly property string illustrationVariant: ["protect", "transform", "control"]
     [Math.max(0, Math.min(stepCount - 1, step))]
@@ -76,7 +80,7 @@ Item {
         Text {
           id: tourLabel
           anchors.left: parent.left
-          text: root.replaying ? "Repaso rápido" : "Cómo funciona"
+          text: root.replaying ? Strings.t("tour.eyebrow.replay", root.lang) : Strings.t("tour.eyebrow", root.lang)
           color: Color.accent
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
@@ -88,14 +92,14 @@ Item {
         Text {
           id: stepCounter
           anchors.right: parent.right
-          text: (root.step + 1) + " de " + root.stepCount
+          text: Strings.f("tour.step", root.lang, root.step + 1, root.stepCount)
           color: Util.alpha(Color.popups.text, 0.68)
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
           font.bold: true
           font.letterSpacing: Style.spaceReal(0.4)
           Accessible.role: Accessible.AlertMessage
-          Accessible.name: "Paso " + (root.step + 1) + " de " + root.stepCount + ". " + root.stepTitle
+          Accessible.name: Strings.f("tour.step.a11y", root.lang, root.step + 1, root.stepCount, root.stepTitle)
         }
       }
 
@@ -117,6 +121,8 @@ Item {
       }
 
       TransformationIllustration {
+
+        lang: root.lang
         motionEnabled: root.motionEnabled
         width: parent.width
         height: Style.space(220)
@@ -192,6 +198,8 @@ Item {
       }
 
       DemoTransformation {
+
+        lang: root.lang
         id: demo
         width: Math.min(parent.width, Style.space(420))
         anchors.horizontalCenter: parent.horizontalCenter
@@ -212,13 +220,13 @@ Item {
           id: backButton
           width: (tourActions.width - (tourActions.columns - 1) * tourActions.columnSpacing) / tourActions.columns
           implicitHeight: Style.space(44)
-          text: "Volver"
+          text: Strings.t("tour.back", root.lang)
           iconText: "←"
           focusable: true
           bordered: true
           foreground: Color.popups.text
           Accessible.role: Accessible.Button
-          Accessible.name: root.step === 0 ? "Volver a la pantalla anterior" : "Volver al paso anterior"
+          Accessible.name: root.step === 0 ? Strings.t("tour.back.first.a11y", root.lang) : Strings.t("tour.back.a11y", root.lang)
           Accessible.onPressAction: root.backRequested()
           onActiveFocusChanged: if (activeFocus) root.reveal(backButton)
           onClicked: root.backRequested()
@@ -227,7 +235,7 @@ Item {
         PrimaryButton {
           id: nextButton
           width: (tourActions.width - (tourActions.columns - 1) * tourActions.columnSpacing) / tourActions.columns
-          text: root.step === root.stepCount - 1 ? "Abrir OmaPlain" : "Siguiente"
+          text: root.step === root.stepCount - 1 ? Strings.t("onboarding.done", root.lang) : Strings.t("tour.next", root.lang)
           iconText: root.step === root.stepCount - 1 ? "✓" : "→"
           onActiveFocusChanged: if (activeFocus) root.reveal(nextButton)
           onClicked: root.nextRequested()
@@ -238,7 +246,7 @@ Item {
         id: dismissButton
         width: parent.width
         implicitHeight: Style.space(44)
-        text: root.replaying ? "Salir del repaso" : "Saltar el tour"
+        text: root.replaying ? Strings.t("tour.leave", root.lang) : Strings.t("tour.skip", root.lang)
         focusable: true
         foreground: Util.alpha(Color.popups.text, 0.68)
         Accessible.role: Accessible.Button

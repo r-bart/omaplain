@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 // Una de las dos tarjetas del antes y el después. Rótulo a la izquierda,
 // ojo al final, y el contenido cubierto hasta que alguien pide verlo.
@@ -9,6 +10,9 @@ import qs.Ui
 // dos filas quedan alineadas para poder compararlas.
 Item {
   id: root
+
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
 
   property string label: ""
   property string body: ""
@@ -60,11 +64,11 @@ Item {
         implicitHeight: Style.space(44)
         implicitWidth: Style.space(44)
         text: root.shown ? "◉" : "◎"
-        tooltipText: root.shown ? "Ocultar " + root.label : "Mostrar " + root.label
+        tooltipText: Strings.f(root.shown ? "row.hide" : "row.show", root.lang, root.label)
         focusable: true
         foreground: root.shown ? Color.accent : Util.alpha(Color.popups.text, 0.68)
         Accessible.role: Accessible.Button
-        Accessible.name: (root.shown ? "Ocultar " : "Mostrar ") + root.label
+        Accessible.name: Strings.f(root.shown ? "row.hide" : "row.show", root.lang, root.label)
         Accessible.onPressAction: root.toggle()
         onActiveFocusChanged: if (activeFocus) root.focusEntered(eye)
         onClicked: root.toggle()
@@ -112,12 +116,14 @@ Item {
       }
 
       FogCover {
+
+        lang: root.lang
         anchors.fill: parent
         visible: !root.shown
         seed: root.seed
         motionEnabled: root.motionEnabled
         Accessible.role: Accessible.StaticText
-        Accessible.name: "Contenido cubierto. Arrástralo para limpiarlo, o usa el botón del ojo."
+        Accessible.name: Strings.t("row.covered.a11y", root.lang)
         onCleared: root.revealRequested()
         onVisibleChanged: if (visible) { reset() }
       }

@@ -2,9 +2,13 @@ import QtQuick
 import QtQuick.Controls as QQC
 import qs.Commons
 import qs.Ui
+import "Strings.js" as Strings
 
 Item {
   id: root
+
+  // Idioma heredado del panel: en o es.
+  property string lang: "en"
 
   property bool returning: false
   property bool motionEnabled: true
@@ -47,6 +51,8 @@ Item {
       spacing: Style.space(14)
 
       TransformationIllustration {
+
+        lang: root.lang
         motionEnabled: root.motionEnabled
         width: parent.width
         height: Style.space(190)
@@ -55,7 +61,7 @@ Item {
 
       Text {
         width: parent.width
-        text: root.returning ? "Guía de OmaPlain" : "Primera visita"
+        text: root.returning ? Strings.t("welcome.eyebrow.return", root.lang) : Strings.t("welcome.eyebrow.first", root.lang)
         color: Color.accent
         font.family: Style.font.family
         font.pixelSize: Style.font.caption
@@ -67,7 +73,7 @@ Item {
 
       Text {
         width: parent.width
-        text: "Texto limpio,\nsin sorpresas."
+        text: Strings.t("welcome.title", root.lang)
         color: Color.popups.text
         font.family: Style.font.family
         font.pixelSize: Style.font.displayLarge
@@ -82,7 +88,7 @@ Item {
       Text {
         width: Math.min(parent.width, Style.space(420))
         anchors.horizontalCenter: parent.horizontalCenter
-        text: "OmaPlain convierte copias elegibles en texto plano y conserva intacto todo lo que no puede limpiar con seguridad."
+        text: Strings.t("welcome.body", root.lang)
         color: Util.alpha(Color.popups.text, 0.72)
         font.family: Style.font.family
         font.pixelSize: Style.font.body
@@ -101,9 +107,9 @@ Item {
 
         Repeater {
           model: [
-            { title: "Limpia lo que sobra", body: "Formato, tracking e invisibles no semánticos." },
-            { title: "Protege lo importante", body: "Imágenes, archivos y secretos pasan intactos." },
-            { title: "Todo queda en casa", body: "Sin nube, telemetría ni historial propio." }
+            { title: Strings.t("welcome.card1.title", root.lang), body: Strings.t("welcome.card1.body", root.lang) },
+            { title: Strings.t("welcome.card2.title", root.lang), body: Strings.t("welcome.card2.body", root.lang) },
+            { title: Strings.t("welcome.card3.title", root.lang), body: Strings.t("welcome.card3.body", root.lang) }
           ]
 
           delegate: BorderSurface {
@@ -174,7 +180,7 @@ Item {
         PrimaryButton {
           id: startButton
           width: (welcomeActions.width - (welcomeActions.columns - 1) * welcomeActions.columnSpacing) / welcomeActions.columns
-          text: "Ver cómo funciona"
+          text: Strings.t("welcome.start", root.lang)
           iconText: "→"
           onActiveFocusChanged: if (activeFocus) root.reveal(startButton)
           onClicked: root.startRequested()
@@ -184,7 +190,7 @@ Item {
           id: dismissButton
           width: (welcomeActions.width - (welcomeActions.columns - 1) * welcomeActions.columnSpacing) / welcomeActions.columns
           implicitHeight: Style.space(44)
-          text: root.returning ? "Volver a ajustes" : "Ir al panel"
+          text: root.returning ? Strings.t("welcome.return", root.lang) : Strings.t("welcome.enter", root.lang)
           focusable: true
           bordered: true
           foreground: Color.popups.text
@@ -198,7 +204,7 @@ Item {
 
       Text {
         width: parent.width
-        text: "Podrás volver a esta guía desde ajustes."
+        text: Strings.t("welcome.again", root.lang)
         color: Util.alpha(Color.popups.text, 0.68)
         font.family: Style.font.family
         font.pixelSize: Style.font.caption
