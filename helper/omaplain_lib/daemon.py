@@ -46,6 +46,11 @@ class OmaPlainDaemon:
         self.generation_lock = threading.Lock()
         self.generation = 0
         self.skip_until = 0.0
+        # 0009: de dónde vino la última copia, sólo la clase de la
+        # ventana. Es metadato: la 0007 prohíbe recordar el texto, no su
+        # procedencia. No se persiste, no entra en `status.json` y muere
+        # con el proceso.
+        self.last_source: tuple[str, str] = ("", "")
         self.loop_guard: tuple[str, int, float] | None = None
         self.watcher: subprocess.Popen[bytes] | None = None
         self.server: socket.socket | None = None
@@ -117,11 +122,34 @@ class OmaPlainDaemon:
         types = self.backend.list_types()
         return classify(types, state), types
 
-    def _source_excluded(self, target: WindowTarget | None) -> bool:
+    @staticmethod
+    def _classes(target: WindowTarget | None) -> tuple[str, str]:
         if target is None:
-            return False
-        exclusions = self.config.get("sourceExclusions", [])
-        return target.app_class in exclusions or target.initial_class in exclusions
+            return ("", "")
+        return (target.app_class, target.initial_class)
+
+    def _listed(self, key: str, classes: tuple[str, str]) -> bool:
+        values = self.config.get(key, [])
+        return any(name and name in values for name in classes)
+
+    def _source_excluded(self, target: WindowTarget | None) -> bool:
+        return self._listed("sourceExclusions", self._classes(target))
+
+    def _source_blocked(self, target: WindowTarget | None) -> bool:
+        """0009: la app de origen está en `blockedApps`.
+
+        Sin `target` —el panel preguntando, o una limpieza manual— se usa el
+        origen recordado del último evento: cuando el panel pregunta, la
+        ventana enfocada ya es el propio panel.
+
+        Origen desconocido no es origen bloqueado. Está decidido y dicho en
+        la 0009: la atribución es best effort y la interfaz no promete más.
+        """
+        classes = self._classes(target) if target is not None else self.last_source
+        return self._listed("blockedApps", classes)
+
+    def _source_covered(self) -> bool:
+        return self._listed("alwaysCovered", self.last_source)
 
     def _target_excluded(self, target: WindowTarget) -> bool:
         exclusions = self.config.get("targetExclusions", [])
@@ -156,6 +184,12 @@ class OmaPlainDaemon:
     def _inspect_and_transform(
         self, state: str, *, automatic: bool, generation: int, source: WindowTarget | None = None,
     ) -> tuple[OperationResult, list[str], str | None, bytes | None, TransformResult | None]:
+        # 0009: antes que nada, ni siquiera los tipos. «Ni lee ni enseña» no
+        # depende de que la limpieza sea automática: incluye la acción manual
+        # y la pregunta del panel, que son las otras dos formas de leer.
+        if self._source_blocked(source):
+            return OperationResult("bypassed", "source_blocked"), [], None, None, None
+
         try:
             decision, types = self._classification(state)
         except ClipboardError:
@@ -223,6 +257,9 @@ class OmaPlainDaemon:
     def automatic_event(
         self, state: str, generation: int, source: WindowTarget | None = None,
     ) -> dict[str, object]:
+        # Se recuerda antes de mirar si el automático está puesto: con el
+        # automático apagado no habría a quién atribuir la copia siguiente.
+        self.last_source = self._classes(source)
         if not bool(self.config.get("automatic", True)):
             return {"result": "paused", "reason": "automatic_disabled", "bytes": 0}
         with self.process_lock:
@@ -293,11 +330,20 @@ class OmaPlainDaemon:
                 "data", automatic=False, generation=self.generation,
             )
 
+        # 0009: de una app bloqueada no se enseña ni de qué está hecho lo que
+        # hay dentro. Sin `types`, que es más de lo que se calla un bypass
+        # normal, y sin nada que el panel pueda pedir para levantarlo.
+        if operation.reason == "source_blocked":
+            return {"result": "ok", "reason": "source_blocked", "types": [], "eligible": False}
+
         answer: dict[str, object] = {
             "result": "ok" if operation.result != "error" else "error",
             "reason": operation.reason,
             "types": types,
             "eligible": operation.result not in {"bypassed", "error"},
+            # 0009: el panel lo pinta cubierto de entrada. El ojo levanta la
+            # fila que hay delante; la copia siguiente vuelve a llegar así.
+            "cover": self._source_covered(),
         }
 
         # Sin contenido: sensible, imagen, archivos, MIME estructural,

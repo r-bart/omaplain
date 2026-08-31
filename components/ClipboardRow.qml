@@ -17,6 +17,14 @@ Item {
   property string label: ""
   property string body: ""
   property bool shown: false
+  // 0009: viene de una aplicación de la lista «no destapar nunca». El vaho
+  // no se levanta aquí, ni con el ojo ni con el gesto.
+  property bool locked: false
+
+  // Lo que de verdad decide qué se ve. `shown` es lo que pide el panel;
+  // esto es lo que se concede. Que la negativa no dependa de que quien
+  // llama se acuerde es justo el punto de una lista de privacidad.
+  readonly property bool revealed: root.shown && !root.locked
   property int seed: 7
   property bool motionEnabled: true
 
@@ -63,12 +71,17 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         implicitHeight: Style.space(44)
         implicitWidth: Style.space(44)
-        text: root.shown ? "◉" : "◎"
-        tooltipText: Strings.f(root.shown ? "row.hide" : "row.show", root.lang, root.label)
+        text: root.locked ? "󰌾" : (root.revealed ? "◉" : "◎")
+        tooltipText: root.locked
+          ? Strings.f("row.locked", root.lang, root.label)
+          : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.label)
         focusable: true
-        foreground: root.shown ? Color.accent : Util.alpha(Color.popups.text, 0.68)
+        enabled: !root.locked
+        foreground: root.revealed ? Color.accent : Util.alpha(Color.popups.text, 0.68)
         Accessible.role: Accessible.Button
-        Accessible.name: Strings.f(root.shown ? "row.hide" : "row.show", root.lang, root.label)
+        Accessible.name: root.locked
+          ? Strings.f("row.locked", root.lang, root.label)
+          : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.label)
         Accessible.onPressAction: root.toggle()
         onActiveFocusChanged: if (activeFocus) root.focusEntered(eye)
         onClicked: root.toggle()
@@ -98,7 +111,7 @@ Item {
         boundsBehavior: Flickable.StopAtBounds
         // Mientras hay cubierta el texto no se anuncia: lo que se ve y lo
         // que oye un lector de pantalla tienen que coincidir.
-        Accessible.ignored: !root.shown
+        Accessible.ignored: !root.revealed
 
         Text {
           id: bodyText
@@ -111,7 +124,7 @@ Item {
           font.pixelSize: Style.font.bodySmall
           wrapMode: Text.WrapAnywhere
           Accessible.role: Accessible.StaticText
-          Accessible.name: root.shown ? root.body : ""
+          Accessible.name: root.revealed ? root.body : ""
         }
       }
 
@@ -119,19 +132,21 @@ Item {
 
         lang: root.lang
         anchors.fill: parent
-        visible: !root.shown
+        visible: !root.revealed
         seed: root.seed
         motionEnabled: root.motionEnabled
         Accessible.role: Accessible.StaticText
         Accessible.name: Strings.t("row.covered.a11y", root.lang)
-        onCleared: root.revealRequested()
+        // Bajo llave el gesto tampoco vale: la cubierta ni siquiera escucha.
+        onCleared: if (!root.locked) root.revealRequested()
         onVisibleChanged: if (visible) { reset() }
       }
     }
   }
 
   function toggle() {
-    if (root.shown) root.hideRequested()
+    if (root.locked) return
+    if (root.revealed) root.hideRequested()
     else root.revealRequested()
   }
 }

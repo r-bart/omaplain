@@ -25,6 +25,9 @@ DEFAULTS: dict[str, Any] = {
     "trimTrailingWhitespace": False,
     "sourceExclusions": [],
     "targetExclusions": [],
+    # 0009: quién llega cubierto y quién no se lee siquiera.
+    "alwaysCovered": [],
+    "blockedApps": [],
     "maxBytes": 1_048_576,
     "notifyOnError": True,
 }
@@ -41,7 +44,7 @@ _BOOL_KEYS = {
     "trimTrailingWhitespace",
     "notifyOnError",
 }
-_LIST_KEYS = {"sourceExclusions", "targetExclusions"}
+_LIST_KEYS = {"sourceExclusions", "targetExclusions", "alwaysCovered", "blockedApps"}
 
 
 def _valid_app_class(value: object) -> bool:
@@ -62,8 +65,8 @@ def validate_config(raw: object) -> tuple[dict[str, Any], list[str]]:
     """
 
     result = dict(DEFAULTS)
-    result["sourceExclusions"] = []
-    result["targetExclusions"] = []
+    for key in _LIST_KEYS:
+        result[key] = []
     warnings: list[str] = []
 
     if not isinstance(raw, dict):

@@ -26,8 +26,15 @@ Item {
   property string mainFocusTarget: "clean"
   property bool showBefore: false
   property bool showAfter: false
+  property string privacyError: ""
   // La pantalla frecuente informa; los ajustes viven detrás del engranaje.
   property string panelPage: "clipboard"
+
+  // F.1: el movimiento lo conduce el usuario. Sin un mando accesible no hay
+  // forma de parar el carrusel del estado vacío, que es lo que pide la
+  // WCAG 2.2.2, y Omarchy no expone ninguna preferencia de sistema de la
+  // que colgarse.
+  readonly property bool motionEnabled: !setting("reduceMotion", false)
 
   // Del ajuste del usuario, y si está en «auto» del locale del sistema.
   // Se pasa a cada componente en vez de guardarlo en el módulo JS, para que
@@ -87,6 +94,17 @@ Item {
   readonly property var peek: service && service.peekResult ? service.peekResult : ({ eligible: false })
   readonly property bool peekReady: peek && peek.eligible === true
   readonly property bool peekChanges: peekReady && peek.changed === true
+  // 0009: llega de una app de la lista «no destapar nunca».
+  readonly property bool peekCovered: peek && peek.cover === true
+  readonly property bool peekBlocked: peek && String(peek.reason || "") === "source_blocked"
+
+  // El ojo levanta la fila que hay delante, no las siguientes. Sin esto,
+  // revelar una vez y copiar otra cosa enseñaba lo nuevo sin que nadie lo
+  // pidiera, que es justo lo que la cubierta existe para impedir.
+  onPeekChanged: {
+    showBefore = false
+    showAfter = false
+  }
 
   readonly property var settings: service && service.settings ? service.settings : ({})
   readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "io.github.r-bart.omaplain"
@@ -281,6 +299,37 @@ Item {
     classField.text = ""
   }
 
+  function submitPrivacy(scope) {
+    if (!service) return
+    var value = privacyField.text.trim()
+    var result = service.addExclusion(scope, value)
+    if (result === "invalid") {
+      privacyError = Strings.t("err.invalidClass", root.lang)
+      Qt.callLater(function() { root.reveal(privacyMessage) })
+      return
+    }
+    if (result === "duplicate") {
+      privacyError = Strings.t("err.duplicate", root.lang)
+      Qt.callLater(function() { root.reveal(privacyMessage) })
+      return
+    }
+    privacyError = ""
+    privacyField.text = ""
+  }
+
+  // Rellena el campo en vez de decidir por el usuario: aquí hay dos listas
+  // y la aplicación detectada no dice a cuál de las dos quiere ir.
+  function usePrivacyDetected() {
+    if (!service || !service.currentAppClass) {
+      privacyError = Strings.t("privacy.undetected", root.lang)
+      Qt.callLater(function() { root.reveal(privacyMessage) })
+      return
+    }
+    privacyError = ""
+    privacyField.text = service.currentAppClass
+    privacyField.forceActiveFocus()
+  }
+
   function excludeDetected() {
     if (!service || !service.currentAppClass) {
       fieldError = Strings.t("excl.undetected", root.lang)
@@ -414,6 +463,7 @@ Item {
           visible: root.viewMode === "welcome"
           enabled: visible
           returning: root.learningOrigin === "settings"
+          motionEnabled: root.motionEnabled
           onStartRequested: root.showTour(root.learningOrigin, "welcome")
           onDismissRequested: root.showMain(true)
         }
@@ -427,6 +477,7 @@ Item {
           enabled: visible
           step: root.tourStep
           replaying: root.learningOrigin === "settings"
+          motionEnabled: root.motionEnabled
           onBackRequested: root.retreatTour()
           onNextRequested: root.advanceTour()
           onDismissRequested: root.showMain(true)
@@ -571,6 +622,8 @@ Item {
                 label: root.peekChanges ? Strings.t("row.now", root.lang) : Strings.t("row.single", root.lang)
                 body: root.peekReady ? String(root.peek.original || "") : ""
                 shown: root.showBefore
+                locked: root.peekCovered
+                motionEnabled: root.motionEnabled
                 seed: 11
                 onRevealRequested: root.showBefore = true
                 onHideRequested: root.showBefore = false
@@ -585,6 +638,8 @@ Item {
                 label: Strings.t("row.would", root.lang)
                 body: root.peekChanges ? String(root.peek.cleaned || "") : ""
                 shown: root.showAfter
+                locked: root.peekCovered
+                motionEnabled: root.motionEnabled
                 seed: 29
                 onRevealRequested: root.showAfter = true
                 onHideRequested: root.showAfter = false
@@ -598,6 +653,7 @@ Item {
                 lang: root.lang
                 width: parent.width
                 visible: root.peekEmpty
+                motionEnabled: root.motionEnabled
               }
 
               // Cuando sólo se retira el formato, las dos filas salen
@@ -748,9 +804,11 @@ Item {
                   ? root.feedback
                   : (root.peekReady
                     ? Strings.t("footnote.safe", root.lang)
-                    : (root.peek && root.peek.reason === "sensitive"
-                      ? Strings.t("footnote.sensitive", root.lang)
-                      : Strings.t("footnote.nothing", root.lang)))
+                    : (root.peekBlocked
+                      ? Strings.t("privacy.blockedState", root.lang)
+                      : (root.peek && root.peek.reason === "sensitive"
+                        ? Strings.t("footnote.sensitive", root.lang)
+                        : Strings.t("footnote.nothing", root.lang))))
                 color: root.feedback !== ""
                   ? (root.feedbackError ? Color.urgent : Color.popups.text)
                   : Util.alpha(Color.popups.text, 0.68)
@@ -852,6 +910,16 @@ Item {
                     onClicked: root.chooseLanguage(modelData.value)
                   }
                 }
+              }
+
+              SettingRow {
+                id: motionToggle
+                width: parent.width
+                label: Strings.t("settings.motion", root.lang)
+                description: Strings.t("settings.motion.desc", root.lang)
+                checked: root.setting("reduceMotion", false)
+                onFocusEntered: function(item) { root.reveal(item) }
+                onClicked: if (service) service.updateSetting("reduceMotion", !checked)
               }
 
               Text {
@@ -967,6 +1035,161 @@ Item {
                 checked: root.setting("trimTrailingWhitespace", false)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: if (service) service.updateSetting("trimTrailingWhitespace", !checked)
+              }
+
+              // 0009: dos listas que deciden si algo se lee y se enseña,
+              // separadas de las que deciden si algo se limpia. Mezclarlas
+              // obligaría a aceptar una para tener la otra.
+              Text {
+                text: Strings.t("privacy.title", root.lang)
+                color: Color.popups.text
+                font.family: Style.font.family
+                font.pixelSize: Style.font.subtitle
+                font.bold: true
+              }
+
+              // Lo que la lista no puede garantizar, dicho aquí y no en una
+              // nota al pie: Wayland no dice quién copió.
+              Text {
+                width: parent.width
+                text: Strings.t("privacy.note", root.lang)
+                color: Util.alpha(Color.popups.text, 0.68)
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
+                wrapMode: Text.WordWrap
+              }
+
+              EmptyState {
+                width: contentColumn.width
+                visible: root.setting("alwaysCovered", []).length === 0
+                  && root.setting("blockedApps", []).length === 0
+                title: Strings.t("privacy.none.title", root.lang)
+                body: Strings.t("privacy.none.body", root.lang)
+              }
+
+              Repeater {
+                model: root.setting("alwaysCovered", [])
+                delegate: ExcludedAppRow {
+                  required property string modelData
+                  width: contentColumn.width
+                  appClass: modelData
+                  scopeLabel: Strings.t("privacy.covered.scope", root.lang)
+                  onFocusEntered: function(item) { root.reveal(item) }
+                  onRemoveRequested: function(value) { if (service) service.removeExclusion("covered", value) }
+                }
+              }
+
+              Repeater {
+                model: root.setting("blockedApps", [])
+                delegate: ExcludedAppRow {
+                  required property string modelData
+                  width: contentColumn.width
+                  appClass: modelData
+                  scopeLabel: Strings.t("privacy.blocked.scope", root.lang)
+                  onFocusEntered: function(item) { root.reveal(item) }
+                  onRemoveRequested: function(value) { if (service) service.removeExclusion("blocked", value) }
+                }
+              }
+
+              Text {
+                id: privacyFieldLabel
+                text: Strings.t("privacy.class", root.lang)
+                color: Color.popups.text
+                font.family: Style.font.family
+                font.pixelSize: Style.font.body
+                font.bold: true
+
+                MouseArea {
+                  anchors.fill: parent
+                  cursorShape: Qt.PointingHandCursor
+                  onClicked: privacyField.forceActiveFocus()
+                }
+              }
+
+              TextField {
+                id: privacyField
+                width: parent.width
+                implicitHeight: Style.space(44)
+                font.pixelSize: Math.max(16, Style.font.body)
+                placeholderText: "org.example.Application"
+                selectByMouse: true
+                maximumLength: 256
+                Accessible.name: Strings.t("privacy.class", root.lang)
+                Accessible.description: root.privacyError !== ""
+                  ? root.privacyError
+                  : Strings.t("excl.class.hint", root.lang)
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                onAccepted: root.submitPrivacy("covered")
+                onTextChanged: if (root.privacyError !== "") root.privacyError = ""
+                onActiveFocusChanged: if (activeFocus) root.reveal(privacyField)
+              }
+
+              Button {
+                id: privacyDetectedButton
+                width: parent.width
+                implicitHeight: Style.space(44)
+                text: service && service.currentAppClass
+                  ? Strings.f("privacy.use", root.lang, service.currentAppClass)
+                  : Strings.t("excl.detected", root.lang)
+                focusable: true
+                bordered: true
+                foreground: Color.popups.text
+                Accessible.role: Accessible.Button
+                Accessible.name: text
+                Accessible.onPressAction: root.usePrivacyDetected()
+                onActiveFocusChanged: if (activeFocus) root.reveal(privacyDetectedButton)
+                onClicked: root.usePrivacyDetected()
+              }
+
+              Grid {
+                id: privacyActions
+                width: parent.width
+                columns: width < Style.space(360) ? 1 : 2
+                columnSpacing: Style.space(8)
+                rowSpacing: Style.space(8)
+
+                Button {
+                  id: addCoveredButton
+                  width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
+                  implicitHeight: Style.space(44)
+                  text: Strings.t("privacy.covered", root.lang)
+                  focusable: true
+                  bordered: true
+                  foreground: Color.popups.text
+                  Accessible.role: Accessible.Button
+                  Accessible.name: text
+                  Accessible.onPressAction: root.submitPrivacy("covered")
+                  onActiveFocusChanged: if (activeFocus) root.reveal(addCoveredButton)
+                  onClicked: root.submitPrivacy("covered")
+                }
+
+                Button {
+                  id: addBlockedButton
+                  width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
+                  implicitHeight: Style.space(44)
+                  text: Strings.t("privacy.blocked", root.lang)
+                  focusable: true
+                  bordered: true
+                  foreground: Color.popups.text
+                  Accessible.role: Accessible.Button
+                  Accessible.name: text
+                  Accessible.onPressAction: root.submitPrivacy("blocked")
+                  onActiveFocusChanged: if (activeFocus) root.reveal(addBlockedButton)
+                  onClicked: root.submitPrivacy("blocked")
+                }
+              }
+
+              Text {
+                id: privacyMessage
+                width: parent.width
+                visible: root.privacyError !== ""
+                text: "⚠ " + root.privacyError
+                color: Color.urgent
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
+                wrapMode: Text.WordWrap
+                Accessible.role: Accessible.AlertMessage
+                Accessible.name: text
               }
 
               Text {

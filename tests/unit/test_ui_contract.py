@@ -35,6 +35,29 @@ def _shows(source: str, phrase: str) -> str | None:
     return None
 
 
+def _blocks(source: str, name: str) -> list[str]:
+    """Cada bloque `Nombre { ... }` del QML, contando llaves.
+
+    Las expresiones regulares con sangría fija se rompen en cuanto un bloque
+    cambia de sitio, y peor: siguen encontrando *otro* bloque y el test pasa
+    hablando de algo que no es.
+    """
+    blocks = []
+    for start in range(len(source)):
+        if not source.startswith(name + " {", start):
+            continue
+        depth = 0
+        for index in range(start + len(name) + 1, len(source)):
+            if source[index] == "{":
+                depth += 1
+            elif source[index] == "}":
+                depth -= 1
+                if depth == 0:
+                    blocks.append(source[start:index + 1])
+                    break
+    return blocks
+
+
 class UiContractTests(unittest.TestCase):
     def test_secondary_text_alpha_passes_reference_palettes(self) -> None:
         palettes = {
@@ -134,6 +157,45 @@ class UiContractTests(unittest.TestCase):
             with self.subTest(line=number + 1):
                 self.assertIn("Accessible.ignored: true", window)
 
+    def test_a_locked_row_cannot_be_uncovered_by_anyone(self) -> None:
+        """0009: la negativa no depende de que quien llama se acuerde.
+
+        El panel podría olvidarse de no pedir el revelado, o llegar un
+        `shown: true` de cualquier otro sitio. La fila calcula lo que
+        concede a partir de lo que le piden y de si está bajo llave, y todo
+        lo que enseña cuelga de lo concedido.
+        """
+        row = (REPO / "components" / "ClipboardRow.qml").read_text(encoding="utf-8")
+        self.assertIn("readonly property bool revealed: root.shown && !root.locked", row)
+        # Nada de lo que se ve puede colgar de `shown` a secas.
+        for line in row.splitlines():
+            code = line.split("//", 1)[0]
+            if "property bool shown" in code or "revealed:" in code:
+                continue
+            with self.subTest(line=code.strip()[:60]):
+                self.assertNotIn("root.shown", code, "algo se enseña sin mirar la llave")
+        # Y el gesto de limpiar el vaho tampoco levanta la fila bloqueada.
+        self.assertIn("onCleared: if (!root.locked) root.revealRequested()", row)
+
+    def test_the_eye_goes_back_down_with_every_new_answer(self) -> None:
+        # Revelar una fila y copiar otra cosa enseñaba lo nuevo sin que nadie
+        # lo pidiera. La cubierta existe justo para impedir eso.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        handler = re.search(r"onPeekChanged: \{(?P<body>.*?)\n  \}", panel, re.DOTALL)
+        self.assertIsNotNone(handler, "el panel ya no reinicia el ojo")
+        self.assertIn("showBefore = false", handler.group("body"))
+        self.assertIn("showAfter = false", handler.group("body"))
+
+    def test_every_animated_component_is_driven_by_the_motion_setting(self) -> None:
+        # F.1: la propiedad existía en cinco componentes y no la conducía
+        # nadie, así que la vía de movimiento reducido no se podía alcanzar.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        self.assertIn('readonly property bool motionEnabled: !setting("reduceMotion", false)', panel)
+        for name in ("WelcomePage", "TourPage", "EmptyCarousel", "ClipboardRow"):
+            with self.subTest(component=name):
+                for block in _blocks(panel, name):
+                    self.assertIn("motionEnabled: root.motionEnabled", block)
+
     def test_controls_scale_the_minimum_hit_height(self) -> None:
         files = [REPO / "Panel.qml", *sorted((REPO / "components").glob("*.qml"))]
         raw_height = re.compile(r"(?:implicitHeight:\s*44\b|Math\.max\(44\b)")
@@ -153,18 +215,31 @@ class UiContractTests(unittest.TestCase):
         self.assertIn("features.columns === 1", welcome)
         self.assertIn(": Style.space(108)", welcome)
 
-    def test_exclusions_render_an_empty_state_only_while_both_lists_are_empty(self) -> None:
+    def test_each_pair_of_lists_renders_its_own_empty_state(self) -> None:
+        # Ambas listas de una sección comparten un solo hueco: mostrarlo con
+        # una de las dos ya poblada repetiría la explicación justo al lado de
+        # las filas que la contradicen.
+        #
+        # Buscar «el primer EmptyState» dejó de valer al añadir la sección de
+        # privacidad: el test seguía en verde porque el bloque que encontraba
+        # abarcaba los dos. Ahora se localiza cada uno por sus propias listas.
         panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
-        block = re.search(r"EmptyState \{(?P<body>.*?)\n\s{12}\}", panel, re.DOTALL)
-        self.assertIsNotNone(block, "el panel ya no monta un EmptyState")
-        body = block.group("body")
-        # Ambas listas comparten un solo hueco: mostrarlo con una de las dos ya
-        # poblada repetiria la explicacion junto a las filas que la contradicen.
-        self.assertIn('root.setting("sourceExclusions", []).length === 0', body)
-        self.assertIn('root.setting("targetExclusions", []).length === 0', body)
-        self.assertIn("&&", body)
-        # El hueco precede a los Repeater, o aparecería debajo de las filas.
-        self.assertLess(panel.index("EmptyState {"), panel.index('model: root.setting("sourceExclusions"'))
+        pairs = {
+            "exclusiones": ("sourceExclusions", "targetExclusions"),
+            "privacidad": ("alwaysCovered", "blockedApps"),
+        }
+        for section, (first, second) in pairs.items():
+            with self.subTest(section=section):
+                block = next(
+                    (b for b in _blocks(panel, "EmptyState") if first in b and second in b),
+                    None,
+                )
+                self.assertIsNotNone(block, f"{section} no monta su propio EmptyState")
+                self.assertIn(f'root.setting("{first}", []).length === 0', block)
+                self.assertIn(f'root.setting("{second}", []).length === 0', block)
+                self.assertIn("&&", block)
+                # Y precede a sus Repeater, o aparecería debajo de las filas.
+                self.assertLess(panel.index(block), panel.index(f'model: root.setting("{first}"'))
 
     def test_empty_state_stays_a_static_text_for_assistive_tools(self) -> None:
         empty = (REPO / "components" / "EmptyState.qml").read_text(encoding="utf-8")

@@ -73,12 +73,16 @@ Item {
       trimTrailingWhitespace: false,
       sourceExclusions: [],
       targetExclusions: [],
+      // 0009: quién llega sin poder destaparse y quién no se lee siquiera.
+      alwaysCovered: [],
+      blockedApps: [],
       maxBytes: 1048576,
       notifyOnError: true,
       onboardingVersion: 0,
-      // Sólo de interfaz: el helper no lo necesita y lo ignora al leer la
+      // Sólo de interfaz: el helper no los necesita y los ignora al leer la
       // configuración. «auto» toma el idioma del locale del sistema.
-      language: "auto"
+      language: "auto",
+      reduceMotion: false
     }
   }
 
@@ -213,7 +217,7 @@ Item {
       "normalizeLineEndings", "normalizeQuotes", "normalizeLists",
       "normalizeUnicodeNfc", "trimTrailingWhitespace", "sourceExclusions",
       "targetExclusions", "maxBytes", "notifyOnError", "onboardingVersion",
-      "language"
+      "language", "alwaysCovered", "blockedApps", "reduceMotion"
     ]
     if (allowed.indexOf(String(name)) === -1 || !shell || typeof shell.updateEntryInline !== "function")
       return false
@@ -234,8 +238,15 @@ Item {
     return text !== "" && text.indexOf("\n") === -1 && text.indexOf("\r") === -1 && text.length <= 256
   }
 
+  readonly property var listKeys: ({
+    source: "sourceExclusions",
+    target: "targetExclusions",
+    covered: "alwaysCovered",
+    blocked: "blockedApps"
+  })
+
   function addExclusion(kind, appClass) {
-    var key = kind === "target" ? "targetExclusions" : "sourceExclusions"
+    var key = listKeys[kind] || "sourceExclusions"
     var value = String(appClass || "")
     if (!validAppClass(value)) return "invalid"
     var settings = entrySettings()
@@ -247,7 +258,7 @@ Item {
   }
 
   function removeExclusion(kind, appClass) {
-    var key = kind === "target" ? "targetExclusions" : "sourceExclusions"
+    var key = listKeys[kind] || "sourceExclusions"
     var settings = entrySettings()
     var values = Array.isArray(settings[key]) ? settings[key].slice() : []
     var filtered = values.filter(function(value) { return value !== appClass })
