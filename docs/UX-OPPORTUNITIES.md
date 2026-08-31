@@ -58,7 +58,10 @@ Valor: prueba la promesa del producto sin pedir confianza ni acceso adicional.
 ## Evitar
 
 - Animar la apertura habitual del panel o escalonar todos sus controles.
-- Mostrar una previsualización del contenido real del portapapeles.
+- Descubrir el contenido al abrir el panel, o dejar el descubrimiento activo entre copias.
+  Mostrarlo dejó de estar prohibido en [`0005`](./decisions/0005-previsualizacion-del-portapapeles.md);
+  enseñarlo sin que nadie lo haya pedido, no.
+- Ofrecer cualquier vía de destapar lo que el sistema marcó como sensible.
 - Añadir partículas, brillos permanentes o una ilustración en bucle.
 - Usar el rosa como éxito y como acción primaria a la vez; la confirmación debe
   sumar forma y texto, no otro significado cromático.

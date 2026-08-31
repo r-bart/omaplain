@@ -6,7 +6,7 @@ en un producto que enseña su propio trabajo, y para saldar la deuda que dejó l
 
 | Campo | Valor |
 |---|---|
-| Estado | Pendiente — a la espera de la puerta B.2 |
+| Estado | En curso — fases A y B terminadas |
 | Creado | 31 de agosto de 2026 |
 | Versión objetivo | `0.2.0` |
 | Plan anterior | [`PLAN.md`](./PLAN.md) — fases 0–5 terminadas |
@@ -44,8 +44,8 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 
 | Fase | Estado | Entregable principal | Puerta de salida |
 |---|---|---|---|
-| A. Desatascar | Pendiente | Panel con sus controles visibles | Los nueve toggles se renderizan en el panel real |
-| B. Decisiones | Pendiente | `0005` y `0006` aceptadas | El criterio de auditoría de contenido es verificable de nuevo |
+| A. Desatascar | Terminada | Panel con sus controles visibles | Los nueve toggles se renderizan en el panel real |
+| B. Decisiones | Terminada | `0005` y `0006` aceptadas | El criterio de auditoría de contenido es verificable de nuevo |
 | C. Contrato `peek` | Pendiente | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
 | D. Pantalla principal | Pendiente | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
 | E. Onboarding | Pendiente | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
@@ -103,14 +103,10 @@ invariante documentado del proyecto.
 
 Las dos opciones llevan a trabajo distinto en la fase E:
 
-- **Ajustes obligatorio tras el welcome tour** (lo que pediste). El usuario
-  configura antes de ver el producto funcionando.
-- **Terminar en la pantalla principal, Ajustes opcional** (mi recomendación).
-  Coincide con la decisión `0004`: *«la primera apertura es educativa; las
-  siguientes aterrizan directamente en la acción principal»*. Los defaults ya
-  son seguros, así que configurar antes de ver el valor añade fricción.
-
-No arranco la fase E sin esta decisión.
+**Resuelta el 31 de agosto de 2026** en
+[`0006`](./docs/decisions/0006-orden-del-onboarding.md): bienvenida → tour →
+**Ajustes con un «Saltar» visible** → pantalla principal. Ajustes se enseña,
+no se impone, y el recorrido termina siempre con el portapapeles real delante.
 
 ### Criterios de salida
 
@@ -252,6 +248,8 @@ código:
 | Fecha | Hito | Resultado |
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
+| 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Fase B | `0005` y `0006` aceptadas; `F1.11`, `F4.5`, criterios de terminado, UX-OPPORTUNITIES y SECURITY reformulados |
 
 ## 14. Definición operativa de terminado
 
