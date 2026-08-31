@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "components/Strings.js" as Strings
 
 Item {
   id: root

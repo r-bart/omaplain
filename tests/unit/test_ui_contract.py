@@ -79,6 +79,21 @@ class UiContractTests(unittest.TestCase):
             with self.subTest(file=path.name, uses=",".join(used)):
                 self.assertIn("import qs.Commons", source)
 
+    def test_every_qml_using_the_catalogue_imports_it(self) -> None:
+        # Misma pareja uso/import que la guardia de arriba, y mismo desenlace:
+        # `Service.qml` llamaba a `Strings.fromLocale` sin importar el
+        # catálogo, así que resolver el idioma lanzaba `ReferenceError` y la
+        # notificación de error del servicio no llegaba a formarse. Sólo se
+        # veía en el journal del shell, nunca en los tests, porque el fichero
+        # está perfectamente escrito: lo que faltaba era la línea de import.
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        for path in files:
+            source = path.read_text(encoding="utf-8")
+            if not re.search(r"\bStrings\s*\.", source):
+                continue
+            with self.subTest(file=path.name):
+                self.assertRegex(source, r'import "(?:components/)?Strings\.js" as Strings')
+
     def test_controls_scale_the_minimum_hit_height(self) -> None:
         files = [REPO / "Panel.qml", *sorted((REPO / "components").glob("*.qml"))]
         raw_height = re.compile(r"(?:implicitHeight:\s*44\b|Math\.max\(44\b)")
