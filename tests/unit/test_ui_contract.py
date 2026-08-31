@@ -430,6 +430,186 @@ class UiContractTests(unittest.TestCase):
             with self.subTest(label=label):
                 self.assertLessEqual(len(label), 26, "no cabe en el botón")
 
+    # ------------------------------------------------------------------
+    # Toda negativa del helper tiene su propia frase en el panel
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _peek_refusal_reasons() -> set[str]:
+        """Los motivos por los que `peek` puede negarse, sacados del helper.
+
+        No es una lista escrita a mano: se deriva de los tres módulos que
+        emiten motivos. Escrita a mano se quedaría vieja en cuanto alguien
+        añadiera un `TransformBypass`, que es exactamente como el panel
+        acabó diciendo «Nothing to clean here» de un portapapeles de 1,4 MB
+        y de una aplicación bloqueada.
+        """
+        clasificar = (REPO / "helper" / "omaplain_lib" / "classify.py").read_text(encoding="utf-8")
+        transformar = (REPO / "helper" / "omaplain_lib" / "transform.py").read_text(encoding="utf-8")
+        demonio = (REPO / "helper" / "omaplain_lib" / "daemon.py").read_text(encoding="utf-8")
+
+        reasons = set(re.findall(r'Classification\(\s*False,\s*"([a-z_]+)"', clasificar))
+        reasons |= set(re.findall(r'TransformBypass\(\s*"([a-z_]+)"', transformar))
+
+        # `peek` llama a `_inspect_and_transform` con `automatic=False`, así
+        # que las salidas que cuelgan de `if automatic and ...` no le llegan.
+        cuerpo = re.search(
+            r"def _inspect_and_transform\(.*?\n    def ", demonio, re.DOTALL,
+        )
+        assert cuerpo, "no encuentro _inspect_and_transform"
+        guarda = ""
+        for linea in cuerpo.group(0).splitlines():
+            desnuda = linea.split("#", 1)[0]
+            if re.match(r"\s*if\b", desnuda):
+                guarda = desnuda
+            hallado = re.search(r'OperationResult\(\s*"(?:bypassed|error)",\s*"([a-z_]+)"', desnuda)
+            if hallado and "automatic and" not in guarda:
+                reasons.add(hallado.group(1))
+
+        # Y la negativa que `peek` se guarda para sí: el texto que no decodifica.
+        peek = re.search(r"def peek\(.*?\n    def ", demonio, re.DOTALL)
+        assert peek, "no encuentro peek"
+        for motivo, elegible in re.findall(
+            r'"reason":\s*"([a-z_]+)"[^}]*?"eligible":\s*(False|True)', peek.group(0),
+        ):
+            if elegible == "False":
+                reasons.add(motivo)
+        return reasons
+
+    def test_every_refusal_the_helper_can_utter_has_its_own_words(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        tabla = re.search(r"readonly property var refusals: \(\{(?P<body>.*?)\}\)", panel, re.DOTALL)
+        self.assertIsNotNone(tabla, "el panel ya no tiene tabla de negativas")
+        cubiertos = set(re.findall(r'"([a-z_]+)":\s*\{', tabla.group("body")))
+
+        for motivo in sorted(self._peek_refusal_reasons()):
+            with self.subTest(reason=motivo):
+                self.assertIn(
+                    motivo, cubiertos,
+                    f"el helper puede negarse por «{motivo}» y el panel lo contaría "
+                    "como «no hay nada que limpiar»",
+                )
+
+    def test_the_last_resort_never_claims_omaplain_looked(self) -> None:
+        """El respaldo se usa cuando el motivo no se conoce.
+
+        Un motivo desconocido puede ser justo aquel en el que no se miró
+        —una aplicación bloqueada lo era—, así que la frase de respaldo no
+        puede afirmar que se ha mirado nada.
+        """
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        for frase in re.findall(r'"detail\.nothing":\s*"([^"]+)"', catalogue):
+            with self.subTest(frase=frase):
+                self.assertNotIn("looked at it", frase)
+                self.assertNotIn("ha mirado", frase)
+        self.assertEqual(len(re.findall(r'"detail\.nothing":', catalogue)), 2)
+
+    def test_each_refusal_names_strings_that_exist(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        tabla = re.search(r"readonly property var refusals: \(\{(?P<body>.*?)\}\)", panel, re.DOTALL)
+        claves = re.findall(r'(?:verdict|detail):\s*"([a-z.A-Z]+)"', tabla.group("body"))
+        self.assertTrue(claves)
+        for clave in sorted(set(claves)):
+            with self.subTest(clave=clave):
+                # una vez por idioma
+                self.assertEqual(
+                    len(re.findall(rf'"{re.escape(clave)}":', catalogue)), 2,
+                    f"«{clave}» no está en las dos tablas",
+                )
+
+    # ------------------------------------------------------------------
+    # Las frases compuestas tienen que leerse como frases
+    # ------------------------------------------------------------------
+
+    def test_the_row_composes_sentences_with_a_name_not_a_column_heading(self) -> None:
+        """«Show %1» con el rótulo de la fila daba «Show On the clipboard».
+
+        Los rótulos son cabeceras de columna —«Now», «Would be»— y llevan
+        mayúscula. Metidos en una plantilla salían a media frase con la
+        mayúscula puesta, en los dos idiomas, y no sólo en el tooltip: la
+        misma cadena es el `Accessible.name` del botón.
+        """
+        row = (REPO / "components" / "ClipboardRow.qml").read_text(encoding="utf-8")
+        for llamada in re.findall(r'Strings\.f\("row\.(?:show|hide)"[^)]*\)', row):
+            with self.subTest(llamada=llamada):
+                self.assertIn("root.name", llamada)
+                self.assertNotIn("root.label", llamada, "vuelve a componer con la cabecera")
+        # Y el rótulo no se cuela por ninguna otra plantilla.
+        self.assertNotIn('Strings.f("row.locked"', row, "row.locked ya no lleva argumento")
+
+    def test_every_name_meant_for_mid_sentence_starts_lowercase(self) -> None:
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        nombres = re.findall(r'"row\.name\.[a-z]+":\s*"([^"]+)"', catalogue)
+        self.assertEqual(len(nombres), 6, "tres nombres por idioma")
+        for nombre in nombres:
+            with self.subTest(nombre=nombre):
+                self.assertTrue(
+                    nombre[0].islower(),
+                    f"«{nombre}» lleva mayúscula y va dentro de una frase",
+                )
+
+    def test_the_locked_sentence_never_starts_with_a_substitution(self) -> None:
+        # Con «%1 stays covered» el rótulo caía al principio de la frase, que
+        # es el único sitio donde su mayúscula no delataba nada... y donde
+        # además decía «Now stays covered».
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        frases = re.findall(r'"row\.locked":\s*"([^"]+)"', catalogue)
+        self.assertEqual(len(frases), 2)
+        for frase in frases:
+            with self.subTest(frase=frase):
+                self.assertNotIn("%1", frase)
+
+    def test_a_locked_row_invites_nothing_it_will_not_answer(self) -> None:
+        """El arrastre no responde y el ojo es un candado deshabilitado.
+
+        El vaho seguía rotulado «Drag to clear» y el lector de pantalla
+        seguía diciendo «or use the eye button»: dos instrucciones falsas
+        seguidas en la fila cuyo trabajo es no destaparse.
+        """
+        row = (REPO / "components" / "ClipboardRow.qml").read_text(encoding="utf-8")
+        self.assertIn('hint: root.locked ? "" : Strings.t("fog.hint", root.lang)', row)
+        self.assertIn('root.locked ? "row.covered.locked.a11y" : "row.covered.a11y"', row)
+
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        frases = re.findall(r'"row\.covered\.locked\.a11y":\s*"([^"]+)"', catalogue)
+        self.assertEqual(len(frases), 2, "falta en un idioma")
+        for frase in frases:
+            with self.subTest(frase=frase):
+                for invitacion in ("eye button", "botón del ojo", "Drag across", "Arrástralo"):
+                    self.assertNotIn(invitacion, frase)
+
+    def test_every_control_of_ours_shows_focus_with_more_than_a_border(self) -> None:
+        """El botón principal señalaba el foco con 1 px de borde.
+
+        Y sobre su relleno de acento el borde de foco se **oscurece**:
+        rgb(114,112,129) sin foco contra rgb(88,87,103) con foco, medido en
+        el panel real. Los dos estados se veían iguales, y es el único
+        control de la pantalla de bienvenida que alguien navegando con
+        teclado querría encontrar.
+
+        La regla vale para cualquier control propio que entre en el orden
+        de tabulación, no sólo para éste.
+        """
+        propios = [
+            ruta for ruta in (REPO / "components").glob("*.qml")
+            if "activeFocusOnTab" in ruta.read_text(encoding="utf-8")
+        ]
+        self.assertTrue(propios, "ningún control propio entra en el orden de tabulación")
+        for ruta in propios:
+            source = ruta.read_text(encoding="utf-8")
+            señales = [
+                line.split("//", 1)[0] for line in source.splitlines()
+                if "activeFocus" in line.split("//", 1)[0]
+                and not line.split("//", 1)[0].lstrip().startswith(("borderSpec:", "activeFocusOnTab:"))
+                and "onActiveFocusChanged" not in line
+            ]
+            with self.subTest(control=ruta.name):
+                self.assertTrue(
+                    señales,
+                    f"{ruta.name} sólo cambia el borde al recibir el foco",
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

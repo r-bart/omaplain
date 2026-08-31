@@ -258,13 +258,13 @@ porque su decisión depende de cuánto haya crecido la página de ajustes.
 | **Config nueva con helper viejo** | Avisos o pérdida de ajustes | `validate_config` ignora claves desconocidas a propósito; test de ida y vuelta |
 | **Texto con formato nunca visto** | Un estado se publica sin haberse mirado | Ver abajo: entra en la prueba final con el apaño de fixture |
 
-### El estado que nunca se ha visto
+### El estado que nunca se había visto — resuelto
 
-`wl-copy` acepta un solo `--type`, así que un portapapeles que ofrezca
-`text/html` y `text/plain` a la vez no se puede montar desde una shell. Está
-cubierto por fixtures y por el motor, pero **el panel real nunca lo ha pintado
-con contenido de verdad**. En `G.1` se monta con una copia real desde Chromium,
-que es exactamente el caso, y se mira.
+`wl-copy` acepta un solo `--type`, así que la oferta doble `text/html` +
+`text/plain` no se monta con él, y ni las teclas sintéticas sobre Chromium ni
+chromedriver la produjeron. **GTK4 sí**: un `ContentProvider` de unión deja una
+ventana sirviendo los dos tipos. Con eso el panel lo pintó, y el detalle está
+en [`docs/TEST-REPORT-0.2.0.md`](docs/TEST-REPORT-0.2.0.md).
 
 ---
 
@@ -303,8 +303,8 @@ que es exactamente el caso, y se mira.
 
 ### Fase 3 — `G`
 
-- [ ] Matriz de compatibilidad repetida, incluido `text/html` + `text/plain`
-      desde Chromium, **visto en el panel**.
+- [x] Matriz de compatibilidad repetida, incluido `text/html` + `text/plain`,
+      **visto en el panel** (con `skipNext` armado, para que llegue intacto).
 - [ ] Auditoría de privacidad: la muestra marcada no aparece en stdout, stderr,
       `status.json` ni ningún fichero de runtime.
 - [ ] `omarchy plugin validate .` en verde.

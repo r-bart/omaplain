@@ -58,17 +58,26 @@ copia hecha desde una aplicación bloqueada:
   sin marcas de posición.
 - Los dos idiomas.
 
-## Lo que no se ha podido comprobar
+## Texto con formato, visto por fin
 
-**Texto con formato, en el panel, con contenido real.** `wl-copy` acepta un
-solo `--type`, así que un portapapeles que ofrezca `text/html` y `text/plain` a
-la vez no se puede montar desde una shell. Se intentaron tres caminos —
-`wl-copy --type`, teclas sintéticas sobre Chromium y una sesión de
-chromedriver— y ninguno produjo la oferta doble.
+Era el único estado que nunca se había pintado con contenido real. `wl-copy`
+acepta un solo `--type`, así que la oferta doble `text/html` + `text/plain`
+que produce cualquier navegador o editor no se puede montar con él, y los
+tres caminos que se intentaron antes —`wl-copy --type`, teclas sintéticas
+sobre Chromium y una sesión de chromedriver— no la produjeron.
 
-Lo que sí está cubierto: la clasificación (`classify` con ambos tipos), la
-respuesta de `peek` para ese caso, y los chips de tipos que lo enseñan, todo
-por tests. Lo que falta es verlo pintado.
+**Sí se puede montar con GTK4**, que es lo que faltaba encontrar. Un
+`Gdk.ContentProvider.new_union` sobre `new_for_bytes("text/html", …)` y
+`new_for_value(str)` deja la ventana dueña de la selección sirviendo los dos
+tipos. El guion está en el scratchpad de la sesión y cabe en 30 líneas.
 
-**Es el primer punto de la prueba final**, y basta con copiar cualquier texto
-con formato desde un navegador o un editor y abrir el panel.
+Con eso, el estado se comprobó de las dos formas:
+
+| Con | Resultado |
+|---|---|
+| Limpieza automática puesta | El demonio registra `cleaned / rich_text`, y el portapapeles queda ofreciendo sólo los tipos planos |
+| `skipNext` armado | La copia llega intacta y **el panel la pinta**: «This can be cleaned», dos filas, y los chips con `text/html` y `text/plain` tachados apuntando al `text/plain;charset=utf-8` que queda |
+
+El desglose lo rotula «Rich formatting». Es el único caso en que el texto no
+cambia y aun así se reescribe, y la pantalla lo cuenta con los tipos en vez
+de con el texto, que es justo lo que la `0005` decidió.

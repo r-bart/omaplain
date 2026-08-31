@@ -59,22 +59,50 @@ var EN = {
   "verdict.structured": "Structured format, untouched",
   "verdict.empty": "Waiting for your next copy",
   "verdict.preparing": "Getting ready…",
+  // Una negativa por cada motivo por el que el helper se planta. Sin ellas
+  // todas caían en «Nothing to clean here», que de un portapapeles de 1,4 MB
+  // o de una app bloqueada es sencillamente falso.
+  "verdict.large": "Too big to read",
+  "verdict.blocked": "Not read, by your rule",
+  "verdict.unreadable": "Not text OmaPlain can read",
+  "verdict.failed": "The clipboard could not be read",
+  "verdict.richOnly": "Formatting with no plain text",
+  "verdict.noText": "No text to clean",
+  "verdict.declined": "Left as it is",
 
   "detail.cleanable": "This is how it stands and how it would end up.",
   "detail.clean": "OmaPlain has looked at it and there is nothing to remove.",
-  "detail.nothing": "OmaPlain has looked at it and leaves it as it is.",
+  // Sin sujeto que mienta: esta frase es el último recurso, y se usa cuando
+  // el motivo de la negativa no se conoce. Antes decía «has looked at it»,
+  // que era justo lo contrario de lo que pasa con una app bloqueada.
+  "detail.nothing": "OmaPlain leaves it as it is.",
   "detail.sensitive": "Your password manager marked this copy. OmaPlain does not read it, does not show it and does not rewrite it.",
   "detail.image": "OmaPlain does not even read it. Screenshots reach their destination byte for byte.",
   "detail.files": "Copying files moves paths and permissions. Rewriting that would break the paste.",
   "detail.empty": "Copy anything and this screen shows what OmaPlain would do with it — before it does it.",
+  "detail.structured": "It is a structured format, and rewriting it would break what it means.",
+  "detail.large": "Over 1 MB. OmaPlain stops before reading it, so it does not touch it either.",
+  "detail.blocked": "OmaPlain did not look at this copy, so it cannot say what is inside.",
+  "detail.unreadable": "OmaPlain cannot decode these bytes as text, and rewriting them blindly would risk breaking them.",
+  "detail.richOnly": "This copy only offers a formatted version. There is no plain text to keep, so OmaPlain leaves it whole.",
+  "detail.noText": "OmaPlain only rewrites plain text, and this copy does not offer any.",
+  "detail.declined": "Cleaning this one would change more than it should, so OmaPlain steps back.",
+  "detail.failed": "OmaPlain could not read the clipboard this time, so it changed nothing.",
 
   // --- Filas ---
   "row.now": "Now",
   "row.would": "Would be",
   "row.single": "On the clipboard",
+  // El rótulo de la fila es una cabecera de columna —«Now», «Would be»—, y
+  // metido en «Show %1» salía «Show Now». El nombre para la frase va aparte,
+  // en minúscula y como sintagma nominal.
+  "row.name.single": "what is on the clipboard",
+  "row.name.now": "the current text",
+  "row.name.would": "the result",
   "row.show": "Show %1",
   "row.hide": "Hide %1",
   "row.covered.a11y": "Content covered. Drag across it to clear it, or use the eye button.",
+  "row.covered.locked.a11y": "Content covered, and it stays that way: it came from an app on your never-uncover list.",
   "fog.hint": "Drag to clear",
 
   // --- Reglas y ajustes que las gobiernan ---
@@ -95,7 +123,7 @@ var EN = {
   "action.skipped": "Next copy skipped",
   "footnote.safe": "The original stays intact if cleaning is not safe.",
   "footnote.sensitive": "Revealing is not available for content marked as sensitive.",
-  "footnote.nothing": "There is nothing to clean, so there is no action to offer.",
+  "footnote.nothing": "There is no action to offer here.",
 
   // --- Ajustes ---
   "settings.language": "Language",
@@ -126,8 +154,8 @@ var EN = {
 
   // --- Exclusiones ---
   "excl.title": "Excluded applications",
-  "excl.detected": "Dejar de limpiar lo que copie esta app",
-  "excl.detect": "Dejar de limpiar lo que copie %1",
+  "excl.detected": "Stop cleaning what this app copies",
+  "excl.detect": "Stop cleaning what %1 copies",
   "excl.none.title": "No application excluded",
   "excl.none.body": "OmaPlain cleans the text you copy in any application. Exclude one as a source so what you copy there passes untouched, or as a target so nothing is pasted clean into it.",
   "excl.class": "Application class",
@@ -184,7 +212,7 @@ var EN = {
   "tour.back.first.a11y": "Back to the previous screen",
   "tour.back.a11y": "Back to the previous step",
   "tour.next": "Next",
-  "tour.finish": "Ver los ajustes",
+  "tour.finish": "See the settings",
   "tour.skip": "Skip the tour",
   "tour.leave": "Leave the recap",
 
@@ -207,6 +235,18 @@ var EN = {
   "settings.trim": "Trim end-of-line spaces",
   "excl.class.hint": "The exact Hyprland class to exclude.",
   "art.automatic": "Automatic",
+  // Las dos muestras del tour. Estaban escritas en el QML, en español, así
+  // que en inglés la pantalla enseñaba una interfaz traducida con ejemplos
+  // sin traducir —y la frase de resultado hablaba de «the servings»
+  // señalando un `porciones=8`. El dominio es el reservado por la RFC 2606:
+  // un ejemplo con seguimiento no se le cuelga a un negocio real.
+  //
+  // El original de la primera lleva un ZWSP al final, que es el carácter
+  // invisible que la demo promete retirar.
+  "demo.sample1.original": "https://example.com/sourdough-bread?utm_source=newsletter&utm_medium=email&fbclid=IwAR9x&servings=8#baking​",
+  "demo.sample1.cleaned": "https://example.com/sourdough-bread?servings=8#baking",
+  "demo.sample2.original": "https://example.com/invoice.pdf?expires=1735689600&signature=ab12cd34",
+  "demo.sample2.cleaned": "https://example.com/invoice.pdf?expires=1735689600&signature=ab12cd34",
   "demo.outcome1": "Three tracking parameters gone, and an invisible character you could not see. The page, the servings and the spot it points to are still there.",
   "demo.outcome2": "No change: this link is signed, and trimming it would break it. When in doubt, OmaPlain would rather touch nothing.",
   "err.busy": "OmaPlain is already working on another action",
@@ -234,7 +274,7 @@ var EN = {
   "privacy.use": "Use %1",
   "privacy.undetected": "No application detected right now.",
   "privacy.blockedState": "That app is on your never-read list, so there is nothing here.",
-  "row.locked": "%1 stays covered: it came from an app on your never-uncover list",
+  "row.locked": "This stays covered: it came from an app on your never-uncover list",
   "settings.motion": "Reduce motion",
   "settings.motion.desc": "Stops the animations, including the examples that cycle on the empty screen.",
   "empty.how": "See how it works",
@@ -305,21 +345,40 @@ var ES = {
   "verdict.structured": "Formato estructurado, intacto",
   "verdict.empty": "Esperando tu próxima copia",
   "verdict.preparing": "Preparando…",
+  "verdict.large": "Demasiado grande para leerlo",
+  "verdict.blocked": "No leído, por tu regla",
+  "verdict.unreadable": "No es texto que OmaPlain pueda leer",
+  "verdict.failed": "No se ha podido leer el portapapeles",
+  "verdict.richOnly": "Formato sin texto plano",
+  "verdict.noText": "No hay texto que limpiar",
+  "verdict.declined": "Se queda como está",
 
   "detail.cleanable": "Así está ahora y así quedaría.",
   "detail.clean": "OmaPlain lo ha mirado y no hay nada que retirar.",
-  "detail.nothing": "OmaPlain lo ha mirado y lo deja como está.",
+  "detail.nothing": "OmaPlain lo deja como está.",
   "detail.sensitive": "Tu gestor de contraseñas marcó esta copia. OmaPlain no la lee, no la muestra y no la reescribe.",
   "detail.image": "OmaPlain ni la lee. Las capturas llegan a su destino byte a byte.",
   "detail.files": "Copiar archivos mueve rutas y permisos. Reescribir eso rompería el pegado.",
   "detail.empty": "Copia cualquier cosa y esta pantalla te enseñará qué haría OmaPlain con ello, antes de hacerlo.",
+  "detail.structured": "Es un formato estructurado, y reescribirlo rompería lo que significa.",
+  "detail.large": "Supera 1 MB. OmaPlain se para antes de leerlo, así que tampoco lo toca.",
+  "detail.blocked": "OmaPlain no ha mirado esta copia, así que no puede decir qué hay dentro.",
+  "detail.unreadable": "OmaPlain no puede descodificar estos bytes como texto, y reescribirlos a ciegas sería arriesgarse a romperlos.",
+  "detail.richOnly": "Esta copia sólo ofrece una versión con formato. No hay texto plano que conservar, así que OmaPlain la deja entera.",
+  "detail.noText": "OmaPlain sólo reescribe texto plano, y esta copia no ofrece ninguno.",
+  "detail.declined": "Limpiar esta cambiaría más de lo que debe, así que OmaPlain se aparta.",
+  "detail.failed": "OmaPlain no ha podido leer el portapapeles esta vez, así que no ha cambiado nada.",
 
   "row.now": "Ahora",
   "row.would": "Quedaría",
   "row.single": "En el portapapeles",
+  "row.name.single": "lo que hay en el portapapeles",
+  "row.name.now": "el texto actual",
+  "row.name.would": "el resultado",
   "row.show": "Mostrar %1",
   "row.hide": "Ocultar %1",
   "row.covered.a11y": "Contenido cubierto. Arrástralo para limpiarlo, o usa el botón del ojo.",
+  "row.covered.locked.a11y": "Contenido cubierto, y así se queda: viene de una aplicación de tu lista de no destapar.",
   "fog.hint": "Arrastra para limpiar",
 
   "rule.tracking": "Parámetros de seguimiento",
@@ -338,7 +397,7 @@ var ES = {
   "action.skipped": "Próxima copia omitida",
   "footnote.safe": "El original permanece intacto si la limpieza no es segura.",
   "footnote.sensitive": "Revelar no está disponible para contenido marcado como sensible.",
-  "footnote.nothing": "No hay nada que limpiar, así que no hay acción que ofrecer.",
+  "footnote.nothing": "Aquí no hay acción que ofrecer.",
 
   "settings.language": "Idioma",
   "settings.language.auto": "Del sistema",
@@ -367,8 +426,8 @@ var ES = {
   "settings.trim.desc": "No modifica la indentación ni los saltos.",
 
   "excl.title": "Aplicaciones excluidas",
-  "excl.detected": "Excluir la aplicación detectada",
-  "excl.detect": "Excluir %1 del modo automático",
+  "excl.detected": "Dejar de limpiar lo que copie esta app",
+  "excl.detect": "Dejar de limpiar lo que copie %1",
   "excl.none.title": "Ninguna aplicación excluida",
   "excl.none.body": "OmaPlain limpia el texto que copies en cualquier aplicación. Excluye una como origen para que lo que copies en ella pase intacto, o como destino para no pegar limpio dentro de ella.",
   "excl.class": "Clase de aplicación",
@@ -422,7 +481,7 @@ var ES = {
   "tour.back.first.a11y": "Volver a la pantalla anterior",
   "tour.back.a11y": "Volver al paso anterior",
   "tour.next": "Siguiente",
-  "tour.finish": "Empezar a usarlo",
+  "tour.finish": "Ver los ajustes",
   "tour.skip": "Saltar el tour",
   "tour.leave": "Salir del repaso",
 
@@ -442,6 +501,10 @@ var ES = {
   "settings.trim": "Retirar espacios al final de línea",
   "excl.class.hint": "Clase exacta de Hyprland que se excluirá.",
   "art.automatic": "Automático",
+  "demo.sample1.original": "https://example.com/pan-de-masa-madre?utm_source=boletin&utm_medium=email&fbclid=IwAR9x&porciones=8#horneado​",
+  "demo.sample1.cleaned": "https://example.com/pan-de-masa-madre?porciones=8#horneado",
+  "demo.sample2.original": "https://example.com/factura.pdf?expires=1735689600&signature=ab12cd34",
+  "demo.sample2.cleaned": "https://example.com/factura.pdf?expires=1735689600&signature=ab12cd34",
   "demo.outcome1": "Fuera tres parámetros de seguimiento y un carácter invisible que no se veía. La página, las porciones y el punto al que apunta siguen ahí.",
   "demo.outcome2": "Sin cambios: este enlace va firmado y recortarlo lo rompería. Ante la duda, OmaPlain prefiere no tocar nada.",
   "err.busy": "OmaPlain ya está procesando otra acción",
@@ -469,7 +532,7 @@ var ES = {
   "privacy.use": "Usar %1",
   "privacy.undetected": "Ahora mismo no se detecta ninguna aplicación.",
   "privacy.blockedState": "Esa aplicación está en tu lista de no leer, así que aquí no hay nada.",
-  "row.locked": "%1 se queda cubierto: viene de una aplicación de tu lista de no destapar",
+  "row.locked": "Esto se queda cubierto: viene de una aplicación de tu lista de no destapar",
   "settings.motion": "Reducir movimiento",
   "settings.motion.desc": "Detiene las animaciones, incluidos los ejemplos que ciclan en la pantalla vacía.",
   "empty.how": "Ver cómo funciona",

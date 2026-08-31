@@ -41,6 +41,25 @@ BorderSurface {
     Behavior on color { ColorAnimation { duration: 120 } }
   }
 
+  // El foco no puede vivir sólo en el borde. Sobre un relleno de acento
+  // saturado, el borde de foco de la paleta **se oscurece** —medido en el
+  // panel real: rgb(114,112,129) sin foco, rgb(88,87,103) con foco—, así
+  // que pierde contraste contra el fondo justo cuando debería ganarlo.
+  // Enfocado y sin enfocar se veían iguales.
+  //
+  // El anillo va por dentro y en el mismo color que el texto del botón,
+  // que es el que ya contrasta con el relleno en los dos temas. Radio
+  // concéntrico: el de fuera menos el hueco.
+  Rectangle {
+    anchors.fill: parent
+    anchors.margins: Style.space(3)
+    radius: Math.max(0, root.radius - Style.space(3))
+    color: "transparent"
+    border.color: Color.background
+    border.width: Math.max(2, Style.space(2))
+    visible: root.focusable && root.activeFocus
+  }
+
   Row {
     id: labelRow
     anchors.centerIn: parent

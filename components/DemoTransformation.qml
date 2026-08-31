@@ -4,9 +4,10 @@ import qs.Ui
 import "Strings.js" as Strings
 
 // A demonstration that never reads the clipboard. Both samples and both
-// results are literals, and tests/unit/test_demo_sample.py pushes each
-// original through the real transform, so the demo cannot keep promising
-// something the engine stopped doing.
+// results come from the bilingual catalogue, and
+// tests/unit/test_demo_sample.py pushes each original through the real
+// transform once per language, so the demo cannot keep promising something
+// the engine stopped doing.
 Column {
   id: root
 
@@ -18,25 +19,27 @@ Column {
 
   signal focusEntered(Item item)
 
-  // Each sample is one whole URL because that is the only shape the engine
-  // rewrites: clean_tracking_url gives up as soon as the text carries a
-  // space. Prose with a link inside it is left alone, and a demo built on
-  // prose would claim otherwise.
+  // Cada muestra es una URL entera porque es la única forma que el motor
+  // reescribe: `clean_tracking_url` se rinde en cuanto el texto lleva un
+  // espacio. Prosa con un enlace dentro se queda intacta, y una demo hecha
+  // de prosa afirmaría lo contrario.
+  //
+  // Las muestras salen del catálogo, no de aquí. Escritas en el QML se
+  // quedaron en un solo idioma: la interfaz en inglés enseñaba
+  // `pan-de-masa-madre` y la frase de resultado hablaba de «the servings»
+  // señalando un `porciones=8` que su lector no podía leer.
+  //
+  // `tests/unit/test_demo_sample.py` empuja cada original por el motor real,
+  // una vez por idioma, así que la demo no puede prometer una limpieza que
+  // el producto haya dejado de hacer en ninguno de los dos.
   readonly property var samples: [
-    {
-      "original": "https://ejemplo.com/pan-de-masa-madre?utm_source=boletin&utm_medium=email&fbclid=IwAR9x&porciones=8#horneado​",
-      "cleaned": "https://ejemplo.com/pan-de-masa-madre?porciones=8#horneado",
-      "outcome": "demo.outcome1"
-    },
-    {
-      "original": "https://ejemplo.com/factura.pdf?expires=1735689600&signature=ab12cd34",
-      "cleaned": "https://ejemplo.com/factura.pdf?expires=1735689600&signature=ab12cd34",
-      "outcome": "demo.outcome2"
-    }
+    { "key": "demo.sample1", "outcome": "demo.outcome1" },
+    { "key": "demo.sample2", "outcome": "demo.outcome2" }
   ]
 
   readonly property var sample: samples[Math.max(0, Math.min(samples.length - 1, sampleIndex))]
-  readonly property string shownText: revealed ? sample.cleaned : sample.original
+  readonly property string shownText: Strings.t(
+    root.sample.key + (root.revealed ? ".cleaned" : ".original"), root.lang)
 
   spacing: Style.space(8)
 

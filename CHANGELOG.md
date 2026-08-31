@@ -62,6 +62,28 @@ nueve controles no se veían por un import que faltaba.
 - **El servicio no formaba su notificación de error**: llamaba al catálogo sin
   importarlo y lanzaba `ReferenceError` en cada arranque.
 - La ayuda de la CLI imprimía `==SUPPRESS==` como si fuera un comando.
+- **El panel decía «no hay nada que limpiar» de casi todo lo que no sabía
+  clasificar.** Reconocía cinco motivos de los diecisiete que el helper puede
+  emitir, y el resto caía en «OmaPlain lo ha mirado y lo deja como está»: un
+  portapapeles de 1,4 MB que no llegó a leer, bytes que no son texto y —lo
+  peor— **una copia de una aplicación bloqueada, justo la pantalla cuyo
+  trabajo es demostrar que no la miró**. Cada negativa tiene ahora su titular
+  y su explicación, y un test compara las dos listas.
+- **Las frases del ojo se componían con la cabecera de la columna**, así que
+  el tooltip y el `Accessible.name` decían «Show On the clipboard» y «Mostrar
+  Quedaría».
+- **La fila bajo llave seguía invitando a destaparse**: el vaho decía
+  «arrastra para limpiar» y el lector de pantalla remataba con «o usa el botón
+  del ojo», dos gestos que ahí no responden.
+- **El botón principal no enseñaba el foco.** Sobre el relleno de acento sólo
+  cambiaba 1 px de borde, y encima se oscurecía: enfocado y sin enfocar se
+  veían iguales.
+- **La demostración del tour estaba escrita en español dentro del QML**, así
+  que en inglés la pantalla enseñaba `pan-de-masa-madre` mientras la frase de
+  resultado hablaba de «the servings». Y usaba `ejemplo.com`, un dominio real,
+  en vez del `example.com` que la RFC 2606 reserva para esto.
+- **Tres cadenas estaban en la tabla del idioma equivocado**: el botón que
+  cierra el tour y los dos rótulos de exclusión detectada.
 
 ### Seguridad
 

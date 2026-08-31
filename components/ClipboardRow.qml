@@ -14,7 +14,11 @@ Item {
   // Idioma heredado del panel: en o es.
   property string lang: "en"
 
+  // El rótulo que se ve en la cabecera de la fila: «Now», «Would be».
   property string label: ""
+  // Y cómo se llama la fila dentro de una frase. Son cosas distintas: con
+  // el rótulo, «Show %1» salía «Show Now».
+  property string name: ""
   property string body: ""
   property bool shown: false
   // 0009: viene de una aplicación de la lista «no destapar nunca». El vaho
@@ -76,15 +80,15 @@ Item {
         implicitWidth: Style.space(44)
         text: root.locked ? "󰌾" : (root.revealed ? "◉" : "◎")
         tooltipText: root.locked
-          ? Strings.f("row.locked", root.lang, root.label)
-          : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.label)
+          ? Strings.t("row.locked", root.lang)
+          : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.name)
         focusable: true
         enabled: !root.locked
         foreground: root.revealed ? Color.accent : Util.alpha(Color.popups.text, 0.68)
         Accessible.role: Accessible.Button
         Accessible.name: root.locked
-          ? Strings.f("row.locked", root.lang, root.label)
-          : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.label)
+          ? Strings.t("row.locked", root.lang)
+          : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.name)
         Accessible.onPressAction: root.toggle()
         onActiveFocusChanged: if (activeFocus) root.focusEntered(eye)
         onClicked: root.toggle()
@@ -170,7 +174,12 @@ Item {
         seed: root.seed
         motionEnabled: root.motionEnabled
         Accessible.role: Accessible.StaticText
-        Accessible.name: Strings.t("row.covered.a11y", root.lang)
+        // Bajo llave no se invita a nada: el arrastre no responde y el ojo
+        // es un candado deshabilitado. Decirlo igualmente eran dos
+        // instrucciones falsas seguidas para quien usa lector de pantalla.
+        hint: root.locked ? "" : Strings.t("fog.hint", root.lang)
+        Accessible.name: Strings.t(
+          root.locked ? "row.covered.locked.a11y" : "row.covered.a11y", root.lang)
         // Bajo llave el gesto tampoco vale: la cubierta ni siquiera escucha.
         onCleared: if (!root.locked) root.revealRequested()
         onVisibleChanged: if (visible) { reset() }

@@ -25,10 +25,10 @@ dependen del MIME sino de la aplicación de origen:
 |---|---|---|
 | Copia desde una app en `blockedApps` | Copia real desde `foot` con el terminal en la lista | `source_blocked`, sin contenido ni tipos |
 | Copia desde una app en `alwaysCovered` | Copia real desde `foot` con el terminal en la lista | Llega marcada; el vaho no se levanta |
+| Portapapeles con `text/html` + `text/plain` | Selección real de una ventana GTK4 que ofrece los dos tipos | Elegible y `rich`; con automático limpia (`rich_text`), con `skipNext` **el panel lo pinta** |
 
-Pendiente de ver pintado, no de clasificar: el portapapeles que ofrece
-`text/html` y `text/plain` a la vez. El motivo y los tres caminos que se
-intentaron están en [TEST-REPORT-0.2.0.md](TEST-REPORT-0.2.0.md).
+Ese último dejó de estar pendiente: cómo se monta la oferta doble sin
+navegador está en [TEST-REPORT-0.2.0.md](TEST-REPORT-0.2.0.md).
 
 ## MIME observados
 

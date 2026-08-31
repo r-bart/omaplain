@@ -150,6 +150,80 @@ class CatalogueTests(unittest.TestCase):
         source = CATALOGUE.read_text(encoding="utf-8")
         self.assertIn("if (value === undefined) value = EN[key]", source)
 
+    # ------------------------------------------------------------------
+    # Que la clave exista en las dos tablas no dice en qué idioma está
+    # ------------------------------------------------------------------
+
+    # Palabras que no existen en el otro idioma. Cortas a propósito: la
+    # lista sólo tiene que cazar prosa entera puesta en la tabla que no es,
+    # no adivinar idiomas.
+    SPANISH_ONLY = (
+        "los", "las", "del", "para", "con", "que", "una", "este", "esta",
+        "por", "más", "así", "sin", "pero", "cuando", "aquí", "ajustes",
+        "portapapeles", "nada", "algo", "sus", "tus",
+    )
+    ENGLISH_ONLY = (
+        "the", "and", "your", "with", "that", "from", "what", "does",
+        "clipboard", "settings", "nothing",
+    )
+
+    @staticmethod
+    def _words(value: str) -> set[str]:
+        return set(re.findall(r"[a-záéíóúñü]+", value.lower()))
+
+    def test_no_english_string_is_written_in_spanish(self) -> None:
+        """`EN["tour.finish"]` guardaba «Ver los ajustes».
+
+        En pantalla, el paso 3 de 3 del tour terminaba con un botón en
+        español rodeado de texto inglés. Ningún test lo veía: comprobaban
+        que la clave estuviera en las dos tablas, no qué idioma había
+        dentro del valor. Y la guardia de prosa fuera del catálogo usa el
+        acento como señal, que «Ver los ajustes» no lleva.
+        """
+        for key, value in self.en.items():
+            intrusas = self._words(value) & set(self.SPANISH_ONLY)
+            with self.subTest(key=key):
+                self.assertFalse(
+                    intrusas, f"«{value}» está en español dentro de la tabla EN {sorted(intrusas)}",
+                )
+
+    def test_no_spanish_string_is_left_in_english(self) -> None:
+        for key, value in self.es.items():
+            intrusas = self._words(value) & set(self.ENGLISH_ONLY)
+            with self.subTest(key=key):
+                self.assertFalse(
+                    intrusas, f"«{value}» está en inglés dentro de la tabla ES {sorted(intrusas)}",
+                )
+
+    def test_a_translated_string_is_not_the_same_string(self) -> None:
+        """Una copia sin traducir se ve como una traducción que existe.
+
+        Se permiten las que de verdad coinciden —nombres propios, tipos
+        MIME—, pero cualquier frase con espacios repetida en las dos tablas
+        es casi seguro un copiar y pegar.
+        """
+        # Se permiten las que, quitados los huecos y la puntuación, sólo
+        # contienen nombres propios: `state.a11y` es «OmaPlain, %1. %2».
+        propios = {"omaplain", "omarchy", "wayland", "hyprland"}
+
+        def solo_nombres(value: str) -> bool:
+            resto = re.sub(r"%\d", " ", value)
+            palabras = set(re.findall(r"[A-Za-zÁÉÍÓÚÑáéíóúñü]+", resto.lower()))
+            return not (palabras - propios)
+
+        permitidas = {
+            key for key, value in self.en.items()
+            if " " not in value.strip() or solo_nombres(value)
+        }
+        for key, value in self.en.items():
+            if key in permitidas:
+                continue
+            with self.subTest(key=key):
+                self.assertNotEqual(
+                    value, self.es[key],
+                    f"«{value}» es idéntica en los dos idiomas: sin traducir",
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

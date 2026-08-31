@@ -57,29 +57,55 @@ Item {
     return Strings.fromLocale(Qt.locale().name)
   }
 
+  // Cada motivo por el que el helper se niega a tocar el portapapeles, con
+  // su titular y su explicación. Una sola tabla y no dos cadenas de `if`:
+  // separadas, `structured` acabó con veredicto propio y explicación
+  // genérica sin que nadie se diera cuenta.
+  //
+  // Los motivos no se inventan aquí: salen de `classify.py`, `transform.py`
+  // y `daemon.py`, y `test_ui_contract.py` compara las dos listas. Si el
+  // helper aprende a negarse por algo nuevo, el test lo caza antes de que
+  // el panel diga «no hay nada que limpiar» de algo que sí lo tiene.
+  readonly property var refusals: ({
+    "sensitive":      { verdict: "verdict.sensitive",   detail: "detail.sensitive" },
+    "image":          { verdict: "verdict.image",       detail: "detail.image" },
+    "files":          { verdict: "verdict.files",       detail: "detail.files" },
+    "empty":          { verdict: "verdict.empty",       detail: "detail.empty" },
+    "structured":     { verdict: "verdict.structured",  detail: "detail.structured" },
+    "too_large":      { verdict: "verdict.large",       detail: "detail.large" },
+    "source_blocked": { verdict: "verdict.blocked",     detail: "detail.blocked" },
+    "invalid_text":   { verdict: "verdict.unreadable",  detail: "detail.unreadable" },
+    "undecodable":    { verdict: "verdict.unreadable",  detail: "detail.unreadable" },
+    "read_failed":    { verdict: "verdict.failed",      detail: "detail.failed" },
+    "inspect_failed": { verdict: "verdict.failed",      detail: "detail.failed" },
+    // Sin texto plano que conservar: el portapapeles sólo trae la versión
+    // con formato, o no trae texto en absoluto.
+    "html_without_plain": { verdict: "verdict.richOnly", detail: "detail.richOnly" },
+    "no_plain_text":  { verdict: "verdict.noText",      detail: "detail.noText" },
+    // Bytes que no se dejan descodificar.
+    "nul":            { verdict: "verdict.unreadable",  detail: "detail.unreadable" },
+    "unsupported_encoding": { verdict: "verdict.unreadable", detail: "detail.unreadable" },
+    // La limpieza saldría peor que el original, así que no se hace.
+    "empty_output":   { verdict: "verdict.declined",    detail: "detail.declined" },
+    "growth":         { verdict: "verdict.declined",    detail: "detail.declined" }
+  })
+
+  function refusal(field) {
+    var why = root.peek ? String(root.peek.reason || "") : ""
+    var entry = root.refusals[why]
+    // El último recurso no puede afirmar nada sobre el contenido: un motivo
+    // que este panel no conoce puede ser justo aquel en el que no se miró.
+    return Strings.t(entry ? entry[field] : (field === "verdict" ? "verdict.nothing" : "detail.nothing"), root.lang)
+  }
+
   readonly property string peekVerdict: {
     if (!service) return Strings.t("verdict.preparing", root.lang)
-    if (!peek || peek.eligible !== true) {
-      var why = peek ? String(peek.reason || "") : ""
-      if (why === "sensitive") return Strings.t("verdict.sensitive", root.lang)
-      if (why === "image") return Strings.t("verdict.image", root.lang)
-      if (why === "files") return Strings.t("verdict.files", root.lang)
-      if (why === "empty") return Strings.t("verdict.empty", root.lang)
-      if (why === "structured") return Strings.t("verdict.structured", root.lang)
-      return Strings.t("verdict.nothing", root.lang)
-    }
+    if (!peek || peek.eligible !== true) return root.refusal("verdict")
     return peekChanges ? Strings.t("verdict.cleanable", root.lang) : Strings.t("verdict.clean", root.lang)
   }
 
   readonly property string peekDetail: {
-    if (!peek || peek.eligible !== true) {
-      var why = peek ? String(peek.reason || "") : ""
-      if (why === "sensitive") return Strings.t("detail.sensitive", root.lang)
-      if (why === "image") return Strings.t("detail.image", root.lang)
-      if (why === "files") return Strings.t("detail.files", root.lang)
-      if (why === "empty") return Strings.t("detail.empty", root.lang)
-      return Strings.t("detail.nothing", root.lang)
-    }
+    if (!peek || peek.eligible !== true) return root.refusal("detail")
     return peekChanges
       ? Strings.t("detail.cleanable", root.lang)
       : Strings.t("detail.clean", root.lang)
@@ -648,6 +674,7 @@ Item {
                 width: contentColumn.width
                 visible: root.peekReady
                 label: root.peekChanges ? Strings.t("row.now", root.lang) : Strings.t("row.single", root.lang)
+                name: root.peekChanges ? Strings.t("row.name.now", root.lang) : Strings.t("row.name.single", root.lang)
                 body: root.peekReady ? String(root.peek.original || "") : ""
                 shown: root.showBefore
                 confirmed: root.cleanConfirmed
@@ -665,6 +692,7 @@ Item {
                 width: contentColumn.width
                 visible: root.peekChanges
                 label: Strings.t("row.would", root.lang)
+                name: Strings.t("row.name.would", root.lang)
                 body: root.peekChanges ? String(root.peek.cleaned || "") : ""
                 shown: root.showAfter
                 confirmed: root.cleanConfirmed
