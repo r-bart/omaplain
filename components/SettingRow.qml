@@ -6,7 +6,7 @@ Toggle {
 
   signal focusEntered(Item item)
 
-  implicitHeight: Math.max(44, contentHeight)
+  implicitHeight: Math.max(Style.space(44), contentHeight)
   Accessible.role: Accessible.CheckBox
   Accessible.name: label
   Accessible.description: description
@@ -17,4 +17,3 @@ Toggle {
 
   onActiveFocusChanged: if (activeFocus) focusEntered(root)
 }
-

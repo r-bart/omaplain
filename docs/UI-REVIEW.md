@@ -23,7 +23,7 @@ alterar la configuración.
 | El encabezado comunicaba sólo nombre y estado. | La copia con ruido se transforma visualmente en texto uniforme junto a la promesa «Texto limpio, sin sorpresas». | La función se entiende antes de leer los ajustes. |
 | Las dos acciones principales ocupaban todo el ancho y competían entre sí. | «Limpiar portapapeles ahora» usa el acento; omitir queda como acción secundaria. | Una sola acción primaria fija la jerarquía. |
 | Una primera apertura llevaba directamente a controles técnicos. | La bienvenida explica qué cambia, qué se protege y dónde vive el historial. | La confianza precede a la configuración. |
-| La guía no tenía una ruta de retorno. | Dos controles en Ajustes repiten la bienvenida o el tour y restauran foco y scroll al volver. | La ayuda deja de ser desechable sin desorientar. |
+| La guía no tenía una ruta de retorno. | Dos controles en ajustes repiten la bienvenida o el tour y restauran foco y scroll al volver. | La ayuda deja de ser desechable sin desorientar. |
 | En una ventana baja, el foco de una acción final podía quedar fuera del viewport. | Bienvenida y tour revelan el control enfocado dentro de su `Flickable`. | El recorrido completo sigue siendo visible por teclado. |
 
 ## Superficies, tipografía y movimiento
@@ -42,7 +42,7 @@ alterar la configuración.
 
 - Primera ejecución: bienvenida → tres pasos → panel.
 - Persistencia: cierre y reapertura aterrizan directamente en el panel.
-- Revisión: bienvenida y tour abren desde Ajustes y regresan al mismo scroll.
+- Revisión: bienvenida y tour abren desde ajustes y regresan al mismo scroll.
 - Teclado: foco inicial, `Tab`, `Shift+Tab`, `Return`, `Space` y `Escape`.
 - Servicio: watcher `running`, automático activo y `configWarnings` vacío.
 - Validador oficial: correcto.
@@ -58,10 +58,23 @@ alterar la configuración.
 3. Completa los tres pasos con teclado y confirma que «Abrir OmaPlain» termina
    en el panel habitual.
 4. Reabre el panel: la bienvenida no debe aparecer de nuevo.
-5. En Ajustes, repite cualquiera de las dos guías y sal; el scroll debe volver
+5. En ajustes, repite cualquiera de las dos guías y sal; el scroll debe volver
    a «Ayuda y aprendizaje».
 6. Cambia temporalmente «Limpiar automáticamente» y confirma que estado, texto
    auxiliar y color cambian juntos sin mover la estructura del encabezado.
 
 No uses secretos reales para la prueba. Un texto con negrita y una URL de
 ejemplo con `utm_source` son suficientes.
+
+## Post-review de accesibilidad y pulido
+
+La revisión posterior a la integración resolvió estos cuatro riesgos antes de
+continuar con microinteracciones:
+
+- Los textos secundarios usan una opacidad mínima de `0.68`; las parejas de
+  referencia Nightcall, Periphery, Dawn y Quattrocento Light superan `4.5:1`.
+- Las tarjetas de bienvenida comparten altura cuando forman una misma fila.
+- Los cambios entre bienvenida, tour y panel transfieren el foco en el siguiente
+  ciclo de Qt; los `180 ms` quedan reservados a la apertura del layer-shell.
+- Las acciones de exclusión escalan con `Style.space(44)` y el estado de omisión
+  usa una etiqueta corta que conserva el padding del botón.

@@ -86,7 +86,7 @@ Item {
           id: stepCounter
           anchors.right: parent.right
           text: (root.step + 1) + " de " + root.stepCount
-          color: Util.alpha(Color.popups.text, 0.58)
+          color: Util.alpha(Color.popups.text, 0.68)
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
           font.bold: true

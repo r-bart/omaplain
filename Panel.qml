@@ -193,11 +193,34 @@ Item {
       scroll.contentY = Math.min(scroll.contentHeight - scroll.height, bottom - scroll.height + Style.space(8))
   }
 
+  function applyViewFocus() {
+    if (!root.opened) return
+    focusScope.forceActiveFocus()
+    if (root.viewMode === "welcome") {
+      welcomePage.forceInitialFocus()
+    } else if (root.viewMode === "tour") {
+      tourPage.forceInitialFocus()
+    } else {
+      scroll.contentY = root.learningOrigin === "settings" ? root.savedSettingsScroll : 0
+      if (root.mainFocusTarget === "welcome") welcomeReplayButton.forceActiveFocus()
+      else if (root.mainFocusTarget === "tour") tourReplayButton.forceActiveFocus()
+      else cleanButton.forceActiveFocus()
+    }
+    Qt.callLater(function() {
+      root.focusReady = true
+      if (root.viewMode === "main") {
+        if (root.mainFocusTarget === "welcome") root.reveal(welcomeReplayButton)
+        else if (root.mainFocusTarget === "tour") root.reveal(tourReplayButton)
+      }
+    })
+  }
+
   onOpenedChanged: if (!opened) feedbackTimer.stop()
   onViewModeChanged: {
     if (!opened) return
     focusReady = false
-    initialFocusTimer.restart()
+    initialFocusTimer.stop()
+    Qt.callLater(root.applyViewFocus)
   }
 
   Connections {
@@ -219,27 +242,7 @@ Item {
     id: initialFocusTimer
     interval: 180
     repeat: false
-    onTriggered: {
-      if (!root.opened) return
-      focusScope.forceActiveFocus()
-      if (root.viewMode === "welcome") {
-        welcomePage.forceInitialFocus()
-      } else if (root.viewMode === "tour") {
-        tourPage.forceInitialFocus()
-      } else {
-        scroll.contentY = root.learningOrigin === "settings" ? root.savedSettingsScroll : 0
-        if (root.mainFocusTarget === "welcome") welcomeReplayButton.forceActiveFocus()
-        else if (root.mainFocusTarget === "tour") tourReplayButton.forceActiveFocus()
-        else cleanButton.forceActiveFocus()
-      }
-      Qt.callLater(function() {
-        root.focusReady = true
-        if (root.viewMode === "main") {
-          if (root.mainFocusTarget === "welcome") root.reveal(welcomeReplayButton)
-          else if (root.mainFocusTarget === "tour") root.reveal(tourReplayButton)
-        }
-      })
-    }
+    onTriggered: root.applyViewFocus()
   }
 
   PanelWindow {
@@ -345,7 +348,7 @@ Item {
                 ? primaryActions.width
                 : primaryActions.width - cleanButton.width - primaryActions.columnSpacing
               implicitHeight: Style.space(44)
-              text: service && service.status && service.status.skipNext ? "Se omitirá la próxima copia" : "Omitir la próxima copia"
+              text: service && service.status && service.status.skipNext ? "Próxima copia omitida" : "Omitir la próxima copia"
               focusable: true
               bordered: true
               foreground: Color.popups.text
@@ -365,7 +368,7 @@ Item {
               : "El original permanece intacto si la limpieza no es segura."
             color: root.feedback !== ""
               ? (root.feedbackError ? Color.urgent : Color.popups.text)
-              : Util.alpha(Color.popups.text, 0.62)
+              : Util.alpha(Color.popups.text, 0.68)
             font.family: Style.font.family
             font.pixelSize: Style.font.caption
             wrapMode: Text.WordWrap
@@ -522,7 +525,7 @@ Item {
             Button {
               id: detectedButton
               width: parent.width
-              implicitHeight: 44
+              implicitHeight: Style.space(44)
               text: service && service.currentAppClass
                 ? "Excluir " + service.currentAppClass + " del modo automático"
                 : "Excluir la aplicación detectada"
@@ -578,7 +581,7 @@ Item {
             TextField {
               id: classField
               width: parent.width
-              implicitHeight: 44
+              implicitHeight: Style.space(44)
               font.pixelSize: Math.max(16, Style.font.body)
               placeholderText: "org.example.Application"
               selectByMouse: true
@@ -602,7 +605,7 @@ Item {
               Button {
                 id: addSourceButton
                 width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
-                implicitHeight: 44
+                implicitHeight: Style.space(44)
                 text: "Añadir como origen"
                 focusable: true
                 bordered: true
@@ -617,7 +620,7 @@ Item {
               Button {
                 id: addTargetButton
                 width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
-                implicitHeight: 44
+                implicitHeight: Style.space(44)
                 text: "Añadir como destino"
                 focusable: true
                 bordered: true
@@ -638,7 +641,7 @@ Item {
                 : "Distingue entre mayúsculas y minúsculas."
               color: root.fieldError !== ""
                 ? Color.urgent
-                : Util.alpha(Color.popups.text, 0.62)
+                : Util.alpha(Color.popups.text, 0.68)
               font.family: Style.font.family
               font.pixelSize: Style.font.caption
               wrapMode: Text.WordWrap

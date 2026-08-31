@@ -11,7 +11,7 @@ Item {
   signal focusEntered(Item item)
 
   implicitWidth: Style.space(460)
-  implicitHeight: Math.max(44, appLabels.implicitHeight + Style.space(12))
+  implicitHeight: Math.max(Style.space(44), appLabels.implicitHeight + Style.space(12))
 
   Accessible.role: Accessible.StaticText
   Accessible.name: scopeLabel + ": " + appClass
@@ -36,7 +36,7 @@ Item {
     Text {
       width: parent.width
       text: root.scopeLabel
-      color: Util.alpha(Color.popups.text, 0.62)
+      color: Util.alpha(Color.popups.text, 0.68)
       font.family: Style.font.family
       font.pixelSize: Style.font.caption
     }
@@ -46,7 +46,7 @@ Item {
     id: removeButton
     anchors.right: parent.right
     anchors.verticalCenter: parent.verticalCenter
-    implicitHeight: 44
+    implicitHeight: Style.space(44)
     text: "Quitar"
     tooltipText: "Quitar " + root.appClass
     focusable: true
@@ -59,4 +59,3 @@ Item {
     onClicked: root.removeRequested(root.appClass)
   }
 }
-

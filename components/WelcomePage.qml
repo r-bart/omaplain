@@ -107,7 +107,9 @@ Item {
           delegate: BorderSurface {
             required property var modelData
             width: (features.width - (features.columns - 1) * features.columnSpacing) / features.columns
-            implicitHeight: featureCopy.implicitHeight + Style.space(24)
+            implicitHeight: features.columns === 1
+              ? featureCopy.implicitHeight + Style.space(24)
+              : Style.space(108)
             radius: Math.max(0, Style.cornerRadius - Style.space(2))
             color: Style.normalFillFor(Color.popups.text, Color.accent)
             borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
@@ -134,7 +136,7 @@ Item {
               Text {
                 width: parent.width
                 text: modelData.body
-                color: Util.alpha(Color.popups.text, 0.66)
+                color: Util.alpha(Color.popups.text, 0.72)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 lineHeightMode: Text.ProportionalHeight
@@ -166,7 +168,7 @@ Item {
           id: dismissButton
           width: (welcomeActions.width - (welcomeActions.columns - 1) * welcomeActions.columnSpacing) / welcomeActions.columns
           implicitHeight: Style.space(44)
-          text: root.returning ? "Volver a Ajustes" : "Ir al panel"
+          text: root.returning ? "Volver a ajustes" : "Ir al panel"
           focusable: true
           bordered: true
           foreground: Color.popups.text
@@ -180,8 +182,8 @@ Item {
 
       Text {
         width: parent.width
-        text: "Podrás volver a esta guía desde Ajustes."
-        color: Util.alpha(Color.popups.text, 0.58)
+        text: "Podrás volver a esta guía desde ajustes."
+        color: Util.alpha(Color.popups.text, 0.68)
         font.family: Style.font.family
         font.pixelSize: Style.font.caption
         horizontalAlignment: Text.AlignHCenter
