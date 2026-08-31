@@ -33,14 +33,8 @@ El plugin comprueba estas dependencias al arrancar, pero nunca instala paquetes 
 Mientras el plugin no esté publicado en el catálogo, se instala desde un clon local:
 
 ```sh
-git clone <URL-DEL-REPOSITORIO> ~/Work/omarchy-apps/omaplain
-omarchy plugin add ~/Work/omarchy-apps/omaplain --enable --yes
-```
-
-En este workspace ya se puede usar directamente:
-
-```sh
-omarchy plugin add /home/rbart/Work/omarchy-apps/omaplain --enable --yes
+git clone https://github.com/r-bart/omaplain.git
+omarchy plugin add ./omaplain --enable --yes
 ```
 
 Abrir el panel:

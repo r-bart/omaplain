@@ -4,6 +4,10 @@ Todos los cambios relevantes de OmaPlain se documentan aquí.
 
 ## Sin publicar
 
+### Añadido
+
+- Estado vacío en «Aplicaciones excluidas»: con las dos listas vacías, la sección explica qué hace excluir una aplicación como origen y como destino en vez de saltar al campo técnico.
+
 ### Mejorado
 
 - Estabilidad visual del panel: estado, ayuda, feedback y validación conservan su espacio.

@@ -44,6 +44,7 @@ class UiContractTests(unittest.TestCase):
             REPO / "components" / "WelcomePage.qml",
             REPO / "components" / "TourPage.qml",
             REPO / "components" / "ExcludedAppRow.qml",
+            REPO / "components" / "EmptyState.qml",
         ]
         low_contrast = re.compile(r"Util\.alpha\(Color\.popups\.text, 0\.(?:58|62|66)\)")
         for path in files:
@@ -68,6 +69,27 @@ class UiContractTests(unittest.TestCase):
         welcome = (REPO / "components" / "WelcomePage.qml").read_text(encoding="utf-8")
         self.assertIn("features.columns === 1", welcome)
         self.assertIn(": Style.space(108)", welcome)
+
+    def test_exclusions_render_an_empty_state_only_while_both_lists_are_empty(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        block = re.search(r"EmptyState \{(?P<body>.*?)\n\s{12}\}", panel, re.DOTALL)
+        self.assertIsNotNone(block, "el panel ya no monta un EmptyState")
+        body = block.group("body")
+        # Ambas listas comparten un solo hueco: mostrarlo con una de las dos ya
+        # poblada repetiria la explicacion junto a las filas que la contradicen.
+        self.assertIn('root.setting("sourceExclusions", []).length === 0', body)
+        self.assertIn('root.setting("targetExclusions", []).length === 0', body)
+        self.assertIn("&&", body)
+        # El hueco precede a los Repeater, o aparecería debajo de las filas.
+        self.assertLess(panel.index("EmptyState {"), panel.index('model: root.setting("sourceExclusions"'))
+
+    def test_empty_state_stays_a_static_text_for_assistive_tools(self) -> None:
+        empty = (REPO / "components" / "EmptyState.qml").read_text(encoding="utf-8")
+        self.assertIn("Accessible.role: Accessible.StaticText", empty)
+        self.assertIn("Accessible.name: root.title", empty)
+        self.assertIn("Accessible.description: root.body", empty)
+        # Sin foco propio: es un cartel, no una parada del recorrido por teclado.
+        self.assertNotIn("focusable: true", empty)
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
         panel = (REPO / "Panel.qml").read_text(encoding="utf-8")

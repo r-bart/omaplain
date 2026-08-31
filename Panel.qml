@@ -539,6 +539,14 @@ Item {
               onClicked: root.excludeDetected()
             }
 
+            EmptyState {
+              width: contentColumn.width
+              visible: root.setting("sourceExclusions", []).length === 0
+                && root.setting("targetExclusions", []).length === 0
+              title: "Ninguna aplicación excluida"
+              body: "OmaPlain limpia el texto que copies en cualquier aplicación. Excluye una como origen para que lo que copies en ella pase intacto, o como destino para no pegar limpio dentro de ella."
+            }
+
             Repeater {
               model: root.setting("sourceExclusions", [])
               delegate: ExcludedAppRow {
