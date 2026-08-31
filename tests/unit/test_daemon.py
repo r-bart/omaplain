@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from omapaste_lib.clipboard import WindowTarget
 from omapaste_lib.config import write_config
@@ -134,6 +135,14 @@ class DaemonTests(unittest.TestCase):
             generation = self.daemon._next_generation()
             self.daemon.automatic_event("data", generation)
         self.assertLessEqual(len(self.backend.writes), 1)
+
+    def test_watcher_dies_if_daemon_is_killed(self) -> None:
+        process = Mock()
+        with patch("omapaste_lib.daemon.subprocess.Popen", return_value=process) as popen:
+            self.daemon._start_watcher()
+        command = popen.call_args.args[0]
+        self.assertEqual(command[:5], ["setpriv", "--pdeathsig", "TERM", "--", "wl-paste"])
+        self.assertIs(self.daemon.watcher, process)
 
 
 if __name__ == "__main__":

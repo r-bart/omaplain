@@ -76,6 +76,10 @@ class OmaPasteDaemon:
 
     def _start_watcher(self) -> None:
         command = [
+            # Quickshell may use SIGKILL when it hot-reloads a plugin. Giving
+            # wl-paste its own parent-death signal prevents an orphan watcher
+            # even when this daemon cannot execute its finally block.
+            "setpriv", "--pdeathsig", "TERM", "--",
             "wl-paste", "--type", "text", "--watch",
             self.executable, "emit-event", "--socket", str(self.socket_path),
         ]
