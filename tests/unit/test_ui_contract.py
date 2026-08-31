@@ -94,6 +94,26 @@ class UiContractTests(unittest.TestCase):
             with self.subTest(file=path.name):
                 self.assertRegex(source, r'import "(?:components/)?Strings\.js" as Strings')
 
+    def test_no_source_smuggles_an_invisible_character_outside_a_string(self) -> None:
+        """Un producto que retira invisibles no puede llevarlos dentro.
+
+        Escribiendo un comentario se coló un guion suave en `CopySpecimen`.
+        No rompe nada y no se ve —ese es justo el problema: nadie lo iba a
+        encontrar leyendo. Dentro de una cadena sí son legítimos, porque el
+        ejemplo del tour lleva un ZWSP a propósito: es lo que enseña.
+        """
+        invisible = re.compile("[\u00ad\u200b-\u200f\u2060\ufeff]")
+        literal = re.compile(r'"(?:[^"\\]|\\.)*"')
+        files = [
+            *REPO.glob("*.qml"),
+            *sorted((REPO / "components").glob("*.qml")),
+            REPO / "components" / "Strings.js",
+        ]
+        for path in files:
+            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                with self.subTest(file=path.name, line=number):
+                    self.assertIsNone(invisible.search(literal.sub("", line)))
+
     def test_controls_scale_the_minimum_hit_height(self) -> None:
         files = [REPO / "Panel.qml", *sorted((REPO / "components").glob("*.qml"))]
         raw_height = re.compile(r"(?:implicitHeight:\s*44\b|Math\.max\(44\b)")

@@ -23,22 +23,38 @@ carácter invisible que no se ve, el `text/html` que desaparece.
 es, cómo llega, y lo que sobra encogiéndose hasta desaparecer. Al terminar, pasa
 a la siguiente.
 
-Cada ejemplo trae su propio dibujo, en el lenguaje de hojas de la bienvenida: un
-enlace con su cola de seguimiento, un párrafo con el invisible colado entre
-renglones, y dos hojas superpuestas de las que la de formato desaparece. Dibujo
-y texto comparten el mismo avance, así que pierden lo que sobra **en un solo
-gesto** en vez de contar dos historias a destiempo.
+Cada ejemplo trae su propio dibujo, en el lenguaje de hojas de la bienvenida, y
+los tres tienen silueta distinta para que se vea que son tres cosas distintas y
+no el mismo icono con otro pie: una barra de dirección sobre su página, con la
+cola de seguimiento en acento; una hoja de párrafo con el invisible dibujado
+como lo que es, una caja vacía sin glifo dentro; y dos copias superpuestas de
+las que se retira la de arriba, la que lleva el formato. Dibujo y texto
+comparten el mismo avance, así que pierden lo que sobra **en un solo gesto** en
+vez de contar dos historias a destiempo.
 
-| Valor | Elegido |
-|---|---|
-| Permanencia por elemento | 2600 ms |
-| Transición | 620 ms |
-| Curva | `cubic-bezier(0.32, 0.72, 0, 1)` |
-| Altura de la tarjeta | fija, la marca el dibujo |
-| Cuerpo | una sola línea, sin ajuste de línea |
+### La coreografía
 
-La altura fija y la línea única no son detalles de estilo: con altura variable,
-cada elemento del ciclo redimensionaría el panel entero cada 2,6 segundos.
+Un turno completo es una sola secuencia, no cuatro efectos sueltos:
+
+| Fase | Duración | Curva | Qué ocurre |
+|---|---|---|---|
+| Llegada | 300 ms | `cubic-bezier(0.32, 0.72, 0, 1)` | dibujo y frase entran desde abajo; la frase 70 ms detrás |
+| Espera | 80 ms | — | primero se ve qué hay, y sólo entonces qué sobra |
+| Peinado | 620 ms | `InOutCubic` | una banda cruza el dibujo, lo que sobra se encoge, tres motas se apagan |
+| Lectura | 1340 ms | — | la copia limpia se queda quieta |
+| Salida | 190 ms | `InCubic` | sube y se apaga: ya está leída |
+
+Tres reglas dentro de eso, cada una por un motivo concreto:
+
+- **La tarjeta no se mueve; se mueve su contenido.** Es el escenario. Haciéndola
+  entrar y salir entera, el borde parpadeaba tres veces cada ocho segundos justo
+  al lado de un botón que sí es pulsable.
+- **La marca de posición del ejemplo en curso es además su reloj**: se llena
+  mientras dura el turno, así que el relevo se ve venir en vez de sorprender a
+  media lectura.
+- **Altura fija y una sola línea de cuerpo.** No son detalles de estilo: con
+  altura variable, cada elemento del ciclo redimensionaría el panel entero cada
+  2,6 segundos.
 
 ## Por qué ésta
 
@@ -63,7 +79,8 @@ pantalla no podía demostrar sin contenido real.
 - La variante `waiting` de la ilustración se retira: no llegó a usarse en
   ninguna pantalla salvo ésta, y el carrusel la sustituye.
 - El ciclo se detiene con el panel cerrado y bajo movimiento reducido, donde se
-  queda en el primer ejemplo con lo que sobra ya retirado.
+  queda en el primer ejemplo con lo que sobra ya retirado, sin marcas de
+  posición y sin reservarles sitio.
 - Los ejemplos salen del motor, como los del tour, y un test los comprueba
   contra `transform()` para que la pantalla no prometa una limpieza que ya no
   ocurra.
