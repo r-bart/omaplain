@@ -222,6 +222,10 @@ var EN = {
   "notify.body": "Open the panel to check the service. What you copied is intact.",
   "empty.how": "See how it works",
   "empty.how.a11y": "Opens the three-step walkthrough",
+  "empty.kind.link": "A link from a newsletter",
+  "empty.kind.text": "A paragraph copied from a page",
+  "empty.kind.rich": "Text with formatting from an editor",
+  "empty.art.a11y": "Examples of what you can copy, with what OmaPlain would remove marked in the accent colour.",
   "art.copied": "Copied",
   "art.clean": "Clean"
 };
@@ -423,6 +427,10 @@ var ES = {
   "notify.body": "Abre el panel para revisar el servicio. Lo que copiaste está intacto.",
   "empty.how": "Ver cómo funciona",
   "empty.how.a11y": "Abre el recorrido de tres pasos",
+  "empty.kind.link": "Un enlace de un boletín",
+  "empty.kind.text": "Un párrafo copiado de una web",
+  "empty.kind.rich": "Texto con formato de un editor",
+  "empty.art.a11y": "Ejemplos de lo que puedes copiar, con lo que OmaPlain retiraría marcado en color de acento.",
   "art.copied": "Copiado",
   "art.clean": "Limpio"
 };

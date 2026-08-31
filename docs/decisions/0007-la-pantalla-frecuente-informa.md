@@ -57,26 +57,24 @@ Así que hay dos formas normales de la pantalla:
 
 ## La excepción: el portapapeles vacío
 
-`TransformationIllustration` vuelve a la pantalla frecuente en un solo caso,
-y conviene decir por qué no contradice lo anterior.
+La pantalla frecuente vuelve a enseñar en un solo caso, y conviene decir por
+qué no contradice lo anterior.
 
 La regla es que la pantalla frecuente **informa**. Con el portapapeles vacío no
 hay nada de lo que informar: no es una lista sin elementos ni un error, es lo
 que ve alguien que acaba de llegar. Ahí enseñar deja de competir con el
 contenido, porque no hay contenido con el que competir.
 
-Así que ese estado —y sólo ese— lleva ilustración, una explicación de qué
-pasará cuando copies algo, y una salida al recorrido de tres pasos para quien
-todavía no sepa de qué va. El resto de la pantalla frecuente sigue sin enseñar
-nada.
+Así que ese estado —y sólo ese— lleva material didáctico: la
+[`0008`](./0008-el-estado-vacio.md) decidió cuál. El resto de la pantalla
+frecuente sigue sin enseñar nada.
 
 ## Consecuencias
 
 - `StatusHeader` deja de llevar el titular y la ilustración en la vista
   principal. Conserva el estado del servicio, que sí es información.
-- `TransformationIllustration` sale de la cabecera diaria. Se queda en
-  bienvenida y tour, y vuelve a la pantalla frecuente sólo en el estado vacío,
-  por lo dicho arriba.
+- `TransformationIllustration` sale de la pantalla frecuente por completo y se
+  queda en bienvenida y tour.
 - El caso «ya está limpio» deja de ser un hueco a rellenar y pasa a ser un
   estado de primera clase con su propia copia.
 - La superficie de privacidad **no crece** respecto a la `0.1.0`: el contenido

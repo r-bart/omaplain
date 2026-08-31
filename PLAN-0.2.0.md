@@ -308,6 +308,7 @@ lo que no se ha visto es la combinación.
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
 | 2026-08-31 | Bilingüe | 163 claves en inglés y español, selector en ajustes y `auto` desde el locale. Verificado en pantalla en los dos idiomas |
 | 2026-08-31 | Fase E | El recorrido pasa por Ajustes con dos salidas visibles; ilustración animada con vía de movimiento reducido |
+| 2026-08-31 | Estado vacío | Cuatro direcciones prototipadas; elegido el carrusel, con sus ejemplos atados al motor (`0008`) |
 | 2026-08-31 | Verificación | Arrastre y deriva comprobados con puntero real; seis de siete estados vistos en el panel |
 | 2026-08-31 | Fase D | Chips MIME, estados de bypass y desglose con su ajuste. Portapapeles vacío deja de contarse como error. Seis estados verificados en el panel real |
 | 2026-08-31 | Fase D (parcial) | Panel partido en dos páginas: portapapeles y ajustes tras el engranaje. Veredicto, dos filas, desglose y acciones debajo. Verificado en el panel real |

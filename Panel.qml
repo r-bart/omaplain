@@ -594,12 +594,10 @@ Item {
               // Un portapapeles vacío no es un error ni una lista sin
               // elementos: es la pantalla que ve alguien que acaba de
               // llegar. Así que enseña de qué va esto y ofrece aprenderlo.
-              TransformationIllustration {
+              EmptyCarousel {
                 lang: root.lang
                 width: parent.width
-                height: Style.space(150)
                 visible: root.peekEmpty
-                variant: "waiting"
               }
 
               // Cuando sólo se retira el formato, las dos filas salen

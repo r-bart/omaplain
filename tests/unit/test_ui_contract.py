@@ -277,15 +277,18 @@ class UiContractTests(unittest.TestCase):
             p.name for p in files
             if "TransformationIllustration {" in p.read_text(encoding="utf-8")
         )
-        self.assertEqual(users, ["Panel.qml", "TourPage.qml", "WelcomePage.qml"])
+        self.assertEqual(users, ["TourPage.qml", "WelcomePage.qml"])
 
-        # Panel.qml es la excepción que 0007 registra, y sólo vale para el
-        # portapapeles vacío: sin nada que informar, enseñar no compite con
-        # ningún contenido. El guarda comprueba la condición, no el fichero.
+    def test_what_teaches_on_the_everyday_screen_is_gated_to_the_empty_state(self) -> None:
+        # 0007 admite enseñar cuando no hay nada que informar, y 0008 puso
+        # ahí el carrusel. La excepción es esa condición, no ese componente:
+        # el guarda comprueba que todo lo que enseñe en el panel esté atado
+        # al portapapeles vacío.
         panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
-        for block in re.finditer(r"TransformationIllustration \{(?P<body>.*?)\n\s{14}\}", panel, re.DOTALL):
-            with self.subTest(block=block.group("body")[:40]):
-                self.assertIn("visible: root.peekEmpty", block.group("body"))
+        for name in ("TransformationIllustration", "EmptyCarousel"):
+            for block in re.finditer(name + r" \{(?P<body>.*?)\n\s{14}\}", panel, re.DOTALL):
+                with self.subTest(component=name):
+                    self.assertIn("visible: root.peekEmpty", block.group("body"))
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
         # La etiqueta larga desbordaba el padding del botón. Vive ahora en
