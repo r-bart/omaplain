@@ -85,3 +85,24 @@ Los MIME completos están en [COMPATIBILITY.md](COMPATIBILITY.md).
 - Origen best effort en Wayland.
 - Firefox y password manager gráfico no estaban instalados; se usaron fixtures de protocolo. Deben repetirse como copia real antes de promover a `1.0.0`.
 - Una sesión de ocho horas de pared queda sustituida en esta release local por un soak determinista equivalente en volumen; el uso real prolongado sigue siendo criterio previo a `1.0.0`.
+
+## Fallo escapado en la `0.1.0` — controles invisibles
+
+`components/SettingRow.qml` usaba `Style.space()` sin importar `qs.Commons`.
+`Style` no existía, su `implicitHeight` colapsaba a cero y **ninguno de los
+nueve controles del panel se renderizaba**. El fallo estaba desde el primer
+commit y sobrevivió a la revisión de interfaz, a la suite, al soak y a la
+release.
+
+La suite no podía verlo. `test_controls_scale_the_minimum_hit_height` lee el
+texto del QML y comprueba que nadie escriba un `44` a pelo; `Style.space(44)`
+lo cumple perfectamente. Lo que faltaba no era la expresión, era el import.
+
+Dos cambios a raíz de esto:
+
+- `test_every_qml_using_a_commons_singleton_imports_it` comprueba la pareja
+  uso/import en todos los `.qml`, y nombra el fichero y el singleton al fallar.
+- Toda pantalla nueva se verifica en el panel real con `omarchy restart shell`,
+  no sólo con tests de contrato. Un test que lee cadenas no ve un import que
+  falta; sólo se ve abriendo el panel.
+

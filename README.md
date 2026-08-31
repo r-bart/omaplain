@@ -43,6 +43,16 @@ Abrir el panel:
 omarchy-shell shell summon io.github.r-bart.omaplain '{}'
 ```
 
+Al desarrollar, después de tocar cualquier `.qml` hay que reiniciar el shell:
+
+```sh
+omarchy restart shell
+```
+
+`omarchy-shell shell rescanPlugins` no basta. Vuelve a leer el registro de
+plugins, pero Qt conserva el QML ya compilado para esa URL, así que el panel
+sigue mostrando la versión anterior sin dar ningún error.
+
 Comprobar el servicio:
 
 ```sh

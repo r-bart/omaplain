@@ -52,6 +52,24 @@ class UiContractTests(unittest.TestCase):
             with self.subTest(file=path.name):
                 self.assertIsNone(low_contrast.search(path.read_text(encoding="utf-8")))
 
+    def test_every_qml_using_a_commons_singleton_imports_it(self) -> None:
+        # La 0.1.0 se publicó con los nueve controles del panel invisibles:
+        # SettingRow.qml usaba Style.space() sin importar qs.Commons, asi que
+        # `Style` no existia y su implicitHeight colapsaba a cero. Ningun test
+        # lo vio porque `Style.space(44)` esta perfectamente escrito; lo que
+        # faltaba era el import. Esta guardia mira la pareja uso/import, que es
+        # lo unico que lo detecta sin abrir el panel.
+        singletons = ("Style", "Color", "Util", "Border")
+        files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
+        self.assertTrue(files, "no se encontro ningun QML que revisar")
+        for path in files:
+            source = path.read_text(encoding="utf-8")
+            used = [n for n in singletons if re.search(r"\b" + n + r"\s*\.", source)]
+            if not used:
+                continue
+            with self.subTest(file=path.name, uses=",".join(used)):
+                self.assertIn("import qs.Commons", source)
+
     def test_controls_scale_the_minimum_hit_height(self) -> None:
         files = [REPO / "Panel.qml", *sorted((REPO / "components").glob("*.qml"))]
         raw_height = re.compile(r"(?:implicitHeight:\s*44\b|Math\.max\(44\b)")
