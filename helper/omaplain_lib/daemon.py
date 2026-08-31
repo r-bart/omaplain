@@ -1,4 +1,4 @@
-"""Long-running OmaPaste clipboard coordinator."""
+"""Long-running OmaPlain clipboard coordinator."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ class OperationResult:
         return {"result": self.result, "reason": self.reason, "bytes": self.byte_count}
 
 
-class OmaPasteDaemon:
+class OmaPlainDaemon:
     def __init__(self, executable: str, config_path: str, status_path: str, socket_path: str):
         self.executable = str(Path(executable).resolve())
         self.config_path = Path(config_path)
@@ -321,7 +321,7 @@ class OmaPasteDaemon:
                 with self.workers_lock:
                     self.workers.discard(threading.current_thread())
 
-        worker = threading.Thread(target=run, name="omapaste-request", daemon=True)
+        worker = threading.Thread(target=run, name="omaplain-request", daemon=True)
         with self.workers_lock:
             self.workers.add(worker)
         worker.start()
@@ -338,7 +338,7 @@ class OmaPasteDaemon:
         server.listen(32)
         server.settimeout(0.5)
         self._start_watcher()
-        supervisor = threading.Thread(target=self._supervise_watcher, name="omapaste-watcher", daemon=True)
+        supervisor = threading.Thread(target=self._supervise_watcher, name="omaplain-watcher", daemon=True)
         supervisor.start()
 
         try:

@@ -19,7 +19,7 @@ Item {
   property bool focusReady: false
 
   readonly property var settings: service && service.settings ? service.settings : ({})
-  readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "omapaste.cleaner"
+  readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "io.github.r-bart.omaplain"
   readonly property string watcherState: service ? service.watcherState : "starting"
 
   function open(payloadJson) {
@@ -83,7 +83,7 @@ Item {
     var result = name === "cleanNow" ? service.cleanNow() : service.skipNext()
     if (result === "busy") {
       feedbackError = false
-      feedback = "OmaPaste ya está procesando otra acción"
+      feedback = "OmaPlain ya está procesando otra acción"
       feedbackTimer.restart()
     }
   }
@@ -162,7 +162,7 @@ Item {
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "omapaste-panel"
+    WlrLayershell.namespace: "omaplain-panel"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
@@ -520,7 +520,7 @@ Item {
 
             Text {
               width: parent.width
-              text: "Todo ocurre en este equipo. OmaPaste no guarda el texto copiado. El historial pertenece a Omarchy."
+              text: "Todo ocurre en este equipo. OmaPlain no guarda el texto copiado. El historial pertenece a Omarchy."
               color: Util.alpha(Color.popups.text, 0.72)
               font.family: Style.font.family
               font.pixelSize: Style.font.bodySmall

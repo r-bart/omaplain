@@ -1,4 +1,4 @@
-# OmaPaste
+# OmaPlain
 
 Especificación de producto y técnica para un limpiador de portapapeles nativo de Omarchy, inspirado funcionalmente en Pure Paste.
 
@@ -7,15 +7,15 @@ Especificación de producto y técnica para un limpiador de portapapeles nativo 
 | Estado | Borrador implementable |
 | Versión del documento | 0.1 |
 | Fecha | 31 de agosto de 2026 |
-| Nombre de producto | OmaPaste |
-| ID provisional del plugin | `omapaste.cleaner` |
-| Repositorio propuesto | `omarchy-omapaste` |
+| Nombre de producto | OmaPlain |
+| ID provisional del plugin | `io.github.r-bart.omaplain` |
+| Repositorio propuesto | `omarchy-omaplain` |
 | Superficies | Servicio de Omarchy Shell + panel bajo demanda |
 | Baseline auditada | Omarchy 4.0.1, Quickshell 0.3.1, Hyprland 0.56.2, wl-clipboard 2.3.0 |
 
 ## 1. Decisión de producto
 
-OmaPaste convierte el portapapeles en texto limpio de forma automática o bajo demanda. Elimina formato enriquecido, puede retirar parámetros de seguimiento de URLs y limpia un conjunto conservador de caracteres invisibles no semánticos. Debe preservar sin tocar archivos, imágenes, secretos y estructuras de aplicación que no puedan reducirse a texto con seguridad.
+OmaPlain convierte el portapapeles en texto limpio de forma automática o bajo demanda. Elimina formato enriquecido, puede retirar parámetros de seguimiento de URLs y limpia un conjunto conservador de caracteres invisibles no semánticos. Debe preservar sin tocar archivos, imágenes, secretos y estructuras de aplicación que no puedan reducirse a texto con seguridad.
 
 La utilidad tendrá interfaz, pero no necesita ocupar la barra de forma permanente. El producto se divide en:
 
@@ -24,7 +24,7 @@ La utilidad tendrá interfaz, pero no necesita ocupar la barra de forma permanen
 - Un target IPC para atajos y automatizaciones.
 - Un helper separado de Quickshell que procesa datos no confiables y mantiene el watcher de Wayland.
 
-El nombre **OmaPaste** comunica el encaje con Omarchy sin reutilizar la marca Pure Paste. Es un producto independiente, desarrollado mediante una especificación clean-room basada en comportamiento observable y documentación pública.
+El nombre **OmaPlain** comunica el encaje con Omarchy sin reutilizar la marca Pure Paste. Es un producto independiente, desarrollado mediante una especificación clean-room basada en comportamiento observable y documentación pública.
 
 ## 2. Resumen ejecutivo
 
@@ -42,7 +42,7 @@ El nombre **OmaPaste** comunica el encaje con Omarchy sin reutilizar la marca Pu
 
 ### Criterio de éxito
 
-Después de la configuración inicial, el usuario no debería pensar en OmaPaste. El 99 % de las copias elegibles deben limpiarse sin error, sin latencia perceptible y sin alterar contenido semántico.
+Después de la configuración inicial, el usuario no debería pensar en OmaPlain. El 99 % de las copias elegibles deben limpiarse sin error, sin latencia perceptible y sin alterar contenido semántico.
 
 ## 3. Problema
 
@@ -94,7 +94,7 @@ Quiere pegar en una terminal, editor o issue tracker sin caracteres invisibles, 
 
 ### Usuario cuidadoso con la privacidad
 
-Quiere compartir URLs limpias y necesita garantías claras de que el contenido nunca sale del equipo ni aparece en logs de OmaPaste.
+Quiere compartir URLs limpias y necesita garantías claras de que el contenido nunca sale del equipo ni aparece en logs de OmaPlain.
 
 ### Usuario de ofimática
 
@@ -144,15 +144,15 @@ El envío se realizará con el dispatcher `sendshortcut` de Hyprland, no con int
 Atajo sugerido, solo como documentación y después de comprobar conflictos locales:
 
 ```lua
-o.bind("SUPER + ALT + V", "Paste clean", "omarchy-shell omapaste pasteClean")
+o.bind("SUPER + ALT + V", "Paste clean", "omarchy-shell omaplain pasteClean")
 ```
 
-OmaPaste no se adueñará de `Super+V`, que Omarchy ya usa como pegado universal, ni de `Super+Ctrl+V`, reservado al gestor de portapapeles.
+OmaPlain no se adueñará de `Super+V`, que Omarchy ya usa como pegado universal, ni de `Super+Ctrl+V`, reservado al gestor de portapapeles.
 
 ### 7.4 Omitir la próxima copia
 
 - Solo afecta al siguiente evento elegible.
-- No se consume con imágenes, secretos, archivos ni eventos generados por el propio OmaPaste.
+- No se consume con imágenes, secretos, archivos ni eventos generados por el propio OmaPlain.
 - Caduca después de 60 segundos.
 - Es estado efímero; no sobrevive a un reinicio del shell.
 
@@ -191,7 +191,7 @@ La selección primaria (`wl-paste --primary`) queda siempre fuera de alcance.
 
 ### Origen en modo automático
 
-OmaPaste toma un snapshot de `hyprctl activewindow -j` cuando recibe el evento y usa `class` como identificador estable. `initialClass` sirve como fallback. El título de ventana no se guarda ni se usa para reglas.
+OmaPlain toma un snapshot de `hyprctl activewindow -j` cuando recibe el evento y usa `class` como identificador estable. `initialClass` sirve como fallback. El título de ventana no se guarda ni se usa para reglas.
 
 Wayland no garantiza que la ventana enfocada sea quien originó una copia programática. Por eso:
 
@@ -303,7 +303,7 @@ Consecuencias:
 
 ### Regla de seguridad para el plugin
 
-OmaPaste **no modificará directamente** `clipboard-history.json`. Reescribir un archivo propiedad de otro plugin introduciría carreras y podría perder entradas.
+OmaPlain **no modificará directamente** `clipboard-history.json`. Reescribir un archivo propiedad de otro plugin introduciría carreras y podría perder entradas.
 
 ### MVP sin cambios en Omarchy core
 
@@ -319,7 +319,7 @@ Para una v1 sin duplicados debe proponerse a Omarchy un punto de extensión estr
 ```text
 evento Wayland
   → clasificador sensible/archivo/imagen de Omarchy
-  → filtro de texto OmaPaste
+  → filtro de texto OmaPlain
   → una sola escritura de historial
   → una sola reescritura del clipboard, si procede
 ```
@@ -336,7 +336,7 @@ Contrato orientativo del filtro:
 | Tiempo máximo | 250 ms |
 | Red | Prohibida |
 
-Cuando el filtro core esté disponible, OmaPaste detectará su versión y desactivará su watcher automático propio. El servicio seguirá proporcionando panel, configuración, IPC y transformador. El core será el único dueño del evento y del historial.
+Cuando el filtro core esté disponible, OmaPlain detectará su versión y desactivará su watcher automático propio. El servicio seguirá proporcionando panel, configuración, IPC y transformador. El core será el único dueño del evento y del historial.
 
 ## 12. Interfaz
 
@@ -347,7 +347,7 @@ Se necesita interfaz para entender el estado, configurar exclusiones y resolver 
 El panel se abre con:
 
 ```bash
-omarchy-shell shell toggle omapaste.cleaner
+omarchy-shell shell toggle io.github.r-bart.omaplain
 ```
 
 Puede añadirse manualmente al menú de Omarchy o a un atajo. El servicio se carga al habilitar el plugin aunque el panel nunca se abra.
@@ -358,7 +358,7 @@ Ancho objetivo de 520 px y alto máximo de 720 px o el espacio disponible. Una �
 
 ```text
 ┌──────────────────────────────────────────────────────┐
-│ OmaPaste                                  [Activo ●] │
+│ OmaPlain                                  [Activo ●] │
 │ Listo · última limpieza hace 2 min                   │
 │                                                      │
 │ [ Limpiar portapapeles ahora ]  Omitir próxima copia │
@@ -381,7 +381,7 @@ Ancho objetivo de 520 px y alto máximo de 720 px o el espacio disponible. Una �
 │ Añadir clase de aplicación…                 [Añadir] │
 │                                                      │
 │ Privacidad                                           │
-│ Todo ocurre en este equipo. OmaPaste no guarda texto.│
+│ Todo ocurre en este equipo. OmaPlain no guarda texto.│
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -404,7 +404,7 @@ Ancho objetivo de 520 px y alto máximo de 720 px o el espacio disponible. Una �
 | Procesando | `Limpiando…` | Tipo y tamaño, nunca contenido | Indicador si supera 400 ms; en principio no debería |
 | Bypass | `No se ha modificado` | Motivo específico | Neutro |
 | Error recuperable | `El texto original sigue intacto` | Acción concreta para reintentar | Warning + icono + texto |
-| Helper caído | `OmaPaste no está observando` | `Reiniciar servicio` | Error + acción secundaria |
+| Helper caído | `OmaPlain no está observando` | `Reiniciar servicio` | Error + acción secundaria |
 
 ### Feedback
 
@@ -449,7 +449,7 @@ Ancho objetivo de 520 px y alto máximo de 720 px o el espacio disponible. Una �
 | Fallo | `No se pudo limpiar. El texto original sigue intacto.` |
 | Exclusión duplicada | `Esta aplicación ya está excluida` |
 | Clase inválida | `Introduce una clase de aplicación válida` |
-| Privacidad | `Todo ocurre en este equipo. OmaPaste no guarda el texto copiado.` |
+| Privacidad | `Todo ocurre en este equipo. OmaPlain no guarda el texto copiado.` |
 
 ## 13. Arquitectura técnica
 
@@ -463,7 +463,7 @@ Hyprland / Wayland clipboard
           │
           ▼
 ┌──────────────────────────────┐
-│ helper/omapaste (Python)     │
+│ helper/omaplain (Python)     │
 │ clasificación + transforms  │
 │ loop guard + wl-copy         │
 └──────────────┬───────────────┘
@@ -471,7 +471,7 @@ Hyprland / Wayland clipboard
                ▼
 ┌──────────────────────────────┐       ┌───────────────────────────┐
 │ Service.qml                  │◀─────▶│ Panel.qml                 │
-│ supervisor + IPC `omapaste`  │       │ preferencias + acciones   │
+│ supervisor + IPC `omaplain`  │       │ preferencias + acciones   │
 └──────────────┬───────────────┘       └───────────────────────────┘
                │
                ▼
@@ -487,7 +487,7 @@ Los plugins se ejecutan como código sin sandbox dentro del proceso permanente `
 ### Árbol del repositorio propuesto
 
 ```text
-omarchy-omapaste/
+omarchy-omaplain/
 ├── manifest.json
 ├── Service.qml
 ├── Panel.qml
@@ -496,8 +496,8 @@ omarchy-omapaste/
 │   ├── StatusHeader.qml
 │   └── ExcludedAppRow.qml
 ├── helper/
-│   ├── omapaste
-│   └── omapaste_lib/
+│   ├── omaplain
+│   └── omaplain_lib/
 │       ├── classify.py
 │       ├── transform.py
 │       ├── urls.py
@@ -515,17 +515,17 @@ omarchy-omapaste/
 └── CHANGELOG.md
 ```
 
-No hay instalador ni hook de instalación. Git conserva el bit ejecutable de `helper/omapaste`, y el plugin funciona desde su propio directorio.
+No hay instalador ni hook de instalación. Git conserva el bit ejecutable de `helper/omaplain`, y el plugin funciona desde su propio directorio.
 
 ### Manifest provisional
 
 ```json
 {
   "schemaVersion": 1,
-  "id": "omapaste.cleaner",
-  "name": "OmaPaste",
+  "id": "io.github.r-bart.omaplain",
+  "name": "OmaPlain",
   "version": "0.1.0",
-  "author": "OmaPaste contributors",
+  "author": "OmaPlain contributors",
   "license": "GPL-3.0-or-later",
   "description": "Paste clean text by default while preserving files, images and secrets.",
   "kinds": ["service", "panel"],
@@ -536,17 +536,17 @@ No hay instalador ni hook de instalación. Git conserva el bit ejecutable de `he
 }
 ```
 
-`omapaste.cleaner` evita el namespace reservado `omarchy.*`. Antes de publicar se debe comprobar que el ID no esté ocupado en el catálogo comunitario.
+`io.github.r-bart.omaplain` evita el namespace reservado `omarchy.*`. Antes de publicar se debe comprobar que el ID no esté ocupado en el catálogo comunitario.
 
 ### Responsabilidades de `Service.qml`
 
 - Recibir `shell`, `manifest` y exponer estado reactivo al panel.
 - Leer la entrada canónica de `shell.shellConfig.plugins`.
-- Escribir preferencias con `shell.updateEntryInline("omapaste.cleaner", settings)`.
+- Escribir preferencias con `shell.updateEntryInline("io.github.r-bart.omaplain", settings)`.
 - Materializar una configuración de runtime con permisos `0600` para el helper.
 - Lanzar el watcher con `setpriv --pdeathsig TERM`.
 - Reiniciarlo con backoff si termina inesperadamente.
-- Exponer `IpcHandler { target: "omapaste" }`.
+- Exponer `IpcHandler { target: "omaplain" }`.
 - Leer eventos de estado estructurados, nunca stdout con contenido.
 
 ### Responsabilidades del helper
@@ -566,7 +566,7 @@ Las preferencias viven inline en `~/.config/omarchy/shell.json`, según el contr
 
 ```json
 {
-  "id": "omapaste.cleaner",
+  "id": "io.github.r-bart.omaplain",
   "automatic": true,
   "stripFormatting": true,
   "removeTracking": true,
@@ -589,16 +589,16 @@ Reglas:
 - Valores ausentes toman los defaults del manifest o del servicio.
 - Un tipo inválido revierte al default y produce un warning sin contenido.
 - El helper nunca edita `shell.json`.
-- `Service.qml` crea una snapshot derivada en `$XDG_RUNTIME_DIR/omapaste/config.json`; no es una segunda fuente de verdad.
+- `Service.qml` crea una snapshot derivada en `$XDG_RUNTIME_DIR/omaplain/config.json`; no es una segunda fuente de verdad.
 
 ### Estado
 
 | Ruta | Contenido | Persistencia |
 |---|---|---|
-| `$XDG_RUNTIME_DIR/omapaste/config.json` | Snapshot de preferencias | Sesión, `0600` |
-| `$XDG_RUNTIME_DIR/omapaste/status.json` | Estado, contadores y último resultado | Sesión, `0600` |
+| `$XDG_RUNTIME_DIR/omaplain/config.json` | Snapshot de preferencias | Sesión, `0600` |
+| `$XDG_RUNTIME_DIR/omaplain/status.json` | Estado, contadores y último resultado | Sesión, `0600` |
 | Memoria del helper | Hash de loop guard, skip-next y transacción activa | No persiste |
-| `$XDG_STATE_HOME/omapaste/health.json` | Opcional: fallos y versión, sin hashes de contenido | Persistente |
+| `$XDG_STATE_HOME/omaplain/health.json` | Opcional: fallos y versión, sin hashes de contenido | Persistente |
 
 No se crea una base de datos. El historial pertenece a Omarchy.
 
@@ -606,14 +606,14 @@ No se crea una base de datos. El historial pertenece a Omarchy.
 
 | Llamada | Respuesta | Efecto |
 |---|---|---|
-| `omarchy-shell omapaste ping` | `ok` | Salud del servicio QML |
-| `omarchy-shell omapaste status` | JSON | Estado sin contenido |
-| `omarchy-shell omapaste cleanNow` | JSON | Limpia el portapapeles actual |
-| `omarchy-shell omapaste pasteClean` | JSON | Limpia y pega en el target capturado |
-| `omarchy-shell omapaste skipNext` | `ok` | Omite la próxima copia elegible |
-| `omarchy-shell omapaste setAutomatic true` | `ok` | Activa modo automático |
-| `omarchy-shell omapaste setAutomatic false` | `ok` | Pausa modo automático |
-| `omarchy-shell omapaste reload` | `ok` | Recarga configuración derivada |
+| `omarchy-shell omaplain ping` | `ok` | Salud del servicio QML |
+| `omarchy-shell omaplain status` | JSON | Estado sin contenido |
+| `omarchy-shell omaplain cleanNow` | JSON | Limpia el portapapeles actual |
+| `omarchy-shell omaplain pasteClean` | JSON | Limpia y pega en el target capturado |
+| `omarchy-shell omaplain skipNext` | `ok` | Omite la próxima copia elegible |
+| `omarchy-shell omaplain setAutomatic true` | `ok` | Activa modo automático |
+| `omarchy-shell omaplain setAutomatic false` | `ok` | Pausa modo automático |
+| `omarchy-shell omaplain reload` | `ok` | Recarga configuración derivada |
 
 Solo las cadenas literales `true` y `false` son válidas. Los demás argumentos devuelven `invalid` sin cambiar estado.
 
@@ -691,7 +691,7 @@ No se incorporan dependencias Python de red ni un entorno virtual. La instalaci�
 
 ### Aclaración sobre el historial
 
-OmaPaste no guarda contenido, pero el gestor de portapapeles de Omarchy puede guardar texto en su historial como ya hace sin OmaPaste. El panel debe explicarlo y enlazar la configuración del historial; no debe atribuir esa persistencia a OmaPaste ni ocultarla.
+OmaPlain no guarda contenido, pero el gestor de portapapeles de Omarchy puede guardar texto en su historial como ya hace sin OmaPlain. El panel debe explicarlo y enlazar la configuración del historial; no debe atribuir esa persistencia a OmaPlain ni ocultarla.
 
 ### Modelo de amenazas
 
@@ -710,7 +710,7 @@ OmaPaste no guarda contenido, pero el gestor de portapapeles de Omarchy puede gu
 
 ### Limitación honesta
 
-Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es indistinguible de texto normal para Wayland. OmaPaste puede excluir la clase de la aplicación, pero no puede prometer detección perfecta. Esta limitación debe figurar en README y ayuda.
+Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es indistinguible de texto normal para Wayland. OmaPlain puede excluir la clase de la aplicación, pero no puede prometer detección perfecta. Esta limitación debe figurar en README y ayuda.
 
 ## 15. Rendimiento y fiabilidad
 
@@ -819,7 +819,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 
 ### Omarchy
 
-- [ ] `omarchy plugin validate ./omarchy-omapaste` finaliza correctamente.
+- [ ] `omarchy plugin validate ./omarchy-omaplain` finaliza correctamente.
 - [ ] El ID no usa `omarchy.*` ni colisiona con el catálogo.
 - [ ] Habilitar/deshabilitar funciona mediante `omarchy plugin` y `shell.json`.
 - [ ] Guardar QML provoca hot reload sin watchers duplicados.
@@ -895,7 +895,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 
 ## 20. Definición de “terminado”
 
-OmaPaste está listo para publicación cuando cumple todos los criterios de aceptación, pasa la matriz de Firefox/Chromium/terminal/gestor de archivos/password manager/LibreOffice, no genera loops en una sesión de ocho horas y una revisión externa confirma que ninguna ruta de logs o estado contiene el clipboard.
+OmaPlain está listo para publicación cuando cumple todos los criterios de aceptación, pasa la matriz de Firefox/Chromium/terminal/gestor de archivos/password manager/LibreOffice, no genera loops en una sesión de ocho horas y una revisión externa confirma que ninguna ruta de logs o estado contiene el clipboard.
 
 La publicación inicial debe etiquetarse como `0.1.0` y describir el modo automático como compatible pero con la limitación conocida del historial cuando cambia el texto. La promesa “pegar limpio por defecto” solo pasa a `1.0.0` cuando el modo automático haya sido probado en uso real y la convivencia con el historial tenga una solución estable.
 

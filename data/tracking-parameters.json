@@ -2,7 +2,7 @@
   "version": 1,
   "updated": "2026-08-31",
   "license": "CC0-1.0",
-  "source": "OmaPaste conservative built-in rules",
+  "source": "OmaPlain conservative built-in rules",
   "prefixes": ["utm_"],
   "exact": [
     "fbclid", "gclid", "dclid", "gbraid", "wbraid", "mc_cid", "mc_eid",

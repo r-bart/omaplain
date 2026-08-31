@@ -9,20 +9,21 @@ Item {
   property var manifest: null
   property string omarchyPath: Quickshell.env("OMARCHY_PATH")
 
-  readonly property string pluginId: "omapaste.cleaner"
+  readonly property string pluginId: "io.github.r-bart.omaplain"
   readonly property string sourceDir: manifest && manifest.__sourceDir ? String(manifest.__sourceDir) : ""
-  readonly property string helperPath: sourceDir ? sourceDir + "/helper/omapaste" : ""
+  readonly property string helperPath: sourceDir ? sourceDir + "/helper/omaplain" : ""
   readonly property string runtimeBase: {
     var base = Quickshell.env("XDG_RUNTIME_DIR")
-    return base ? base + "/omapaste" : ""
+    return base ? base + "/omaplain" : ""
   }
   readonly property string configPath: runtimeBase ? runtimeBase + "/config.json" : ""
   readonly property string statusPath: runtimeBase ? runtimeBase + "/status.json" : ""
-  readonly property string socketPath: runtimeBase ? runtimeBase + "/omapaste.sock" : ""
+  readonly property string socketPath: runtimeBase ? runtimeBase + "/omaplain.sock" : ""
 
   property bool initialized: false
   property bool stopping: false
   property bool configPending: false
+  property bool reloadPending: false
   property bool actionBusy: actionProcess.running
   property string lastActionJson: "{}"
   property string currentAppClass: ""
@@ -140,8 +141,8 @@ Item {
     if (now - lastErrorNotificationMs < 600000) return
     lastErrorNotificationMs = now
     notifyProcess.command = [
-      "notify-send", "--app-name", "OmaPaste", "--urgency", "critical",
-      "OmaPaste no está observando",
+      "notify-send", "--app-name", "OmaPlain", "--urgency", "critical",
+      "OmaPlain no está observando",
       "Abre el panel para revisar el servicio. El portapapeles original sigue intacto."
     ]
     notifyProcess.running = true
@@ -152,6 +153,17 @@ Item {
     actionProcess.command = [helperPath, "control", "--socket", socketPath, name]
     actionProcess.running = true
     return "accepted"
+  }
+
+  function requestDaemonReload() {
+    if (socketPath === "" || helperPath === "" || !watchProcess.running) return
+    if (reloadProcess.running) {
+      reloadPending = true
+      return
+    }
+    reloadPending = false
+    reloadProcess.command = [helperPath, "control", "--socket", socketPath, "reload"]
+    reloadProcess.running = true
   }
 
   function cleanNow() { return runAction("cleanNow") }
@@ -266,7 +278,7 @@ Item {
         return
       }
       if (!watchProcess.running) root.startWatcher()
-      else root.runAction("reload")
+      else root.requestDaemonReload()
     }
   }
 
@@ -295,6 +307,13 @@ Item {
       var text = String(actionOutput.text || "{}").trim()
       root.lastActionJson = text || "{}"
       root.reloadStatus()
+    }
+  }
+
+  Process {
+    id: reloadProcess
+    onExited: function(exitCode) {
+      if (root.reloadPending) Qt.callLater(root.requestDaemonReload)
     }
   }
 
@@ -337,7 +356,7 @@ Item {
   }
 
   IpcHandler {
-    target: "omapaste"
+    target: "omaplain"
 
     function ping(): string { return root.watcherHealthy ? "ok" : root.watcherState }
     function status(): string { return JSON.stringify(root.status) }

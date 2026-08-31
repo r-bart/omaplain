@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "omapaste.cleaner",
-  "name": "OmaPaste",
+  "id": "io.github.r-bart.omaplain",
+  "name": "OmaPlain",
   "version": "0.1.0",
-  "author": "OmaPaste contributors",
+  "author": "OmaPlain contributors",
   "license": "GPL-3.0-or-later",
   "description": "Paste clean text by default while preserving files, images and secrets.",
   "kinds": [

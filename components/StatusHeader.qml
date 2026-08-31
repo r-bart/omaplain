@@ -21,7 +21,7 @@ BorderSurface {
   borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
 
   Accessible.role: Accessible.StaticText
-  Accessible.name: "OmaPaste, " + stateLabel + ". " + detail
+  Accessible.name: "OmaPlain, " + stateLabel + ". " + detail
 
   Row {
     id: content
@@ -49,7 +49,7 @@ BorderSurface {
         spacing: Style.space(8)
 
         Text {
-          text: "OmaPaste"
+          text: "OmaPlain"
           color: Color.popups.text
           font.family: Style.font.family
           font.pixelSize: Style.font.title

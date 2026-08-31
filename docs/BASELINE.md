@@ -1,6 +1,6 @@
 # Baseline técnico
 
-Registrado el 31 de agosto de 2026 sobre la máquina de desarrollo de OmaPaste.
+Registrado el 31 de agosto de 2026 sobre la máquina de desarrollo de OmaPlain.
 
 | Componente | Versión o valor |
 |---|---|
@@ -15,7 +15,7 @@ Registrado el 31 de agosto de 2026 sobre la máquina de desarrollo de OmaPaste.
 
 ## Dependencias
 
-`helper/omapaste check-dependencies` confirma la disponibilidad de:
+`helper/omaplain check-dependencies` confirma la disponibilidad de:
 
 - `wl-copy`
 - `wl-paste`

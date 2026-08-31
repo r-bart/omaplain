@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic micro-benchmark for OmaPaste's pure transformation path."""
+"""Deterministic micro-benchmark for OmaPlain's pure transformation path."""
 
 from __future__ import annotations
 
@@ -8,12 +8,12 @@ import statistics
 import time
 from pathlib import Path
 
-from omapaste_lib.config import DEFAULTS
-from omapaste_lib.transform import transform
+from omaplain_lib.config import DEFAULTS
+from omaplain_lib.transform import transform
 
 
 def measure(size: int, iterations: int) -> dict[str, float | int]:
-    unit = b"OmaPaste benchmark with plain deterministic text.\n"
+    unit = b"OmaPlain benchmark with plain deterministic text.\n"
     payload = (unit * ((size // len(unit)) + 1))[:size]
     samples: list[float] = []
     for _ in range(iterations):

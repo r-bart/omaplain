@@ -3,8 +3,8 @@ from __future__ import annotations
 import codecs
 import unittest
 
-from omapaste_lib.config import DEFAULTS
-from omapaste_lib.transform import TransformBypass, clean_tracking_url, decode_text, transform
+from omaplain_lib.config import DEFAULTS
+from omaplain_lib.transform import TransformBypass, clean_tracking_url, decode_text, transform
 
 
 class TransformTests(unittest.TestCase):

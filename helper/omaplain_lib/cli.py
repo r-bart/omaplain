@@ -1,4 +1,4 @@
-"""Command-line entry point for OmaPaste."""
+"""Command-line entry point for OmaPlain."""
 
 from __future__ import annotations
 
@@ -13,12 +13,12 @@ from . import __version__
 from .classify import classify, safe_type_metadata
 from .clipboard import ClipboardBackend, ClipboardError, ClipboardTooLarge
 from .config import DEFAULTS, load_config, validate_config, write_config
-from .daemon import OmaPasteDaemon, socket_request
+from .daemon import OmaPlainDaemon, socket_request
 from .transform import TransformBypass, transform
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="omapaste", description="Clean text on the Wayland clipboard safely.")
+    parser = argparse.ArgumentParser(prog="omaplain", description="Clean text on the Wayland clipboard safely.")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -139,6 +139,6 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if response.get("result") != "error" else 1
     if args.command == "watch":
         executable = str(Path(sys.argv[0]).resolve())
-        daemon = OmaPasteDaemon(executable, args.config, args.status, args.socket)
+        daemon = OmaPlainDaemon(executable, args.config, args.status, args.socket)
         return daemon.run()
     return 2

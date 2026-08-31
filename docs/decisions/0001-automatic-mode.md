@@ -5,7 +5,7 @@
 
 ## Contexto
 
-OmaPaste y `omarchy.clipboard` observan el mismo clipboard. Era necesario demostrar que dos watchers no causan loops, pérdida de datos o sobrescrituras tardías.
+OmaPlain y `omarchy.clipboard` observan el mismo clipboard. Era necesario demostrar que dos watchers no causan loops, pérdida de datos o sobrescrituras tardías.
 
 ## Decisión
 
@@ -22,7 +22,7 @@ La interfaz advertirá que una URL o texto realmente transformado puede conserva
 
 ## Consecuencias
 
-- OmaPaste funciona sin cambios en Omarchy core.
+- OmaPlain funciona sin cambios en Omarchy core.
 - El historial puede mostrar dos variantes cuando cambian caracteres.
 - El usuario puede desactivar URL/invisibles o usar `pasteClean` si prefiere conservar explícitamente el original.
 - Se mantiene una futura filter API como mejora opcional.

@@ -1,4 +1,4 @@
-"""Wayland and Hyprland boundary for OmaPaste."""
+"""Wayland and Hyprland boundary for OmaPlain."""
 
 from __future__ import annotations
 

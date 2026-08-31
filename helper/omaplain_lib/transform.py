@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import codecs
+import json
 import re
 import unicodedata
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import unquote_plus, urlsplit
 
 
@@ -22,6 +24,35 @@ _QUOTE_MAP = str.maketrans({
 _BULLET_RE = re.compile(r"(?m)^([ \t]*)[•◦▪‣][ \t]+")
 _TRAILING_RE = re.compile(r"[ \t]+(?=\n|$)")
 _PERCENT_ERROR_RE = re.compile(r"%(?![0-9A-Fa-f]{2})")
+_TRACKING_DATA_PATH = Path(__file__).resolve().parents[2] / "data" / "tracking-parameters.json"
+
+
+def _load_tracking_rules() -> tuple[tuple[str, ...], set[str], tuple[str, ...], set[str]]:
+    fallback_prefixes = ("utm_",)
+    fallback_exact = {
+        "fbclid", "gclid", "dclid", "gbraid", "wbraid", "mc_cid", "mc_eid",
+        "mkt_tok", "igshid", "msclkid", "twclid", "yclid", "vero_conv",
+        "vero_id", "wickedid", "oly_anon_id", "oly_enc_id", "rb_clickid",
+    }
+    fallback_signed = {
+        "signature", "sig", "expires", "token", "auth", "authorization", "key",
+        "api_key", "apikey", "access_token", "jwt", "hmac", "hash",
+    }
+    try:
+        raw = json.loads(_TRACKING_DATA_PATH.read_text(encoding="utf-8"))
+        prefixes = tuple(str(value).casefold() for value in raw["prefixes"])
+        exact = {str(value).casefold() for value in raw["exact"]}
+        signed_values = [str(value).casefold() for value in raw["signed"]]
+        signed_prefixes = tuple(value[:-1] for value in signed_values if value.endswith("*"))
+        signed_exact = {value for value in signed_values if not value.endswith("*")}
+        if not prefixes or not exact or not signed_exact:
+            raise ValueError("incomplete tracking data")
+        return prefixes, exact, signed_prefixes, signed_exact
+    except (OSError, ValueError, TypeError, KeyError):
+        return fallback_prefixes, fallback_exact, ("x-amz-",), fallback_signed
+
+
+_TRACKING_PREFIXES, _TRACKING_EXACT, _SIGNED_PREFIXES, _SIGNED_EXACT = _load_tracking_rules()
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,18 +139,11 @@ def _query_key(part: str) -> str | None:
 
 
 def _is_tracking_key(key: str) -> bool:
-    return key.startswith("utm_") or key in {
-        "fbclid", "gclid", "dclid", "gbraid", "wbraid", "mc_cid", "mc_eid",
-        "mkt_tok", "igshid", "msclkid", "twclid", "yclid", "vero_conv",
-        "vero_id", "wickedid", "oly_anon_id", "oly_enc_id", "rb_clickid",
-    }
+    return key in _TRACKING_EXACT or any(key.startswith(prefix) for prefix in _TRACKING_PREFIXES)
 
 
 def _is_signed_key(key: str) -> bool:
-    return key.startswith("x-amz-") or key in {
-        "signature", "sig", "expires", "token", "auth", "authorization", "key",
-        "api_key", "apikey", "access_token", "jwt", "hmac", "hash",
-    }
+    return key in _SIGNED_EXACT or any(key.startswith(prefix) for prefix in _SIGNED_PREFIXES)
 
 
 def clean_tracking_url(text: str) -> str:

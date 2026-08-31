@@ -1,4 +1,4 @@
-# OmaPaste — Plan de ejecución
+# OmaPlain — Plan de ejecución
 
 Plan operativo para convertir la [especificación de producto y técnica](./SPEC.md) en un plugin instalable, seguro y publicable para Omarchy.
 
@@ -89,7 +89,7 @@ Objetivo: convertir el aprendizaje del spike en un núcleo determinista, testeab
 
 ### Trabajo
 
-- [ ] `F1.1` Crear la estructura definitiva del repositorio, el CLI `helper/omapaste` y los módulos de librería.
+- [ ] `F1.1` Crear la estructura definitiva del repositorio, el CLI `helper/omaplain` y los módulos de librería.
 - [ ] `F1.2` Definir comandos internos para `watch`, `inspect`, `clean-now`, `paste-clean`, `status` y `check-dependencies`.
 - [ ] `F1.3` Implementar clasificación data-driven antes de leer el payload completo.
 - [ ] `F1.4` Añadir decodificación estricta, límites de 1 MiB, detección de NUL y fail-open.
@@ -118,7 +118,7 @@ Objetivo: convertir el helper en un servicio de Omarchy Shell estable, configura
 
 - [ ] `F2.1` Crear y validar `manifest.json` con ID no reservado y entry points de servicio y panel.
 - [ ] `F2.2` Implementar `Service.qml` como supervisor; QML no procesa contenido del portapapeles.
-- [ ] `F2.3` Materializar configuración y estado en `$XDG_RUNTIME_DIR/omapaste/` con directorio `0700` y ficheros `0600`.
+- [ ] `F2.3` Materializar configuración y estado en `$XDG_RUNTIME_DIR/omaplain/` con directorio `0700` y ficheros `0600`.
 - [ ] `F2.4` Leer y actualizar preferencias mediante la entrada inline de `shell.shellConfig.plugins`.
 - [ ] `F2.5` Supervisar el helper con `PDEATHSIG`, backoff y detección de watcher degradado.
 - [ ] `F2.6` Exponer IPC para `ping`, `status`, `cleanNow`, `pasteClean`, `skipNext`, `setAutomatic` y `reload`.
@@ -136,7 +136,7 @@ Objetivo: convertir el helper en un servicio de Omarchy Shell estable, configura
 
 ## 7. Fase 3 — Panel y experiencia
 
-Objetivo: ofrecer control y diagnóstico sin convertir OmaPaste en una aplicación que requiera atención constante.
+Objetivo: ofrecer control y diagnóstico sin convertir OmaPlain en una aplicación que requiera atención constante.
 
 ### Trabajo
 
@@ -189,7 +189,7 @@ Objetivo: producir una entrega comunitaria instalable, reversible y comprensible
 
 - [ ] `F5.1` Finalizar `README.md`, arquitectura, privacidad, troubleshooting y matriz de compatibilidad.
 - [ ] `F5.2` Añadir `LICENSE`, `CHANGELOG.md` y atribuciones/licencias de reglas de tracking.
-- [ ] `F5.3` Comprobar en ese momento que `omapaste.cleaner` no colisiona con el catálogo comunitario.
+- [ ] `F5.3` Comprobar en ese momento que `io.github.r-bart.omaplain` no colisiona con el catálogo comunitario.
 - [ ] `F5.4` Ejecutar el validador oficial de plugins y resolver todos los errores.
 - [ ] `F5.5` Probar instalación, enable, disable, upgrade y desinstalación desde un estado limpio.
 - [ ] `F5.6` Confirmar que el plugin no instala paquetes, no usa `sudo`, no ejecuta hooks y no modifica archivos del sistema.
@@ -206,7 +206,7 @@ Esta fase no bloquea `0.1.0`. Se activa si el spike o el uso real demuestran que
 
 - [ ] `F6.1` Especificar un contrato mínimo de filter API para `omarchy.clipboard`.
 - [ ] `F6.2` Prototipar el flujo con timeout, códigos de salida y fail-open.
-- [ ] `F6.3` Añadir detección de capacidad en OmaPaste y desactivar automáticamente el watcher propio cuando exista la API.
+- [ ] `F6.3` Añadir detección de capacidad en OmaPlain y desactivar automáticamente el watcher propio cuando exista la API.
 - [ ] `F6.4` Probar que solo una versión llega al historial y que Omarchy conserva ownership del evento.
 - [ ] `F6.5` Preparar propuesta upstream separada, sin hacer que el plugin dependa de una versión no publicada.
 

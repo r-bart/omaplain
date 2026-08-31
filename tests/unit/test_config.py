@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from omapaste_lib.config import DEFAULTS, load_config, validate_config, write_config
+from omaplain_lib.config import DEFAULTS, load_config, validate_config, write_config
 
 
 class ConfigTests(unittest.TestCase):

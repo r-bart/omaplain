@@ -6,9 +6,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from omapaste_lib.clipboard import WindowTarget
-from omapaste_lib.config import write_config
-from omapaste_lib.daemon import OmaPasteDaemon
+from omaplain_lib.clipboard import WindowTarget
+from omaplain_lib.config import write_config
+from omaplain_lib.daemon import OmaPlainDaemon
 
 
 class FakeBackend:
@@ -54,8 +54,8 @@ class DaemonTests(unittest.TestCase):
         base = Path(self.temporary.name)
         self.config = base / "config.json"
         write_config(self.config, {})
-        self.daemon = OmaPasteDaemon(
-            "/tmp/omapaste", str(self.config), str(base / "status.json"), str(base / "omapaste.sock")
+        self.daemon = OmaPlainDaemon(
+            "/tmp/omaplain", str(self.config), str(base / "status.json"), str(base / "omaplain.sock")
         )
         self.backend = FakeBackend()
         self.daemon.backend = self.backend
@@ -122,6 +122,24 @@ class DaemonTests(unittest.TestCase):
         self.assertTrue(result["pasted"])
         self.assertEqual(self.backend.writes, [])
 
+    def test_source_exclusion_blocks_only_automatic_cleaning(self) -> None:
+        write_config(self.config, {"sourceExclusions": ["foot"]})
+        self.daemon.reload_config()
+        generation = self.daemon._next_generation()
+        result = self.daemon.automatic_event("data", generation, self.backend.target)
+        self.assertEqual(result["reason"], "source_excluded")
+        self.assertEqual(self.backend.writes, [])
+
+        manual = self.daemon.clean_now()
+        self.assertEqual(manual["result"], "cleaned")
+
+    def test_skip_next_expires_after_sixty_seconds(self) -> None:
+        with patch("omaplain_lib.daemon.time.monotonic", return_value=100.0):
+            self.daemon.skip_next()
+        with patch("omaplain_lib.daemon.time.monotonic", return_value=160.01):
+            status = self.daemon.command("status")
+        self.assertFalse(status["skipNext"])
+
     def test_status_never_contains_clipboard_content(self) -> None:
         original = self.backend.payload.decode()
         self.daemon.clean_now()
@@ -138,7 +156,7 @@ class DaemonTests(unittest.TestCase):
 
     def test_watcher_dies_if_daemon_is_killed(self) -> None:
         process = Mock()
-        with patch("omapaste_lib.daemon.subprocess.Popen", return_value=process) as popen:
+        with patch("omaplain_lib.daemon.subprocess.Popen", return_value=process) as popen:
             self.daemon._start_watcher()
         command = popen.call_args.args[0]
         self.assertEqual(command[:5], ["setpriv", "--pdeathsig", "TERM", "--", "wl-paste"])

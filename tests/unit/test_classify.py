@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from omapaste_lib.classify import classify
+from omaplain_lib.classify import classify
 
 
 class ClassifyTests(unittest.TestCase):
