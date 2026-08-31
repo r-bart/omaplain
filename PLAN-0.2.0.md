@@ -47,7 +47,7 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 | A. Desatascar | Terminada | Panel con sus controles visibles | Los nueve toggles se renderizan en el panel real |
 | B. Decisiones | Terminada | `0005` y `0006` aceptadas | El criterio de auditoría de contenido es verificable de nuevo |
 | C. Contrato `peek` | Terminada | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
-| D. Pantalla principal | Terminada salvo `D.8` | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
+| D. Pantalla principal | Terminada | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
 | D2. Privacidad por app | Pendiente | Listas `alwaysCovered` y `blockedApps` | Una app bloqueada no devuelve contenido ni pidiéndolo |
 | E. Onboarding | Pendiente | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
 | F. Microinteracciones | Pendiente | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
@@ -176,7 +176,7 @@ contra el motor real.
 - [x] `D.6` Botón «Opciones» y la página de ajustes como segunda vista.
 - [x] `D.7` Recorrido completo por teclado y semántica accesible: mientras hay
       cubierta, el texto no se anuncia.
-- [ ] `D.8` Verificación en el panel real de los diez estados, con capturas.
+- [x] `D.8` Verificación en el panel real de los diez estados, con capturas.
 
 ### Criterios de salida
 
@@ -280,16 +280,24 @@ Bloqueada por `B.2`.
   proyecto. Fuera de la `0.2.0` salvo que lo pidas.
 - **Publicación remota** del repositorio o del plugin en el catálogo.
 
-## 12. Lo que no puedo verificar yo
+## 12. Verificación en el panel real
 
-Dos comprobaciones del prototipo necesitan tu ratón, y ninguna es un fallo de
-código:
+Ambas comprobaciones que quedaron pendientes en el prototipo están cerradas.
+En el navegador no se podían hacer —la pestaña automatizada corre en
+`document.hidden`, sin fotogramas, y el arrastre sintético no emite la
+secuencia de puntero— pero en el panel real sí, conduciendo el puntero del
+compositor con `hl.dsp.cursor.move` y `hl.dsp.send_key_state`.
 
-- **La deriva de la neblina.** La pestaña automatizada corre en
-  `document.hidden`, y medí 0 fotogramas en 1,5 s: `requestAnimationFrame` está
-  suspendido ahí.
-- **El barrido con arrastre.** Un clic simple sí borra —comprobado—, pero el
-  arrastre sintético no emite la secuencia de puntero.
+| Comprobación | Método | Resultado |
+|---|---|---|
+| El barrido con arrastre | Puntero real: pulsar, catorce movimientos, soltar | Limpia el vaho y deja ver el texto con el borde suave |
+| La deriva de la neblina | Dos capturas separadas 4 s, comparadas con `magick compare` | RMSE 3819 (5,8 %) frente a 0 de la imagen contra sí misma |
+
+Queda un estado sin ver en vivo: **el de formato enriquecido**. `wl-copy`
+acepta un solo `--type`, así que no se puede montar desde la shell un
+portapapeles que ofrezca `text/html` y `text/plain` a la vez. El lado del
+motor está cubierto por tests y los chips se ven funcionando en los bypass;
+lo que no se ha visto es la combinación.
 
 ## 13. Registro de progreso
 
@@ -297,6 +305,7 @@ código:
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Verificación | Arrastre y deriva comprobados con puntero real; seis de siete estados vistos en el panel |
 | 2026-08-31 | Fase D | Chips MIME, estados de bypass y desglose con su ajuste. Portapapeles vacío deja de contarse como error. Seis estados verificados en el panel real |
 | 2026-08-31 | Fase D (parcial) | Panel partido en dos páginas: portapapeles y ajustes tras el engranaje. Veredicto, dos filas, desglose y acciones debajo. Verificado en el panel real |
 | 2026-08-31 | Decisión `0007` | La pantalla frecuente informa y la primera enseña; el héroe educativo sale de la vista diaria. Sin memoria del contenido |
