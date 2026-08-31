@@ -204,7 +204,8 @@ que fijó la `0005`.
 
 ### Trabajo
 
-- [ ] `D2.1` Decisión `0008` con las cuatro listas y por qué son cuatro y no dos.
+- [ ] `D2.1` Decisión `0009` con las cuatro listas y por qué son cuatro y no dos.
+      (Era `0008` cuando se escribió esta fase; ese número se lo llevó el estado vacío.)
 - [ ] `D2.2` El demonio recuerda la **clase de la aplicación de origen** del
       último evento. Es metadato, no contenido: la `0007` prohíbe recordar el
       texto, no de dónde vino.
