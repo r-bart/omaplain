@@ -45,6 +45,7 @@ class UiContractTests(unittest.TestCase):
             REPO / "components" / "TourPage.qml",
             REPO / "components" / "ExcludedAppRow.qml",
             REPO / "components" / "EmptyState.qml",
+            REPO / "components" / "DemoTransformation.qml",
         ]
         low_contrast = re.compile(r"Util\.alpha\(Color\.popups\.text, 0\.(?:58|62|66)\)")
         for path in files:
@@ -90,6 +91,23 @@ class UiContractTests(unittest.TestCase):
         self.assertIn("Accessible.description: root.body", empty)
         # Sin foco propio: es un cartel, no una parada del recorrido por teclado.
         self.assertNotIn("focusable: true", empty)
+
+    def test_the_demo_belongs_to_the_step_that_promises_it(self) -> None:
+        tour = (REPO / "components" / "TourPage.qml").read_text(encoding="utf-8")
+        block = re.search(r"DemoTransformation \{(?P<body>.*?)\n\s{6}\}", tour, re.DOTALL)
+        self.assertIsNotNone(block, "el tour ya no monta la demostración")
+        # Los pasos 1 y 3 hablan de observar copias y de mantener el control;
+        # una demostración de limpieza allí no ilustra su propio texto.
+        self.assertIn("visible: root.step === 1", block.group("body"))
+
+    def test_changing_step_returns_the_demo_to_its_question(self) -> None:
+        tour = (REPO / "components" / "TourPage.qml").read_text(encoding="utf-8")
+        self.assertIn("onStepChanged: demo.reset()", tour)
+        demo = (REPO / "components" / "DemoTransformation.qml").read_text(encoding="utf-8")
+        reset = re.search(r"function reset\(\) \{(?P<body>.*?)\n  \}", demo, re.DOTALL)
+        self.assertIsNotNone(reset)
+        self.assertIn("revealed = false", reset.group("body"))
+        self.assertIn("sampleIndex = 0", reset.group("body"))
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
         panel = (REPO / "Panel.qml").read_text(encoding="utf-8")

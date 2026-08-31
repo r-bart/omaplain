@@ -6,6 +6,7 @@ Todos los cambios relevantes de OmaPlain se documentan aquí.
 
 ### Añadido
 
+- Demostración segura en el paso 2 del tour: «Probar con un ejemplo» transforma texto propio del plugin, nunca el portapapeles, y es reversible. Un par de ejemplos enseña lo que se retira y lo que se respeta.
 - Estado vacío en «Aplicaciones excluidas»: con las dos listas vacías, la sección explica qué hace excluir una aplicación como origen y como destino en vez de saltar al campo técnico.
 
 ### Mejorado

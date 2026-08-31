@@ -25,11 +25,21 @@ reloj añade presión sin ayudar a decidir.
 
 Valor: convierte un estado hoy textual en una consecuencia visible.
 
-### 3. Demostración segura en el tour
+### 3. Demostración segura en el tour — implementada
 
-Un botón «Probar con un ejemplo» podría transformar texto ficticio incluido en
-el plugin —nunca el portapapeles actual— y enseñar qué se retira. Debe ser
-reversible y claramente rotulado como demostración.
+`DemoTransformation.qml`, en el paso 2. Transforma texto propio del plugin,
+nunca el portapapeles, es reversible por el mismo botón y va rotulada como
+demostración.
+
+Los ejemplos son URLs enteras porque es la única forma que el motor reescribe:
+`clean_tracking_url` se rinde en cuanto el texto contiene un espacio, así que
+una demostración construida sobre prosa con un enlace dentro prometería una
+limpieza que no ocurre. El par enseña las dos mitades: una URL con seguimiento
+que se limpia y una URL firmada que se respeta.
+
+`tests/unit/test_demo_sample.py` pasa cada original por el transform real y
+compara con el resultado rotulado, de modo que la demostración no puede
+sobrevivir a un cambio de regla que la convierta en mentira.
 
 Valor: prueba la promesa del producto sin pedir confianza ni acceso adicional.
 

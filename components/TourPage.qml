@@ -37,6 +37,8 @@ Item {
     nextButton.forceActiveFocus()
   }
 
+  onStepChanged: demo.reset()
+
   function reveal(item) {
     if (!item) return
     var point = item.mapToItem(content, 0, 0)
@@ -185,6 +187,16 @@ Item {
             wrapMode: Text.WordWrap
           }
         }
+      }
+
+      DemoTransformation {
+        id: demo
+        width: Math.min(parent.width, Style.space(420))
+        anchors.horizontalCenter: parent.horizontalCenter
+        // Solo el paso 2 promete que se retira algo; en los otros dos la
+        // demostracion no ilustra nada de lo que dice el texto.
+        visible: root.step === 1
+        onFocusEntered: function(item) { root.reveal(item) }
       }
 
       Grid {
