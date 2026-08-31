@@ -6,7 +6,7 @@ en un producto que enseña su propio trabajo, y para saldar la deuda que dejó l
 
 | Campo | Valor |
 |---|---|
-| Estado | En curso — fases A y B terminadas |
+| Estado | En curso — fases A, B y C terminadas |
 | Creado | 31 de agosto de 2026 |
 | Versión objetivo | `0.2.0` |
 | Plan anterior | [`PLAN.md`](./PLAN.md) — fases 0–5 terminadas |
@@ -46,7 +46,7 @@ filter API upstream (fase 6 de `PLAN.md`, aplazada a propósito).
 |---|---|---|---|
 | A. Desatascar | Terminada | Panel con sus controles visibles | Los nueve toggles se renderizan en el panel real |
 | B. Decisiones | Terminada | `0005` y `0006` aceptadas | El criterio de auditoría de contenido es verificable de nuevo |
-| C. Contrato `peek` | Pendiente | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
+| C. Contrato `peek` | Terminada | El helper expone contenido sin persistirlo | Una muestra marcada no aparece en logs, estado ni notificaciones |
 | D. Pantalla principal | Pendiente | Vista de portapapeles con cubierta | Los diez estados se ven correctos en el panel real |
 | E. Onboarding | Pendiente | Bienvenida y tour hacia la nueva pantalla | El recorrido termina donde diga `0006` |
 | F. Microinteracciones | Pendiente | `motionEnabled` y las tres de prioridad alta | Cada movimiento tiene su vía de movimiento reducido |
@@ -123,21 +123,25 @@ de la versión y el que más cuidado exige.
 
 ### Trabajo
 
-- [ ] `C.1` Añadir el comando `peek` al helper: devuelve clasificación, original,
+- [x] `C.1` Añadir el comando `peek` al helper: devuelve clasificación, original,
       resultado y reglas aplicadas para el portapapeles actual.
-- [ ] `C.2` Garantizar que `peek` no escribe: ni `status.json`, ni log, ni
+- [x] `C.2` Garantizar que `peek` no escribe: ni `status.json`, ni log, ni
       notificación, ni traza. Es una lectura y una respuesta, nada más.
-- [ ] `C.3` Truncar por el límite de 1 MiB y marcar la respuesta como truncada,
+- [x] `C.3` Truncar por el límite de 1 MiB y marcar la respuesta como truncada,
       en vez de devolver un megabyte al panel.
-- [ ] `C.4` Lo clasificado como `sensitive` devuelve motivo y tipos, **nunca
+- [x] `C.4` Lo clasificado como `sensitive` devuelve motivo y tipos, **nunca
       contenido**, aunque el panel lo pida explícitamente. La negativa vive en
       el helper, no en la UI.
-- [ ] `C.5` Bloquear `peek` cuando el clasificador dé `image`, `files` o
+- [x] `C.5` Bloquear `peek` cuando el clasificador dé `image`, `files` o
       `structured`: no hay texto que enseñar.
-- [ ] `C.6` Tests: una muestra con marca reconocible atraviesa `peek` y después
+- [x] `C.6` Tests: una muestra con marca reconocible atraviesa `peek` y después
       se barren `status.json`, el runtime, `stdout`, `stderr` y las
       notificaciones buscándola. Debe no aparecer en ninguno.
-- [ ] `C.7` Test de que `peek` sobre contenido sensible nunca devuelve el texto.
+- [x] `C.7` Test de que `peek` sobre contenido sensible nunca devuelve el texto.
+- [x] `C.8` **No** exponer `peek` en la CLI. `control` imprime por `stdout`, que
+      es uno de los sitios que la auditoría de `F4.5` tiene que barrer, y además
+      quedaría en el historial y el scrollback de quien lo llame. El panel lo
+      alcanza por el socket; nada más lo necesita. Fijado con un test.
 
 ### Criterios de salida
 
@@ -249,6 +253,7 @@ código:
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Fase C | `peek` inerte: no escribe, no consume la omisión, no avanza la generación y no llega a la CLI. 13 tests nuevos |
 | 2026-08-31 | Fase B | `0005` y `0006` aceptadas; `F1.11`, `F4.5`, criterios de terminado, UX-OPPORTUNITIES y SECURITY reformulados |
 
 ## 14. Definición operativa de terminado

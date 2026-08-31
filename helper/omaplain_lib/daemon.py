@@ -266,6 +266,67 @@ class OmaPlainDaemon:
         self.status.update(skipNext=True)
         return {"result": "ok", "expiresIn": 60}
 
+    # Tope de lo que se manda al panel para enseñarlo. El limite de
+    # `maxBytes` sigue rigiendo lo que el motor acepta procesar; esto es
+    # otra cosa: nadie lee un megabyte en una tarjeta de cien pixeles, y
+    # mandarlo solo alarga el tiempo que ese texto pasa fuera del helper.
+    PEEK_LIMIT = 4096
+
+    @staticmethod
+    def _clip(text: str) -> tuple[str, bool]:
+        if len(text) <= OmaPlainDaemon.PEEK_LIMIT:
+            return text, False
+        return text[: OmaPlainDaemon.PEEK_LIMIT], True
+
+    def peek(self) -> dict[str, object]:
+        """Describe the current clipboard for the panel, without touching it.
+
+        Deliberadamente inerte: no avanza la generacion, no consume
+        `skipNext`, no reescribe el portapapeles y —sobre todo— no llama a
+        `_record`, que es lo unico de esta clase que escribe en disco. La
+        respuesta viaja por el socket 0600 y muere con ella.
+        """
+        with self.process_lock:
+            # `automatic=False` es lo que mantiene el gesto inerte: en esa
+            # rama ni se consume la omision ni se descartan eventos propios.
+            operation, types, mime, original, transformed = self._inspect_and_transform(
+                "data", automatic=False, generation=self.generation,
+            )
+
+        answer: dict[str, object] = {
+            "result": "ok" if operation.result != "error" else "error",
+            "reason": operation.reason,
+            "types": types,
+            "eligible": operation.result not in {"bypassed", "error"},
+        }
+
+        # Sin contenido: sensible, imagen, archivos, MIME estructural,
+        # vacio, demasiado grande o fallo de lectura. La negativa es del
+        # helper, no de la interfaz, asi que no hay peticion del panel que
+        # la levante.
+        if operation.result in {"bypassed", "error"} or original is None or mime is None:
+            answer["eligible"] = False
+            return answer
+
+        try:
+            before = original.decode("utf-8")
+            after = (transformed.output if transformed else original).decode("utf-8")
+        except UnicodeDecodeError:
+            # Un texto que no decodifica no se puede enseñar honestamente.
+            return {"result": "ok", "reason": "undecodable", "types": types, "eligible": False}
+
+        before, clipped_before = self._clip(before)
+        after, clipped_after = self._clip(after)
+        answer.update(
+            original=before,
+            cleaned=after,
+            applied=list(transformed.transformations) if transformed else [],
+            changed=bool(transformed.changed) if transformed else False,
+            truncated=clipped_before or clipped_after,
+            bytes=len(original),
+        )
+        return answer
+
     def command(self, name: str) -> dict[str, object]:
         if name == "status":
             self._skip_active()
@@ -278,6 +339,8 @@ class OmaPlainDaemon:
             return self.skip_next()
         if name == "reload":
             return {"result": "ok", "warnings": self.reload_config()}
+        if name == "peek":
+            return self.peek()
         if name == "ping":
             return {"result": "ok"}
         return {"result": "invalid", "reason": "unknown_command"}
