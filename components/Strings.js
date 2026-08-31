@@ -230,7 +230,7 @@ var EN = {
   // sobra y el resto. `tests/unit/test_empty_samples.py` pasa cada uno por
   // el motor en los dos idiomas: si una regla cambia, la pantalla no puede
   // seguir prometiendo una limpieza que ya no ocurre.
-  "empty.sample.link.head": "shop.com/sneakers?",
+  "empty.sample.link.head": "example.com/offer?",
   "empty.sample.link.spare": "utm_source=newsletter&",
   "empty.sample.link.tail": "size=42",
   "empty.sample.text.head": "Sourdough bread",
@@ -446,7 +446,7 @@ var ES = {
   "empty.art.a11y": "Ejemplos de lo que puedes copiar, con lo que OmaPlain retiraría marcado en color de acento.",
   // Ver la nota de la tabla inglesa: estos tres se comprueban contra el
   // motor, y el del enlace tiene que perder exactamente su `utm_`.
-  "empty.sample.link.head": "tienda.com/zapatillas?",
+  "empty.sample.link.head": "example.com/oferta?",
   "empty.sample.link.spare": "utm_source=boletin&",
   "empty.sample.link.tail": "talla=42",
   "empty.sample.text.head": "El pan de masa madre",

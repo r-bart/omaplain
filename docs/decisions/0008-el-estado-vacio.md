@@ -38,7 +38,7 @@ Un turno completo es una sola secuencia, no cuatro efectos sueltos:
 
 | Fase | Duración | Curva | Qué ocurre |
 |---|---|---|---|
-| Llegada | 300 ms | `cubic-bezier(0.32, 0.72, 0, 1)` | dibujo y frase entran desde abajo; la frase 70 ms detrás |
+| Llegada | 370 ms | `cubic-bezier(0.32, 0.72, 0, 1)` | dibujo y frase entran desde abajo, 300 ms cada uno; la frase arranca 70 ms después |
 | Espera | 80 ms | — | primero se ve qué hay, y sólo entonces qué sobra |
 | Peinado | 620 ms | `InOutCubic` | una banda cruza el dibujo, lo que sobra se encoge, tres motas se apagan |
 | Lectura | 1340 ms | — | la copia limpia se queda quieta |
@@ -54,7 +54,11 @@ Tres reglas dentro de eso, cada una por un motivo concreto:
   media lectura.
 - **Altura fija y una sola línea de cuerpo.** No son detalles de estilo: con
   altura variable, cada elemento del ciclo redimensionaría el panel entero cada
-  2,6 segundos.
+  2,6 segundos. A cambio, lo que no cabe se recorta contra el borde, así que la
+  longitud de cada ejemplo tiene su presupuesto y su test.
+- **El texto que cicla no llega al árbol de accesibilidad.** Cambia cada 2,6
+  segundos y no hay forma de pararlo, así que leerlo sería ruido; lo que se
+  anuncia es un resumen que no cambia.
 
 ## Por qué ésta
 

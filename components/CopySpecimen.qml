@@ -25,7 +25,7 @@ Item {
   // hojas aterrizan un grado en vez de aparecer ya colocadas.
   property real landed: 1
 
-  implicitWidth: Style.space(108)
+  implicitWidth: Style.space(100)
   implicitHeight: Style.space(96)
   Accessible.ignored: true
 
@@ -37,9 +37,9 @@ Item {
   // De dónde salen las motas: del sitio exacto donde desaparece lo que
   // sobra, o serían confeti.
   readonly property point spark: root.kind === "link"
-    ? Qt.point(Style.space(88), Style.space(54))
-    : root.kind === "text" ? Qt.point(Style.space(30), Style.space(48))
-    : Qt.point(Style.space(40), Style.space(40))
+    ? Qt.point(Style.space(84), Style.space(54))
+    : root.kind === "text" ? Qt.point(Style.space(36), Style.space(48))
+    : Qt.point(Style.space(44), Style.space(46))
 
   // El halo de la familia: el mismo círculo suave que en la bienvenida.
   // Da un único empujón cuando pasa el peine.
@@ -48,9 +48,9 @@ Item {
   // un trozo distinto, y un halo centrado «bien» asomaba por una esquina
   // como si fuera una sombra mal puesta.
   readonly property point haloAt: root.kind === "link"
-    ? Qt.point(Style.space(53), Style.space(40))
-    : root.kind === "text" ? Qt.point(Style.space(55), Style.space(47))
-    : Qt.point(Style.space(62), Style.space(42))
+    ? Qt.point(Style.space(48), Style.space(40))
+    : root.kind === "text" ? Qt.point(Style.space(53), Style.space(47))
+    : Qt.point(Style.space(58), Style.space(42))
 
   Rectangle {
     width: Style.space(82)
@@ -70,9 +70,9 @@ Item {
 
     // La página de la que se copia, detrás y a media luz.
     BorderSurface {
-      x: Style.space(18)
+      x: Style.space(16)
       y: Style.space(4)
-      width: Style.space(78)
+      width: Style.space(76)
       height: Style.space(60)
       rotation: -8 + 3 * root.settle
       transformOrigin: Item.Center
@@ -101,9 +101,9 @@ Item {
 
     // La barra de dirección, delante: es donde vive lo que sobra.
     BorderSurface {
-      x: Style.space(2)
+      x: Style.space(1)
       y: Style.space(40)
-      width: Style.space(102)
+      width: Style.space(96)
       height: Style.space(36)
       rotation: 2 - 2.5 * root.settle - 1.2 * root.combed
       transformOrigin: Item.Center
@@ -154,7 +154,7 @@ Item {
     visible: root.kind === "text"
 
     BorderSurface {
-      x: Style.space(32)
+      x: Style.space(28)
       y: Style.space(2)
       width: Style.space(68)
       height: Style.space(74)
@@ -218,7 +218,7 @@ Item {
 
     // Debajo, la de texto plano: la que se queda.
     BorderSurface {
-      x: Style.space(24)
+      x: Style.space(20)
       y: Style.space(6)
       width: Style.space(76)
       height: Style.space(72)
@@ -251,7 +251,7 @@ Item {
     // Y encima la copia con formato, que se levanta y se va entera:
     // ni un carácter cambia, y aun así hay algo que retirar.
     BorderSurface {
-      x: Style.space(6) - Style.space(12) * root.combed
+      x: Style.space(4) - Style.space(12) * root.combed
       y: Style.space(18) - Style.space(12) * root.combed
       width: Style.space(76)
       height: Style.space(72)

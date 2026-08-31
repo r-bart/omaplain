@@ -72,7 +72,12 @@ Item {
 
   // Invisible del todo antes de llegar al final del recorrido, que es
   // donde se cambia de ejemplo: el relevo no se ve, sólo la llegada.
-  function fade(offset) { return Math.max(0, 1 - Math.abs(offset) * 1.7) }
+  //
+  // El factor es lo justo para eso y ni un poco más. Con 1,7 la tarjeta se
+  // quedaba vacía unos 75 ms entre ejemplo y ejemplo —cuatro o cinco
+  // fotogramas, que se ven como un parpadeo—; con 1,3 llega a cero igual de
+  // a tiempo y el hueco baja a la mitad.
+  function fade(offset) { return Math.max(0, 1 - Math.abs(offset) * 1.3) }
   // Lo que lleva recorrido el ejemplo actual de su turno.
   property real ride: 0
 
@@ -166,7 +171,9 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       kind: root.sample.art
       combed: root.combed
-      landed: 1 - Math.min(1, Math.abs(root.slide))
+      // Sólo la llegada asienta. Ligado a `slide` a secas, la salida
+      // deshacía el gesto de entrada, que es una entrada al revés.
+      landed: root.slide > 0 ? 1 - root.slide : 1
 
       // Con transform y opacidad, que van en la GPU: mover el dibujo por
       // `y` obligaría a recolocar la columna de al lado en cada cuadro.
@@ -178,15 +185,19 @@ Item {
       anchors.left: specimen.right
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
-      anchors.leftMargin: Style.space(12)
+      anchors.leftMargin: Style.space(10)
       anchors.rightMargin: Style.space(14)
       spacing: Style.space(8)
 
       opacity: root.fade(root.slideText)
       transform: Translate { y: root.slideText * Style.space(14) }
 
+      // El texto que cicla queda fuera del árbol de accesibilidad: cambia
+      // cada 2,6 segundos y no hay manera de pararlo, así que leerlo sería
+      // ruido. Lo que se anuncia es el resumen del `root`, que no cambia.
       Text {
         id: kind
+        Accessible.ignored: true
         text: Strings.t(root.sample.kind, root.lang)
         color: Util.alpha(Color.popups.text, 0.68)
         font.family: Style.font.family
@@ -201,6 +212,7 @@ Item {
         spacing: 0
 
         Text {
+          Accessible.ignored: true
           text: root.part("head")
           color: Color.popups.text
           font.family: Style.font.family
@@ -216,6 +228,7 @@ Item {
           clip: true
           Text {
             id: spare
+            Accessible.ignored: true
             text: root.part("spare")
             color: Color.accent
             opacity: 1 - root.combed * 0.5
@@ -225,6 +238,7 @@ Item {
         }
 
         Text {
+          Accessible.ignored: true
           text: root.part("tail")
           color: Color.popups.text
           font.family: Style.font.family

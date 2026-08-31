@@ -114,6 +114,26 @@ class UiContractTests(unittest.TestCase):
                 with self.subTest(file=path.name, line=number):
                     self.assertIsNone(invisible.search(literal.sub("", line)))
 
+    def test_the_cycling_text_never_reaches_a_screen_reader(self) -> None:
+        """El carrusel se anuncia una vez, no tres veces cada ocho segundos.
+
+        Los ejemplos cambian solos cada 2,6 s y no hay forma de pararlos, así
+        que exponer su texto convierte la pantalla en un goteo de anuncios sin
+        control. Lo que se anuncia es el resumen del `root`, que no cambia; el
+        texto de dentro queda fuera del árbol.
+        """
+        source = (REPO / "components" / "EmptyCarousel.qml").read_text(encoding="utf-8")
+        self.assertIn("Accessible.role: Accessible.StaticText", source)
+        self.assertIn('Accessible.name: Strings.t("empty.art.a11y"', source)
+
+        lines = source.splitlines()
+        openings = [n for n, line in enumerate(lines) if line.rstrip().endswith("Text {")]
+        self.assertTrue(openings, "el carrusel ya no monta texto")
+        for number in openings:
+            window = "\n".join(lines[number + 1:number + 4])
+            with self.subTest(line=number + 1):
+                self.assertIn("Accessible.ignored: true", window)
+
     def test_controls_scale_the_minimum_hit_height(self) -> None:
         files = [REPO / "Panel.qml", *sorted((REPO / "components").glob("*.qml"))]
         raw_height = re.compile(r"(?:implicitHeight:\s*44\b|Math\.max\(44\b)")

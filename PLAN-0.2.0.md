@@ -254,12 +254,24 @@ Bloqueada por `B.2`.
 - [ ] `F.3` Confirmación visual de la transformación (prioridad alta nº1).
 - [ ] `F.4` Estado «omitir una copia» en el héroe (nº2).
 - [ ] `F.5` Los cuatro puntos de prioridad media de `UX-OPPORTUNITIES.md`.
+- [ ] `F.6` El carrusel del estado vacío cicla sin fin y sin forma de pararlo,
+      que es lo que pide la WCAG 2.2.2. El componente ya acepta `motionEnabled`
+      y se queda quieto con él en falso; lo que falta es quién lo conduce, y
+      eso es `F.1`.
 
 ### Criterios de salida
 
 - Cada movimiento tiene su vía explícita de movimiento reducido.
-- Ninguna animación supera los 300 ms ni anima otra cosa que no sea
-  `transform` u `opacity`.
+- Ninguna animación **de respuesta a una acción** supera los 300 ms ni anima
+  otra cosa que no sea `transform` u `opacity`.
+- Las **demostraciones** —la ilustración de la bienvenida y el carrusel del
+  estado vacío— duran lo que hace falta para leerlas, y pueden animar el ancho
+  de lo que se retira porque eso *es* lo que demuestran.
+
+> El criterio original no distinguía, y así redactado ya lo incumplía la
+> ilustración que la `0004` aceptó: 620 ms y a propósito. Un tope pensado para
+> la respuesta a un clic no dice nada útil sobre una animación que nadie ha
+> pedido y que está ahí para ser leída.
 
 ---
 
@@ -305,6 +317,7 @@ lo que no se ha visto es la combinación.
 | Fecha | Hito | Resultado |
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
+| 2026-08-31 | Estado vacío (dibujos) | Tres siluetas distintas, peine y motas atados al mismo avance, coreografía por turno con la tarjeta quieta. Ejemplos al catálogo y comprobados contra el motor en los dos idiomas |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
 | 2026-08-31 | Bilingüe | 163 claves en inglés y español, selector en ajustes y `auto` desde el locale. Verificado en pantalla en los dos idiomas |
 | 2026-08-31 | Fase E | El recorrido pasa por Ajustes con dos salidas visibles; ilustración animada con vía de movimiento reducido |

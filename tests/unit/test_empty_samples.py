@@ -123,6 +123,31 @@ class EmptySampleTests(unittest.TestCase):
                     self.assertTrue(table[f"{sample['text']}.spare"].strip(),
                                     "un ejemplo sin nada que retirar")
 
+    # El cuerpo va en una sola línea y la tarjeta recorta lo que sobresalga.
+    # Medido en el panel real con la fuente del tema: 48 caracteres entran
+    # con holgura y 50 se comen el margen derecho. El ejemplo del enlace
+    # llegó a medir 49 y `talla=42` —lo único que sobrevive a la limpieza, y
+    # por tanto lo único que había que enseñar— se cortaba contra el borde.
+    BODY_BUDGET = 48
+    LABEL_BUDGET = 40
+
+    def test_no_example_outgrows_the_line_it_lives_on(self) -> None:
+        for sample in self.samples:
+            for lang, table in self.tables.items():
+                body = "".join(_parts(table, sample["text"]))
+                with self.subTest(sample=sample["art"], lang=lang, body=body):
+                    self.assertLessEqual(len(body), self.BODY_BUDGET, "no cabe en la tarjeta")
+                    self.assertLessEqual(len(table[sample["kind"]]), self.LABEL_BUDGET)
+
+    def test_the_examples_use_a_domain_reserved_for_examples(self) -> None:
+        # `tienda.com` y `shop.com` existen. Un ejemplo inventado no puede
+        # atribuirle a un negocio real un enlace con seguimiento; la RFC 2606
+        # reserva `example.com` justo para esto.
+        for lang, table in self.tables.items():
+            head, _, _ = _parts(table, "empty.sample.link")
+            with self.subTest(lang=lang):
+                self.assertTrue(head.startswith("example.com/"), f"dominio real en un ejemplo: {head}")
+
     def test_the_carousel_has_a_reduced_motion_path(self) -> None:
         source = COMPONENT.read_text(encoding="utf-8")
         self.assertIn("property bool motionEnabled", source)
