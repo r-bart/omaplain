@@ -162,7 +162,7 @@ contra el motor real.
       repintar la neblina entera cuesta **1,5 ms por fotograma** — un 4,5 % del
       presupuesto a 30 fps. No hacen falta `ShaderEffect` ni cubierta de
       reserva. Medido en `docs/SPIKE.md`.
-- [ ] `D.2` Vista principal: estado, veredicto, subtítulo, dos filas de altura
+- [x] `D.2` Vista principal: estado, veredicto, subtítulo, dos filas de altura
       fija, desglose y acciones.
 - [x] `D.2a` Separar enseñar de informar ([`0007`](./docs/decisions/0007-la-pantalla-frecuente-informa.md)):
       `StatusHeader` pierde el titular y la ilustración, que se quedan en
@@ -172,7 +172,7 @@ contra el motor real.
 - [ ] `D.4` Estados de bypass —imagen, archivos, sensible— y portapapeles vacío.
 - [ ] `D.5` Chips de tipos MIME para el caso «formato enriquecido», donde el
       texto no cambia y el diff no sirve.
-- [ ] `D.6` Botón «Opciones» y la página de ajustes como segunda vista.
+- [x] `D.6` Botón «Opciones» y la página de ajustes como segunda vista.
 - [ ] `D.7` Recorrido completo por teclado y semántica accesible: mientras hay
       cubierta, el texto no se anuncia.
 - [ ] `D.8` Verificación en el panel real de los diez estados, con capturas.
@@ -256,6 +256,7 @@ código:
 |---|---|---|
 | 2026-08-31 | Plan `0.2.0` redactado | Siete fases, dos puertas de decisión; siguiente tarea `A.1` |
 | 2026-08-31 | Fase A | Import restaurado, guardia uso/import añadida y los nueve controles verificados en el panel real |
+| 2026-08-31 | Fase D (parcial) | Panel partido en dos páginas: portapapeles y ajustes tras el engranaje. Veredicto, dos filas, desglose y acciones debajo. Verificado en el panel real |
 | 2026-08-31 | Decisión `0007` | La pantalla frecuente informa y la primera enseña; el héroe educativo sale de la vista diaria. Sin memoria del contenido |
 | 2026-08-31 | Spike `D.1` | `destination-out` soportado y 1,5 ms por fotograma; la cubierta va con `Canvas` |
 | 2026-08-31 | Fase C | `peek` inerte: no escribe, no consume la omisión, no avanza la generación y no llega a la CLI. 13 tests nuevos |
