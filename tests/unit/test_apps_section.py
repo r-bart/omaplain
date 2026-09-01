@@ -357,3 +357,79 @@ class RedDeSeguridadDeLosAjustesTests(unittest.TestCase):
         self.assertIn("function mutateShellConfig(mutator)", source)
         cuerpo = source.split("function mutateShellConfig(mutator)", 1)[1].split("\n  }", 1)[0]
         self.assertIn("persistShellConfig(copy)", cuerpo)
+
+
+class ElFocoLlegaATodasPartesTests(unittest.TestCase):
+    """La `0012` se quedó a medias: cuatro componentes seguían sin anillo.
+
+    El test que ya existía miraba los ficheros con `activeFocusOnTab` escrito
+    dentro, y esos cuatro lo heredaban sin escribirlo. Pasaba en verde con el
+    fallo delante — y el fallo era que en el recorrido no se veía dónde estabas,
+    hasta el punto de que se pulsaba «Atrás» creyendo pulsar el botón final.
+    """
+
+    # Los dos únicos que pueden tocar el kit: son los que ponen el anillo.
+    ENVOLTORIOS = {"PanelButton.qml", "SettingRow.qml"}
+
+    def test_ningun_componente_usa_el_boton_del_kit_a_pelo(self) -> None:
+        for ruta in sorted((REPO / "components").glob("*.qml")):
+            if ruta.name in self.ENVOLTORIOS:
+                continue
+            source = ruta.read_text(encoding="utf-8")
+            sin_comentarios = "\n".join(
+                l for l in source.splitlines() if not l.strip().startswith("//")
+            )
+            with self.subTest(componente=ruta.name):
+                self.assertIsNone(
+                    re.search(r"^\s*Button \{", sin_comentarios, re.MULTILINE),
+                    f"{ruta.name} usa el Button del kit: se queda sin anillo de foco",
+                )
+                self.assertIsNone(
+                    re.search(r"^\s*Toggle \{", sin_comentarios, re.MULTILINE),
+                    f"{ruta.name} usa el Toggle del kit: se queda sin anillo de foco",
+                )
+
+    def test_el_panel_tampoco(self) -> None:
+        panel = "\n".join(
+            l for l in _lee("Panel.qml").splitlines() if not l.strip().startswith("//")
+        )
+        self.assertIsNone(re.search(r"^\s*Button \{", panel, re.MULTILINE))
+        self.assertIsNone(re.search(r"^\s*Toggle \{", panel, re.MULTILINE))
+
+    def test_el_anillo_sobrevive_a_un_boton_sin_borde(self) -> None:
+        # «Saltar el recorrido» y el ojo van sin borde a propósito. Si el
+        # anillo colgara de `bordered`, esos dos volverían a quedarse mudos.
+        envoltorio = _lee("components", "PanelButton.qml")
+        anillo = next(
+            b for b in re.findall(r"Rectangle \{[^}]*\}", envoltorio, re.DOTALL)
+            if "border.width" in b
+        )
+        self.assertIn("visible: root.focusable && root.activeFocus", anillo)
+        self.assertNotIn("bordered", anillo)
+
+
+class ElBotonFinalDiceADondeVaTests(unittest.TestCase):
+    """«Ver los ajustes» no siempre llevaba a los ajustes."""
+
+    def test_la_promesa_depende_de_donde_acaba(self) -> None:
+        tour = _lee("components", "TourPage.qml")
+        self.assertIn("property bool endsInSettings: true", tour)
+        boton = tour.split("id: nextButton", 1)[1].split("onClicked:", 1)[0]
+        self.assertIn('root.endsInSettings ? Strings.t("tour.finish"', boton)
+        self.assertIn('Strings.t("tour.close"', boton)
+
+    def test_el_panel_dice_la_verdad_sobre_donde_acaba(self) -> None:
+        panel = _lee("Panel.qml")
+        bloque = panel.split("step: root.tourStep", 1)[1].split("onBackRequested", 1)[0]
+        self.assertIn('root.learningOrigin === "first-run" || root.panelPage === "settings"', bloque)
+
+    def test_el_recorrido_de_la_primera_vez_sigue_acabando_en_ajustes(self) -> None:
+        # Lo que la `0006` pide: la primera vez aterriza en los ajustes.
+        cuerpo = _lee("Panel.qml").split("function advanceTour()", 1)[1].split("\n  }", 1)[0]
+        self.assertIn('if (learningOrigin === "first-run") showOnboardingSettings()', cuerpo)
+
+    def test_las_dos_etiquetas_existen_en_los_dos_idiomas(self) -> None:
+        catalogo = _lee("components", "Strings.js")
+        for clave in ('"tour.finish"', '"tour.close"'):
+            with self.subTest(clave=clave):
+                self.assertEqual(catalogo.count(clave), 2)

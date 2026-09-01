@@ -147,8 +147,14 @@ nueve controles no se veían por un import que faltaba.
 - **Enfocar un control lo apagaba.** El borde de foco del kit sale de
   `focus-border-alpha`, que cae en 0,25 frente al 0,4 del borde normal: medido
   en el panel, 2,79:1 en reposo y **1,82:1 con el foco puesto**. Con veinte
-  controles navegables, el recorrido por teclado no dejaba rastro. Los botones
-  y las filas dibujan ahora su propio anillo, neutro y a 6,17:1.
+  controles navegables, el recorrido por teclado no dejaba rastro. Todos los
+  controles dibujan ahora su propio anillo, neutro y a 6,17:1 — también los del
+  recorrido, la bienvenida, la demostración y el ojo de las filas.
+- **«Ver los ajustes» no siempre llevaba a los ajustes.** El último botón del
+  recorrido prometía lo mismo viniera de donde viniera, y lanzado desde la
+  pantalla de todos los días devolvía a esa misma pantalla, cuya única acción
+  es «Ver cómo funciona»: se leía como volver al principio del recorrido. Ahora
+  dice «Volver al panel» cuando es allí donde va.
 - **Los nueve controles del panel eran invisibles.** `SettingRow.qml` usaba
   `Style.space()` sin importar `qs.Commons`, así que su altura colapsaba a
   cero. Se publicó así en la `0.1.0`.

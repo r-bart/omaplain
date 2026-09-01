@@ -71,26 +71,24 @@ Item {
         font.letterSpacing: Style.spaceReal(0.8)
       }
 
-      Button {
+      PanelButton {
         id: eye
         anchors.right: parent.right
         anchors.rightMargin: Style.space(6)
         anchors.verticalCenter: parent.verticalCenter
-        implicitHeight: Style.space(44)
         implicitWidth: Style.space(44)
         text: root.locked ? "󰌾" : (root.revealed ? "◉" : "◎")
         tooltipText: root.locked
           ? Strings.t("row.locked", root.lang)
           : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.name)
-        focusable: true
+        // El ojo va sin borde: vive dentro de la fila, que ya es su marco.
+        bordered: false
         enabled: !root.locked
         foreground: root.revealed ? Color.accent : Util.alpha(Color.popups.text, 0.68)
-        Accessible.role: Accessible.Button
         Accessible.name: root.locked
           ? Strings.t("row.locked", root.lang)
           : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.name)
-        Accessible.onPressAction: root.toggle()
-        onActiveFocusChanged: if (activeFocus) root.focusEntered(eye)
+        onFocusEntered: function(item) { root.focusEntered(item) }
         onClicked: root.toggle()
       }
 

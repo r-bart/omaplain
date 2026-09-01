@@ -189,18 +189,11 @@ Item {
           onClicked: root.startRequested()
         }
 
-        Button {
+        PanelButton {
           id: dismissButton
           width: (welcomeActions.width - (welcomeActions.columns - 1) * welcomeActions.columnSpacing) / welcomeActions.columns
-          implicitHeight: Style.space(44)
           text: root.returning ? Strings.t("welcome.return", root.lang) : Strings.t("welcome.enter", root.lang)
-          focusable: true
-          bordered: true
-          foreground: Color.popups.text
-          Accessible.role: Accessible.Button
-          Accessible.name: text
-          Accessible.onPressAction: root.dismissRequested()
-          onActiveFocusChanged: if (activeFocus) root.reveal(dismissButton)
+          onFocusEntered: function(item) { root.reveal(item) }
           onClicked: root.dismissRequested()
         }
       }

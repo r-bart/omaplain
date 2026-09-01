@@ -200,20 +200,13 @@ Column {
   // llegaba a cinco cosas pulsables. Con movimiento el botón es para
   // volver a mirar; sin movimiento es el que hace la demostración, que es
   // la única vía que le queda a quien apagó las animaciones.
-  Button {
+  PanelButton {
     id: revealButton
     width: parent.width
-    implicitHeight: Style.space(44)
     text: root.revealed
       ? Strings.t("demo.original", root.lang)
       : (root.motionEnabled ? Strings.t("demo.replay", root.lang) : Strings.t("demo.try", root.lang))
-    focusable: true
-    bordered: true
-    foreground: Color.popups.text
-    Accessible.role: Accessible.Button
-    Accessible.name: text
-    Accessible.onPressAction: root.toggle()
-    onActiveFocusChanged: if (activeFocus) root.focusEntered(revealButton)
+    onFocusEntered: function(item) { root.focusEntered(item) }
     onClicked: root.toggle()
   }
 

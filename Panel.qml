@@ -606,6 +606,9 @@ Item {
           visible: root.viewMode === "tour"
           enabled: visible
           step: root.tourStep
+          // Sólo acaba en los ajustes cuando de verdad va allí: la primera
+          // vez, o repitiendo el recorrido desde los propios ajustes.
+          endsInSettings: root.learningOrigin === "first-run" || root.panelPage === "settings"
           replaying: root.learningOrigin === "settings"
           motionEnabled: root.motionEnabled
           onBackRequested: root.retreatTour()

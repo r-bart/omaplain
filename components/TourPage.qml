@@ -22,6 +22,13 @@ Item {
   signal dismissRequested()
 
   readonly property int stepCount: 3
+
+  // A dónde va el último botón. Decía «Ver los ajustes» siempre, y desde la
+  // pantalla de todos los días el recorrido no acaba en los ajustes: acaba
+  // donde empezó. Prometer una pantalla y devolver otra —y encima la que
+  // tiene «Ver cómo funciona» como única acción— se lee como volver al
+  // principio del recorrido.
+  property bool endsInSettings: true
   readonly property string stepTitle: [
     Strings.t("tour.1.title", root.lang),
     Strings.t("tour.2.title", root.lang),
@@ -228,43 +235,38 @@ Item {
         columnSpacing: Style.space(8)
         rowSpacing: Style.space(8)
 
-        Button {
+        PanelButton {
           id: backButton
           width: (tourActions.width - (tourActions.columns - 1) * tourActions.columnSpacing) / tourActions.columns
-          implicitHeight: Style.space(44)
           text: Strings.t("tour.back", root.lang)
           iconText: "←"
-          focusable: true
-          bordered: true
-          foreground: Color.popups.text
-          Accessible.role: Accessible.Button
           Accessible.name: root.step === 0 ? Strings.t("tour.back.first.a11y", root.lang) : Strings.t("tour.back.a11y", root.lang)
-          Accessible.onPressAction: root.backRequested()
-          onActiveFocusChanged: if (activeFocus) root.reveal(backButton)
+          onFocusEntered: function(item) { root.reveal(item) }
           onClicked: root.backRequested()
         }
 
         PrimaryButton {
           id: nextButton
           width: (tourActions.width - (tourActions.columns - 1) * tourActions.columnSpacing) / tourActions.columns
-          text: root.step === root.stepCount - 1 ? Strings.t("tour.finish", root.lang) : Strings.t("tour.next", root.lang)
+          text: root.step !== root.stepCount - 1
+            ? Strings.t("tour.next", root.lang)
+            : (root.endsInSettings ? Strings.t("tour.finish", root.lang) : Strings.t("tour.close", root.lang))
           iconText: root.step === root.stepCount - 1 ? "✓" : "→"
           onActiveFocusChanged: if (activeFocus) root.reveal(nextButton)
           onClicked: root.nextRequested()
         }
       }
 
-      Button {
+      PanelButton {
         id: dismissButton
         width: parent.width
-        implicitHeight: Style.space(44)
         text: root.replaying ? Strings.t("tour.leave", root.lang) : Strings.t("tour.skip", root.lang)
-        focusable: true
+        // Sin borde a propósito: es la salida discreta, no una tercera
+        // acción. El anillo de foco sí, o desaparecería del recorrido por
+        // teclado justo como desaparecía antes de la `0012`.
+        bordered: false
         foreground: Util.alpha(Color.popups.text, 0.68)
-        Accessible.role: Accessible.Button
-        Accessible.name: text
-        Accessible.onPressAction: root.dismissRequested()
-        onActiveFocusChanged: if (activeFocus) root.reveal(dismissButton)
+        onFocusEntered: function(item) { root.reveal(item) }
         onClicked: root.dismissRequested()
       }
     }

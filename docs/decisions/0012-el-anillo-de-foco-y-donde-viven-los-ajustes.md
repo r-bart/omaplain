@@ -82,8 +82,18 @@ Neutro y no de acento a propósito: en este panel el acento ya significa
 «elegido» —lo lleva el idioma activo—, y un anillo de marca competiría con él.
 
 Vive en [`PanelButton`](../../components/PanelButton.qml) y en
-[`SettingRow`](../../components/SettingRow.qml), que es por donde pasan todos
-los controles del panel.
+[`SettingRow`](../../components/SettingRow.qml). **Y por ahí tienen que pasar
+todos**, que es lo que esta decisión se dejó a medias la primera vez: el
+recorrido, la bienvenida, la demostración y el ojo de las filas seguían usando
+el `Button` del kit a pelo, así que en el tour no se veía dónde estabas. Se
+llegó a pulsar «Atrás» creyendo pulsar el botón final, y volver al principio
+del recorrido parecía un fallo del botón final.
+
+El test que debía cubrirlo miraba los ficheros con `activeFocusOnTab` escrito
+dentro, y esos cuatro lo heredaban sin escribirlo: pasaba en verde con el fallo
+delante. Ahora la regla es la que se puede comprobar de verdad — **ningún
+componente usa el `Button` ni el `Toggle` del kit salvo los dos envoltorios que
+ponen el anillo**.
 
 ## Lo que no se toca
 
