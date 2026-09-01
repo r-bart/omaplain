@@ -410,11 +410,14 @@ Item {
     appsUrgent = false
     pendingApp = name
     classField.text = ""
-    Qt.callLater(function() { root.reveal(appsList) })
+    Qt.callLater(function() { root.revealTop(appsList) })
   }
 
   function toggleRule(appClass, kind, next) {
     if (!service) return
+    // El aviso de «ya tiene su tarjeta abajo» ha cumplido en cuanto se toca
+    // una regla: dejarlo puesto tapa la pista del campo sin decir nada nuevo.
+    if (!appsUrgent) appsError = ""
     if (next) service.addExclusion(kind, appClass)
     else service.removeExclusion(kind, appClass)
   }
@@ -427,6 +430,17 @@ Item {
     if (pendingApp === appClass) pendingApp = ""
     appsError = ""
     appsUrgent = false
+  }
+
+  // Como `reveal`, pero alineando por arriba. `reveal` enseña el final de lo
+  // que no cabe, que es lo que quieres para un control y lo contrario de lo
+  // que quieres para una lista que acaba de crecer: dejaba al usuario en la
+  // última tarjeta en vez de donde empieza lo que añadió.
+  function revealTop(item) {
+    if (viewMode !== "main" || !focusReady || !item || !contentColumn) return
+    var top = item.mapToItem(contentColumn, 0, 0).y
+    if (top < scroll.contentY || top > scroll.contentY + scroll.height - Style.space(48))
+      scroll.contentY = Math.max(0, Math.min(scroll.contentHeight - scroll.height, top - Style.space(8)))
   }
 
   function reveal(item) {
@@ -1374,7 +1388,11 @@ Item {
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
-                Accessible.role: root.appsError !== "" ? Accessible.AlertMessage : Accessible.StaticText
+                // Alerta sólo lo que lo es. «Ya tiene su tarjeta abajo» no
+                // interrumpe a nadie: es la pista del campo con otro texto.
+                Accessible.role: root.appsUrgent && root.appsError !== ""
+                  ? Accessible.AlertMessage
+                  : Accessible.StaticText
                 Accessible.name: text
               }
 

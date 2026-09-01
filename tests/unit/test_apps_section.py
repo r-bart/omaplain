@@ -272,3 +272,32 @@ class AnilloDeFocoTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AvisosDelFormularioTests(unittest.TestCase):
+    """Lo que la revisión posterior encontró en el mensaje del campo."""
+
+    def setUp(self) -> None:
+        self.panel = _lee("Panel.qml")
+
+    def test_solo_alerta_lo_que_es_una_alerta(self) -> None:
+        # «Ya tiene su tarjeta abajo» es la pista del campo con otro texto: no
+        # interrumpe a nadie. Sólo la clase inválida es una alerta.
+        bloque = self.panel.split("id: appsMessage", 1)[1].split("\n              }", 1)[0]
+        self.assertIn("root.appsUrgent && root.appsError !== \"\"", bloque)
+        self.assertIn("Accessible.AlertMessage", bloque)
+
+    def test_el_aviso_de_duplicada_no_se_queda_puesto(self) -> None:
+        # Sólo lo borraban otra pulsación, una tecla en el campo o quitar la
+        # aplicación; mientras tanto tapaba la pista de las mayúsculas.
+        cuerpo = self.panel.split("function toggleRule(", 1)[1].split("\n  }", 1)[0]
+        self.assertIn("if (!appsUrgent) appsError = \"\"", cuerpo)
+
+    def test_la_lista_recien_crecida_se_enseña_por_arriba(self) -> None:
+        # `reveal` alinea por abajo lo que no cabe, que para una lista que
+        # acaba de crecer deja al usuario en la última tarjeta.
+        cuerpo = self.panel.split("function addApp(", 1)[1].split("\n  }", 1)[0]
+        self.assertIn("revealTop(appsList)", cuerpo)
+        self.assertNotIn("reveal(appsList)", cuerpo.replace("revealTop(appsList)", ""))
+        alinea = self.panel.split("function revealTop(", 1)[1].split("\n  }", 1)[0]
+        self.assertIn("scroll.contentY = Math.max(0,", alinea)
