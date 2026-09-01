@@ -37,6 +37,13 @@ nueve controles no se veían por un import que faltaba.
 
 ### Cambiado
 
+- **El titular dice lo que tienes copiado, no lo que le pasa.** Con una imagen
+  en el portapapeles, la pantalla decía «Una imagen no se toca» sobre una
+  ilustración, y se confundía con el estado vacío: cuatro de sus cinco
+  elementos hablaban del producto y sólo el chip del tipo hablaba de ti. Los
+  cinco veredictos de bypass nombran ahora lo que hay —«Una imagen en tu
+  portapapeles»— y dejan para la frase de debajo qué se hace con ello
+  ([`0013`](docs/decisions/0013-el-titular-nombra-lo-que-tienes.md)).
 - **Una sola sección de aplicaciones.** «Privacidad» y «Aplicaciones excluidas»
   montaban el mismo formulario dos veces, con dos rótulos que se diferenciaban
   en una palabra y dos botones de «app detectada» que hacían cosas distintas.

@@ -482,3 +482,86 @@ class LosBotonesNoRepitenSuRotuloTests(unittest.TestCase):
         panel = _lee("Panel.qml")
         self.assertIn('"󰅍"', panel)          # limpiar ahora
         self.assertIn('"󰢻"', panel)          # los ajustes
+
+
+class ElTitularNombraLoQueTienesTests(unittest.TestCase):
+    """La `0013`.
+
+    La pantalla de un bypass se confundió con el estado vacío, y la pregunta
+    que lo destapó fue literal: «si éste es el estado vacío esperando a que el
+    usuario tenga algo, ¿por qué vemos esto?». El portapapeles tenía una
+    imagen. Lo que fallaba es que el titular hablaba de una imagen en
+    abstracto, en pasiva, en vez de la tuya.
+    """
+
+    ESTADOS = ("image", "files", "structured", "sensitive", "large")
+
+    def setUp(self) -> None:
+        self.catalogo = _lee("components", "Strings.js")
+
+    def _valor(self, clave: str, idioma: str) -> str:
+        # Dos bloques en el fichero: EN primero, ES después.
+        partes = self.catalogo.split(f'"{clave}": "')
+        self.assertEqual(len(partes), 3, f"{clave} no aparece dos veces")
+        return partes[1 if idioma == "en" else 2].split('"', 1)[0]
+
+    def test_los_cinco_titulares_nombran_lo_que_tienes(self) -> None:
+        for estado in self.ESTADOS:
+            with self.subTest(estado=estado, idioma="en"):
+                self.assertTrue(
+                    self._valor(f"verdict.{estado}", "en").endswith("on your clipboard"),
+                    "el titular tiene que nombrar lo que hay en el portapapeles",
+                )
+            with self.subTest(estado=estado, idioma="es"):
+                self.assertTrue(
+                    self._valor(f"verdict.{estado}", "es").endswith("en tu portapapeles"),
+                )
+
+    def test_ningun_titular_vuelve_a_la_pasiva(self) -> None:
+        # Las formas exactas que había: «is left alone», «untouched»,
+        # «Marked as», «Too big». Cada una decía qué le pasa a la cosa y no
+        # cuál es la cosa.
+        pasivas = ("is left alone", "untouched", "Marked as", "Too big",
+                   "no se toca", "intacto", "intactos", "Marcado como", "Demasiado grande")
+        for estado in self.ESTADOS:
+            for idioma in ("en", "es"):
+                titular = self._valor(f"verdict.{estado}", idioma)
+                for forma in pasivas:
+                    with self.subTest(estado=estado, idioma=idioma, forma=forma):
+                        self.assertNotIn(forma, titular)
+
+    def test_la_frase_no_repite_el_dato_del_titular(self) -> None:
+        # El titular de `large` ya dice 1 MB; la frase lo decía otra vez tres
+        # líneas más abajo.
+        self.assertNotIn("1 MB", self._valor("detail.large", "en"))
+        self.assertNotIn("1 MB", self._valor("detail.large", "es"))
+
+    def test_el_limite_del_titular_es_el_limite_de_verdad(self) -> None:
+        # Si `maxBytes` cambia, la cadena miente. Que lo diga este test y no
+        # el usuario.
+        from omaplain_lib.config import DEFAULTS
+        self.assertEqual(int(DEFAULTS["maxBytes"]), 1024 * 1024)
+        self.assertIn("1 MB", self._valor("verdict.large", "en"))
+        self.assertIn("1 MB", self._valor("verdict.large", "es"))
+
+    def test_la_promesa_fuerte_no_se_rebaja(self) -> None:
+        # «No lo leemos» es lo que el helper cumple; «no lo procesamos» sonaría
+        # a decisión de producto en vez de a garantía.
+        self.assertIn("does not read", self._valor("detail.image", "en"))
+        self.assertIn("no lee", self._valor("detail.image", "es"))
+
+    def test_el_secreto_dice_la_cosa_y_luego_el_mecanismo(self) -> None:
+        self.assertIn("secret", self._valor("verdict.sensitive", "en"))
+        self.assertIn("secreto", self._valor("verdict.sensitive", "es"))
+        # Quién lo marcó sigue estando, abajo, que es su sitio.
+        self.assertIn("password manager", self._valor("detail.sensitive", "en"))
+        self.assertIn("gestor de contraseñas", self._valor("detail.sensitive", "es"))
+
+    def test_la_decision_esta_escrita(self) -> None:
+        doc = REPO / "docs" / "decisions" / "0013-el-titular-nombra-lo-que-tienes.md"
+        self.assertTrue(doc.exists())
+        texto = doc.read_text(encoding="utf-8")
+        # Y con lo descartado, que es la parte que ahorra la discusión de dentro
+        # de tres semanas.
+        self.assertIn("## Descartado", texto)
+        self.assertIn("ficha", texto)
