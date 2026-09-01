@@ -122,7 +122,6 @@ var EN = {
   "action.skipped": "Next copy skipped",
   "footnote.safe": "The original stays intact if cleaning is not safe.",
   "footnote.sensitive": "Revealing is not available for content marked as sensitive.",
-  "footnote.nothing": "There is no action to offer here.",
 
   // --- Ajustes ---
   "settings.language": "Language",
@@ -401,7 +400,6 @@ var ES = {
   "action.skipped": "Próxima copia omitida",
   "footnote.safe": "El original permanece intacto si la limpieza no es segura.",
   "footnote.sensitive": "Revelar no está disponible para contenido marcado como sensible.",
-  "footnote.nothing": "Aquí no hay acción que ofrecer.",
 
   "settings.language": "Idioma",
   "settings.language.auto": "Del sistema",

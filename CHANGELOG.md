@@ -42,7 +42,12 @@ nueve controles no se veían por un import que faltaba.
   ilustración, y se confundía con el estado vacío: cuatro de sus cinco
   elementos hablaban del producto y sólo el chip del tipo hablaba de ti. Los
   cinco veredictos de bypass nombran ahora lo que hay —«Una imagen en tu
-  portapapeles»— y dejan para la frase de debajo qué se hace con ello
+  portapapeles»— y dejan para la frase de debajo qué se hace con ello.
+  Con la pantalla explicándose sola, «Ver cómo funciona» se retira de los
+  bypass y se queda sólo en el estado vacío: un botón de aprender el producto
+  no va en la pantalla que se abre cada vez que haces una captura. Y la nota
+  «aquí no hay acción que ofrecer» desaparece del todo — hablaba del panel y no
+  de tu portapapeles
   ([`0013`](docs/decisions/0013-el-titular-nombra-lo-que-tienes.md)).
 - **Una sola sección de aplicaciones.** «Privacidad» y «Aplicaciones excluidas»
   montaban el mismo formulario dos veces, con dos rótulos que se diferenciaban

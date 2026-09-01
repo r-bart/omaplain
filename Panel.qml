@@ -959,12 +959,23 @@ Item {
               PanelButton {
                 id: emptyHowButton
                 width: parent.width
-                // También en los bypass. Ahí la última línea era «no hay
-                // ninguna acción que ofrecer aquí», que es cierto sobre el
-                // portapapeles y un callejón sin salida sobre la pantalla:
-                // quien no entiende por qué su imagen no se toca no tenía
-                // dónde ir a averiguarlo.
-                visible: root.peekEmpty || root.peekBypass
+                // Sólo en el vacío ([`0013`]).
+                //
+                // Estuvo también en los bypass, y por un motivo que ya no
+                // existe: allí la última línea era «no hay ninguna acción que
+                // ofrecer aquí» y quien no entendía por qué su imagen no se
+                // tocaba no tenía dónde averiguarlo. Ahora la pantalla lo dice
+                // en dos líneas —qué tienes y qué no le hacemos—, así que no
+                // queda nada que ir a buscar a un recorrido de tres pasos.
+                //
+                // Y un bypass se ve muchas veces al día —cada captura de
+                // pantalla es uno—, que es justo donde la `0007` no quiere un
+                // botón de aprender el producto. El vacío es lo contrario: se
+                // ve al empezar sesión, es la pantalla de quien acaba de
+                // llegar, y es la única sin ninguna acción de producto posible
+                // —no hay nada que limpiar, ni que omitir— así que aprender es
+                // la única salida honesta que se le puede ofrecer.
+                visible: root.peekEmpty
                 text: Strings.t("empty.how", root.lang)
                 foreground: Color.accent
                 Accessible.description: Strings.t("empty.how.a11y", root.lang)
@@ -974,24 +985,24 @@ Item {
 
               Text {
                 width: parent.width
-                // La nota genérica sobra allí donde hay un botón que ofrece
-                // algo: decía «no hay ninguna acción que ofrecer aquí» justo
-                // debajo de «Ver cómo funciona». Valía para el vacío y, desde
-                // que los bypass también tienen salida, para ellos.
+                // La nota genérica se fue entera. Decía «aquí no hay acción
+                // que ofrecer», que es una frase sobre el panel y no sobre tu
+                // portapapeles: en el vacío iba debajo de un botón que sí
+                // ofrecía una, y en un bypass la pantalla ya dice qué tienes y
+                // qué no le hacemos. Nunca era el momento de decirla.
                 //
-                // Las otras notas se quedan: «ya está limpio», la de la app
+                // Las otras tres se quedan: «ya está limpio», la de la app
                 // bloqueada y la de contenido sensible dicen algo que la
-                // pantalla no dice en ninguna otra parte.
-                visible: !(root.peekGenericNote && emptyHowButton.visible)
+                // pantalla no dice en ninguna otra parte. Y un `feedback`
+                // nunca se calla.
+                visible: !root.peekGenericNote
                 text: root.feedback !== ""
                   ? root.feedback
                   : (root.peekReady
                     ? Strings.t("footnote.safe", root.lang)
                     : (root.peekBlocked
                       ? Strings.t("privacy.blockedState", root.lang)
-                      : (root.peek && root.peek.reason === "sensitive"
-                        ? Strings.t("footnote.sensitive", root.lang)
-                        : Strings.t("footnote.nothing", root.lang))))
+                      : Strings.t("footnote.sensitive", root.lang)))
                 color: root.feedback !== ""
                   ? (root.feedbackError ? Color.urgent : Color.popups.text)
                   : Util.alpha(Color.popups.text, 0.68)

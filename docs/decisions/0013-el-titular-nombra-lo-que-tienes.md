@@ -79,6 +79,44 @@ ya se cumple ahí.
   la mitad que en los demás estados ocupa la previsualización — que es
   exactamente la queja que hizo añadir el dibujo.
 
+## El atajo al recorrido se queda sólo en el vacío
+
+«Ver cómo funciona» vivía en las dos pantallas, y en los bypass estaba por un
+motivo que esta decisión se lleva por delante: allí la última línea era «aquí
+no hay acción que ofrecer» y **quien no entendía por qué su imagen no se tocaba
+no tenía dónde averiguarlo**. Ahora lo dice la propia pantalla en dos líneas.
+
+Y la frecuencia manda en direcciones opuestas:
+
+| | Cuándo se ve | Qué se puede hacer ahí |
+|---|---|---|
+| Bypass | **Muchas veces al día** — cada captura de pantalla es una | Nada, y no hace falta: la pantalla se explica sola |
+| Vacío | Al empezar sesión, antes de copiar nada | Nada tampoco, y ahí sí duele |
+
+Un botón de «aprende el producto» en la pantalla que se abre veinte veces al
+día es exactamente lo que la [`0007`](./0007-la-pantalla-frecuente-informa.md)
+no quiere. El vacío es el caso contrario: es la pantalla de quien acaba de
+llegar ([`0008`](./0008-el-estado-vacio.md)) y la única sin **ninguna** acción
+de producto posible —no hay nada que limpiar, ni que omitir, ni que pegar—, así
+que aprender es la única salida honesta que se le puede ofrecer. Quitársela
+dejaría el carrusel enseñando tres ejemplos sin nada que hacer con ellos.
+
+La ayuda sigue además donde ya estaba: Ajustes → «Ayuda y aprendizaje», a un
+clic del engranaje. La pregunta no era dónde vive, sino si el atajo se gana su
+sitio; se lo gana en una pantalla y no en la otra.
+
+### Y la nota genérica se va entera
+
+Al quitar el botón de los bypass volvía «aquí no hay acción que ofrecer», que
+es el agujero que lo hizo aparecer. Pero esa frase habla **del panel**, no de
+tu portapapeles, y no era cierta en ningún sitio: en el vacío iba debajo de un
+botón que sí ofrecía una acción, y en un bypass la pantalla ya dice qué tienes
+y qué no le hacemos.
+
+Las otras tres notas se quedan —«ya está limpio», la de aplicación bloqueada y
+la de contenido sensible— porque cada una dice algo que no está en ninguna otra
+parte de la pantalla.
+
 ## Consecuencias
 
 - Cinco pares de cadenas cambian en los dos idiomas. `detail.sensitive` se

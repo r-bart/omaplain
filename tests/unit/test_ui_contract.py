@@ -769,15 +769,25 @@ class BypassScreenTests(unittest.TestCase):
         bloque = self._block("TransformationIllustration {")
         self.assertIn("motionEnabled: false", bloque)
 
-    def test_the_way_out_reaches_the_bypass_states(self) -> None:
+    def test_the_way_out_belongs_to_the_empty_screen_only(self) -> None:
+        # Estuvo también en los bypass, cuando allí no había nada que leer.
+        # Con la `0013` la pantalla dice qué tienes y qué no le hacemos, y un
+        # bypass se ve muchas veces al día: es justo donde la `0007` no quiere
+        # un botón de aprender el producto.
         bloque = self._block("id: emptyHowButton")
-        self.assertIn("root.peekEmpty || root.peekBypass", bloque)
+        self.assertIn("visible: root.peekEmpty", bloque)
+        self.assertNotIn("peekBypass", bloque)
 
-    def test_the_generic_note_never_sits_under_a_button_that_offers_one(self) -> None:
-        # «No hay ninguna acción que ofrecer aquí» encima de «Ver cómo
-        # funciona» es sencillamente falso.
+    def test_the_generic_note_is_gone_for_good(self) -> None:
+        # «Aquí no hay acción que ofrecer» es una frase sobre el panel, no
+        # sobre tu portapapeles. Nunca era el momento de decirla: en el vacío
+        # iba debajo de un botón que sí ofrecía una, y en un bypass la pantalla
+        # ya se explica sola.
         panel = self._panel()
-        self.assertIn("visible: !(root.peekGenericNote && emptyHowButton.visible)", panel)
+        self.assertIn("visible: !root.peekGenericNote", panel)
+        self.assertNotIn("footnote.nothing", panel)
+        catalogo = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        self.assertNotIn("footnote.nothing", catalogo)
 
     def test_the_notes_that_inform_are_not_silenced(self) -> None:
         # Sólo se calla la genérica: «ya está limpio», la de aplicación
@@ -786,6 +796,10 @@ class BypassScreenTests(unittest.TestCase):
         bandera = self._block("readonly property bool peekGenericNote:", "\n\n")
         for guardia in ('feedback === ""', "!peekReady", "!peekBlocked", '"sensitive"'):
             self.assertIn(guardia, bandera)
+        panel = self._panel()
+        for clave in ("footnote.safe", "privacy.blockedState", "footnote.sensitive"):
+            with self.subTest(nota=clave):
+                self.assertIn(f'Strings.t("{clave}", root.lang)', panel)
 
     def test_the_carousel_stays_out_of_the_bypass_states(self) -> None:
         # Enseña una limpieza. En una pantalla cuyo veredicto es «esto no se
