@@ -38,7 +38,7 @@ pide, y entonces será su propia decisión.
 ### `A.1` La prueba final y la fusión a `main`
 
 Bloquea todo lo demás. Los siete criterios sin marcar de
-[`PLAN-CIERRE-0.2.0.md`](PLAN-CIERRE-0.2.0.md) dicen «verificado en el panel
+[`PLAN-CIERRE-0.2.0.md`](docs/notes/PLAN-CIERRE-0.2.0.md) dicen «verificado en el panel
 real» y son del usuario. Hasta que estén, `main` no se toca.
 
 Al cerrarlos: fusionar `develop` en `main`, etiquetar `v0.2.0` —que nunca se
@@ -46,11 +46,9 @@ etiquetó— y sólo entonces empezar la 1.0.
 
 ### `A.2` Decidir qué es público y qué son notas de trabajo
 
-La raíz lleva hoy `PLAN.md`, `PLAN-0.2.0.md`, `PLAN-CIERRE-0.2.0.md`,
-`PLAN-1.0.md` y `SPEC.md`; `docs/` lleva diez ficheros más. Para quien llegue
-de fuera, eso es ruido delante de la puerta.
-
-Propuesta:
+La raíz llevaba `PLAN.md`, `PLAN-0.2.0.md`, `PLAN-CIERRE-0.2.0.md`,
+`PLAN-1.0.md` y `SPEC.md`; `docs/` llevaba diez ficheros más. Para quien llegue
+de fuera, eso era ruido delante de la puerta. **Hecho el 1 de septiembre**:
 
 - **Se quedan a la vista**: `README.md`, `CHANGELOG.md`, `LICENSE`,
   `SECURITY.md`, `ATTRIBUTIONS.md`, `docs/decisions/`.
@@ -76,20 +74,24 @@ Recomendación, que necesita su decisión (`0014`):
 
 Es la decisión más discutible del plan y por eso va con su documento.
 
-### `A.4` Integración continua
+### `A.4` Integración continua — **hecho**
 
 `tests/run.sh` ya lo hace todo en un comando, pero su última línea es
 `omarchy plugin validate .`, que necesita Omarchy instalado. En CI se puede
 correr lo demás: **238 unitarias, benchmark y soak**, todo Python puro.
 
-- Un workflow de GitHub Actions con `python3 -m unittest`, `tests/benchmark.py`
-  y `tests/soak.py`.
-- Fijar y declarar la **versión mínima de Python: 3.10** (`dataclass(slots=True)`
-  es lo que la ata). Probar en 3.10 y en la del sistema.
-- El validador y `qmllint` se quedan como paso manual documentado, porque
-  dependen de una instalación de Omarchy.
+`.github/workflows/tests.yml`, en **3.10 y 3.13**. Corre las unitarias, el
+benchmark y el soak, y comprueba el manifiesto y la entrada `.desktop` con los
+mismos criterios que el validador aplica sin necesitar el shell.
 
-### `A.5` Higiene previa a hacerlo público
+Comprobado que la suite pasa en un entorno pelado y que el helper degrada bien
+sin Omarchy delante: `open-windows` devuelve lista vacía en vez de reventar, y
+`check-dependencies` enumera lo que falta.
+
+El validador completo y `qmllint` se quedan como paso manual documentado,
+porque dependen de una instalación de Omarchy.
+
+### `A.5` Higiene previa a hacerlo público — **en marcha**
 
 - Rutas personales y datos: **comprobado hoy, no hay ninguna** (`grep` de
   `/home/rbart` y `rbart` en todo el árbol, sin resultados). Repetir justo
@@ -99,6 +101,17 @@ correr lo demás: **238 unitarias, benchmark y soak**, todo Python puro.
 - `.gitignore` ya cubre lo de Python; añadir lo de las capturas de trabajo.
 
 ---
+
+### `A.6` Lo que apareció al instalarlo desde cero — **hecho**
+
+Clonar el repositorio en limpio y validarlo destapó que **el helper decía
+`0.1.0` durante toda la `0.2.0`**: `__version__` nunca se subió, y sale por
+`check-dependencies` y por `--version`, que son justo las dos superficies que se
+miran cuando algo ya ha ido mal. Corregido, y con un test que ata la versión del
+helper a la del `manifest.json` y ésta al `CHANGELOG`.
+
+La instalación en sí funciona: `plugin add` es clonar, validar y mover, y las
+tres pasan sobre un clon limpio.
 
 ## Fase B — El README
 

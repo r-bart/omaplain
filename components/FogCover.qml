@@ -12,7 +12,7 @@ import "Strings.js" as Strings
 // trazo, no la transparencia.
 //
 // El barrido se guarda como trazos, no como píxeles, porque cada fotograma
-// se repinta entero para que la neblina derive. `docs/SPIKE.md` mide ese
+// se repinta entero para que la neblina derive. `docs/notes/SPIKE.md` mide ese
 // repintado en 1,5 ms, un 4,5 % del presupuesto a 30 fps.
 Canvas {
   id: root

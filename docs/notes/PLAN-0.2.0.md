@@ -111,7 +111,7 @@ invariante documentado del proyecto.
 Las dos opciones llevan a trabajo distinto en la fase E:
 
 **Resuelta el 31 de agosto de 2026** en
-[`0006`](./docs/decisions/0006-orden-del-onboarding.md): bienvenida → tour →
+[`0006`](../decisions/0006-orden-del-onboarding.md): bienvenida → tour →
 **Ajustes con un «Saltar» visible** → pantalla principal. Ajustes se enseña,
 no se impone, y el recorrido termina siempre con el portapapeles real delante.
 
@@ -171,7 +171,7 @@ contra el motor real.
       reserva. Medido en `docs/SPIKE.md`.
 - [x] `D.2` Vista principal: estado, veredicto, subtítulo, dos filas de altura
       fija, desglose y acciones.
-- [x] `D.2a` Separar enseñar de informar ([`0007`](./docs/decisions/0007-la-pantalla-frecuente-informa.md)):
+- [x] `D.2a` Separar enseñar de informar ([`0007`](../decisions/0007-la-pantalla-frecuente-informa.md)):
       `StatusHeader` pierde el titular y la ilustración, que se quedan en
       bienvenida y tour. Verificado en el panel real.
 - [x] `D.3` Cubierta por defecto, con ojo por fila y barrido si `D.1` lo permite.

@@ -135,7 +135,7 @@ Los ficheros de sesión viven en `$XDG_RUNTIME_DIR/omaplain/`: el directorio usa
 - Firefox no estaba instalado en el host de validación; su contrato `text/plain` + `text/html` está cubierto por fixture y por la copia real equivalente de Chromium.
 - El soporte inicial es para el seat predeterminado.
 
-Consulta la [matriz de compatibilidad](docs/COMPATIBILITY.md) y el [informe de pruebas](docs/TEST-REPORT.md) para el detalle.
+Consulta la [matriz de compatibilidad](docs/COMPATIBILITY.md) y el [informe de pruebas](docs/notes/TEST-REPORT.md) para el detalle.
 
 ## Privacidad
 
@@ -149,9 +149,9 @@ Para reportar una vulnerabilidad, sigue [SECURITY.md](SECURITY.md) y no incluyas
 tests/run.sh
 ```
 
-La suite ejecuta tests unitarios y de propiedades, benchmark, soak acelerado de 28.800 eventos y el validador oficial. Las pruebas Wayland que modifican el portapapeles se documentan en [docs/TEST-REPORT.md](docs/TEST-REPORT.md).
+La suite ejecuta tests unitarios y de propiedades, benchmark, soak acelerado de 28.800 eventos y el validador oficial. Las pruebas Wayland que modifican el portapapeles se documentan en [docs/notes/TEST-REPORT.md](docs/notes/TEST-REPORT.md).
 
-Arquitectura y decisiones están desarrolladas en [SPEC.md](SPEC.md), [PLAN.md](PLAN.md) y [docs/decisions](docs/decisions).
+Arquitectura y decisiones están desarrolladas en [SPEC.md](SPEC.md) y [docs/decisions](docs/decisions).
 
 ## Licencia
 

@@ -59,7 +59,7 @@ Valor: prueba la promesa del producto sin pedir confianza ni acceso adicional.
 
 - Animar la apertura habitual del panel o escalonar todos sus controles.
 - Descubrir el contenido al abrir el panel, o dejar el descubrimiento activo entre copias.
-  Mostrarlo dejó de estar prohibido en [`0005`](./decisions/0005-previsualizacion-del-portapapeles.md);
+  Mostrarlo dejó de estar prohibido en [`0005`](../decisions/0005-previsualizacion-del-portapapeles.md);
   enseñarlo sin que nadie lo haya pedido, no.
 - Ofrecer cualquier vía de destapar lo que el sistema marcó como sensible.
 - Añadir partículas, brillos permanentes o una ilustración en bucle.

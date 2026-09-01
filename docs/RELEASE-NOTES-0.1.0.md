@@ -20,4 +20,4 @@ El historial nativo puede mostrar el original y la versión limpia cuando una re
 
 ## Verificación
 
-La release pasa 45 tests unitarios/de propiedades, el validador oficial, un soak acelerado de 28.800 eventos y pruebas reales de reinicio, hot reload, caída forzosa, permisos, red y límites de tamaño. Consulta [TEST-REPORT.md](TEST-REPORT.md).
+La release pasa 45 tests unitarios/de propiedades, el validador oficial, un soak acelerado de 28.800 eventos y pruebas reales de reinicio, hot reload, caída forzosa, permisos, red y límites de tamaño. Consulta [TEST-REPORT.md](notes/TEST-REPORT.md).

@@ -6,7 +6,7 @@ Fecha: 31 de agosto de 2026. Entorno: el baseline de [BASELINE.md](BASELINE.md).
 
 La release local `0.1.0` cumple la puerta técnica del plan. No se publicó código ni se modificó `/usr/share/omarchy/`.
 
-La revisión de los dos catálogos actuales confirmó que `OmaPlain` y `io.github.r-bart.omaplain` están libres. El nombre provisional OmaPaste se descartó al aparecer un gestor de historial comunitario llamado Omapaste; la decisión está en [0003-product-name.md](decisions/0003-product-name.md).
+La revisión de los dos catálogos actuales confirmó que `OmaPlain` y `io.github.r-bart.omaplain` están libres. El nombre provisional OmaPaste se descartó al aparecer un gestor de historial comunitario llamado Omapaste; la decisión está en [0003-product-name.md](../decisions/0003-product-name.md).
 
 ## Suite reproducible
 
@@ -48,7 +48,7 @@ El soak representa ocho horas a un evento por segundo y fuerza 28.800 escrituras
 | 1 MiB | Procesado como `unchanged`; 1 MiB + 1 byte hizo bypass `too_large` |
 | Clipboard vacío | Bypass `empty`, sin error ni escritura |
 
-Los MIME completos están en [COMPATIBILITY.md](COMPATIBILITY.md).
+Los MIME completos están en [COMPATIBILITY.md](../COMPATIBILITY.md).
 
 ## Ciclo de vida
 

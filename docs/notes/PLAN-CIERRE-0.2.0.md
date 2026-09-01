@@ -264,7 +264,7 @@ porque su decisión depende de cuánto haya crecido la página de ajustes.
 `text/plain` no se monta con él, y ni las teclas sintéticas sobre Chromium ni
 chromedriver la produjeron. **GTK4 sí**: un `ContentProvider` de unión deja una
 ventana sirviendo los dos tipos. Con eso el panel lo pintó, y el detalle está
-en [`docs/TEST-REPORT-0.2.0.md`](docs/TEST-REPORT-0.2.0.md).
+en [`docs/TEST-REPORT-0.2.0.md`](TEST-REPORT-0.2.0.md).
 
 ---
 
@@ -333,18 +333,18 @@ cambian lo que verás:
 
 | Qué cambió | Dónde mirar |
 |---|---|
-| La sección «Aplicaciones» entera: un formulario donde había dos, selector de ventanas abiertas y cuatro reglas por app ([`0011`](docs/decisions/0011-una-sola-seccion-de-aplicaciones.md)) | Ajustes, abajo |
-| Los ajustes no se guardaban con el icono en la barra ([`0012`](docs/decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md)) | Cambia idioma, cierra, reabre |
+| La sección «Aplicaciones» entera: un formulario donde había dos, selector de ventanas abiertas y cuatro reglas por app ([`0011`](../decisions/0011-una-sola-seccion-de-aplicaciones.md)) | Ajustes, abajo |
+| Los ajustes no se guardaban con el icono en la barra ([`0012`](../decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md)) | Cambia idioma, cierra, reabre |
 | Anillo de foco en **todos** los controles; antes enfocar apagaba el contorno | Tab por todas las pantallas |
-| El titular de los cinco bypass dice qué tienes copiado ([`0013`](docs/decisions/0013-el-titular-nombra-lo-que-tienes.md)) | Copia una imagen, un archivo, un secreto |
+| El titular de los cinco bypass dice qué tienes copiado ([`0013`](../decisions/0013-el-titular-nombra-lo-que-tienes.md)) | Copia una imagen, un archivo, un secreto |
 | «Ver cómo funciona» sale de los bypass; la nota genérica desaparece | Las mismas pantallas |
 | El botón final del tour dice «Finalizar» cuando ahí termina | Recorrido desde el panel |
 | Sin flechas ni vistos decorando los rótulos | Tour, bienvenida, estado vacío |
-| Icono en la barra y entrada en el lanzador ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)) | La barra y el «Apps menu» |
+| Icono en la barra y entrada en el lanzador ([`0010`](../decisions/0010-como-se-abre-el-panel.md)) | La barra y el «Apps menu» |
 | Y antes, ese mismo día: cabecera, paso 2 del tour, ritmo de los ajustes, dibujo de los bypass, caducidad de la omisión | Todo el panel |
 
 La evidencia de «los diez estados vistos en el panel real» que recoge
-[`docs/TEST-REPORT-0.2.0.md`](docs/TEST-REPORT-0.2.0.md) es **anterior a todo
+[`docs/TEST-REPORT-0.2.0.md`](TEST-REPORT-0.2.0.md) es **anterior a todo
 eso** y ya no vale para nada más que para la historia. La prueba final hay que
 hacerla entera, no por encima.
 

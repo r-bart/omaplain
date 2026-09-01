@@ -1,0 +1,74 @@
+# La suite entera menos el validador, que necesita una instalación de Omarchy
+# y por eso se queda como paso manual documentado en el README.
+#
+# Python 3.10 es el suelo real: `dataclass(slots=True)` en `clipboard.py` es lo
+# que lo ata. Se prueba ahí y en la última, que es lo que la gente tendrá.
+name: tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Unitarias y de propiedades
+        run: python -m unittest discover -s tests/unit -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}/helper
+
+      - name: Benchmark
+        run: tests/benchmark.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}/helper
+
+      - name: Soak acelerado
+        run: tests/soak.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}/helper
+
+  manifiesto:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Los mismos comprobantes que hace `omarchy plugin validate` y que no
+      # necesitan el shell: JSON válido, schemaVersion, campos obligatorios,
+      # id fuera del namespace reservado, y que cada entry point exista.
+      - name: El manifiesto se sostiene solo
+        run: |
+          jq -e . manifest.json > /dev/null
+          jq -e '.schemaVersion == 1' manifest.json > /dev/null
+          for campo in id name version kinds entryPoints; do
+            jq -e --arg f "$campo" 'has($f)' manifest.json > /dev/null
+          done
+          id=$(jq -r .id manifest.json)
+          case "$id" in
+            omarchy.*) echo "id en el namespace reservado: $id" >&2; exit 1 ;;
+          esac
+          for punto in $(jq -r '.entryPoints[]' manifest.json); do
+            test -f "$punto" || { echo "entry point ausente: $punto" >&2; exit 1; }
+          done
+          test ! -L "$(jq -r .entryPoints.panel manifest.json)"
+          echo "manifiesto ok: $id $(jq -r .version manifest.json)"
+
+      - name: La entrada del lanzador es válida
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq desktop-file-utils
+          desktop-file-validate io.github.r-bart.omaplain.desktop

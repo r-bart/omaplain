@@ -1,6 +1,6 @@
 # Matriz de compatibilidad
 
-Matriz observada sobre el baseline descrito en [BASELINE.md](./BASELINE.md). Los MIME se registran como metadatos; ningún contenido real se guarda en estos documentos.
+Matriz observada sobre el baseline descrito en [BASELINE.md](./notes/BASELINE.md). Los MIME se registran como metadatos; ningún contenido real se guarda en estos documentos.
 
 | Origen | Evidencia | MIME relevantes | Decisión v0.1 |
 |---|---|---|---|
@@ -28,7 +28,7 @@ dependen del MIME sino de la aplicación de origen:
 | Portapapeles con `text/html` + `text/plain` | Selección real de una ventana GTK4 que ofrece los dos tipos | Elegible y `rich`; con automático limpia (`rich_text`), con `skipNext` **el panel lo pinta** |
 
 Ese último dejó de estar pendiente: cómo se monta la oferta doble sin
-navegador está en [TEST-REPORT-0.2.0.md](TEST-REPORT-0.2.0.md).
+navegador está en [TEST-REPORT-0.2.0.md](notes/TEST-REPORT-0.2.0.md).
 
 ## MIME observados
 

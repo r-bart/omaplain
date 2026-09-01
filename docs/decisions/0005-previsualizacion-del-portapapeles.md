@@ -2,7 +2,7 @@
 
 - Estado: aceptada
 - Fecha: 31 de agosto de 2026
-- Revierte: el «Evitar» de `UX-OPPORTUNITIES.md` sobre previsualizar contenido
+- Revierte: el «Evitar» de `notes/UX-OPPORTUNITIES.md` sobre previsualizar contenido
 - Afecta: `PLAN.md` F1.11 y F4.5, la definición operativa de terminado, `SECURITY.md`
 
 ## Contexto
@@ -11,7 +11,7 @@ El panel de la `0.1.0` es un formulario de ajustes que *habla* de limpiar. La
 acción primaria, «Limpiar portapapeles ahora», pide confianza sin enseñar nada:
 no puedes saber qué va a cambiar hasta después de que haya cambiado.
 
-El proyecto se prohibió expresamente enseñar el contenido. `UX-OPPORTUNITIES.md`
+El proyecto se prohibió expresamente enseñar el contenido. `notes/UX-OPPORTUNITIES.md`
 lo listaba en «Evitar», `F1.11` obligaba a emitir «únicamente eventos JSON de
 metadatos; ningún contenido», y la definición de terminado exigía que la
 revisión de privacidad no encontrase contenido «en logs, estado, IPC o UI».

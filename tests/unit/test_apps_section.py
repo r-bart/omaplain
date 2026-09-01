@@ -565,3 +565,23 @@ class ElTitularNombraLoQueTienesTests(unittest.TestCase):
         # de tres semanas.
         self.assertIn("## Descartado", texto)
         self.assertIn("ficha", texto)
+
+
+class LaVersionEsUnaSolaTests(unittest.TestCase):
+    """El helper decía `0.1.0` durante toda la 0.2.0.
+
+    Nadie lo vio porque sólo sale por `check-dependencies` y por `--version`,
+    que son las dos superficies que se miran cuando algo ya ha ido mal.
+    """
+
+    def test_el_helper_y_el_manifiesto_dicen_lo_mismo(self) -> None:
+        manifiesto = json.loads((REPO / "manifest.json").read_text(encoding="utf-8"))
+        init = _lee("helper", "omaplain_lib", "__init__.py")
+        declarada = re.search(r'__version__ = "([^"]+)"', init)
+        self.assertIsNotNone(declarada, "el helper no declara versión")
+        self.assertEqual(declarada.group(1), manifiesto["version"])
+
+    def test_el_changelog_tiene_esa_version(self) -> None:
+        manifiesto = json.loads((REPO / "manifest.json").read_text(encoding="utf-8"))
+        changelog = _lee("CHANGELOG.md")
+        self.assertIn(f"## {manifiesto['version']} —", changelog)

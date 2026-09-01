@@ -6,7 +6,7 @@ Fecha: 31 de agosto de 2026. Entorno: el baseline de [BASELINE.md](BASELINE.md).
 
 La `0.2.0` pasa la puerta técnica del plan de cierre. Queda **una prueba final
 en manos del usuario** antes de fusionar y etiquetar; su guion está en
-[`PLAN-CIERRE-0.2.0.md`](../PLAN-CIERRE-0.2.0.md).
+[`PLAN-CIERRE-0.2.0.md`](PLAN-CIERRE-0.2.0.md).
 
 No se ha publicado nada ni se ha modificado `/usr/share/omarchy/`.
 

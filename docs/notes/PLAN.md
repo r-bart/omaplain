@@ -1,6 +1,6 @@
 # OmaPlain — Plan de ejecución
 
-Plan operativo para convertir la [especificación de producto y técnica](./SPEC.md) en un plugin instalable, seguro y publicable para Omarchy.
+Plan operativo para convertir la [especificación de producto y técnica](../../SPEC.md) en un plugin instalable, seguro y publicable para Omarchy.
 
 | Campo | Valor |
 |---|---|
@@ -100,7 +100,7 @@ Objetivo: convertir el aprendizaje del spike en un núcleo determinista, testeab
 - [x] `F1.9` Implementar normalizadores opcionales, apagados por defecto y aislados entre sí.
 - [x] `F1.10` Añadir loop guard, serialización, generaciones monotónicas, cancelación y compare-before-write.
 - [x] `F1.11` Emitir únicamente eventos JSON de metadatos; ningún contenido, URL, título o hash persistente.
-  - Matizado por [`0005`](./docs/decisions/0005-previsualizacion-del-portapapeles.md): el *canal de
+  - Matizado por [`0005`](../decisions/0005-previsualizacion-del-portapapeles.md): el *canal de
     eventos* sigue siendo sólo metadatos. Lo que cambia es que una petición explícita del panel
     (`peek`) puede responder con contenido, que no se persiste en ninguna parte.
 - [x] `F1.12` Cubrir classifier, transforms, configuración, concurrencia e invariantes con tests unitarios.
@@ -171,7 +171,7 @@ Objetivo: demostrar que el plugin soporta aplicaciones reales y sesiones prolong
 - [x] `F4.3` Ampliar las pruebas de URLs firmadas, encoding, parámetros repetidos y fragmentos.
 - [x] `F4.4` Verificar cero sockets y DNS durante watcher y acciones manuales.
 - [x] `F4.5` Auditar stdout, stderr, runtime state, health state, IPC, notificaciones y QML en busca de contenido.
-  - Reformulado por [`0005`](./docs/decisions/0005-previsualizacion-del-portapapeles.md): el panel
+  - Reformulado por [`0005`](../decisions/0005-previsualizacion-del-portapapeles.md): el panel
     puede mostrar contenido, así que la auditoría deja de mirar la UI y el canal de respuesta, y
     pasa a comprobar que el contenido no queda escrito en logs, estado en disco, notificaciones ni
     salidas estándar. La prueba es una muestra con marca reconocible buscada en cada uno.
@@ -268,7 +268,7 @@ Se detiene la ejecución y se solicita una decisión solo si un hallazgo obliga 
 - Las fases 0–5 y los criterios de aceptación del spec están cerrados.
 - La matriz usa copias reales en Chromium, terminal, gestor de archivos y LibreOffice, más fixtures interoperables para Firefox y password manager no instalados.
 - Un soak equivalente de 28.800 eventos no produce loops, procesos huérfanos ni crecimiento no acotado.
-- La revisión de privacidad no encuentra contenido en logs, estado en disco, notificaciones ni salidas estándar. Desde [`0005`](./docs/decisions/0005-previsualizacion-del-portapapeles.md), el panel sí puede mostrarlo y el IPC sí puede transportarlo cuando el panel lo pide.
+- La revisión de privacidad no encuentra contenido en logs, estado en disco, notificaciones ni salidas estándar. Desde [`0005`](../decisions/0005-previsualizacion-del-portapapeles.md), el panel sí puede mostrarlo y el IPC sí puede transportarlo cuando el panel lo pide.
 - Instalar, activar, desactivar y desinstalar deja el sistema en un estado conocido.
 - Las limitaciones del historial y de secretos no marcados están visibles en la documentación.
 
