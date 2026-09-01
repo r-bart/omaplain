@@ -74,5 +74,87 @@ class LaRaizSeLeeDeUnVistazoTests(unittest.TestCase):
                 self.assertIn(nombre, notas)
 
 
+class ElReadmeNoMienteTests(unittest.TestCase):
+    """Las afirmaciones comprobables del README, atadas al código.
+
+    Esta mañana el README describía el modelo de dos listas por aplicación que
+    la `0011` había sustituido el día anterior. Nadie lo vio porque nada lo
+    comprobaba: la prosa no se ejecuta.
+    """
+
+    def setUp(self) -> None:
+        self.readme = (REPO / "README.md").read_text(encoding="utf-8")
+        import sys
+        sys.path.insert(0, str(REPO / "helper"))
+        from omaplain_lib.config import DEFAULTS
+        self.defaults = DEFAULTS
+
+    def test_las_cuatro_reglas_de_serie_son_las_que_vienen_puestas(self) -> None:
+        tabla = self.readme.split("Four rules are on out of the box", 1)[1]
+        tabla = tabla.split("Four more are available", 1)[0]
+        de_serie = ("stripFormatting", "removeTracking", "removeInvisible",
+                    "normalizeLineEndings")
+        for clave in de_serie:
+            with self.subTest(regla=clave):
+                self.assertTrue(self.defaults[clave], f"{clave} ya no viene puesta")
+        # Y las cuatro filas están: una por regla.
+        self.assertEqual(tabla.count("\n|"), len(de_serie) + 2)  # cabecera y separador
+
+    def test_las_cuatro_opcionales_siguen_apagadas(self) -> None:
+        for clave in ("normalizeQuotes", "normalizeLists", "normalizeUnicodeNfc",
+                      "trimTrailingWhitespace"):
+            with self.subTest(regla=clave):
+                self.assertFalse(self.defaults[clave], f"{clave} ya no es opcional")
+        self.assertIn("off by default", self.readme)
+
+    def test_las_cuatro_reglas_por_aplicacion_estan_las_cuatro(self) -> None:
+        # El fallo de esta mañana, en forma de test.
+        for rotulo in ("Never uncover", "Never read",
+                       "Don't clean its copies", "Don't paste clean here"):
+            with self.subTest(regla=rotulo):
+                self.assertIn(rotulo, self.readme)
+        catalogo = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        for rotulo in ("Never uncover", "Never read",
+                       "Don't clean its copies", "Don't paste clean here"):
+            with self.subTest(regla=rotulo, sitio="panel"):
+                self.assertIn(f'"{rotulo}"', catalogo)
+
+    def test_el_limite_de_tamano_es_el_de_verdad(self) -> None:
+        self.assertEqual(self.defaults["maxBytes"], 1024 * 1024)
+        self.assertIn("1 MiB", self.readme)
+
+    def test_las_acciones_que_documenta_existen(self) -> None:
+        cli = (REPO / "helper" / "omaplain_lib" / "cli.py").read_text(encoding="utf-8")
+        acciones = re.findall(r"omarchy-shell omaplain (\w+)", self.readme)
+        self.assertTrue(acciones)
+        for accion in set(acciones):
+            if accion in {"status", "setAutomatic"}:
+                continue  # los sirve el servicio QML, no el CLI del helper
+            with self.subTest(accion=accion):
+                self.assertIn(f'"{accion}"', cli, f"{accion} no existe en el helper")
+
+    def test_las_tres_formas_de_abrirlo_estan_declaradas(self) -> None:
+        import json
+        manifiesto = json.loads((REPO / "manifest.json").read_text(encoding="utf-8"))
+        self.assertIn("bar-widget", manifiesto["kinds"])
+        self.assertIn("panel", manifiesto["kinds"])
+        self.assertTrue((REPO / "io.github.r-bart.omaplain.desktop").is_file())
+        self.assertIn(manifiesto["id"], self.readme)
+
+    def test_no_promete_un_atajo_global(self) -> None:
+        # La promesa que la `0010` protege. Se comprueba sobre el texto sin
+        # saltos de línea, o el README no puede envolver donde le conviene.
+        plano = " ".join(self.readme.split())
+        self.assertIn("never claims a global shortcut", plano)
+        self.assertIn("will not add it for you", plano)
+
+    def test_esta_en_ingles(self) -> None:
+        # Decisión del 1 de septiembre: lo que lee quien llega, en inglés.
+        castellano = (" el ", " la ", " los ", " las ", " que ", " para ", " con ")
+        cuerpo = self.readme.lower()
+        encontradas = [p for p in castellano if p in cuerpo]
+        self.assertEqual(encontradas, [], f"quedan trozos en español: {encontradas}")
+
+
 if __name__ == "__main__":
     unittest.main()

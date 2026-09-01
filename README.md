@@ -1,158 +1,235 @@
 # OmaPlain
 
-OmaPlain limpia texto del portapapeles en Omarchy: retira formato enriquecido, parámetros de seguimiento de URLs completas, finales de línea incompatibles y un conjunto conservador de caracteres invisibles. Archivos, imágenes, secretos marcados y formatos estructurales se dejan intactos.
+**Paste clean text by default. Keep everything else untouched.**
 
-La versión actual es `0.2.0`. Funciona enteramente en local, no tiene telemetría, no abre conexiones de red y no mantiene un historial propio.
+OmaPlain is an [Omarchy](https://omarchy.org) shell plugin. It watches the
+Wayland clipboard and, when what you copied is plain text it can safely rewrite,
+it strips the parts you did not mean to carry: rich formatting, tracking
+parameters, mismatched line endings and a conservative set of invisible
+characters.
 
-## Funciones
+Everything else it leaves exactly as it found it — images, files, password
+manager secrets, structured formats. When in doubt it does nothing, which is the
+only behaviour that is safe to run on every copy you make.
 
-- Limpieza automática de copias elegibles.
-- Acción manual **Limpiar portapapeles ahora**.
-- `pasteClean` para limpiar y pegar en la ventana capturada.
-- Pausa y **Omitir la próxima copia** durante 60 segundos.
-- Reglas independientes para formato, tracking, invisibles, finales de línea, comillas, viñetas, Unicode NFC y espacios finales.
-- Exclusiones exactas por clase de aplicación, tanto de origen como de destino.
-- Panel nativo de Omarchy Shell, operable con teclado y sin previsualizar contenido.
-- Bienvenida de primera ejecución y tour de tres pasos, ambos revisables desde el panel.
-- Bypass fail-open: ante una duda o error, conserva el portapapeles original.
+It runs entirely on your machine. No network, no telemetry, no history of its
+own.
 
-OmaPlain no reemplaza el historial de Omarchy, no sincroniza dispositivos y no procesa la selección primaria de Wayland.
+## What it never does
 
-## Requisitos
+This list matters more than the feature list, so it comes first.
 
-- Omarchy con `omarchy-shell`.
-- `wl-copy` y `wl-paste` de wl-clipboard.
-- `hyprctl`.
-- Python 3, solo biblioteca estándar.
-- `setpriv` de util-linux.
+- **It never touches images, files or structured formats.** For an image it does
+  not even read the clipboard.
+- **It never rewrites a copy your password manager marked as sensitive**, and
+  never shows it on screen.
+- **It keeps no history.** The clipboard history you already have belongs to
+  Omarchy, and OmaPlain neither reads nor extends it.
+- **It never modifies your Hyprland configuration** and never claims a global
+  shortcut. `Super+V` and `Super+Ctrl+V` stay Omarchy's.
+- **It never sends anything anywhere.** No network requests, no analytics.
+- **It never installs packages** and never asks for `sudo`.
 
-El plugin comprueba estas dependencias al arrancar, pero nunca instala paquetes ni ejecuta `sudo`.
+## What it cleans
 
-## Instalar
+Four rules are on out of the box:
 
-Mientras el plugin no esté publicado en el catálogo, se instala desde un clon local:
+| Rule | What it removes |
+|---|---|
+| Rich formatting | Pastes the plain-text representation only |
+| Link tracking | `utm_*` and friends, **only** when the clipboard is one whole URL. Signed links are left alone |
+| Invisible characters | Zero-width and directional marks. Emoji, right-to-left writing and language marks stay |
+| Line endings | `CRLF` and `CR` become `LF`, without dropping the final break |
+
+Four more are available and off by default: straight quotes, list bullets,
+Unicode NFC normalisation, and trailing whitespace.
+
+## Per-application rules
+
+Some applications should be treated differently, and OmaPlain lets you say so
+one application at a time. Pick it from the windows you have open — the class
+Hyprland reports is exactly what the daemon matches against — or type its class,
+then choose any combination of four independent rules:
+
+| | Rule | Effect |
+|---|---|---|
+| **When reading** | Never uncover | The panel shows that something is there, never what it says |
+| | Never read | The daemon does not read the clipboard at all for copies from this app |
+| **When cleaning** | Don't clean its copies | Text copied there passes through untouched |
+| | Don't paste clean here | *Paste clean* does nothing in this window |
+
+The four are independent on purpose: an app whose text should not be rewritten
+is not necessarily an app whose text should not be seen.
+
+**How far the promise reaches.** Wayland does not say who copied. The daemon
+infers it from the focused window at the moment of the event, so this is a good
+filter and not a security barrier — and the panel says so in those words. What
+your system marks as sensitive is covered by a separate path that does not
+depend on attribution at all.
+
+## Requirements
+
+- Omarchy with `omarchy-shell` (developed against **4.0.0.alpha**)
+- `wl-copy` and `wl-paste` from wl-clipboard
+- `hyprctl`
+- Python **3.10+**, standard library only
+- `setpriv` from util-linux
+
+The plugin checks these at startup. It never installs anything.
+
+## Install
 
 ```sh
-git clone https://github.com/r-bart/omaplain.git
-omarchy plugin add ./omaplain --enable --yes
+omarchy plugin add https://github.com/r-bart/omaplain.git --enable
 ```
 
-## Abrir el panel
+Plugins run as unsandboxed code inside your long-lived shell process. Read the
+source before you enable it — that advice is Omarchy's, and it is good advice.
 
-Tres formas, y ninguna se activa sola ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)):
-
-**Icono en la barra.** El plugin declara un widget de barra; colocarlo es cosa
-tuya, en `bar.layout` de `~/.config/omarchy/shell.json`:
-
-```json
-{ "id": "io.github.r-bart.omaplain" }
-```
-
-Un clic izquierdo abre y cierra el panel. El derecho no hace nada a propósito.
-
-**Desde el lanzador.** El «Apps menu» de Omarchy enumera entradas `.desktop`.
-La nuestra no se instala sola, porque el plugin no vive en `XDG_DATA_DIRS`:
+To also get it in the application launcher, copy the desktop entry. It is not
+installed for you, because a clipboard plugin that writes into your application
+directories without saying so is doing the thing this project promises not to
+do:
 
 ```sh
 cp io.github.r-bart.omaplain.desktop ~/.local/share/applications/
 ```
 
-**Desde la terminal**, que es lo que las otras dos llaman por debajo:
+## Opening the panel
+
+Three ways, and none of them turns itself on
+([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)):
+
+**The bar icon.** The plugin declares a bar widget; placing it is yours to do,
+in `bar.layout` in `~/.config/omarchy/shell.json`:
+
+```json
+{ "id": "io.github.r-bart.omaplain" }
+```
+
+Left click opens and closes it. Right click deliberately does nothing.
+
+**The launcher.** Omarchy's Apps menu lists `.desktop` entries, so once you have
+copied ours it is there under *OmaPlain*.
+
+**The terminal**, which is what the other two call underneath:
 
 ```sh
 omarchy-shell shell toggle io.github.r-bart.omaplain
 ```
 
-OmaPlain no añade ningún atajo global ni modifica la configuración de Hyprland.
-Si quieres uno, lo pones tú.
+If you want a global shortcut, add one to your own Hyprland config. OmaPlain
+will not add it for you.
 
-Al desarrollar, después de tocar cualquier `.qml` hay que reiniciar el shell:
+## The panel
+
+The everyday screen shows what is on your clipboard and what OmaPlain would do
+with it — before it does it. Both rows arrive covered; an eye reveals them, and
+every new copy comes back covered.
+
+When there is nothing to preview, the screen says what you have instead: *an
+image on your clipboard*, *files on your clipboard*, *a secret on your
+clipboard*, and one line on why it is left alone.
+
+The whole panel is keyboard operable, and a first run walks through a welcome, a
+three-step tour and the settings, all of which can be replayed later from
+*Help and learning*.
+
+Language follows your system locale, and can be forced to English or Spanish.
+
+## Actions
 
 ```sh
-omarchy restart shell
-```
-
-`omarchy-shell shell rescanPlugins` no basta. Vuelve a leer el registro de
-plugins, pero Qt conserva el QML ya compilado para esa URL, así que el panel
-sigue mostrando la versión anterior sin dar ningún error.
-
-Comprobar el servicio:
-
-```sh
-omarchy-shell omaplain ping
+omarchy-shell omaplain cleanNow        # clean what is on the clipboard now
+omarchy-shell omaplain pasteClean      # clean, then paste into the focused window
+omarchy-shell omaplain skipNext        # leave the next copy alone for 60 s
+omarchy-shell omaplain setAutomatic false
+omarchy-shell omaplain reload
 omarchy-shell omaplain status
 ```
 
-Desactivar, reactivar o retirar:
+Actions are asynchronous: the call returns `accepted`, and the sanitised result
+shows up in the panel and in `status`. **No response ever contains copied
+text.**
 
-```sh
-omarchy plugin disable io.github.r-bart.omaplain
-omarchy plugin enable io.github.r-bart.omaplain
-omarchy plugin remove io.github.r-bart.omaplain --yes
-```
+A global shortcut of your own can call `pasteClean`.
 
-La desinstalación no borra el historial nativo ni instala/desinstala paquetes.
+## How it stays safe
 
-## Acciones IPC
-
-```sh
-omarchy-shell omaplain cleanNow
-omarchy-shell omaplain pasteClean
-omarchy-shell omaplain skipNext
-omarchy-shell omaplain setAutomatic false
-omarchy-shell omaplain setAutomatic true
-omarchy-shell omaplain reload
-```
-
-Las acciones son asíncronas: la invocación devuelve `accepted` y el resultado sanitizado aparece en el panel y en `status`. Ninguna respuesta contiene texto copiado.
-
-Un atajo global opcional puede invocar `omarchy-shell omaplain pasteClean`. OmaPlain no modifica la configuración de Hyprland y evita apropiarse de los atajos nativos `Super+V` y `Super+Ctrl+V`.
-
-## Comportamiento seguro
-
-El flujo es deliberadamente conservador:
+The flow is deliberately conservative:
 
 ```text
-evento Wayland
-  → clasificar estado y MIME
-  → bypass si es sensible, imagen, archivo o estructura
-  → leer como máximo 1 MiB de text/plain
-  → transformar y validar invariantes
-  → comprobar que el portapapeles no ha cambiado
-  → como máximo una reescritura text/plain UTF-8
+Wayland event
+  → classify state and MIME types
+  → bypass if sensitive, image, file or structured
+  → read at most 1 MiB of text/plain
+  → transform and check invariants
+  → verify the clipboard has not changed underneath
+  → at most one text/plain UTF-8 rewrite
 ```
 
-El daemon serializa eventos, usa generaciones monotónicas, compara antes de escribir y reconoce su propia reescritura mediante un hash efímero en memoria. Quickshell solo supervisa el proceso y nunca recibe el contenido.
+The daemon serialises events, uses monotonic generations, compares before
+writing, and recognises its own rewrite through an in-memory hash that never
+touches disk. Quickshell only supervises the process; it never receives the
+content.
 
-Los ficheros de sesión viven en `$XDG_RUNTIME_DIR/omaplain/`: el directorio usa permisos `0700`, y configuración, estado y socket usan `0600`. El texto copiado no se persiste en ellos.
+Session files live in `$XDG_RUNTIME_DIR/omaplain/` with `0700` on the directory
+and `0600` on the config, state and socket. Copied text is not persisted in any
+of them.
 
-## Limitaciones conocidas
+## Known limits
 
-- Cuando una transformación cambia caracteres, el historial nativo puede conservar tanto el original como el resultado limpio. Desactiva tracking/invisibles o usa `pasteClean` si prefieres una acción explícita.
-- Una contraseña copiada sin `CLIPBOARD_STATE=sensitive` ni un MIME de password manager es indistinguible de texto normal. Excluye la aplicación si no marca sus secretos.
-- La atribución de aplicación de origen es best effort en Wayland. MIME y sensibilidad, no la clase, son las barreras de seguridad.
-- LibreOffice anuncia formatos estructurales incluso junto a texto normal; `0.1.0` hace bypass conservador.
-- Firefox no estaba instalado en el host de validación; su contrato `text/plain` + `text/html` está cubierto por fixture y por la copia real equivalente de Chromium.
-- El soporte inicial es para el seat predeterminado.
+- When a transformation changes characters, **Omarchy's own history may keep
+  both versions** until you clear it. Turn off tracking/invisible removal, or
+  use `pasteClean`, if you want an explicit action instead.
+- A password copied without `CLIPBOARD_STATE=sensitive` and without a password
+  manager MIME type is indistinguishable from ordinary text. Give that
+  application a *never read* rule if it does not mark its secrets.
+- Source attribution is best effort on Wayland (see above). MIME types and the
+  sensitivity flag are the safety gates; the application class is not.
+- LibreOffice announces structured formats even alongside ordinary text, so it
+  is bypassed conservatively.
+- The primary selection is not processed, and devices are never synchronised.
+- Initial support targets the default seat.
 
-Consulta la [matriz de compatibilidad](docs/COMPATIBILITY.md) y el [informe de pruebas](docs/notes/TEST-REPORT.md) para el detalle.
+The [compatibility matrix](docs/COMPATIBILITY.md) has the per-application
+detail.
 
-## Privacidad
+## Privacy
 
-OmaPlain no realiza peticiones de red, no tiene analytics y no guarda contenido. El gestor de portapapeles incluido en Omarchy puede conservar texto en su historial, igual que antes de instalar este plugin. Esa persistencia pertenece a Omarchy.
+No network requests, no analytics, nothing stored. Omarchy's own clipboard
+manager may keep text in its history exactly as it did before you installed
+this, and that persistence belongs to Omarchy.
 
-Para reportar una vulnerabilidad, sigue [SECURITY.md](SECURITY.md) y no incluyas contenido real del portapapeles en el informe.
+To report a vulnerability, follow [SECURITY.md](SECURITY.md) — and please do not
+put real clipboard content in the report.
 
-## Desarrollo y pruebas
+## Development
 
 ```sh
 tests/run.sh
 ```
 
-La suite ejecuta tests unitarios y de propiedades, benchmark, soak acelerado de 28.800 eventos y el validador oficial. Las pruebas Wayland que modifican el portapapeles se documentan en [docs/notes/TEST-REPORT.md](docs/notes/TEST-REPORT.md).
+Unit and property tests, a benchmark, an accelerated soak of 28,800 events, and
+Omarchy's own plugin validator. The validator and `qmllint` need Omarchy
+installed; everything else runs anywhere and runs in CI.
 
-Arquitectura y decisiones están desarrolladas en [SPEC.md](SPEC.md) y [docs/decisions](docs/decisions).
+After editing any `.qml`, restart the shell:
 
-## Licencia
+```sh
+omarchy restart shell
+```
 
-Código bajo [GPL-3.0-or-later](LICENSE). Las tablas de reglas creadas para el proyecto se ofrecen bajo CC0-1.0; consulta [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+`omarchy-shell shell rescanPlugins` is not enough. It re-reads the plugin
+registry, but Qt keeps the QML it already compiled for that URL, so the panel
+keeps showing the previous version **without reporting any error**.
+
+Architecture lives in [SPEC.md](SPEC.md). Every product and design decision is
+written down and argued in [docs/decisions](docs/decisions) — read those before
+proposing a change; several of them exist to record what was deliberately
+rejected and why.
+
+## Licence
+
+Code under [GPL-3.0-or-later](LICENSE). The rule tables written for this project
+are offered under CC0-1.0; see [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
