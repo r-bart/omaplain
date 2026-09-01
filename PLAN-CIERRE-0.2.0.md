@@ -290,7 +290,7 @@ en [`docs/TEST-REPORT-0.2.0.md`](docs/TEST-REPORT-0.2.0.md).
       `blocked` y su respuesta no contiene ni contenido ni tipos.
 - [ ] Con la app en `alwaysCovered`, el panel abre con las dos filas cubiertas;
       tras levantar el ojo y copiar otra vez, vuelven a estar cubiertas.
-- [ ] `tests/run.sh` en verde.
+- [x] `tests/run.sh` en verde.
 
 ### Fase 2 — `F`
 
@@ -307,18 +307,32 @@ en [`docs/TEST-REPORT-0.2.0.md`](docs/TEST-REPORT-0.2.0.md).
       **visto en el panel** (con `skipNext` armado, para que llegue intacto).
 - [ ] Auditoría de privacidad: la muestra marcada no aparece en stdout, stderr,
       `status.json` ni ningún fichero de runtime.
-- [ ] `omarchy plugin validate .` en verde.
-- [ ] `CHANGELOG.md` sin sección «Sin publicar».
-- [ ] `docs/RELEASE-NOTES-0.2.0.md` con la advertencia de pantalla compartida.
+- [x] `omarchy plugin validate .` en verde.
+- [x] `CHANGELOG.md` sin sección «Sin publicar».
+- [x] `docs/RELEASE-NOTES-0.2.0.md` con la advertencia de pantalla compartida.
 
 ### Global
 
-- [ ] `tests/run.sh` completo en verde (unitarias, benchmark, soak, validador).
-- [ ] Sin `TODO`, `FIXME` ni `HACK` en el código nuevo.
-- [ ] El journal del shell, limpio tras reiniciar y abrir el panel.
-- [ ] `develop` empujado; `main` **sin tocar**.
+- [x] `tests/run.sh` completo en verde (unitarias, benchmark, soak, validador).
+- [x] Sin `TODO`, `FIXME` ni `HACK` en el código nuevo.
+- [x] El journal del shell, limpio tras reiniciar y abrir el panel.
+- [x] `develop` empujado; `main` **sin tocar**.
 
 ---
+
+### Qué falta, y de quién es
+
+Marcadas quedan las que tienen evidencia reproducible: la suite, el validador,
+el journal, el estado del repositorio y los documentos. Las que siguen sin
+marcar dicen «verificado **en el panel real**», y ésas son tuyas: son
+exactamente el contenido de la prueba final, y marcarlas yo sería firmar por ti.
+
+Aviso importante para esa prueba: la sesión del 1 de septiembre rehízo la
+cabecera, el paso 2 del tour, la página de ajustes y la pantalla de los estados
+de bypass, y arregló la caducidad de la omisión en el demonio. La evidencia de
+«los diez estados vistos en el panel real» que recoge
+[`docs/TEST-REPORT-0.2.0.md`](docs/TEST-REPORT-0.2.0.md) es **anterior** a todo
+eso; ese informe lo dice de sí mismo en su segunda pasada.
 
 ## La prueba final
 

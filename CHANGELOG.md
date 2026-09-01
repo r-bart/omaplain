@@ -48,6 +48,17 @@ nueve controles no se veían por un import que faltaba.
 - Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
   que vienen puestos se quedan a la vista.
 - Copy revisado de arriba abajo, en los dos idiomas.
+- **Los estados que no se tocan dejan de ser una pantalla en blanco.** Con
+  una imagen, un archivo, algo sensible, algo demasiado grande o una
+  aplicación bloqueada, el panel no tiene portapapeles que enseñar —de una
+  imagen no se lee ni un byte—, así que la mitad que en los demás estados
+  ocupa la previsualización se quedaba vacía, con el veredicto flotando y
+  debajo «no hay ninguna acción que ofrecer aquí». Esa pantalla llegó a
+  confundirse con el estado vacío. Ahora lleva el dibujo de *Imágenes /
+  Archivos / Secretos*, que es lo que ese veredicto afirma, y la salida al
+  tour. La nota genérica se calla cuando aparece esa salida, porque decir
+  que no hay nada que ofrecer encima de un botón que ofrece algo es falso
+  ([enmienda de la `0007`](docs/decisions/0007-la-pantalla-frecuente-informa.md)).
 - **Los ajustes vuelven a leerse como secciones.** Los encabezados eran
   `Text` sueltos en una columna de espaciado uniforme, así que recibían el
   mismo aire por los dos lados —21 px arriba y 24 abajo, medidos, y esos dos

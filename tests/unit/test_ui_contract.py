@@ -409,23 +409,39 @@ class UiContractTests(unittest.TestCase):
     def test_the_illustration_stays_in_the_first_experience(self) -> None:
         # Ensena la transformacion en abstracto: util una vez, decorativo
         # despues. Solo la bienvenida y el tour tienen esa excusa.
+        #
+        # Y el panel, desde la enmienda de la 0007, en los estados que no
+        # pueden enseñar el portapapeles. Allí el motivo original —que el
+        # contenido es mejor profesor que un dibujo— no llega, porque de una
+        # imagen no se lee ni un byte. El guarda de abajo comprueba con qué
+        # condición y con qué variante entra.
         files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
         users = sorted(
             p.name for p in files
             if "TransformationIllustration {" in p.read_text(encoding="utf-8")
         )
-        self.assertEqual(users, ["TourPage.qml", "WelcomePage.qml"])
+        self.assertEqual(users, ["Panel.qml", "TourPage.qml", "WelcomePage.qml"])
 
     def test_what_teaches_on_the_everyday_screen_is_gated_to_the_empty_state(self) -> None:
         # 0007 admite enseñar cuando no hay nada que informar, y 0008 puso
         # ahí el carrusel. La excepción es esa condición, no ese componente:
         # el guarda comprueba que todo lo que enseñe en el panel esté atado
         # al portapapeles vacío.
+        #
+        # La enmienda de la 0007 añade una segunda condición y sólo una: los
+        # estados de bypass, que tampoco tienen nada que informar porque no
+        # pueden leer el portapapeles. Sigue sin haber una tercera, y el
+        # carrusel sigue atado al vacío: enseña una limpieza, y en una
+        # pantalla cuyo veredicto es «esto no se toca» la contradiría.
         panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
-        for name in ("TransformationIllustration", "EmptyCarousel"):
+        permitido = {
+            "TransformationIllustration": "visible: root.peekBypass",
+            "EmptyCarousel": "visible: root.peekEmpty",
+        }
+        for name, condicion in permitido.items():
             for block in re.finditer(name + r" \{(?P<body>.*?)\n\s{14}\}", panel, re.DOTALL):
                 with self.subTest(component=name):
-                    self.assertIn("visible: root.peekEmpty", block.group("body"))
+                    self.assertIn(condicion, block.group("body"))
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
         # La etiqueta larga desbordaba el padding del botón. Vive ahora en
@@ -721,3 +737,67 @@ class SettingsHarmonyTests(unittest.TestCase):
             bloque = panel.split(clave, 1)[1].split("}", 1)[0]
             with self.subTest(text=clave):
                 self.assertIn("0.72", bloque)
+
+
+class BypassScreenTests(unittest.TestCase):
+    """El dibujo de los estados que no pueden enseñar el portapapeles.
+
+    Enmienda de la `0007`: la regla «ni titular ni ilustración» se mantiene
+    donde hay portapapeles que enseñar y se levanta donde no lo hay.
+    """
+
+    def _panel(self) -> str:
+        return (REPO / "Panel.qml").read_text(encoding="utf-8")
+
+    def _block(self, needle: str, end: str = "\n              }") -> str:
+        panel = self._panel()
+        return panel.split(needle, 1)[1].split(end, 1)[0]
+
+    def test_the_bypass_states_are_one_flag(self) -> None:
+        panel = self._panel()
+        self.assertIn("readonly property bool peekBypass:", panel)
+        # Vacío no es bypass: tiene su carrusel y su propia pantalla.
+        bandera = self._block("readonly property bool peekBypass:", "\n\n")
+        self.assertIn('!== "empty"', bandera)
+
+    def test_only_the_bypass_states_get_the_drawing(self) -> None:
+        bloque = self._block("TransformationIllustration {")
+        self.assertIn("visible: root.peekBypass", bloque)
+        self.assertIn('variant: "protect"', bloque)
+
+    def test_the_drawing_never_moves_on_the_everyday_screen(self) -> None:
+        # Se abre muchas veces al día. Una animación de entrada en cada
+        # apertura es lo que no se le hace a un gesto frecuente.
+        bloque = self._block("TransformationIllustration {")
+        self.assertIn("motionEnabled: false", bloque)
+
+    def test_the_way_out_reaches_the_bypass_states(self) -> None:
+        bloque = self._block("id: emptyHowButton")
+        self.assertIn("root.peekEmpty || root.peekBypass", bloque)
+
+    def test_the_generic_note_never_sits_under_a_button_that_offers_one(self) -> None:
+        # «No hay ninguna acción que ofrecer aquí» encima de «Ver cómo
+        # funciona» es sencillamente falso.
+        panel = self._panel()
+        self.assertIn("visible: !(root.peekGenericNote && emptyHowButton.visible)", panel)
+
+    def test_the_notes_that_inform_are_not_silenced(self) -> None:
+        # Sólo se calla la genérica: «ya está limpio», la de aplicación
+        # bloqueada y la de contenido sensible dicen algo que no está en
+        # ninguna otra parte de la pantalla. Y un `feedback` nunca se calla.
+        bandera = self._block("readonly property bool peekGenericNote:", "\n\n")
+        for guardia in ('feedback === ""', "!peekReady", "!peekBlocked", '"sensitive"'):
+            self.assertIn(guardia, bandera)
+
+    def test_the_carousel_stays_out_of_the_bypass_states(self) -> None:
+        # Enseña una limpieza. En una pantalla cuyo veredicto es «esto no se
+        # toca» contradiría el veredicto.
+        bloque = self._block("EmptyCarousel {")
+        self.assertIn("visible: root.peekEmpty", bloque)
+        self.assertNotIn("peekBypass", bloque)
+
+    def test_the_amendment_is_written_down(self) -> None:
+        texto = (REPO / "docs" / "decisions"
+                 / "0007-la-pantalla-frecuente-informa.md").read_text(encoding="utf-8")
+        self.assertIn("## Enmienda", texto)
+        self.assertIn("bypass", texto.lower())

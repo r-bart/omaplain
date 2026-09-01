@@ -90,3 +90,47 @@ frecuente sigue sin enseñar nada.
   historia sobre el pasado en una pantalla cuyo trabajo es el presente.
 - **Dejar el héroe donde estaba.** Es la opción de no hacer nada, y equivale a
   seguir incumpliendo la `0004`.
+
+## Enmienda — 1 de septiembre de 2026
+
+**Los estados de bypass llevan dibujo.** La regla de arriba —«ni titular
+educativo ni ilustración»— se mantiene en todas las pantallas que enseñan el
+portapapeles, y se levanta en las que no pueden enseñarlo.
+
+El motivo de la decisión original es que *el producto se explica solo enseñando
+lo que va a hacer con tu contenido, que es mejor profesor que un dibujo*. Ese
+motivo no llega a un bypass: de una imagen no se lee ni un byte, y de una
+aplicación bloqueada no se enseña ni la lista de tipos. Ahí no hay contenido que
+haga de profesor, así que la mitad de la pantalla que en los demás estados ocupa
+la previsualización se quedaba en blanco, con el veredicto flotando encima y
+debajo una frase que decía que no había nada que hacer.
+
+No era una hipótesis: la pantalla del estado «imagen» se confundió con la del
+estado vacío, y quien la confundió había escrito las dos.
+
+### Qué entra, y qué no
+
+- **Entra** el dibujo de la variante «protege», que es el de *Imágenes /
+  Archivos / Secretos* con su marca de visto. Dibuja exactamente lo que ese
+  veredicto afirma.
+- **Entra** la salida al tour. La última línea era «no hay ninguna acción que
+  ofrecer aquí»: cierto sobre el portapapeles, callejón sin salida sobre la
+  pantalla. Quien no entiende por qué su imagen no se toca ahora tiene dónde
+  averiguarlo.
+- **Sale** esa nota genérica cuando aparece esa salida, porque decir «no hay
+  ninguna acción que ofrecer» justo encima de un botón que ofrece una es
+  falso. Las notas que sí informan —«ya está limpio», la de aplicación
+  bloqueada y la de contenido sensible— se quedan.
+- **No entra** ningún titular educativo, ni la ilustración de transformación,
+  ni el carrusel de ejemplos. El carrusel enseña una limpieza, y ponerlo en una
+  pantalla cuyo veredicto es «esto no se toca» contradiría el veredicto.
+
+### Qué no cambia
+
+El dibujo va **quieto**. Esta pantalla se abre muchas veces al día y una
+animación de entrada en cada apertura es lo que no se le hace a un gesto
+frecuente, así que se pinta en su estado final sin recorrido, con
+independencia del ajuste de movimiento.
+
+Las pantallas que sí enseñan el portapapeles —«ya está limpio» y «esto se puede
+limpiar»— siguen sin dibujo, exactamente como decidió la `0007`.

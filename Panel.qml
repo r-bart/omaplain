@@ -133,6 +133,20 @@ Item {
   readonly property bool peekReady: peek && peek.eligible === true
   readonly property bool peekChanges: peekReady && peek.changed === true
   // 0009: llega de una app de la lista «no destapar nunca».
+  // Todo lo que se deja como está y no es un portapapeles vacío: imagen,
+  // archivos, sensible, demasiado grande, formato estructural, app
+  // bloqueada. Lo que tienen en común es que la pantalla no puede enseñar
+  // el portapapeles —de una imagen no se lee ni un byte—, así que se queda
+  // sin la mitad que en los demás estados ocupa la previsualización.
+  readonly property bool peekBypass: peek && peek.eligible !== true
+    && String(peek.reason || "") !== "empty"
+
+  // La nota de pie cae en la genérica —«no hay ninguna acción que ofrecer
+  // aquí»— cuando no es un `feedback`, ni «ya está limpio», ni bloqueada, ni
+  // sensible. Ésa es la única que no dice nada que la pantalla no diga ya.
+  readonly property bool peekGenericNote: feedback === "" && !peekReady
+    && !peekBlocked && !(peek && peek.reason === "sensitive")
+
   readonly property bool peekCovered: peek && peek.cover === true
   readonly property bool peekBlocked: peek && String(peek.reason || "") === "source_blocked"
 
@@ -760,6 +774,33 @@ Item {
                 typesAfter: root.peekTypesAfter
               }
 
+              // Un bypass no tiene portapapeles que enseñar, así que la
+              // mitad de la pantalla que en los demás estados ocupa la
+              // previsualización se quedaba vacía: el veredicto flotando y
+              // debajo una frase que decía que no había nada que hacer. Esa
+              // pantalla llegó a confundirse con el estado vacío.
+              //
+              // La 0007 dice «ni titular educativo ni ilustración» en la
+              // pantalla frecuente, y su motivo es que el producto se explica
+              // solo enseñando lo que hará con tu contenido. Aquí no hay
+              // contenido que enseñar, así que ese motivo no llega. El dibujo
+              // no es de marca ni se repite del onboarding: es «protege»,
+              // que dibuja exactamente lo que este veredicto afirma. La
+              // enmienda está en la propia 0007.
+              //
+              // Quieto, siempre. Esta pantalla se abre muchas veces al día y
+              // una animación de entrada en cada apertura es justo lo que no
+              // se le hace a un gesto frecuente; `motionEnabled: false` la
+              // pinta en su estado final y sin recorrido.
+              TransformationIllustration {
+                lang: root.lang
+                width: parent.width
+                height: Style.space(160)
+                variant: "protect"
+                visible: root.peekBypass
+                motionEnabled: false
+              }
+
               // De un bypass no se enseña contenido, pero sí de qué está
               // hecho: es lo que permite entender por qué no se toca.
               MimeChips {
@@ -874,7 +915,12 @@ Item {
               Button {
                 id: emptyHowButton
                 width: parent.width
-                visible: root.peekEmpty
+                // También en los bypass. Ahí la última línea era «no hay
+                // ninguna acción que ofrecer aquí», que es cierto sobre el
+                // portapapeles y un callejón sin salida sobre la pantalla:
+                // quien no entiende por qué su imagen no se toca no tenía
+                // dónde ir a averiguarlo.
+                visible: root.peekEmpty || root.peekBypass
                 implicitHeight: Style.space(44)
                 text: Strings.t("empty.how", root.lang)
                 iconText: "→"
@@ -891,9 +937,15 @@ Item {
 
               Text {
                 width: parent.width
-                // En el vacío la nota sobra: decía «no hay acción que
-                // ofrecer» justo debajo del botón que ofrece una.
-                visible: !root.peekEmpty || root.feedback !== ""
+                // La nota genérica sobra allí donde hay un botón que ofrece
+                // algo: decía «no hay ninguna acción que ofrecer aquí» justo
+                // debajo de «Ver cómo funciona». Valía para el vacío y, desde
+                // que los bypass también tienen salida, para ellos.
+                //
+                // Las otras notas se quedan: «ya está limpio», la de la app
+                // bloqueada y la de contenido sensible dicen algo que la
+                // pantalla no dice en ninguna otra parte.
+                visible: !(root.peekGenericNote && emptyHowButton.visible)
                 text: root.feedback !== ""
                   ? root.feedback
                   : (root.peekReady

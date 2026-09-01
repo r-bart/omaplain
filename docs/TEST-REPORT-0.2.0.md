@@ -18,7 +18,7 @@ tests/run.sh
 
 | Prueba | Resultado |
 |---|---|
-| Unitarias y propiedades | 165 tests, 0 fallos |
+| Unitarias y propiedades | 173 tests, 0 fallos |
 | Transformación 10 KiB | p50 0,015 ms; p95 0,016 ms |
 | Transformación 100 KiB | p50 0,123 ms; p95 0,129 ms |
 | Transformación 1 MiB | p50 1,880 ms; p95 3,101 ms |
