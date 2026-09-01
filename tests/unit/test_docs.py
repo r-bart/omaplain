@@ -148,6 +148,33 @@ class ElReadmeNoMienteTests(unittest.TestCase):
         self.assertIn("never claims a global shortcut", plano)
         self.assertIn("will not add it for you", plano)
 
+    def test_las_capturas_existen_y_llevan_texto_alternativo(self) -> None:
+        # Un plugin con interfaz sin una sola captura no se puede evaluar. Y
+        # una captura sin `alt` no la lee quien no ve.
+        imagenes = re.findall(r"!\[([^\]]*)\]\(([^)]+)\)", self.readme)
+        self.assertGreaterEqual(len(imagenes), 3, "faltan capturas")
+        for alt, ruta in imagenes:
+            with self.subTest(imagen=ruta):
+                self.assertTrue((REPO / ruta).is_file(), f"{ruta} no existe")
+                self.assertGreater(len(alt.split()), 5, "el alt no describe nada")
+
+    def test_se_puede_instalar_antes_de_leerselo_entero(self) -> None:
+        # La estructura: quien viene a instalarlo no debería recorrer la mitad
+        # del documento. Install va en los tres primeros títulos.
+        titulos = re.findall(r"^## (.+)$", self.readme, re.MULTILINE)
+        self.assertIn("Install", titulos)
+        self.assertLessEqual(titulos.index("Install"), 2)
+
+    def test_la_promesa_se_lee_antes_que_nada(self) -> None:
+        # Comprimida en la entrada, y desarrollada más abajo con su captura.
+        entrada = self.readme.split("## Install", 1)[0]
+        plano = " ".join(entrada.split())
+        for promesa in ("never touches images", "keeps no history",
+                        "no network requests", "never claims a global shortcut"):
+            with self.subTest(promesa=promesa):
+                self.assertIn(promesa, plano)
+        self.assertIn("## What it never does", self.readme)
+
     def test_esta_en_ingles(self) -> None:
         # Decisión del 1 de septiembre: lo que lee quien llega, en inglés.
         castellano = (" el ", " la ", " los ", " las ", " que ", " para ", " con ")
