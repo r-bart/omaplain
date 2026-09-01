@@ -8,11 +8,18 @@
   "description": "Paste clean text by default while preserving files, images and secrets.",
   "kinds": [
     "service",
-    "panel"
+    "panel",
+    "bar-widget"
   ],
   "entryPoints": {
     "service": "Service.qml",
-    "panel": "Panel.qml"
+    "panel": "Panel.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "OmaPlain",
+    "description": "Opens the OmaPlain clipboard panel",
+    "category": "Utilities",
+    "allowMultiple": false
   }
 }
-

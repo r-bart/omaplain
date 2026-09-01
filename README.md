@@ -37,11 +37,34 @@ git clone https://github.com/r-bart/omaplain.git
 omarchy plugin add ./omaplain --enable --yes
 ```
 
-Abrir el panel:
+## Abrir el panel
+
+Tres formas, y ninguna se activa sola ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)):
+
+**Icono en la barra.** El plugin declara un widget de barra; colocarlo es cosa
+tuya, en `bar.layout` de `~/.config/omarchy/shell.json`:
+
+```json
+{ "id": "io.github.r-bart.omaplain" }
+```
+
+Un clic izquierdo abre y cierra el panel. El derecho no hace nada a propósito.
+
+**Desde el lanzador.** El «Apps menu» de Omarchy enumera entradas `.desktop`.
+La nuestra no se instala sola, porque el plugin no vive en `XDG_DATA_DIRS`:
 
 ```sh
-omarchy-shell shell summon io.github.r-bart.omaplain '{}'
+cp io.github.r-bart.omaplain.desktop ~/.local/share/applications/
 ```
+
+**Desde la terminal**, que es lo que las otras dos llaman por debajo:
+
+```sh
+omarchy-shell shell toggle io.github.r-bart.omaplain
+```
+
+OmaPlain no añade ningún atajo global ni modifica la configuración de Hyprland.
+Si quieres uno, lo pones tú.
 
 Al desarrollar, después de tocar cualquier `.qml` hay que reiniciar el shell:
 

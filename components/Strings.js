@@ -13,6 +13,7 @@
 var EN = {
   // --- Marca y navegación ---
   "app.name": "OmaPlain",
+  "bar.a11y": "Open OmaPlain",
   "nav.options": "Options",
   "nav.back": "Back",
   "nav.skip": "Skip  󰅂",
@@ -310,6 +311,7 @@ var EN = {
 
 var ES = {
   "app.name": "OmaPlain",
+  "bar.a11y": "Abrir OmaPlain",
   "nav.options": "Opciones",
   "nav.back": "Volver",
   "nav.skip": "Saltar  󰅂",

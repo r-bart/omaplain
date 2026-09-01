@@ -48,6 +48,16 @@ nueve controles no se veían por un import que faltaba.
 - Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
   que vienen puestos se quedan a la vista.
 - Copy revisado de arriba abajo, en los dos idiomas.
+- **El panel se puede abrir sin escribir un comando**
+  ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)). Hasta ahora el
+  manifiesto declaraba `service` y `panel`, y un `panel` sólo existe cuando
+  alguien lo invoca: no había ninguna superficie desde la que invocarlo. Se
+  añade un **widget de barra** —clic izquierdo para abrir y cerrar— y una
+  **entrada `.desktop`** para el lanzador. Ninguna de las dos se activa sola:
+  el icono lo coloca `bar.layout` en `shell.json`, que es el mando que
+  Omarchy ya tiene para esto, y la entrada del lanzador se copia a mano
+  porque el plugin no vive en `XDG_DATA_DIRS`. Sigue sin haber atajo global
+  ni cambios en la configuración de Hyprland.
 - **La cabecera deja de predicar.** De las ocho frases de estado, siete
   informan de algo que está pasando —pausado, va a omitir, se acaba de
   limpiar, falta una dependencia— y la octava describía el producto:

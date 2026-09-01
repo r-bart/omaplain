@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OmaPlain
+GenericName=Clipboard cleaner
+Comment=Paste clean text by default while preserving files, images and secrets
+Keywords=clipboard;paste;plain;text;tracking;clean;portapapeles;pegar;limpiar;
+Exec=omarchy-shell shell toggle io.github.r-bart.omaplain
+Icon=edit-paste
+Terminal=false
+StartupNotify=false
+Categories=Utility;
