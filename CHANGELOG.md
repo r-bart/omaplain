@@ -139,7 +139,10 @@ nueve controles no se veían por un import que faltaba.
   sólo entonces deja `plugins[]` en paz; el panel leía siempre de `plugins[]`.
   Desde que OmaPlain declara `bar-widget`, cada ajuste se guardaba en un sitio
   y se leía de otro: ni el idioma, ni el movimiento reducido, ni las cuatro
-  listas de privacidad se quedaban puestos, y sin ningún error a la vista
+  listas de privacidad se quedaban puestos, y sin ningún error a la vista.
+  Además, mientras el icono está en la barra, `plugins[]` se quedaba congelado
+  en el día en que se colocó: quitarlo devolvía los ajustes a los de entonces.
+  Ahora se mantiene una copia al día, por la vía que el shell expone
   ([`0012`](docs/decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md)).
 - **Enfocar un control lo apagaba.** El borde de foco del kit sale de
   `focus-border-alpha`, que cae en 0,25 frente al 0,4 del borde normal: medido

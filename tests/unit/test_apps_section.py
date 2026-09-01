@@ -185,10 +185,12 @@ class DondeVivenLosAjustesTests(unittest.TestCase):
         # leía de otro.
         service = _lee("Service.qml")
         cuerpo = service.split("function entryFor()", 1)[1].split("\n  }", 1)[0]
-        self.assertIn('["left", "center", "right"]', cuerpo)
-        self.assertIn("config.plugins", cuerpo)
-        # Y la barra va primero, o el orden no coincidiría con el del shell.
-        self.assertLess(cuerpo.index("bar"), cuerpo.index("config.plugins"))
+        # La barra primero, `plugins[]` después: el mismo orden que el shell.
+        self.assertIn("barLayoutEntry() || pluginsEntry()", cuerpo)
+        barra = service.split("function barLayoutEntry()", 1)[1].split("\n  }", 1)[0]
+        self.assertIn('["left", "center", "right"]', barra)
+        plugins = service.split("function pluginsEntry()", 1)[1].split("\n  }", 1)[0]
+        self.assertIn("shellConfig.plugins", plugins)
 
     def test_entry_settings_no_vuelve_a_mirar_solo_los_plugins(self) -> None:
         service = _lee("Service.qml")
@@ -301,3 +303,57 @@ class AvisosDelFormularioTests(unittest.TestCase):
         self.assertNotIn("reveal(appsList)", cuerpo.replace("revealTop(appsList)", ""))
         alinea = self.panel.split("function revealTop(", 1)[1].split("\n  }", 1)[0]
         self.assertIn("scroll.contentY = Math.max(0,", alinea)
+
+
+class RedDeSeguridadDeLosAjustesTests(unittest.TestCase):
+    """`plugins[]` no puede quedarse congelado mientras el icono esté puesto.
+
+    Si se queda, quitar el icono de la barra devuelve el idioma, el movimiento
+    y las cuatro listas de la `0009` a lo que hubiera semanas atrás.
+    """
+
+    def setUp(self) -> None:
+        self.service = _lee("Service.qml")
+        self.cuerpo = self.service.split("function mirrorToPluginsEntry(", 1)[1].split("\n  }", 1)[0]
+
+    def test_se_copia_al_escribir_en_la_barra(self) -> None:
+        escritura = self.service.split("function updateSetting(", 1)[1].split("\n  }", 1)[0]
+        self.assertIn("shell.updateEntryInline(pluginId, next)", escritura)
+        self.assertIn("mirrorToPluginsEntry(next)", escritura)
+        # Después de la escritura del kit, o copiaría el valor viejo.
+        self.assertLess(
+            escritura.index("updateEntryInline"),
+            escritura.index("mirrorToPluginsEntry"),
+        )
+
+    def test_solo_cuando_la_entrada_vive_en_la_barra(self) -> None:
+        # Sin icono puesto, `updateEntryInline` ya escribe en `plugins[]`.
+        self.assertIn("if (!barLayoutEntry()) return", self.cuerpo)
+
+    def test_no_escribe_si_no_hay_nada_que_cambiar(self) -> None:
+        # `mutateShellConfig` persiste siempre, sin comprobar si algo cambió.
+        self.assertIn("if (!pendiente) return", self.cuerpo)
+        self.assertIn("JSON.stringify(actual[key]) !== JSON.stringify(next[key])", self.cuerpo)
+
+    def test_va_por_la_via_que_el_shell_expone(self) -> None:
+        # Nada de escribir `shell.json` por detrás.
+        self.assertIn('typeof shell.mutateShellConfig !== "function"', self.cuerpo)
+        self.assertIn("shell.mutateShellConfig(function(config)", self.cuerpo)
+        for prohibido in ("FileView", "setText", "userConfigPath", "shell.json"):
+            with self.subTest(prohibido=prohibido):
+                self.assertNotIn(prohibido, self.cuerpo)
+
+    def test_solo_toca_nuestra_entrada(self) -> None:
+        self.assertEqual(self.cuerpo.count("=== pluginId"), 1)
+        self.assertIn("var copia = { id: pluginId }", self.cuerpo)
+        # Y no arrastra el `id` de `next` encima del suyo.
+        self.assertIn('if (clave !== "id") copia[clave] = next[clave]', self.cuerpo)
+
+    def test_el_shell_sigue_ofreciendo_mutate(self) -> None:
+        kit = pathlib.Path("/usr/share/omarchy/shell/shell.qml")
+        if not kit.exists():
+            self.skipTest("el shell de Omarchy no está instalado")
+        source = kit.read_text(encoding="utf-8")
+        self.assertIn("function mutateShellConfig(mutator)", source)
+        cuerpo = source.split("function mutateShellConfig(mutator)", 1)[1].split("\n  }", 1)[0]
+        self.assertIn("persistShellConfig(copy)", cuerpo)

@@ -96,7 +96,6 @@ class CatalogueTests(unittest.TestCase):
     # Las que coinciden de verdad, una por una y con su motivo. Una lista
     # explícita envejece mejor que una regex que las esconda a todas.
     LEGITIMATELY_IDENTICAL = {
-        "app.name": "la marca",
         "state.a11y": "sólo la marca y los marcadores",
         "setting.invisible": "«Invisibles» se escribe igual en los dos idiomas",
         "empty.sample.text.spare": "la etiqueta de un carácter que no se puede enseñar",
@@ -113,7 +112,16 @@ class CatalogueTests(unittest.TestCase):
     def test_the_identical_list_has_no_leftovers(self) -> None:
         # Si una de esas cadenas cambia y deja de coincidir, la excepción
         # sobra y hay que retirarla en vez de dejarla acumulando polvo.
-        stale = sorted(k for k in self.LEGITIMATELY_IDENTICAL if self.en[k] != self.es[k])
+        #
+        # Y si la cadena se retira del catálogo, igual: reventaba con un
+        # `KeyError` en vez de decir qué pasaba, que es lo que hizo el día que
+        # se fue `app.name`.
+        ausentes = sorted(k for k in self.LEGITIMATELY_IDENTICAL if k not in self.en)
+        self.assertEqual(ausentes, [], f"excepciones de cadenas que ya no existen: {ausentes}")
+        stale = sorted(
+            k for k in self.LEGITIMATELY_IDENTICAL
+            if k in self.en and self.en[k] != self.es[k]
+        )
         self.assertEqual(stale, [], f"excepciones que ya no hacen falta: {stale}")
 
     def test_no_qml_speaks_spanish_behind_the_catalogue(self) -> None:

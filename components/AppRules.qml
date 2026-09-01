@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
@@ -58,13 +59,31 @@ Column {
       spacing: Style.space(2)
 
       Text {
+        id: appName
         width: parent.width
         text: root.appClass
         color: Color.popups.text
         font.family: Style.font.family
         font.pixelSize: Style.font.subtitle
         font.bold: true
+        // Por el medio, que es donde una clase larga se distingue: el
+        // principio y el final son lo que la identifica.
         elide: Text.ElideMiddle
+
+        // Recortar sin dejar salida esconde justo el dato que hay que
+        // comprobar para saber si la regla es la correcta. El nombre entero
+        // vive en el rótulo accesible, y el ratón lo saca cuando se ha
+        // recortado —sólo entonces, o sería un globo que no dice nada.
+        Accessible.role: Accessible.StaticText
+        Accessible.name: root.appClass
+
+        HoverHandler { id: appNameHover }
+
+        ToolTip {
+          visible: appNameHover.hovered && appName.truncated
+          text: root.appClass
+          delay: 400
+        }
       }
 
       Text {

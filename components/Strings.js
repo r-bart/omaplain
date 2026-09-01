@@ -12,7 +12,6 @@
 
 var EN = {
   // --- Marca y navegación ---
-  "app.name": "OmaPlain",
   "bar.a11y": "Open OmaPlain",
   "nav.options": "Options",
   "nav.back": "Back",
@@ -244,7 +243,6 @@ var EN = {
   "art.images": "Images",
   "art.files": "Files",
   "art.secrets": "Secrets",
-  "art.notWatching": "Not watching",
   "chips.a11y": "It offered %1. It would leave %2.",
   "chips.plain.a11y": "The clipboard offers %1.",
   "notify.title": "OmaPlain stopped cleaning",
@@ -307,7 +305,6 @@ var EN = {
 };
 
 var ES = {
-  "app.name": "OmaPlain",
   "bar.a11y": "Abrir OmaPlain",
   "nav.options": "Opciones",
   "nav.back": "Volver",
@@ -505,7 +502,6 @@ var ES = {
   "art.images": "Imágenes",
   "art.files": "Archivos",
   "art.secrets": "Secretos",
-  "art.notWatching": "Sin vigilar",
   "chips.a11y": "Ofrecía %1. Quedaría %2.",
   "chips.plain.a11y": "El portapapeles ofrece %1.",
   "notify.title": "OmaPlain ha dejado de limpiar",

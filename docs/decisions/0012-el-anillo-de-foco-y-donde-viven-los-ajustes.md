@@ -34,10 +34,21 @@ escritura sí ocurre.
 tres secciones de la barra primero, `plugins[]` después—. No se toca
 `updateEntryInline`, que es del kit.
 
-Queda una consecuencia del modelo del shell que no está en nuestra mano: si el
-usuario quita el icono de la barra, la entrada de la barra se lleva los ajustes
-con ella y el panel vuelve a leer lo que quedara en `plugins[]`. Es cómo
-funciona la plataforma; se documenta y no se disimula.
+### La red de seguridad
+
+Leer bien no basta. Mientras el icono esté puesto, `plugins[]` se queda
+congelado en el día en que se colocó; el día que el usuario lo quite, la
+entrada de la barra se lleva sus ajustes con ella y el panel vuelve a leer una
+configuración de otra época. El idioma, el movimiento reducido y las cuatro
+listas de la `0009` retroceden semanas sin que nadie lo haya pedido.
+
+**Decisión: cuando escribimos en la barra, dejamos la misma copia en
+`plugins[]`**, que es el sitio canónico de los ajustes de un plugin. Va por
+`mutateShellConfig`, que es la vía que el propio shell expone para esto: no se
+toca `shell.json` por detrás, ni se escribe la entrada de nadie más.
+
+Sólo se copia cuando difiere. `mutateShellConfig` persiste siempre, sin mirar
+si algo cambió, y esto no puede convertirse en una escritura por cada lectura.
 
 ## 2. Enfocar un control lo apagaba
 

@@ -102,7 +102,7 @@ Item {
   // «auto» del array de plugins. Con el icono puesto, **ningún ajuste se
   // quedaba puesto** — ni el idioma, ni el movimiento, ni las cuatro listas
   // de la `0009`. Aquí se lee en el mismo orden en que el shell escribe.
-  function entryFor() {
+  function barLayoutEntry() {
     if (!shell || !shell.shellConfig) return null
     var config = shell.shellConfig
     var layout = config.bar && config.bar.layout ? config.bar.layout : null
@@ -114,12 +114,20 @@ Item {
         if (arr[i] && String(arr[i].id || "") === pluginId) return arr[i]
       }
     }
-    if (!Array.isArray(config.plugins)) return null
-    for (var j = 0; j < config.plugins.length; j++) {
-      var entry = config.plugins[j]
-      if (entry && String(entry.id || "") === pluginId) return entry
+    return null
+  }
+
+  function pluginsEntry() {
+    if (!shell || !shell.shellConfig || !Array.isArray(shell.shellConfig.plugins)) return null
+    var entries = shell.shellConfig.plugins
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i] && String(entries[i].id || "") === pluginId) return entries[i]
     }
     return null
+  }
+
+  function entryFor() {
+    return barLayoutEntry() || pluginsEntry()
   }
 
   function entrySettings() {
@@ -256,8 +264,53 @@ Item {
     next[String(name)] = value
     settings = next
     shell.updateEntryInline(pluginId, next)
+    mirrorToPluginsEntry(next)
     Qt.callLater(root.syncConfig)
     return true
+  }
+
+  // La red de seguridad de la `0012`.
+  //
+  // `updateEntryInline` escribe en `bar.layout` en cuanto encuentra ahí el id,
+  // y entonces deja `plugins[]` congelado. El día que el usuario quite el
+  // icono de la barra, esa entrada se lleva sus ajustes con ella y el panel
+  // vuelve a leer un `plugins[]` de otra época: el idioma, el movimiento y las
+  // cuatro listas de la `0009` retroceden semanas sin que nadie lo pida.
+  //
+  // Así que cuando escribimos en la barra, dejamos la misma copia en
+  // `plugins[]`, que es el sitio canónico de los ajustes de un plugin. Va por
+  // `mutateShellConfig`, que es la vía que el shell expone para esto: no se
+  // toca `shell.json` por detrás.
+  //
+  // Sólo nuestra entrada, y sólo cuando difiere: `mutateShellConfig` persiste
+  // siempre, sin comprobar si algo cambió, y esto no va a añadir una escritura
+  // por cada lectura.
+  function mirrorToPluginsEntry(next) {
+    if (!shell || typeof shell.mutateShellConfig !== "function") return
+    if (!barLayoutEntry()) return
+
+    var actual = pluginsEntry()
+    var pendiente = !actual
+    if (actual) {
+      for (var key in next) {
+        if (key === "id") continue
+        if (JSON.stringify(actual[key]) !== JSON.stringify(next[key])) { pendiente = true; break }
+      }
+    }
+    if (!pendiente) return
+
+    shell.mutateShellConfig(function(config) {
+      if (!Array.isArray(config.plugins)) config.plugins = []
+      var copia = { id: pluginId }
+      for (var clave in next) if (clave !== "id") copia[clave] = next[clave]
+      for (var i = 0; i < config.plugins.length; i++) {
+        if (config.plugins[i] && String(config.plugins[i].id || "") === pluginId) {
+          config.plugins[i] = copia
+          return
+        }
+      }
+      config.plugins.push(copia)
+    })
   }
 
   function setAutomatic(value) {
