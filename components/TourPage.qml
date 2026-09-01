@@ -163,10 +163,14 @@ Item {
         wrapMode: Text.WordWrap
       }
 
+      // El mismo ancho que la rejilla de acciones de abajo. Estaba topado a
+      // `space(420)` y centrado, así que se quedaba unas 48 unidades más
+      // estrecho que los botones y sus bordes no llegaban a alinearse con
+      // los de nadie: dos cajas casi iguales desalineadas leen peor que dos
+      // claramente distintas.
       BorderSurface {
-        width: Math.min(parent.width, Style.space(420))
+        width: parent.width
         implicitHeight: noteText.implicitHeight + Style.space(22)
-        anchors.horizontalCenter: parent.horizontalCenter
         radius: Math.max(0, Style.cornerRadius - Style.space(2))
         color: Style.normalFillFor(Color.popups.text, Color.accent)
         borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
@@ -200,12 +204,16 @@ Item {
         }
       }
 
+      // Como el callout y la rejilla de acciones: es una superficie, no una
+      // columna de lectura, así que sigue el ancho de la pila. El tope de
+      // `space(420)` que tenía sólo tiene sentido sobre prosa —el párrafo
+      // del paso lo conserva por eso— y aquí dejaba un tercer borde
+      // izquierdo distinto en la misma columna.
       DemoTransformation {
 
         lang: root.lang
         id: demo
-        width: Math.min(parent.width, Style.space(420))
-        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width
         // Solo el paso 2 promete que se retira algo; en los otros dos la
         // demostracion no ilustra nada de lo que dice el texto.
         visible: root.step === 1

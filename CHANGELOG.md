@@ -108,6 +108,12 @@ nueve controles no se veían por un import que faltaba.
   esta iba con los primeros, más apagada y más apretada que el subtítulo
   que tiene tres líneas más abajo y que dice lo mismo. Medido sobre el
   render: pasa de 5,65:1 a 6,19:1.
+- **El tour tenía tres bordes izquierdos distintos en la misma columna.**
+  El aviso y la demostración estaban topados a `space(420)` y centrados, y
+  la rejilla de acciones iba a ancho completo: 613 px los botones, 560 las
+  otras dos cajas. Las superficies pasan a seguir el ancho de la pila. El
+  párrafo del paso conserva su tope, que ahí no es una caja mal medida sino
+  una columna de lectura: envuelve a unos 57 caracteres.
 
 ### Seguridad
 
