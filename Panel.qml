@@ -550,9 +550,14 @@ Item {
           anchors.margins: Style.space(20)
           spacing: Style.space(12)
 
+          // La fila la marca su propio control. Antes eran dos números
+          // escritos a mano que se contradecían —fila `space(38)`, botón
+          // `space(44)`— y el botón, centrado, sobresalía 3 unidades por
+          // arriba y por abajo: su borde inferior cruzaba la regla que
+          // cierra la cabecera en vez de quedarse encima de ella.
           Item {
             width: parent.width
-            height: Style.space(38)
+            height: optionsButton.height
 
             Text {
               id: brandText
@@ -573,7 +578,23 @@ Item {
               id: optionsButton
               anchors.right: parent.right
               anchors.verticalCenter: parent.verticalCenter
+              // El área táctil, no la altura del texto: con su relleno de
+              // control el kit se quedaría en 38, por debajo del mínimo.
+              // Ahora es la fila la que se adapta a esto, y no al revés.
               implicitHeight: Style.space(44)
+              // El glifo va por `iconText`, no dentro de la cadena que se
+              // traduce. Dentro del texto se pintaba al tamaño de cuerpo y
+              // se separaba con dos espacios literales, que no escalan con
+              // el tema; aquí lo pinta a `Style.font.icon` y lo separa con
+              // `controlGap`, que sí. Además saca de las dos tablas de
+              // idioma un carácter que allí no significa nada y que un
+              // traductor puede perder o duplicar.
+              //
+              // «Saltar» conserva el suyo en la cadena: su flecha va a la
+              // derecha del rótulo y `iconText` sólo pinta a la izquierda.
+              iconText: root.onboardingSettings
+                ? ""
+                : (root.panelPage === "settings" ? "󰅁" : "󰢻")
               text: root.onboardingSettings
                 ? Strings.t("nav.skip", root.lang)
                 : (root.panelPage === "settings" ? Strings.t("nav.back", root.lang) : Strings.t("nav.options", root.lang))
@@ -590,14 +611,17 @@ Item {
               Accessible.onPressAction: root.togglePage()
               onClicked: root.togglePage()
             }
+          }
 
-            Rectangle {
-              anchors.left: parent.left
-              anchors.right: parent.right
-              anchors.bottom: parent.bottom
-              height: Math.max(1, Style.normalBorderWidth)
-              color: Util.alpha(Color.popups.text, 0.14)
-            }
+          // La regla, hermana de la columna y no hija de la fila. Anclada al
+          // fondo de la fila era el subrayado del botón: cero aire entre los
+          // dos, aunque las alturas hubieran cuadrado. Aquí el `spacing` de
+          // la columna le da la misma separación por arriba que por abajo,
+          // que es lo que la convierte en un separador y no en un borde.
+          Rectangle {
+            width: parent.width
+            height: Math.max(1, Style.normalBorderWidth)
+            color: Util.alpha(Color.popups.text, 0.14)
           }
 
           StatusHeader {

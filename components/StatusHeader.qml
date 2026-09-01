@@ -52,7 +52,16 @@ Item {
     anchors.right: parent.right
     spacing: Style.space(4)
 
+    // El estado normal no se anuncia. Un servicio que está corriendo es lo
+    // que se espera de él, y rotularlo «ACTIVO» gasta la primera línea de la
+    // cabecera en decir que no pasa nada. La insignia sólo aparece cuando
+    // hay algo que contar: pausado, omitiendo la próxima copia, arrancando
+    // o pidiendo atención.
+    //
+    // El `Accessible.name` de la raíz sí sigue nombrando el estado siempre:
+    // ahí no hay un panel vivo delante del que deducirlo.
     Row {
+      visible: !(root.healthy && !root.skipping)
       spacing: Style.space(7)
 
       Rectangle {
@@ -75,14 +84,20 @@ Item {
       }
     }
 
+    // Un párrafo que envuelve, no un rótulo. El panel ya distingue las dos
+    // cosas —0,68 para rótulos y foregrounds de control, 0,72 para prosa
+    // que envuelve, y 1,45 de interlínea— y esta frase estaba puesta con
+    // los valores de rótulo, que es lo que la dejaba más apagada y más
+    // apretada que el subtítulo del veredicto que tiene tres líneas más
+    // abajo. Medido sobre el render: 5,65:1 frente a 6,20:1.
     Text {
       width: parent.width
       text: root.detail
-      color: Util.alpha(Color.popups.text, 0.68)
+      color: Util.alpha(Color.popups.text, 0.72)
       font.family: Style.font.family
       font.pixelSize: Style.font.bodySmall
       lineHeightMode: Text.ProportionalHeight
-      lineHeight: 1.4
+      lineHeight: 1.45
       wrapMode: Text.WordWrap
     }
   }

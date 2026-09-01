@@ -48,6 +48,12 @@ nueve controles no se veían por un import que faltaba.
 - Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
   que vienen puestos se quedan a la vista.
 - Copy revisado de arriba abajo, en los dos idiomas.
+- **La cabecera deja de anunciar el estado normal.** Un servicio que está
+  corriendo es lo que se espera de él, y rotularlo «ACTIVO» gastaba la
+  primera línea en decir que no pasa nada. La insignia aparece sólo cuando
+  tiene algo que contar: pausado, omitiendo la próxima copia, arrancando o
+  pidiendo atención. El nombre accesible sigue nombrando el estado siempre,
+  porque ahí no hay un panel vivo delante del que deducirlo.
 
 ### Arreglado
 
@@ -84,6 +90,24 @@ nueve controles no se veían por un import que faltaba.
   en vez del `example.com` que la RFC 2606 reserva para esto.
 - **Tres cadenas estaban en la tabla del idioma equivocado**: el botón que
   cierra el tour y los dos rótulos de exclusión detectada.
+- **El botón «Opciones» pisaba la regla de la cabecera.** La fila medía
+  `space(38)` y el botón `space(44)`, dos números escritos a mano que se
+  contradecían: centrado, sobresalía 3 unidades por arriba y por abajo, de
+  modo que su borde inferior cruzaba la línea que cierra la cabecera. Ahora
+  la fila la marca su propio control, y la regla pasa a ser hermana de la
+  columna, con el mismo aire por arriba que por abajo en vez de quedar
+  pegada al botón como si fuera su subrayado.
+- **El engranaje vivía dentro de la cadena traducida**, en las dos tablas y
+  separado del rótulo por dos espacios literales: se pintaba al tamaño de
+  cuerpo en vez del de icono, y ese hueco no escalaba con el tema mientras
+  el resto sí. Pasa a `iconText`, que es lo que el kit ofrece y lo que el
+  panel ya usa en otros tres sitios. «Saltar» conserva el suyo porque su
+  flecha va a la derecha, donde `iconText` no pinta.
+- **La frase de estado estaba puesta con valores de rótulo.** El panel usa
+  0,68 para rótulos y 0,72 con interlínea 1,45 para prosa que envuelve;
+  esta iba con los primeros, más apagada y más apretada que el subtítulo
+  que tiene tres líneas más abajo y que dice lo mismo. Medido sobre el
+  render: pasa de 5,65:1 a 6,19:1.
 
 ### Seguridad
 

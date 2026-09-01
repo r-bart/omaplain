@@ -13,8 +13,8 @@
 var EN = {
   // --- Marca y navegación ---
   "app.name": "OmaPlain",
-  "nav.options": "󰢻  Options",
-  "nav.back": "󰅁  Back",
+  "nav.options": "Options",
+  "nav.back": "Back",
   "nav.skip": "Skip  󰅂",
   "nav.options.a11y": "Open options",
   "nav.back.a11y": "Back to the clipboard",
@@ -302,8 +302,8 @@ var EN = {
 
 var ES = {
   "app.name": "OmaPlain",
-  "nav.options": "󰢻  Opciones",
-  "nav.back": "󰅁  Volver",
+  "nav.options": "Opciones",
+  "nav.back": "Volver",
   "nav.skip": "Saltar  󰅂",
   "nav.options.a11y": "Abrir opciones",
   "nav.back.a11y": "Volver al portapapeles",
