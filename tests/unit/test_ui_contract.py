@@ -801,3 +801,41 @@ class BypassScreenTests(unittest.TestCase):
                  / "0007-la-pantalla-frecuente-informa.md").read_text(encoding="utf-8")
         self.assertIn("## Enmienda", texto)
         self.assertIn("bypass", texto.lower())
+
+
+class EverydayHeaderTests(unittest.TestCase):
+    """La cabecera de la pantalla frecuente informa, no predica."""
+
+    def test_the_status_line_has_no_product_pitch(self) -> None:
+        # Siete ramas de `statusDetail()` informan de algo que está pasando.
+        # La octava describía el producto —«OmaPlain ordena el formato y deja
+        # intacto todo lo que no puede limpiar»— y era la rama por defecto,
+        # así que predicaba justo en el caso más frecuente de todos. Es el
+        # titular educativo que la 0007 echó de esta pantalla, sobrevivido
+        # como cadena.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        cuerpo = panel.split("function statusDetail()", 1)[1].split("\n  }", 1)[0]
+        code = "\n".join(l for l in cuerpo.splitlines() if not l.strip().startswith("//"))
+        self.assertIn('return ""', code)
+        self.assertNotIn("status.idle", code)
+
+    def test_the_pitch_is_gone_from_both_tables(self) -> None:
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        self.assertNotIn('"status.idle"', catalogue)
+
+    def test_the_header_disappears_when_it_has_nothing_to_say(self) -> None:
+        # Sin insignia y sin frase seguía ocupando su hueco y su `spacing`,
+        # que es peor que la frase que se acaba de quitar.
+        header = (REPO / "components" / "StatusHeader.qml").read_text(encoding="utf-8")
+        self.assertIn("readonly property bool silent:", header)
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        self.assertIn("!statusLine.silent", panel)
+
+    def test_the_lines_that_inform_are_all_still_there(self) -> None:
+        # Quitar la que predica no puede llevarse por delante las que avisan.
+        catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        for clave in ("status.unavailable", "status.deps", "status.degraded",
+                      "status.restarting", "status.paused", "status.willskip",
+                      "status.done"):
+            with self.subTest(key=clave):
+                self.assertEqual(catalogue.count(f'"{clave}"'), 2, "falta en un idioma")

@@ -38,6 +38,12 @@ Item {
       : (paused
         ? Strings.t("state.paused", root.lang)
         : (healthy ? Strings.t("state.active", root.lang) : Strings.t("state.starting", root.lang))))
+  // Con el servicio corriendo, sin omisión pendiente y sin nada que contar,
+  // la cabecera de estado no tiene contenido: ni insignia ni frase. Sin esto
+  // dejaría su hueco y su `spacing` en la columna, que es peor que la frase
+  // que se acaba de quitar.
+  readonly property bool silent: detail === "" && healthy && !skipping
+
   readonly property color stateColor: failed ? Color.urgent : (healthy && !skipping ? Color.accent : Color.muted)
 
   implicitWidth: Style.space(460)
@@ -92,6 +98,7 @@ Item {
     // abajo. Medido sobre el render: 5,65:1 frente a 6,20:1.
     Text {
       width: parent.width
+      visible: root.detail !== ""
       text: root.detail
       color: Util.alpha(Color.popups.text, 0.72)
       font.family: Style.font.family

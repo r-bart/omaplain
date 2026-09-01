@@ -58,7 +58,11 @@ Item {
     radius: width / 2
     x: root.haloAt.x - width / 2
     y: root.haloAt.y - height / 2
-    color: Util.alpha(Color.accent, 0.10)
+    // Al 10% sobre un fondo tan oscuro no llegaba a brillar y sí llegaba a
+    // ensuciar: se leía como un disco gris detrás del dibujo, no como un
+    // halo. En modo oscuro la profundidad sale de un escalón claro, no de
+    // un velo.
+    color: Util.alpha(Color.accent, 0.18)
     scale: 1 + 0.11 * Math.sin(Math.PI * root.sweep)
     transformOrigin: Item.Center
   }
@@ -100,9 +104,15 @@ Item {
     }
 
     // La barra de dirección, delante: es donde vive lo que sobra.
+    //
+    // Baja diez puntos respecto de donde estaba. A `space(40)` cubría 24 de
+    // los 60 de alto de la hoja —el 40%, líneas de texto incluidas— y las
+    // dos formas se leían como una sola mancha. Desde aquí se solapan lo
+    // justo para que una esté delante de la otra, que es lo que el dibujo
+    // quiere contar, y sigue cabiendo entera (50 + 36 < 96).
     BorderSurface {
       x: Style.space(1)
-      y: Style.space(40)
+      y: Style.space(50)
       width: Style.space(96)
       height: Style.space(36)
       rotation: 2 - 2.5 * root.settle - 1.2 * root.combed

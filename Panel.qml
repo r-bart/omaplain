@@ -295,7 +295,17 @@ Item {
     if (!setting("automatic", true)) return Strings.t("status.paused", root.lang)
     if (service.status && service.status.skipNext === true) return Strings.t("status.willskip", root.lang)
     if (service.status && service.status.lastResult === "cleaned") return Strings.t("status.done", root.lang)
-    return Strings.t("status.idle", root.lang)
+    // Nada que contar. Las otras siete ramas informan de algo que está
+    // pasando —pausado, va a omitir, se acaba de limpiar, falta una
+    // dependencia—; ésta era la única que describía el producto, y describía
+    // el producto justo en el caso más frecuente de todos.
+    //
+    // Era el titular educativo que la 0007 echó de esta pantalla, sobrevivido
+    // como cadena por defecto: «OmaPlain ordena el formato y deja intacto
+    // todo lo que no puede limpiar con seguridad», encima de un veredicto que
+    // ya dice qué pasa con *tu* portapapeles. Mismo caso que la insignia
+    // «ACTIVO»: un servicio que va bien y no tiene nada que contar, se calla.
+    return ""
   }
 
   function historyDetail() {
@@ -652,9 +662,10 @@ Item {
 
           StatusHeader {
 
+            id: statusLine
             lang: root.lang
             width: parent.width
-            visible: root.panelPage === "clipboard"
+            visible: root.panelPage === "clipboard" && !statusLine.silent
             state: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
             detail: root.statusDetail()
             skipping: service && service.status && service.status.skipNext === true

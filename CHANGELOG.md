@@ -48,6 +48,20 @@ nueve controles no se veían por un import que faltaba.
 - Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
   que vienen puestos se quedan a la vista.
 - Copy revisado de arriba abajo, en los dos idiomas.
+- **La cabecera deja de predicar.** De las ocho frases de estado, siete
+  informan de algo que está pasando —pausado, va a omitir, se acaba de
+  limpiar, falta una dependencia— y la octava describía el producto:
+  «OmaPlain ordena el formato y deja intacto todo lo que no puede limpiar
+  con seguridad». Era la rama **por defecto**, así que predicaba justo en el
+  caso más frecuente, encima de un veredicto que ya dice qué pasa con *tu*
+  portapapeles. Es el titular educativo que la `0007` echó de esta pantalla,
+  sobrevivido como cadena. Ahora, sin nada que contar, la cabecera de estado
+  desaparece entera en vez de dejar su hueco.
+- **El dibujo del estado vacío se lee.** La barra de dirección tapaba el 40%
+  de la hoja de detrás, líneas de texto incluidas, y las dos formas se veían
+  como una sola mancha; y el halo iba a acento del 10% sobre un fondo muy
+  oscuro, que no llega a brillar y sí a ensuciar. Baja la barra y sube el
+  halo: dos objetos, uno delante del otro.
 - **Los estados que no se tocan dejan de ser una pantalla en blanco.** Con
   una imagen, un archivo, algo sensible, algo demasiado grande o una
   aplicación bloqueada, el panel no tiene portapapeles que enseñar —de una
