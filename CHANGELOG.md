@@ -114,6 +114,14 @@ nueve controles no se veían por un import que faltaba.
   otras dos cajas. Las superficies pasan a seguir el ancho de la pila. El
   párrafo del paso conserva su tope, que ahí no es una caja mal medida sino
   una columna de lectura: envuelve a unos 57 caracteres.
+- **«Omitir la próxima copia» no caducaba por tiempo.** Se prometen sesenta
+  segundos; con el escritorio quieto la marca se quedaba puesta
+  indefinidamente y la cabecera seguía diciéndolo. La caducidad era perezosa
+  y sólo corría al llegar un evento o al pedir `status` **por el socket**, y
+  el panel no usa esa vía: relee `status.json` del disco. Nadie despertaba
+  al demonio. El bucle de `accept` ya lo hace cada 0,5 s, así que la
+  comprobación va ahí, sin temporizador nuevo. El test que existía
+  preguntaba justo por el socket, de modo que pasaba con el fallo delante.
 
 ### Seguridad
 

@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 
 from omaplain_lib.clipboard import WindowTarget
 from omaplain_lib.config import write_config
+from omaplain_lib import daemon as daemon_module
 from omaplain_lib.daemon import OmaPlainDaemon
 
 
@@ -150,6 +151,40 @@ class DaemonTests(unittest.TestCase):
         with patch("omaplain_lib.daemon.time.monotonic", return_value=160.01):
             status = self.daemon.command("status")
         self.assertFalse(status["skipNext"])
+
+    def test_skip_next_expires_with_nothing_happening(self) -> None:
+        # El test de arriba pregunta por el socket, y ésa es justo la vía que
+        # el panel no usa: relee `status.json` del disco. Mientras la
+        # caducidad sólo corría ahí, la marca se quedaba puesta con el
+        # escritorio quieto y la cabecera seguía diciendo «omitiendo».
+        with patch("omaplain_lib.daemon.time.monotonic", return_value=100.0):
+            self.daemon.skip_next()
+        on_disk = json.loads(Path(self.daemon.status_path).read_text(encoding="utf-8"))
+        self.assertTrue(on_disk["skipNext"])
+
+        with patch("omaplain_lib.daemon.time.monotonic", return_value=160.01):
+            self.daemon.tick()
+
+        on_disk = json.loads(Path(self.daemon.status_path).read_text(encoding="utf-8"))
+        self.assertFalse(on_disk["skipNext"])
+
+    def test_tick_leaves_a_live_skip_alone(self) -> None:
+        with patch("omaplain_lib.daemon.time.monotonic", return_value=100.0):
+            self.daemon.skip_next()
+        with patch("omaplain_lib.daemon.time.monotonic", return_value=159.99):
+            self.daemon.tick()
+        on_disk = json.loads(Path(self.daemon.status_path).read_text(encoding="utf-8"))
+        self.assertTrue(on_disk["skipNext"])
+
+    def test_tick_is_wired_into_the_idle_loop(self) -> None:
+        # La caducidad no sirve de nada si nadie la llama. El bucle de
+        # `accept` es el único que despierta con el escritorio quieto.
+        source = Path(daemon_module.__file__).read_text(encoding="utf-8")
+        # `def run(` aparece dos veces: la anidada de `_spawn_handler` y el
+        # bucle. Aquí interesa el bucle, que es el único que despierta solo.
+        loop = source.split("def run(self)")[1]
+        timeout_branch = loop.split("except TimeoutError:")[1].split("except")[0]
+        self.assertIn("self.tick()", timeout_branch)
 
     def test_status_never_contains_clipboard_content(self) -> None:
         original = self.backend.payload.decode()

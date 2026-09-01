@@ -18,7 +18,7 @@ tests/run.sh
 
 | Prueba | Resultado |
 |---|---|
-| Unitarias y propiedades | 146 tests, 0 fallos |
+| Unitarias y propiedades | 149 tests, 0 fallos |
 | Transformación 10 KiB | p50 0,015 ms; p95 0,016 ms |
 | Transformación 100 KiB | p50 0,123 ms; p95 0,129 ms |
 | Transformación 1 MiB | p50 1,880 ms; p95 3,101 ms |
@@ -47,6 +47,41 @@ copia hecha desde una aplicación bloqueada:
 - El portapapeles queda intacto: no se reescribe.
 - `status.json` registra `lastReason: source_blocked` y `lastBytes: 0`, ni
   siquiera el tamaño.
+
+## Segunda pasada, 1 de septiembre
+
+La cabecera y el tour cambiaron **después** de la pasada de abajo, así que lo
+que aquella sección afirma se comprobó sobre un panel que ya no es exactamente
+éste. Lo tocado se volvió a ver, midiendo el render en vez de mirarlo:
+
+| Qué | Resultado |
+|---|---|
+| Cabecera: aire entre el botón y la regla | 16 px por arriba y por abajo (antes el botón cruzaba la regla 4 px) |
+| Cabecera: frase de estado | 6,19:1, la misma que el subtítulo del veredicto |
+| Cabecera: la insignia de estado | ausente con el servicio corriendo; presente con `skipNext` |
+| Tour: aviso, demo y acciones | los tres en `x 39..651`, un solo borde izquierdo y uno derecho |
+| Estados vistos de nuevo | vacío con carrusel, imagen, bienvenida, tour 1 y tour 2 |
+| Omisión que caduca sola | test nuevo; antes se quedaba puesta indefinidamente |
+
+Los estados que **no** se han vuelto a ver desde el cambio son los que la
+cabecera comparte sin modificar: sensible, archivo, demasiado grande, ya
+limpio, con formato y aplicación bloqueada. Entran en la prueba final.
+
+## Contraste del borde de los controles — limitación conocida
+
+El contorno de un botón `bordered` mide **2,79:1** contra el fondo del panel,
+por debajo del **3:1** que la WCAG 2.1 SC 1.4.11 pide para el límite visual de
+un control cuando es lo que lo identifica.
+
+No es de OmaPlain. El color sale de `normal-border-alpha = 0.4`, el valor por
+defecto de Omarchy en `default/themed/shell.toml.tpl`, aplicado al color de
+texto del panel: `0,4` predice `rgb(94, 94, 95)` y lo medido fue
+`rgb(93, 94, 95)`. Lo comparten todos los controles del escritorio.
+
+Se deja como está a propósito. Pisarlo desde aquí haría que los botones de
+OmaPlain se dibujaran distintos del resto de Omarchy para tapar un valor del
+tema, que es peor para quien eligió ese tema. Quien quiera cruzar el umbral lo
+sube en su `shell.toml`: **`0.44` da 3,15:1** y lo arregla en todo el escritorio.
 
 ## Comprobado en el panel real
 

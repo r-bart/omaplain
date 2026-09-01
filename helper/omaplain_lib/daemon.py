@@ -161,6 +161,25 @@ class OmaPlainDaemon:
             self.status.update(skipNext=False)
         return self.skip_until > 0
 
+    def tick(self) -> None:
+        """Caducidades que no dependen de que llegue nada.
+
+        La omisión expira por tiempo, pero `_skip_active` sólo corría al
+        llegar un evento de portapapeles o al pedir `status` por el socket.
+        El panel no usa esa vía: relee `status.json` del disco una vez por
+        segundo, y nadie despertaba al demonio. Con el escritorio quieto la
+        marca se quedaba puesta indefinidamente y la cabecera seguía
+        diciendo «omitiendo» pasados los sesenta segundos.
+
+        El bucle de `accept` ya despierta cada 0,5 s, así que esto no añade
+        ningún temporizador. La comparación va fuera del cerrojo para no
+        pelearse con una limpieza en curso dos veces por segundo; sólo se
+        toma cuando de verdad toca caducar.
+        """
+        if self.skip_until and time.monotonic() >= self.skip_until:
+            with self.process_lock:
+                self._skip_active()
+
     def _consume_skip(self) -> bool:
         if not self._skip_active():
             return False
@@ -471,6 +490,7 @@ class OmaPlainDaemon:
                 try:
                     connection, _ = server.accept()
                 except TimeoutError:
+                    self.tick()
                     continue
                 except OSError:
                     if self.stop_event.is_set():
