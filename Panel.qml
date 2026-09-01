@@ -966,7 +966,6 @@ Item {
                 // dónde ir a averiguarlo.
                 visible: root.peekEmpty || root.peekBypass
                 text: Strings.t("empty.how", root.lang)
-                iconText: "→"
                 foreground: Color.accent
                 Accessible.description: Strings.t("empty.how.a11y", root.lang)
                 onFocusEntered: function(item) { root.reveal(item) }
@@ -1478,7 +1477,6 @@ Item {
                 width: parent.width
                 visible: root.onboardingSettings
                 text: Strings.t("onboarding.done", root.lang)
-                iconText: "✓"
                 onClicked: root.finishOnboarding()
               }
 

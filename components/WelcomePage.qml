@@ -184,7 +184,6 @@ Item {
           id: startButton
           width: (welcomeActions.width - (welcomeActions.columns - 1) * welcomeActions.columnSpacing) / welcomeActions.columns
           text: Strings.t("welcome.start", root.lang)
-          iconText: "→"
           onActiveFocusChanged: if (activeFocus) root.reveal(startButton)
           onClicked: root.startRequested()
         }

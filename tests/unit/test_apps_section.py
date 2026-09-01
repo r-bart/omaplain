@@ -444,3 +444,41 @@ class ElBotonFinalDiceADondeVaTests(unittest.TestCase):
         for clave in ('"tour.finish"', '"tour.done"'):
             with self.subTest(clave=clave):
                 self.assertEqual(catalogo.count(clave), 2)
+
+
+class LosBotonesNoRepitenSuRotuloTests(unittest.TestCase):
+    """Flechas y marcas de visto que no decían nada que el rótulo no dijera.
+
+    «← Volver», «→ Siguiente», «✓ Finalizar», «→ Ver cómo funciona»: el glifo
+    repetía la palabra. Se quedan los dos que **identifican** en vez de
+    decorar — el engranaje de los ajustes y el de «limpiar ahora» —, que no
+    tienen palabra que repetir.
+    """
+
+    DECORATIVOS = ("→", "←", "✓")
+
+    def test_ningun_boton_decora_su_rotulo_con_una_flecha(self) -> None:
+        rutas = [REPO / "Panel.qml"] + sorted((REPO / "components").glob("*.qml"))
+        for ruta in rutas:
+            source = ruta.read_text(encoding="utf-8")
+            iconos = re.findall(r"^\s*iconText:.*$", source, re.MULTILINE)
+            for linea in iconos:
+                for glifo in self.DECORATIVOS:
+                    with self.subTest(fichero=ruta.name, glifo=glifo):
+                        self.assertNotIn(glifo, linea, f"{ruta.name}: {linea.strip()}")
+
+    def test_tampoco_escondidos_dentro_de_una_cadena(self) -> None:
+        # `nav.skip` llevaba el suyo en el texto porque `iconText` sólo pinta
+        # a la izquierda: si vuelve, vuelve por ahí.
+        catalogo = _lee("components", "Strings.js")
+        for linea in catalogo.splitlines():
+            if not re.match(r'\s*"[a-z]', linea):
+                continue
+            for glifo in self.DECORATIVOS:
+                with self.subTest(glifo=glifo, linea=linea.strip()[:40]):
+                    self.assertNotIn(glifo, linea)
+
+    def test_los_que_identifican_se_quedan(self) -> None:
+        panel = _lee("Panel.qml")
+        self.assertIn('"󰅍"', panel)          # limpiar ahora
+        self.assertIn('"󰢻"', panel)          # los ajustes

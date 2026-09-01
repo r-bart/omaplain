@@ -245,7 +245,6 @@ Item {
           id: backButton
           width: (tourActions.width - (tourActions.columns - 1) * tourActions.columnSpacing) / tourActions.columns
           text: Strings.t("tour.back", root.lang)
-          iconText: "←"
           Accessible.name: root.step === 0 ? Strings.t("tour.back.first.a11y", root.lang) : Strings.t("tour.back.a11y", root.lang)
           onFocusEntered: function(item) { root.reveal(item) }
           onClicked: root.backRequested()
@@ -257,7 +256,6 @@ Item {
           text: root.step !== root.stepCount - 1
             ? Strings.t("tour.next", root.lang)
             : (root.endsInSettings ? Strings.t("tour.finish", root.lang) : Strings.t("tour.done", root.lang))
-          iconText: root.step === root.stepCount - 1 ? "✓" : "→"
           onActiveFocusChanged: if (activeFocus) root.reveal(nextButton)
           onClicked: root.nextRequested()
         }
