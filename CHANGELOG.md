@@ -153,8 +153,10 @@ nueve controles no se veían por un import que faltaba.
 - **«Ver los ajustes» no siempre llevaba a los ajustes.** El último botón del
   recorrido prometía lo mismo viniera de donde viniera, y lanzado desde la
   pantalla de todos los días devolvía a esa misma pantalla, cuya única acción
-  es «Ver cómo funciona»: se leía como volver al principio del recorrido. Ahora
-  dice «Volver al panel» cuando es allí donde va.
+  es «Ver cómo funciona»: se leía como volver al principio del recorrido. El
+  botón nombra el destino sólo cuando el recorrido continúa —la primera vez,
+  donde el paso siguiente son los ajustes—; cuando termina ahí, dice
+  «Finalizar», que es lo que se espera al final de tres pasos.
 - **Los nueve controles del panel eran invisibles.** `SettingRow.qml` usaba
   `Style.space()` sin importar `qs.Commons`, así que su altura colapsaba a
   cero. Se publicó así en la `0.1.0`.

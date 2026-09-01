@@ -23,11 +23,17 @@ Item {
 
   readonly property int stepCount: 3
 
-  // A dónde va el último botón. Decía «Ver los ajustes» siempre, y desde la
-  // pantalla de todos los días el recorrido no acaba en los ajustes: acaba
-  // donde empezó. Prometer una pantalla y devolver otra —y encima la que
-  // tiene «Ver cómo funciona» como única acción— se lee como volver al
-  // principio del recorrido.
+  // Si el recorrido continúa después de este paso o si termina aquí.
+  //
+  // La primera vez continúa: el paso siguiente son los ajustes, con su banda
+  // y su propia salida, así que el botón nombra a dónde lleva. Desde la
+  // pantalla de todos los días no continúa nada — se vuelve de donde se vino,
+  // y esa pantalla tiene «Ver cómo funciona» como única acción, así que
+  // prometer los ajustes se leía como volver al principio del recorrido.
+  //
+  // Cuando termina, el botón **termina**: no nombra un destino. Nombrarlo fue
+  // el primer arreglo y seguía siendo un botón de navegación al final de un
+  // recorrido de tres pasos, que es justo donde se espera «Finalizar».
   property bool endsInSettings: true
   readonly property string stepTitle: [
     Strings.t("tour.1.title", root.lang),
@@ -250,7 +256,7 @@ Item {
           width: (tourActions.width - (tourActions.columns - 1) * tourActions.columnSpacing) / tourActions.columns
           text: root.step !== root.stepCount - 1
             ? Strings.t("tour.next", root.lang)
-            : (root.endsInSettings ? Strings.t("tour.finish", root.lang) : Strings.t("tour.close", root.lang))
+            : (root.endsInSettings ? Strings.t("tour.finish", root.lang) : Strings.t("tour.done", root.lang))
           iconText: root.step === root.stepCount - 1 ? "✓" : "→"
           onActiveFocusChanged: if (activeFocus) root.reveal(nextButton)
           onClicked: root.nextRequested()

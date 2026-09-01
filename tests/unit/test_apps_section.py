@@ -411,12 +411,23 @@ class ElFocoLlegaATodasPartesTests(unittest.TestCase):
 class ElBotonFinalDiceADondeVaTests(unittest.TestCase):
     """«Ver los ajustes» no siempre llevaba a los ajustes."""
 
-    def test_la_promesa_depende_de_donde_acaba(self) -> None:
+    def test_el_boton_nombra_un_destino_solo_si_el_recorrido_continua(self) -> None:
         tour = _lee("components", "TourPage.qml")
         self.assertIn("property bool endsInSettings: true", tour)
         boton = tour.split("id: nextButton", 1)[1].split("onClicked:", 1)[0]
         self.assertIn('root.endsInSettings ? Strings.t("tour.finish"', boton)
-        self.assertIn('Strings.t("tour.close"', boton)
+        self.assertIn('Strings.t("tour.done"', boton)
+
+    def test_cuando_termina_el_boton_termina(self) -> None:
+        # Al final de un recorrido de tres pasos se espera «Finalizar», no un
+        # botón de navegación: nombrar el destino fue el primer arreglo y
+        # seguía siendo el gesto equivocado.
+        catalogo = _lee("components", "Strings.js")
+        self.assertIn('"tour.done": "Finish"', catalogo)
+        self.assertIn('"tour.done": "Finalizar"', catalogo)
+        for destino in ("Back to the panel", "Volver al panel"):
+            with self.subTest(destino=destino):
+                self.assertNotIn(destino, catalogo)
 
     def test_el_panel_dice_la_verdad_sobre_donde_acaba(self) -> None:
         panel = _lee("Panel.qml")
@@ -430,6 +441,6 @@ class ElBotonFinalDiceADondeVaTests(unittest.TestCase):
 
     def test_las_dos_etiquetas_existen_en_los_dos_idiomas(self) -> None:
         catalogo = _lee("components", "Strings.js")
-        for clave in ('"tour.finish"', '"tour.close"'):
+        for clave in ('"tour.finish"', '"tour.done"'):
             with self.subTest(clave=clave):
                 self.assertEqual(catalogo.count(clave), 2)

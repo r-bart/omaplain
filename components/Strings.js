@@ -196,7 +196,7 @@ var EN = {
   "tour.back.a11y": "Back to the previous step",
   "tour.next": "Next",
   "tour.finish": "See the settings",
-  "tour.close": "Back to the panel",
+  "tour.done": "Finish",
   "tour.skip": "Skip the tour",
   "tour.leave": "Leave the recap",
 
@@ -471,7 +471,7 @@ var ES = {
   "tour.back.a11y": "Volver al paso anterior",
   "tour.next": "Siguiente",
   "tour.finish": "Ver los ajustes",
-  "tour.close": "Volver al panel",
+  "tour.done": "Finalizar",
   "tour.skip": "Saltar el tour",
   "tour.leave": "Salir del repaso",
 
