@@ -91,12 +91,19 @@ class UiContractTests(unittest.TestCase):
         # lo vio porque `Style.space(44)` esta perfectamente escrito; lo que
         # faltaba era el import. Esta guardia mira la pareja uso/import, que es
         # lo unico que lo detecta sin abrir el panel.
+        #
+        # Los comentarios no cuentan como uso. Mencionar `Style.space()` al
+        # explicar por qué un fichero dejó de usarlo obligaba a mantener un
+        # import muerto para no romper esta guardia, que es justo al revés de
+        # lo que la guardia quiere.
         singletons = ("Style", "Color", "Util", "Border")
         files = [*REPO.glob("*.qml"), *sorted((REPO / "components").glob("*.qml"))]
         self.assertTrue(files, "no se encontro ningun QML que revisar")
         for path in files:
             source = path.read_text(encoding="utf-8")
-            used = [n for n in singletons if re.search(r"\b" + n + r"\s*\.", source)]
+            code = "\n".join(
+                line.split("//")[0] for line in source.splitlines())
+            used = [n for n in singletons if re.search(r"\b" + n + r"\s*\.", code)]
             if not used:
                 continue
             with self.subTest(file=path.name, uses=",".join(used)):
