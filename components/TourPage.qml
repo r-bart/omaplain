@@ -214,6 +214,7 @@ Item {
         lang: root.lang
         id: demo
         width: parent.width
+        motionEnabled: root.motionEnabled
         // Solo el paso 2 promete que se retira algo; en los otros dos la
         // demostracion no ilustra nada de lo que dice el texto.
         visible: root.step === 1

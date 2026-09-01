@@ -22,6 +22,16 @@ Item {
 
   // 0 = recién llegado, 1 = transformación consumada.
   property real progress: motionEnabled ? 0 : 1
+
+  // Los dos naipes son la misma copia, antes y después, así que miden lo
+  // mismo. Estaban escritos por separado —122 el de «COPIED» y 126 el de
+  // «CLEAN»— y el de la derecha salía un 3% más alto sin que nada lo
+  // pidiera. La rotación disimulaba la diferencia en el recuadro externo,
+  // pero el relleno del limpio va a opacidad plena contra el 0,72 del
+  // sucio, y una forma más clara sobre fondo oscuro ya se lee más grande
+  // de por sí: los 4 puntos extra empujaban en la misma dirección.
+  readonly property real cardWidth: Style.space(116)
+  readonly property real cardHeight: Style.space(122)
   readonly property real entered: motionEnabled ? enterFactor : 1
   property real enterFactor: 0
 
@@ -80,8 +90,8 @@ Item {
       BorderSurface {
         x: Style.space(20)
         y: Style.space(23)
-        width: Style.space(116)
-        height: Style.space(122)
+        width: root.cardWidth
+        height: root.cardHeight
         rotation: -6
         radius: Math.max(2, Style.cornerRadius - Style.space(2))
         color: Util.alpha(Color.popups.text, 0.72)
@@ -122,8 +132,8 @@ Item {
       BorderSurface {
         x: Style.space(112)
         y: Style.space(20)
-        width: Style.space(116)
-        height: Style.space(126)
+        width: root.cardWidth
+        height: root.cardHeight
         // Se endereza un grado al consumarse: la copia limpia se asienta.
         rotation: 5 - root.progress
         scale: 0.98 + 0.02 * root.progress

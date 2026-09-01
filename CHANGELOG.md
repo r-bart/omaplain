@@ -48,6 +48,15 @@ nueve controles no se veían por un import que faltaba.
 - Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
   que vienen puestos se quedan a la vista.
 - Copy revisado de arriba abajo, en los dos idiomas.
+- **El paso 2 del tour se enseña solo, y baja de cinco mandos a cuatro.** La
+  muestra pierde sus parámetros de seguimiento delante de ti al entrar, en
+  vez de esperar a que alguien pulse. Con eso, «Otro ejemplo» sobraba: la
+  `0004` pide una acción primaria por vista y ahí la primaria es
+  «Siguiente». Queda un solo botón de la demostración, que con movimiento
+  sirve para volver a mirar y sin movimiento es quien hace la
+  demostración. La segunda muestra —el enlace firmado que no se toca— sigue
+  en el catálogo y bajo test: su lección ya la daba con palabras el aviso de
+  encima.
 - **La cabecera deja de anunciar el estado normal.** Un servicio que está
   corriendo es lo que se espera de él, y rotularlo «ACTIVO» gastaba la
   primera línea en decir que no pasa nada. La insignia aparece sólo cuando
@@ -114,6 +123,24 @@ nueve controles no se veían por un import que faltaba.
   otras dos cajas. Las superficies pasan a seguir el ancho de la pila. El
   párrafo del paso conserva su tope, que ahí no es una caja mal medida sino
   una columna de lectura: envuelve a unos 57 caracteres.
+- **Los dos naipes de la ilustración no medían lo mismo.** El de «CLEAN»
+  estaba escrito 4 puntos más alto que el de «COPIED» —126 contra 122— sin
+  que nada lo pidiera, y como además va relleno a opacidad plena contra el
+  0,72 del otro, y una forma más clara sobre fondo oscuro ya se lee más
+  grande de por sí, las dos cosas empujaban en la misma dirección. Ahora el
+  tamaño se declara una vez y lo comparten.
+- **El nombre accesible de la muestra estaba escrito en español dentro del
+  QML**, así que en inglés un lector de pantalla decía «Ejemplo original:
+  https://…». Es el mismo fallo que la demo ya había tenido con su texto, en
+  la única línea que se había quedado sin mirar. Y ahora anuncia el estado
+  asentado, no el fotograma: a media animación el texto es un recorte que no
+  existe en ninguna parte.
+- **La demostración daba dos saltos de maquetación.** La caja de la muestra
+  encogía de dos líneas a una al limpiarse, y la frase del resultado
+  aparecía de la nada: entre las dos empujaban los botones hacia arriba y
+  hacia abajo justo cuando el ojo iba hacia ellos. La caja reserva ahora la
+  altura del original, que es el estado más alto, y la frase ocupa su sitio
+  siempre.
 - **«Omitir la próxima copia» no caducaba por tiempo.** Se prometen sesenta
   segundos; con el escritorio quieto la marca se quedaba puesta
   indefinidamente y la cabecera seguía diciéndolo. La caducidad era perezosa

@@ -222,6 +222,9 @@ var EN = {
   "demo.original": "See the original",
   "demo.other": "Another example",
   "demo.other.a11y": "Another demonstration example",
+  "demo.replay": "Play it again",
+  "demo.a11y.before": "Original example: %1",
+  "demo.a11y.after": "Result: %1",
 
   // --- Último paso del recorrido ---
   "onboarding.last": "Last step",
@@ -243,7 +246,14 @@ var EN = {
   //
   // El original de la primera lleva un ZWSP al final, que es el carácter
   // invisible que la demo promete retirar.
-  "demo.sample1.original": "https://example.com/sourdough-bread?utm_source=newsletter&utm_medium=email&fbclid=IwAR9x&servings=8#baking​",
+  // El invisible va dentro del tramo que se retira, no colgando al final.
+  // Así el trozo que desaparece es uno solo y continuo, que es lo que la
+  // animación puede enseñar encogiéndose; el motor da el mismo resultado
+  // en los dos sitios, y `test_demo_sample.py` lo comprueba.
+  "demo.sample1.original": "https://example.com/sourdough-bread?utm_source=newsletter&utm_medium=email&fbclid=IwAR9x&​servings=8#baking",
+  "demo.sample1.head": "https://example.com/sourdough-bread?",
+  "demo.sample1.spare": "utm_source=newsletter&utm_medium=email&fbclid=IwAR9x&​",
+  "demo.sample1.tail": "servings=8#baking",
   "demo.sample1.cleaned": "https://example.com/sourdough-bread?servings=8#baking",
   "demo.sample2.original": "https://example.com/invoice.pdf?expires=1735689600&signature=ab12cd34",
   "demo.sample2.cleaned": "https://example.com/invoice.pdf?expires=1735689600&signature=ab12cd34",
@@ -490,6 +500,9 @@ var ES = {
   "demo.original": "Ver el original",
   "demo.other": "Otro ejemplo",
   "demo.other.a11y": "Otro ejemplo de demostración",
+  "demo.replay": "Verlo otra vez",
+  "demo.a11y.before": "Ejemplo original: %1",
+  "demo.a11y.after": "Resultado: %1",
 
   "onboarding.last": "Último paso",
   "onboarding.last.body": "Esto es lo que puedes ajustar. Ya viene todo configurado de forma segura, así que puedes dejarlo tal cual.",
@@ -501,7 +514,10 @@ var ES = {
   "settings.trim": "Retirar espacios al final de línea",
   "excl.class.hint": "Clase exacta de Hyprland que se excluirá.",
   "art.automatic": "Automático",
-  "demo.sample1.original": "https://example.com/pan-de-masa-madre?utm_source=boletin&utm_medium=email&fbclid=IwAR9x&porciones=8#horneado​",
+  "demo.sample1.original": "https://example.com/pan-de-masa-madre?utm_source=boletin&utm_medium=email&fbclid=IwAR9x&​porciones=8#horneado",
+  "demo.sample1.head": "https://example.com/pan-de-masa-madre?",
+  "demo.sample1.spare": "utm_source=boletin&utm_medium=email&fbclid=IwAR9x&​",
+  "demo.sample1.tail": "porciones=8#horneado",
   "demo.sample1.cleaned": "https://example.com/pan-de-masa-madre?porciones=8#horneado",
   "demo.sample2.original": "https://example.com/factura.pdf?expires=1735689600&signature=ab12cd34",
   "demo.sample2.cleaned": "https://example.com/factura.pdf?expires=1735689600&signature=ab12cd34",

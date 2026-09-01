@@ -36,14 +36,53 @@ def _keys() -> list[str]:
     return re.findall(r'"key":\s*"([^"]+)"', source)
 
 
+def _catalogue_keys() -> list[str]:
+    """Las muestras que el catálogo guarda, se enseñen o no.
+
+    El tour dejó de ofrecer la segunda —el enlace firmado que no se toca— al
+    quitarle un botón al paso. La lección la sigue dando el aviso de encima
+    con palabras, pero la muestra se queda aquí y bajo test: documenta la
+    contención del motor, y una regla nueva que empezara a recortar enlaces
+    firmados tiene que romper algo.
+    """
+    table = _table("EN")
+    keys = sorted({k.rsplit(".", 1)[0] for k in table if k.startswith("demo.sample")})
+    assert keys, "el catálogo no guarda ninguna muestra"
+    return keys
+
+
 def _samples(lang: str) -> list[tuple[str, str]]:
     table = _table(lang)
-    return [(table[f"{k}.original"], table[f"{k}.cleaned"]) for k in _keys()]
+    return [(table[f"{k}.original"], table[f"{k}.cleaned"]) for k in _catalogue_keys()]
+
+
+def _runs(lang: str) -> list[tuple[str, str, str, str, str]]:
+    """Sólo las muestras que pierden algo llevan tramos.
+
+    Una muestra que el motor no toca no tiene nada que encoger, y guardarle
+    tramos vacíos rompería dos invariantes del catálogo a la vez: que ninguna
+    clave queda en blanco y que el español no es una copia del inglés.
+    """
+    table = _table(lang)
+    return [
+        (table[f"{k}.head"], table[f"{k}.spare"], table[f"{k}.tail"],
+         table[f"{k}.original"], table[f"{k}.cleaned"])
+        for k in _catalogue_keys()
+        if f"{k}.spare" in table
+    ]
 
 
 class DemoSampleTests(unittest.TestCase):
-    def test_the_component_still_declares_samples(self) -> None:
-        self.assertGreaterEqual(len(_keys()), 2)
+    def test_the_component_shows_samples_the_catalogue_knows(self) -> None:
+        shown = _keys()
+        self.assertGreaterEqual(len(shown), 1)
+        for key in shown:
+            self.assertIn(key, _catalogue_keys())
+
+    def test_the_catalogue_still_keeps_both_lessons(self) -> None:
+        # Una que se limpia y una que no. Perder la segunda dejaría la
+        # contención del motor sin nada que la sujete.
+        self.assertGreaterEqual(len(_catalogue_keys()), 2)
 
     def test_every_shown_result_is_what_the_engine_actually_produces(self) -> None:
         # El corazón de la demostración: si una regla cambia y el resultado
@@ -157,3 +196,60 @@ class DemoSampleTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DemoRunTests(unittest.TestCase):
+    """Las dos costuras del tramo que la animación se come.
+
+    La animación borra `spare` carácter a carácter. Si los tres tramos no
+    recomponen exactamente el original y lo que queda no es exactamente lo
+    que el motor devuelve, la pantalla enseña un recorte que el producto no
+    hace, que es la misma mentira que estos tests existen para impedir.
+    """
+
+    def test_the_three_runs_rebuild_the_original(self) -> None:
+        for lang in ("EN", "ES"):
+            for index, (head, spare, tail, original, _) in enumerate(_runs(lang)):
+                with self.subTest(lang=lang, sample=index):
+                    self.assertEqual(head + spare + tail, original)
+
+    def test_what_survives_is_what_the_engine_returns(self) -> None:
+        for lang in ("EN", "ES"):
+            for index, (head, spare, tail, original, cleaned) in enumerate(_runs(lang)):
+                with self.subTest(lang=lang, sample=index):
+                    self.assertEqual(head + tail, cleaned)
+                    result = transform(original.encode("utf-8"), "text/plain", {})
+                    self.assertEqual(result.output.decode("utf-8"), head + tail)
+
+    def test_the_removed_run_is_one_continuous_piece(self) -> None:
+        # El original tiene que llevar `spare` entero y de una pieza: si el
+        # recorte fuera discontinuo, comérselo por un extremo se llevaría por
+        # delante texto que sobrevive.
+        for lang in ("EN", "ES"):
+            for index, (head, spare, tail, original, _) in enumerate(_runs(lang)):
+                with self.subTest(lang=lang, sample=index):
+                    if not spare:
+                        continue
+                    self.assertEqual(original.count(spare), 1)
+                    self.assertTrue(original.startswith(head + spare))
+
+    def test_the_demo_speaks_through_the_catalogue(self) -> None:
+        # El nombre accesible de la muestra iba escrito en español dentro del
+        # QML, así que en inglés un lector de pantalla decía «Ejemplo
+        # original: https://…».
+        source = COMPONENT.read_text(encoding="utf-8")
+        code = "\n".join(
+            line for line in source.splitlines() if not line.strip().startswith("//"))
+        for spanish in ("Resultado:", "Ejemplo original:"):
+            self.assertNotIn(spanish, code)
+
+    def test_every_sample_that_changes_carries_its_runs(self) -> None:
+        # Y sólo ésas. Sin tramos la animación no puede correr; con tramos en
+        # una muestra que no cambia, enseñaría desaparecer algo que se queda.
+        for lang in ("EN", "ES"):
+            table = _table(lang)
+            for key in _catalogue_keys():
+                changes = table[f"{key}.original"] != table[f"{key}.cleaned"]
+                with self.subTest(lang=lang, sample=key):
+                    self.assertEqual(changes, f"{key}.spare" in table)
+
