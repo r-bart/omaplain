@@ -1,10 +1,37 @@
+# Python: sólo la biblioteca estándar y `unittest`, pero un contribuyente
+# traerá su propia herramienta y no debe ensuciar el árbol con ella.
 __pycache__/
 *.py[cod]
+.venv/
+venv/
 .coverage
 coverage.xml
 htmlcov/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Qt escribe el QML ya compilado junto al fuente cuando `QML_DISK_CACHE` no
+# está redirigido. Es un artefacto de tu máquina, no del plugin.
+*.qmlc
+*.jsc
+.qmlls.ini
+
+# Restos de un demonio arrancado a mano fuera de `$XDG_RUNTIME_DIR`.
 *.sock
 *.tmp
+status.json
+
+# Conflictos de merge a medio resolver, que se cuelan con demasiada facilidad.
+*.orig
+*.rej
+
+# Cosas del editor y del sistema de ficheros. Lo suyo es tenerlas en tu
+# gitignore global; aquí van las cuatro que más veces acaban en un PR.
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Las capturas del README viven en `docs/images/` y **sí** se versionan: no
+# añadas una regla por extensión aquí sin excluirlas.
