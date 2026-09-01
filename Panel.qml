@@ -501,7 +501,19 @@ Item {
                + Style.space(12) + contentColumn.implicitHeight
                + Style.space(20)
         }
-        height: Math.min(Style.space(720), contentHeight, parent.height - Style.space(32))
+        // El techo de 720 protege a la vista de todos los días: los ajustes,
+        // con sus desplegables abiertos, se comerían la pantalla entera.
+        //
+        // El onboarding no es esa vista. Se ve una vez en la vida, se lee de
+        // arriba abajo y su acción primaria vive al final, así que cortarlo
+        // por el techo dejaba «Siguiente» y la salida del tour por debajo del
+        // borde: había que arrastrar la pantalla para poder continuarla. Ahí
+        // el único techo razonable es la propia pantalla, que ya lo sujeta
+        // todo en la línea de abajo.
+        readonly property real ceiling: root.viewMode === "main"
+          ? Style.space(720)
+          : parent.height - Style.space(32)
+        height: Math.min(ceiling, contentHeight, parent.height - Style.space(32))
         radius: Style.cornerRadius
         color: Color.popups.background
         borderSpec: Border.surfaceSpec("popups", "border", Color.popups.border, Math.max(1, Style.normalBorderWidth))

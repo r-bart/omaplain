@@ -48,6 +48,12 @@ nueve controles no se veían por un import que faltaba.
 - Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
   que vienen puestos se quedan a la vista.
 - Copy revisado de arriba abajo, en los dos idiomas.
+- **El onboarding ya no se lee arrastrando.** La tarjeta tenía un techo de
+  `space(720)` para que los ajustes no se comieran la pantalla, y el paso 2
+  del tour lo tocaba: «Siguiente» y la salida quedaban por debajo del borde,
+  de modo que había que desplazar la pantalla para poder continuarla. La
+  bienvenida y el tour crecen ahora hasta su contenido, con la pantalla como
+  único límite; la vista de todos los días conserva su techo intacto.
 - **El paso 2 del tour se enseña solo, y baja de cinco mandos a cuatro.** La
   muestra pierde sus parámetros de seguimiento delante de ti al entrar, en
   vez de esperar a que alguien pulse. Con eso, «Otro ejemplo» sobraba: la

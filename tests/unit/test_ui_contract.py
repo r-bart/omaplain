@@ -613,3 +613,36 @@ class UiContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PanelHeightTests(unittest.TestCase):
+    """El techo de la tarjeta, que no es el mismo en las dos vidas del panel."""
+
+    def _ceiling(self) -> str:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        block = re.search(
+            r"readonly property real ceiling:(?P<body>.*?)\n        height:",
+            panel, re.DOTALL)
+        assert block, "no encuentro el techo de la tarjeta"
+        return block.group("body")
+
+    def test_the_everyday_view_keeps_its_ceiling(self) -> None:
+        # Los ajustes, con los desplegables abiertos, se comerían la pantalla.
+        # Subir el techo del onboarding no puede llevarse esto por delante.
+        self.assertIn("Style.space(720)", self._ceiling())
+        self.assertIn('viewMode === "main"', self._ceiling())
+
+    def test_the_onboarding_is_bounded_by_the_screen_and_not_by_a_number(self) -> None:
+        # Se ve una vez en la vida, se lee de arriba abajo y su acción
+        # primaria vive al final. Cortarlo por un número dejaba «Siguiente» y
+        # la salida del tour por debajo del borde.
+        onboarding = self._ceiling().split(":")[1] if ":" in self._ceiling() else self._ceiling()
+        self.assertIn("parent.height", onboarding)
+        self.assertNotIn("Style.space(720)", onboarding)
+
+    def test_the_screen_still_has_the_last_word(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        self.assertIn(
+            "height: Math.min(ceiling, contentHeight, parent.height - Style.space(32))",
+            panel)
+
