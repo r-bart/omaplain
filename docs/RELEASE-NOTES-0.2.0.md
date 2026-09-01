@@ -42,7 +42,7 @@ configuración: aparece sólo donde tiene que aparecer.
 
 ## Verificación
 
-158 tests unitarios y de propiedades, el validador oficial de plugins, un
+165 tests unitarios y de propiedades, el validador oficial de plugins, un
 benchmark y un soak acelerado de 28.800 eventos. Consulta
 [TEST-REPORT.md](TEST-REPORT.md) para el detalle, incluido lo que **no** se ha
 podido comprobar.

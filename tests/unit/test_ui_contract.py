@@ -646,3 +646,71 @@ class PanelHeightTests(unittest.TestCase):
             "height: Math.min(ceiling, contentHeight, parent.height - Style.space(32))",
             panel)
 
+
+
+class SettingsHarmonyTests(unittest.TestCase):
+    """Lo que la revisión de los ajustes dejó atado.
+
+    Todo esto se midió sobre el panel real antes de tocarlo, y todo vuelve
+    solo en cuanto alguien añade una sección copiando y pegando la anterior.
+    """
+
+    def _panel(self) -> str:
+        return (REPO / "Panel.qml").read_text(encoding="utf-8")
+
+    def test_every_section_title_goes_through_the_heading(self) -> None:
+        # Sueltos en la columna recibían el mismo aire por arriba que por
+        # abajo —21 y 24 px medidos, y esos números eran la letra, no el
+        # diseño— así que la página se leía como una lista plana.
+        panel = self._panel()
+        sueltos = re.findall(
+            r"Text \{[^}]*font\.pixelSize: Style\.font\.subtitle[^}]*font\.bold: true[^}]*\}",
+            panel, re.DOTALL)
+        self.assertEqual(sueltos, [], "un encabezado de sección sin SectionHeading")
+        self.assertGreaterEqual(panel.count("SectionHeading {"), 6)
+
+    def test_the_heading_opens_the_section_it_titles(self) -> None:
+        heading = (REPO / "components" / "SectionHeading.qml").read_text(encoding="utf-8")
+        self.assertIn("topPadding:", heading)
+        self.assertIn("Accessible.role: Accessible.Heading", heading)
+
+    def test_the_row_lets_the_kit_size_it(self) -> None:
+        # `Toggle.qml` ya hace Math.max(54, content.implicitHeight + huge).
+        # Nuestro override lo tiraba y dejaba apretadas las filas cuya
+        # descripción ocupa dos líneas.
+        row = (REPO / "components" / "SettingRow.qml").read_text(encoding="utf-8")
+        code = "\n".join(l for l in row.splitlines() if not l.strip().startswith("//"))
+        self.assertNotIn("implicitHeight", code)
+        self.assertNotIn("contentHeight", code)
+
+    def test_a_field_label_is_not_dressed_as_a_section(self) -> None:
+        panel = self._panel()
+        for ident in ("privacyFieldLabel", "classFieldLabel"):
+            bloque = panel.split(f"id: {ident}", 1)[1].split("}", 1)[0]
+            with self.subTest(label=ident):
+                self.assertNotIn("font.bold: true", bloque)
+                self.assertIn("Util.alpha(Color.popups.text, 0.68)", bloque)
+
+    def test_the_disclosures_share_the_left_edge(self) -> None:
+        panel = self._panel()
+        for ident in ("historyWhyButton", "optionalButton"):
+            bloque = panel.split(f"id: {ident}", 1)[1].split("onClicked:", 1)[0]
+            with self.subTest(button=ident):
+                self.assertIn("leftAlign: true", bloque)
+
+    def test_the_placeholder_is_not_left_to_the_kit(self) -> None:
+        # El del kit mide 4,19:1 contra el relleno del campo, por debajo del
+        # 4,5 de la AA, y aquí es la única pista de qué hay que teclear.
+        panel = self._panel()
+        self.assertGreater(panel.count("placeholderText:"), 0)
+        self.assertEqual(panel.count("placeholderText:"),
+                         panel.count("placeholderTextColor:"))
+
+    def test_wrapping_prose_uses_the_prose_alpha(self) -> None:
+        # 0,68 es para rótulos y foregrounds de control; la prosa que
+        # envuelve va a 0,72.
+        panel = self._panel()
+        for clave in ("root.historyDetail()", 'Strings.t("privacy.note", root.lang)'):
+            bloque = panel.split(clave, 1)[1].split("}", 1)[0]
+            with self.subTest(text=clave):
+                self.assertIn("0.72", bloque)

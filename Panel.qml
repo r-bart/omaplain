@@ -966,12 +966,8 @@ Item {
 
               // El idioma va el primero: si alguien abre los ajustes por no
               // entender la interfaz, es lo primero que necesita encontrar.
-              Text {
+              SectionHeading {
                 text: Strings.t("settings.language", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
               }
 
               Grid {
@@ -1006,6 +1002,14 @@ Item {
                 }
               }
 
+              // Vivía debajo del encabezado «Idioma», sin nada que dijera que
+              // había salido de esa sección: con el espaciado uniforme, una
+              // fila más era una fila más. Es un ajuste de movimiento, así
+              // que tiene el suyo.
+              SectionHeading {
+                text: Strings.t("settings.motionSection", root.lang)
+              }
+
               SettingRow {
                 id: motionToggle
                 width: parent.width
@@ -1016,12 +1020,8 @@ Item {
                 onClicked: if (service) service.updateSetting("reduceMotion", !checked)
               }
 
-              Text {
+              SectionHeading {
                 text: Strings.t("settings.mode", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
               }
 
               SettingRow {
@@ -1037,7 +1037,10 @@ Item {
               Text {
                 width: parent.width
                 text: root.historyDetail()
-                color: Util.alpha(Color.popups.text, 0.68)
+                // Prosa que envuelve: 0,72, como el resto de la prosa del
+                // panel. 0,68 es el valor de los rótulos y los foregrounds
+                // de control.
+                color: Util.alpha(Color.popups.text, 0.72)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
@@ -1053,6 +1056,10 @@ Item {
                 text: (root.historyOpen ? "▾  " : "▸  ") + Strings.t("history.why", root.lang)
                 focusable: true
                 bordered: true
+                // Alineado con el texto que abre y con el resto de la columna. El
+                // kit centra por defecto, y era el único bloque centrado de
+                // una página alineada a la izquierda.
+                leftAlign: true
                 foreground: Util.alpha(Color.popups.text, 0.68)
                 Accessible.role: Accessible.Button
                 Accessible.name: Strings.t("history.why", root.lang)
@@ -1074,12 +1081,8 @@ Item {
                 lineHeight: 1.4
               }
 
-              Text {
+              SectionHeading {
                 text: Strings.t("settings.cleaning", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
               }
 
               SettingRow {
@@ -1130,6 +1133,10 @@ Item {
                 text: (root.optionalOpen ? "▾  " : "▸  ") + Strings.t("settings.optional", root.lang)
                 focusable: true
                 bordered: true
+                // Alineado con el texto que abre y con el resto de la columna. El
+                // kit centra por defecto, y era el único bloque centrado de
+                // una página alineada a la izquierda.
+                leftAlign: true
                 foreground: Color.popups.text
                 Accessible.role: Accessible.Button
                 Accessible.name: Strings.t("settings.optional", root.lang)
@@ -1181,12 +1188,8 @@ Item {
               // 0009: dos listas que deciden si algo se lee y se enseña,
               // separadas de las que deciden si algo se limpia. Mezclarlas
               // obligaría a aceptar una para tener la otra.
-              Text {
+              SectionHeading {
                 text: Strings.t("privacy.title", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
               }
 
               Text {
@@ -1203,7 +1206,7 @@ Item {
               Text {
                 width: parent.width
                 text: Strings.t("privacy.note", root.lang)
-                color: Util.alpha(Color.popups.text, 0.68)
+                color: Util.alpha(Color.popups.text, 0.72)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
@@ -1244,10 +1247,15 @@ Item {
               Text {
                 id: privacyFieldLabel
                 text: Strings.t("privacy.class", root.lang)
-                color: Color.popups.text
+                // El rótulo de un campo, no un encabezado de sección. Iba
+                // en negrita a color pleno —11,33:1, exactamente lo mismo que
+                // «Privacy» o «Cleaning», y a un solo escalón de tamaño— así
+                // que en pantalla eran indistinguibles y este rótulo abría una
+                // sección que no existe. Ahora usa el tratamiento de rótulo que
+                // el panel ya tiene.
+                color: Util.alpha(Color.popups.text, 0.68)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
-                font.bold: true
 
                 MouseArea {
                   anchors.fill: parent
@@ -1262,6 +1270,12 @@ Item {
                 implicitHeight: Style.space(44)
                 font.pixelSize: Math.max(16, Style.font.body)
                 placeholderText: "org.example.Application"
+                // El del kit sale de `Qt.darker(foreground, 1.6)` y mide
+                // 4,19:1 contra el relleno del campo, por debajo del 4,5
+                // que pide la AA para texto. Aquí no es decoración: es la
+                // única pista de qué hay que teclear. 0,68 —el alfa de
+                // rótulo que el panel ya usa— da 5,55:1.
+                placeholderTextColor: Util.alpha(Color.popups.text, 0.68)
                 selectByMouse: true
                 maximumLength: 256
                 Accessible.name: Strings.t("privacy.class", root.lang)
@@ -1342,12 +1356,8 @@ Item {
                 Accessible.name: text
               }
 
-              Text {
+              SectionHeading {
                 text: Strings.t("excl.title", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
               }
 
               Button {
@@ -1403,10 +1413,15 @@ Item {
               Text {
                 id: classFieldLabel
                 text: Strings.t("excl.class", root.lang)
-                color: Color.popups.text
+                // El rótulo de un campo, no un encabezado de sección. Iba
+                // en negrita a color pleno —11,33:1, exactamente lo mismo que
+                // «Privacy» o «Cleaning», y a un solo escalón de tamaño— así
+                // que en pantalla eran indistinguibles y este rótulo abría una
+                // sección que no existe. Ahora usa el tratamiento de rótulo que
+                // el panel ya tiene.
+                color: Util.alpha(Color.popups.text, 0.68)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
-                font.bold: true
 
                 MouseArea {
                   anchors.fill: parent
@@ -1421,6 +1436,12 @@ Item {
                 implicitHeight: Style.space(44)
                 font.pixelSize: Math.max(16, Style.font.body)
                 placeholderText: "org.example.Application"
+                // El del kit sale de `Qt.darker(foreground, 1.6)` y mide
+                // 4,19:1 contra el relleno del campo, por debajo del 4,5
+                // que pide la AA para texto. Aquí no es decoración: es la
+                // única pista de qué hay que teclear. 0,68 —el alfa de
+                // rótulo que el panel ya usa— da 5,55:1.
+                placeholderTextColor: Util.alpha(Color.popups.text, 0.68)
                 selectByMouse: true
                 maximumLength: 256
                 Accessible.name: Strings.t("excl.class", root.lang)
@@ -1486,12 +1507,8 @@ Item {
                 Accessible.name: text
               }
 
-              Text {
+              SectionHeading {
                 text: Strings.t("help.title", root.lang)
-                color: Color.popups.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.subtitle
-                font.bold: true
               }
 
               Text {

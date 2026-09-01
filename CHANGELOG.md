@@ -48,6 +48,16 @@ nueve controles no se veían por un import que faltaba.
 - Los cuatro ajustes de limpieza opcionales van bajo divulgación; los cuatro
   que vienen puestos se quedan a la vista.
 - Copy revisado de arriba abajo, en los dos idiomas.
+- **Los ajustes vuelven a leerse como secciones.** Los encabezados eran
+  `Text` sueltos en una columna de espaciado uniforme, así que recibían el
+  mismo aire por los dos lados —21 px arriba y 24 abajo, medidos, y esos dos
+  números eran el ascendente y el descendente de la letra, no diseño—.
+  Con 19 px entre filas, la página tenía tres valores casi idénticos
+  haciendo tres trabajos distintos y se leía como una lista plana de veinte
+  filas. Ahora hay un `SectionHeading` que abre su sección: 43 px encima
+  contra 24 debajo, y 19 entre filas del mismo grupo.
+- **«Reducir movimiento» tiene su propia sección.** Vivía debajo del
+  encabezado «Idioma», sin nada que dijera que había salido de él.
 - **El onboarding ya no se lee arrastrando.** La tarjeta tenía un techo de
   `space(720)` para que los ajustes no se comieran la pantalla, y el paso 2
   del tour lo tocaba: «Siguiente» y la salida quedaban por debajo del borde,
@@ -129,6 +139,23 @@ nueve controles no se veían por un import que faltaba.
   otras dos cajas. Las superficies pasan a seguir el ancho de la pila. El
   párrafo del paso conserva su tope, que ahí no es una caja mal medida sino
   una columna de lectura: envuelve a unos 57 caracteres.
+- **Todas las filas de ajuste medían lo mismo, mirara o no el contenido.**
+  `SettingRow` sobreescribía la altura con `Math.max(Style.space(44), 54)` y
+  con eso tiraba el cálculo del kit, que es
+  `Math.max(54, content.implicitHeight + Style.spacing.huge)`. Las filas con
+  descripción de dos líneas iban apretadas contra sus bordes; ahora pasan de
+  56 a 75 px y el resto se queda como estaba.
+- **Dos rótulos de campo se disfrazaban de encabezado de sección.**
+  «Clase de aplicación» iba en negrita a color pleno —11,33:1, exactamente
+  lo mismo que «Privacidad», y a un solo escalón de tamaño—, así que abría
+  una sección que no existía.
+- **Los dos desplegables eran los únicos bloques centrados** de una página
+  alineada a la izquierda, y abren texto que sí empieza a la izquierda.
+- **El texto de ejemplo del campo daba 4,19:1**, por debajo del 4,5 que pide
+  la AA, y ahí no es decoración: es la única pista de qué hay que teclear.
+  Pasa a 5,55:1 con el alfa de rótulo que el panel ya usa.
+- **Dos párrafos que envuelven iban con el alfa de los rótulos.** El panel
+  usa 0,68 para rótulos y foregrounds de control y 0,72 para prosa.
 - **Los dos naipes de la ilustración no medían lo mismo.** El de «CLEAN»
   estaba escrito 4 puntos más alto que el de «COPIED» —126 contra 122— sin
   que nada lo pidiera, y como además va relleno a opacidad plena contra el
