@@ -14,7 +14,14 @@ Item {
   property var manifest: null
   property var service: null
   property bool opened: false
-  property string fieldError: ""
+  // Un solo mensaje para un solo formulario. Antes eran dos, uno por
+  // sección, y sólo uno de los dos llevaba la pista de las mayúsculas.
+  property string appsError: ""
+  property bool appsUrgent: false
+  // La aplicación que acaba de traer el selector y todavía no tiene ninguna
+  // regla. No se persiste: las cuatro listas son el almacén, y una app sin
+  // regla no está en ninguna.
+  property string pendingApp: ""
   property string feedback: ""
   property bool feedbackError: false
   property bool focusReady: false
@@ -26,7 +33,6 @@ Item {
   property string mainFocusTarget: "clean"
   property bool showBefore: false
   property bool showAfter: false
-  property string privacyError: ""
   // F.3: dura 1,5 s desde que el helper confirma que limpió de verdad.
   property bool cleanConfirmed: false
   // F.5: el desplegable del historial nace cerrado y no se recuerda: es una
@@ -181,12 +187,15 @@ Item {
   function togglePage() {
     if (onboardingSettings) { finishOnboarding(); return }
     panelPage = panelPage === "settings" ? "clipboard" : "settings"
+    // El selector ofrece lo que hay abierto *ahora*, no lo que había cuando
+    // se abrió el panel.
+    if (panelPage === "settings" && service) service.captureOpenWindows()
     scroll.contentY = 0
     Qt.callLater(root.applyViewFocus)
   }
 
   function open(payloadJson) {
-    if (service) service.captureCurrentApp()
+    if (service) service.captureOpenWindows()
     viewMode = Number(setting("onboardingVersion", 0)) >= onboardingVersion ? "main" : "welcome"
     learningOrigin = viewMode === "welcome" ? "first-run" : "main"
     tourEntry = "welcome"
@@ -195,7 +204,8 @@ Item {
     opened = true
     if (service) service.requestPeek()
     feedback = ""
-    fieldError = ""
+    appsError = ""
+    pendingApp = ""
     focusReady = false
     scroll.contentY = 0
     initialFocusTimer.restart()
@@ -206,7 +216,8 @@ Item {
     focusReady = false
     initialFocusTimer.stop()
     feedbackTimer.stop()
-    fieldError = ""
+    appsError = ""
+    pendingApp = ""
   }
 
   function dismiss() {
@@ -343,63 +354,79 @@ Item {
     }
   }
 
-  function submitExclusion(scope) {
-    if (!service) return
-    var value = classField.text.trim()
-    var result = service.addExclusion(scope, value)
-    if (result === "invalid") {
-      fieldError = Strings.t("err.invalidClass", root.lang)
-      Qt.callLater(function() { root.reveal(fieldMessage) })
+  // Las cuatro listas de la 0009, con el nombre corto que usa la interfaz.
+  readonly property var ruleKeys: ({
+    covered: "alwaysCovered",
+    blocked: "blockedApps",
+    source: "sourceExclusions",
+    target: "targetExclusions"
+  })
+
+  // Lo que se pinta: la unión de las cuatro listas, más la que acaba de
+  // entrar y todavía no tiene regla. Ordenada a propósito — si el orden
+  // saliera de las listas, marcar una regla movería la tarjeta bajo el dedo.
+  function ruledApps() {
+    var seen = ({})
+    var names = []
+    var keys = ["alwaysCovered", "blockedApps", "sourceExclusions", "targetExclusions"]
+    for (var i = 0; i < keys.length; i++) {
+      var values = setting(keys[i], [])
+      if (!Array.isArray(values)) continue
+      for (var j = 0; j < values.length; j++) {
+        var value = String(values[j])
+        if (value !== "" && seen[value] !== true) {
+          seen[value] = true
+          names.push(value)
+        }
+      }
+    }
+    if (pendingApp !== "" && seen[pendingApp] !== true) names.push(pendingApp)
+    names.sort(function(first, second) {
+      var a = first.toLowerCase()
+      var b = second.toLowerCase()
+      return a < b ? -1 : (a > b ? 1 : 0)
+    })
+    return names
+  }
+
+  function hasRule(kind, appClass) {
+    var values = setting(ruleKeys[kind] || "sourceExclusions", [])
+    return Array.isArray(values) && values.indexOf(appClass) !== -1
+  }
+
+  // Traer una aplicación no le pone ninguna regla: la deja delante para que
+  // se elija. Es la única acción del formulario, así que ni Enter ni el
+  // selector deciden ya por su cuenta a qué lista va nada.
+  function addApp(value) {
+    var name = String(value || "").trim()
+    if (!service || !service.validAppClass(name)) {
+      appsError = Strings.t("apps.invalid", root.lang)
+      appsUrgent = true
+      Qt.callLater(function() { root.reveal(appsMessage) })
       return
     }
-    if (result === "duplicate") {
-      fieldError = Strings.t("err.duplicate", root.lang)
-      Qt.callLater(function() { root.reveal(fieldMessage) })
-      return
-    }
-    fieldError = ""
+    var repetida = ruledApps().indexOf(name) !== -1
+    appsError = repetida ? Strings.t("apps.duplicate", root.lang) : ""
+    appsUrgent = false
+    pendingApp = name
     classField.text = ""
+    Qt.callLater(function() { root.reveal(appsList) })
   }
 
-  function submitPrivacy(scope) {
+  function toggleRule(appClass, kind, next) {
     if (!service) return
-    var value = privacyField.text.trim()
-    var result = service.addExclusion(scope, value)
-    if (result === "invalid") {
-      privacyError = Strings.t("err.invalidClass", root.lang)
-      Qt.callLater(function() { root.reveal(privacyMessage) })
-      return
-    }
-    if (result === "duplicate") {
-      privacyError = Strings.t("err.duplicate", root.lang)
-      Qt.callLater(function() { root.reveal(privacyMessage) })
-      return
-    }
-    privacyError = ""
-    privacyField.text = ""
+    if (next) service.addExclusion(kind, appClass)
+    else service.removeExclusion(kind, appClass)
   }
 
-  // Rellena el campo en vez de decidir por el usuario: aquí hay dos listas
-  // y la aplicación detectada no dice a cuál de las dos quiere ir.
-  function usePrivacyDetected() {
-    if (!service || !service.currentAppClass) {
-      privacyError = Strings.t("privacy.undetected", root.lang)
-      Qt.callLater(function() { root.reveal(privacyMessage) })
-      return
+  function removeApp(appClass) {
+    if (service) {
+      var kinds = ["covered", "blocked", "source", "target"]
+      for (var i = 0; i < kinds.length; i++) service.removeExclusion(kinds[i], appClass)
     }
-    privacyError = ""
-    privacyField.text = service.currentAppClass
-    privacyField.forceActiveFocus()
-  }
-
-  function excludeDetected() {
-    if (!service || !service.currentAppClass) {
-      fieldError = Strings.t("excl.undetected", root.lang)
-      Qt.callLater(function() { root.reveal(fieldMessage) })
-      return
-    }
-    classField.text = service.currentAppClass
-    submitExclusion("source")
+    if (pendingApp === appClass) pendingApp = ""
+    appsError = ""
+    appsUrgent = false
   }
 
   function reveal(item) {
@@ -599,7 +626,7 @@ Item {
               id: brandText
               anchors.left: parent.left
               anchors.verticalCenter: parent.verticalCenter
-              text: Strings.t("app.name", root.lang)
+              text: "OmaPlain"
               color: Color.popups.text
               font.family: Style.font.family
               // Un escalón por encima del subtítulo, pero sin llegar al del
@@ -610,7 +637,7 @@ Item {
               font.letterSpacing: -Style.spaceReal(0.2)
             }
 
-            Button {
+            PanelButton {
               id: optionsButton
               anchors.right: parent.right
               anchors.verticalCenter: parent.verticalCenter
@@ -637,14 +664,10 @@ Item {
               tooltipText: root.onboardingSettings
                 ? Strings.t("nav.skip.a11y", root.lang)
                 : (root.panelPage === "settings" ? Strings.t("nav.back.a11y", root.lang) : Strings.t("nav.options.a11y", root.lang))
-              focusable: true
-              bordered: true
               foreground: root.panelPage === "settings" ? Color.accent : Util.alpha(Color.popups.text, 0.68)
-              Accessible.role: Accessible.Button
               Accessible.name: root.onboardingSettings
                 ? Strings.t("nav.skip.a11y", root.lang)
                 : (root.panelPage === "settings" ? Strings.t("nav.back.a11y", root.lang) : Strings.t("nav.options.a11y", root.lang))
-              Accessible.onPressAction: root.togglePage()
               onClicked: root.togglePage()
             }
           }
@@ -906,24 +929,17 @@ Item {
                   onClicked: root.runAction("cleanNow")
                 }
 
-                Button {
+                PanelButton {
                   id: skipButton2
                   width: (clipboardActions.width - (clipboardActions.columns - 1) * clipboardActions.columnSpacing) / clipboardActions.columns
-                  implicitHeight: Style.space(44)
                   text: service && service.status && service.status.skipNext ? Strings.t("action.skipped", root.lang) : Strings.t("action.skip", root.lang)
-                  focusable: true
-                  bordered: true
-                  foreground: Color.popups.text
                   enabled: service && !service.actionBusy
-                  Accessible.role: Accessible.Button
-                  Accessible.name: text
-                  Accessible.onPressAction: root.runAction("skipNext")
-                  onActiveFocusChanged: if (activeFocus) root.reveal(skipButton2)
+                  onFocusEntered: function(item) { root.reveal(item) }
                   onClicked: root.runAction("skipNext")
                 }
               }
 
-              Button {
+              PanelButton {
                 id: emptyHowButton
                 width: parent.width
                 // También en los bypass. Ahí la última línea era «no hay
@@ -932,17 +948,11 @@ Item {
                 // quien no entiende por qué su imagen no se toca no tenía
                 // dónde ir a averiguarlo.
                 visible: root.peekEmpty || root.peekBypass
-                implicitHeight: Style.space(44)
                 text: Strings.t("empty.how", root.lang)
                 iconText: "→"
-                focusable: true
-                bordered: true
                 foreground: Color.accent
-                Accessible.role: Accessible.Button
-                Accessible.name: Strings.t("empty.how", root.lang)
                 Accessible.description: Strings.t("empty.how.a11y", root.lang)
-                Accessible.onPressAction: root.showTour("main", "main")
-                onActiveFocusChanged: if (activeFocus) root.reveal(emptyHowButton)
+                onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: root.showTour("main", "main")
               }
 
@@ -1046,20 +1056,15 @@ Item {
                     { value: "en", key: "settings.language.en" },
                     { value: "es", key: "settings.language.es" }
                   ]
-                  delegate: Button {
+                  delegate: PanelButton {
                     required property var modelData
                     readonly property bool chosen: String(root.setting("language", "auto")) === modelData.value
                     width: (languageChoices.width - (languageChoices.columns - 1) * languageChoices.columnSpacing) / languageChoices.columns
-                    implicitHeight: Style.space(44)
                     text: Strings.t(modelData.key, root.lang)
-                    focusable: true
-                    bordered: true
                     foreground: chosen ? Color.accent : Util.alpha(Color.popups.text, 0.68)
                     Accessible.role: Accessible.RadioButton
-                    Accessible.name: text
                     Accessible.checked: chosen
-                    Accessible.onPressAction: root.chooseLanguage(modelData.value)
-                    onActiveFocusChanged: if (activeFocus) root.reveal(this)
+                    onFocusEntered: function(item) { root.reveal(item) }
                     onClicked: root.chooseLanguage(modelData.value)
                   }
                 }
@@ -1112,23 +1117,18 @@ Item {
               // F.5: la explicación completa cabe aquí, desplegable, y no en
               // un tooltip: lo que hace falta leer despacio no puede vivir
               // colgado del ratón, donde el teclado no llega.
-              Button {
+              PanelButton {
                 id: historyWhyButton
                 width: parent.width
-                implicitHeight: Style.space(44)
                 text: (root.historyOpen ? "▾  " : "▸  ") + Strings.t("history.why", root.lang)
-                focusable: true
-                bordered: true
                 // Alineado con el texto que abre y con el resto de la columna. El
                 // kit centra por defecto, y era el único bloque centrado de
                 // una página alineada a la izquierda.
                 leftAlign: true
                 foreground: Util.alpha(Color.popups.text, 0.68)
-                Accessible.role: Accessible.Button
                 Accessible.name: Strings.t("history.why", root.lang)
                 Accessible.description: Strings.t("history.why.body", root.lang)
-                Accessible.onPressAction: root.historyOpen = !root.historyOpen
-                onActiveFocusChanged: if (activeFocus) root.reveal(historyWhyButton)
+                onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: root.historyOpen = !root.historyOpen
               }
 
@@ -1189,22 +1189,13 @@ Item {
               // sección de privacidad, creció. Los cuatro que sí vienen
               // puestos de fábrica se quedan a la vista, porque explican lo
               // que el producto hace por defecto.
-              Button {
+              PanelButton {
                 id: optionalButton
                 width: parent.width
-                implicitHeight: Style.space(44)
                 text: (root.optionalOpen ? "▾  " : "▸  ") + Strings.t("settings.optional", root.lang)
-                focusable: true
-                bordered: true
-                // Alineado con el texto que abre y con el resto de la columna. El
-                // kit centra por defecto, y era el único bloque centrado de
-                // una página alineada a la izquierda.
                 leftAlign: true
-                foreground: Color.popups.text
-                Accessible.role: Accessible.Button
                 Accessible.name: Strings.t("settings.optional", root.lang)
-                Accessible.onPressAction: root.optionalOpen = !root.optionalOpen
-                onActiveFocusChanged: if (activeFocus) root.reveal(optionalButton)
+                onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: root.optionalOpen = !root.optionalOpen
               }
 
@@ -1248,16 +1239,18 @@ Item {
                 onClicked: if (service) service.updateSetting("trimTrailingWhitespace", !checked)
               }
 
-              // 0009: dos listas que deciden si algo se lee y se enseña,
-              // separadas de las que deciden si algo se limpia. Mezclarlas
-              // obligaría a aceptar una para tener la otra.
+              // 0011: una sola sección donde había dos formularios idénticos.
+              // Las cuatro listas de la 0009 siguen siendo cuatro decisiones
+              // independientes; lo que se ha fundido es el formulario, que
+              // estaba escrito dos veces con dos rótulos que se diferenciaban
+              // en una palabra.
               SectionHeading {
-                text: Strings.t("privacy.title", root.lang)
+                text: Strings.t("apps.title", root.lang)
               }
 
               Text {
                 width: parent.width
-                text: Strings.t("privacy.body", root.lang)
+                text: Strings.t("apps.body", root.lang)
                 color: Util.alpha(Color.popups.text, 0.72)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall
@@ -1268,220 +1261,61 @@ Item {
               // nota al pie: Wayland no dice quién copió.
               Text {
                 width: parent.width
-                text: Strings.t("privacy.note", root.lang)
+                text: Strings.t("apps.note", root.lang)
                 color: Util.alpha(Color.popups.text, 0.72)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
               }
 
-              EmptyState {
-                width: contentColumn.width
-                visible: root.setting("alwaysCovered", []).length === 0
-                  && root.setting("blockedApps", []).length === 0
-                title: Strings.t("privacy.none.title", root.lang)
-                body: Strings.t("privacy.none.body", root.lang)
-              }
-
-              Repeater {
-                model: root.setting("alwaysCovered", [])
-                delegate: ExcludedAppRow {
-                  required property string modelData
-                  width: contentColumn.width
-                  appClass: modelData
-                  scopeLabel: Strings.t("privacy.covered.scope", root.lang)
-                  onFocusEntered: function(item) { root.reveal(item) }
-                  onRemoveRequested: function(value) { if (service) service.removeExclusion("covered", value) }
-                }
-              }
-
-              Repeater {
-                model: root.setting("blockedApps", [])
-                delegate: ExcludedAppRow {
-                  required property string modelData
-                  width: contentColumn.width
-                  appClass: modelData
-                  scopeLabel: Strings.t("privacy.blocked.scope", root.lang)
-                  onFocusEntered: function(item) { root.reveal(item) }
-                  onRemoveRequested: function(value) { if (service) service.removeExclusion("blocked", value) }
-                }
-              }
-
+              // El selector. Ofrece las ventanas abiertas y no las
+              // aplicaciones instaladas: la clase que da Hyprland es la misma
+              // contra la que compara el demonio, y de las 93 entradas
+              // `.desktop` de un escritorio real sólo 23 declaran su
+              // `StartupWMClass`. Un catálogo de instaladas daría a elegir
+              // nombres que generan reglas que nunca disparan.
               Text {
-                id: privacyFieldLabel
-                text: Strings.t("privacy.class", root.lang)
-                // El rótulo de un campo, no un encabezado de sección. Iba
-                // en negrita a color pleno —11,33:1, exactamente lo mismo que
-                // «Privacy» o «Cleaning», y a un solo escalón de tamaño— así
-                // que en pantalla eran indistinguibles y este rótulo abría una
-                // sección que no existe. Ahora usa el tratamiento de rótulo que
-                // el panel ya tiene.
+                text: Strings.t("apps.open", root.lang)
                 color: Util.alpha(Color.popups.text, 0.68)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
-
-                MouseArea {
-                  anchors.fill: parent
-                  cursorShape: Qt.PointingHandCursor
-                  onClicked: privacyField.forceActiveFocus()
-                }
               }
 
-              TextField {
-                id: privacyField
+              Flow {
+                id: openWindowChoices
                 width: parent.width
-                implicitHeight: Style.space(44)
-                font.pixelSize: Math.max(16, Style.font.body)
-                placeholderText: "org.example.Application"
-                // El del kit sale de `Qt.darker(foreground, 1.6)` y mide
-                // 4,19:1 contra el relleno del campo, por debajo del 4,5
-                // que pide la AA para texto. Aquí no es decoración: es la
-                // única pista de qué hay que teclear. 0,68 —el alfa de
-                // rótulo que el panel ya usa— da 5,55:1.
-                placeholderTextColor: Util.alpha(Color.popups.text, 0.68)
-                selectByMouse: true
-                maximumLength: 256
-                Accessible.name: Strings.t("privacy.class", root.lang)
-                Accessible.description: root.privacyError !== ""
-                  ? root.privacyError
-                  : Strings.t("excl.class.hint", root.lang)
-                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
-                onAccepted: root.submitPrivacy("covered")
-                onTextChanged: if (root.privacyError !== "") root.privacyError = ""
-                onActiveFocusChanged: if (activeFocus) root.reveal(privacyField)
-              }
+                spacing: Style.space(8)
 
-              Button {
-                id: privacyDetectedButton
-                width: parent.width
-                implicitHeight: Style.space(44)
-                text: service && service.currentAppClass
-                  ? Strings.f("privacy.use", root.lang, service.currentAppClass)
-                  : Strings.t("excl.detected", root.lang)
-                focusable: true
-                bordered: true
-                foreground: Color.popups.text
-                Accessible.role: Accessible.Button
-                Accessible.name: text
-                Accessible.onPressAction: root.usePrivacyDetected()
-                onActiveFocusChanged: if (activeFocus) root.reveal(privacyDetectedButton)
-                onClicked: root.usePrivacyDetected()
-              }
-
-              Grid {
-                id: privacyActions
-                width: parent.width
-                columns: width < Style.space(360) ? 1 : 2
-                columnSpacing: Style.space(8)
-                rowSpacing: Style.space(8)
-
-                Button {
-                  id: addCoveredButton
-                  width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
-                  implicitHeight: Style.space(44)
-                  text: Strings.t("privacy.covered", root.lang)
-                  focusable: true
-                  bordered: true
-                  foreground: Color.popups.text
-                  Accessible.role: Accessible.Button
-                  Accessible.name: text
-                  Accessible.onPressAction: root.submitPrivacy("covered")
-                  onActiveFocusChanged: if (activeFocus) root.reveal(addCoveredButton)
-                  onClicked: root.submitPrivacy("covered")
-                }
-
-                Button {
-                  id: addBlockedButton
-                  width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
-                  implicitHeight: Style.space(44)
-                  text: Strings.t("privacy.blocked", root.lang)
-                  focusable: true
-                  bordered: true
-                  foreground: Color.popups.text
-                  Accessible.role: Accessible.Button
-                  Accessible.name: text
-                  Accessible.onPressAction: root.submitPrivacy("blocked")
-                  onActiveFocusChanged: if (activeFocus) root.reveal(addBlockedButton)
-                  onClicked: root.submitPrivacy("blocked")
+                Repeater {
+                  model: service ? service.openWindows : []
+                  delegate: PanelButton {
+                    required property string modelData
+                    text: modelData
+                    Accessible.name: Strings.f("apps.open.a11y", root.lang, modelData)
+                    onFocusEntered: function(item) { root.reveal(item) }
+                    onClicked: root.addApp(modelData)
+                  }
                 }
               }
 
               Text {
-                id: privacyMessage
                 width: parent.width
-                visible: root.privacyError !== ""
-                text: "⚠ " + root.privacyError
-                color: Color.urgent
+                visible: !service || !service.openWindows || service.openWindows.length === 0
+                text: Strings.t("apps.open.none", root.lang)
+                color: Util.alpha(Color.popups.text, 0.72)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
-                Accessible.role: Accessible.AlertMessage
-                Accessible.name: text
-              }
-
-              SectionHeading {
-                text: Strings.t("excl.title", root.lang)
-              }
-
-              Button {
-                id: detectedButton
-                width: parent.width
-                implicitHeight: Style.space(44)
-                text: service && service.currentAppClass
-                  ? Strings.f("excl.detect", root.lang, service.currentAppClass)
-                  : Strings.t("excl.detected", root.lang)
-                focusable: true
-                bordered: true
-                foreground: Color.popups.text
-                Accessible.role: Accessible.Button
-                Accessible.name: text
-                Accessible.onPressAction: root.excludeDetected()
-                onActiveFocusChanged: if (activeFocus) root.reveal(detectedButton)
-                onClicked: root.excludeDetected()
-              }
-
-              EmptyState {
-
-                width: contentColumn.width
-                visible: root.setting("sourceExclusions", []).length === 0
-                  && root.setting("targetExclusions", []).length === 0
-                title: Strings.t("excl.none.title", root.lang)
-                body: Strings.t("excl.none.body", root.lang)
-              }
-
-              Repeater {
-                model: root.setting("sourceExclusions", [])
-                delegate: ExcludedAppRow {
-                  required property string modelData
-                  width: contentColumn.width
-                  appClass: modelData
-                  scopeLabel: Strings.t("excl.source", root.lang)
-                  onFocusEntered: function(item) { root.reveal(item) }
-                  onRemoveRequested: function(value) { if (service) service.removeExclusion("source", value) }
-                }
-              }
-
-              Repeater {
-                model: root.setting("targetExclusions", [])
-                delegate: ExcludedAppRow {
-                  required property string modelData
-                  width: contentColumn.width
-                  appClass: modelData
-                  scopeLabel: Strings.t("excl.target", root.lang)
-                  onFocusEntered: function(item) { root.reveal(item) }
-                  onRemoveRequested: function(value) { if (service) service.removeExclusion("target", value) }
-                }
               }
 
               Text {
                 id: classFieldLabel
-                text: Strings.t("excl.class", root.lang)
+                text: Strings.t("apps.class", root.lang)
                 // El rótulo de un campo, no un encabezado de sección. Iba
                 // en negrita a color pleno —11,33:1, exactamente lo mismo que
-                // «Privacy» o «Cleaning», y a un solo escalón de tamaño— así
-                // que en pantalla eran indistinguibles y este rótulo abría una
-                // sección que no existe. Ahora usa el tratamiento de rótulo que
-                // el panel ya tiene.
+                // «Privacidad» o «Limpieza», y a un solo escalón de tamaño—
+                // así que en pantalla eran indistinguibles y este rótulo abría
+                // una sección que no existe.
                 color: Util.alpha(Color.popups.text, 0.68)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
@@ -1507,67 +1341,74 @@ Item {
                 placeholderTextColor: Util.alpha(Color.popups.text, 0.68)
                 selectByMouse: true
                 maximumLength: 256
-                Accessible.name: Strings.t("excl.class", root.lang)
-                Accessible.description: root.fieldError !== ""
-                  ? root.fieldError
-                  : Strings.t("excl.class.hint", root.lang)
+                Accessible.name: Strings.t("apps.class", root.lang)
+                Accessible.description: root.appsError !== ""
+                  ? root.appsError
+                  : Strings.t("apps.class.hint", root.lang)
                 inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
-                onAccepted: root.submitExclusion("source")
-                onTextChanged: if (root.fieldError !== "") root.fieldError = ""
+                // Enter hace lo único que hay que hacer aquí. Antes había dos
+                // botones idénticos de confirmar y Enter elegía uno de los dos
+                // sin decir cuál.
+                onAccepted: root.addApp(classField.text)
+                onTextChanged: if (root.appsError !== "") root.appsError = ""
                 onActiveFocusChanged: if (activeFocus) root.reveal(classField)
               }
 
-              Grid {
+              PanelButton {
+                id: addAppButton
                 width: parent.width
-                columns: width < Style.space(360) ? 1 : 2
-                columnSpacing: Style.space(8)
-                rowSpacing: Style.space(8)
-
-                Button {
-                  id: addSourceButton
-                  width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
-                  implicitHeight: Style.space(44)
-                  text: Strings.t("excl.addSource", root.lang)
-                  focusable: true
-                  bordered: true
-                  foreground: Color.popups.text
-                  Accessible.role: Accessible.Button
-                  Accessible.name: text
-                  Accessible.onPressAction: root.submitExclusion("source")
-                  onActiveFocusChanged: if (activeFocus) root.reveal(addSourceButton)
-                  onClicked: root.submitExclusion("source")
-                }
-
-                Button {
-                  id: addTargetButton
-                  width: (parent.width - (parent.columns > 1 ? parent.columnSpacing : 0)) / parent.columns
-                  implicitHeight: Style.space(44)
-                  text: Strings.t("excl.addTarget", root.lang)
-                  focusable: true
-                  bordered: true
-                  foreground: Color.popups.text
-                  Accessible.role: Accessible.Button
-                  Accessible.name: text
-                  Accessible.onPressAction: root.submitExclusion("target")
-                  onActiveFocusChanged: if (activeFocus) root.reveal(addTargetButton)
-                  onClicked: root.submitExclusion("target")
-                }
+                text: Strings.t("apps.add", root.lang)
+                onFocusEntered: function(item) { root.reveal(item) }
+                onClicked: root.addApp(classField.text)
               }
 
               Text {
-                id: fieldMessage
+                id: appsMessage
                 width: parent.width
-                text: root.fieldError !== ""
-                  ? "⚠ " + root.fieldError
-                  : Strings.t("excl.case", root.lang)
-                color: root.fieldError !== ""
+                text: root.appsError !== ""
+                  ? (root.appsUrgent ? "⚠ " + root.appsError : root.appsError)
+                  : Strings.t("apps.class.hint", root.lang)
+                color: root.appsUrgent && root.appsError !== ""
                   ? Color.urgent
                   : Util.alpha(Color.popups.text, 0.68)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
-                Accessible.role: root.fieldError !== "" ? Accessible.AlertMessage : Accessible.StaticText
+                Accessible.role: root.appsError !== "" ? Accessible.AlertMessage : Accessible.StaticText
                 Accessible.name: text
+              }
+
+              EmptyState {
+                width: contentColumn.width
+                visible: root.ruledApps().length === 0
+                title: Strings.t("apps.none.title", root.lang)
+                body: Strings.t("apps.none.body", root.lang)
+              }
+
+              // La lista va debajo del formulario y no encima: crece, y si
+              // creciera por arriba el formulario se movería bajo la mano
+              // cada vez que se añade una aplicación.
+              Column {
+                id: appsList
+                width: parent.width
+                spacing: Style.space(24)
+
+                Repeater {
+                  model: root.ruledApps()
+                  delegate: AppRules {
+                    required property string modelData
+                    width: appsList.width
+                    lang: root.lang
+                    appClass: modelData
+                    covered: root.hasRule("covered", modelData)
+                    blocked: root.hasRule("blocked", modelData)
+                    source: root.hasRule("source", modelData)
+                    target: root.hasRule("target", modelData)
+                    onRuleToggled: function(kind, next) { root.toggleRule(modelData, kind, next) }
+                    onRemoveRequested: function(value) { root.removeApp(value) }
+                    onFocusEntered: function(item) { root.reveal(item) }
+                  }
+                }
               }
 
               SectionHeading {
@@ -1592,35 +1433,21 @@ Item {
                 columnSpacing: Style.space(8)
                 rowSpacing: Style.space(8)
 
-                Button {
+                PanelButton {
                   id: welcomeReplayButton
                   width: (learningActions.width - (learningActions.columns - 1) * learningActions.columnSpacing) / learningActions.columns
-                  implicitHeight: Style.space(44)
                   text: Strings.t("help.welcome", root.lang)
-                  focusable: true
-                  bordered: true
-                  foreground: Color.popups.text
-                  Accessible.role: Accessible.Button
-                  Accessible.name: text
                   Accessible.description: Strings.t("help.welcome.a11y", root.lang)
-                  Accessible.onPressAction: root.showWelcome("settings")
-                  onActiveFocusChanged: if (activeFocus) root.reveal(welcomeReplayButton)
+                  onFocusEntered: function(item) { root.reveal(item) }
                   onClicked: root.showWelcome("settings")
                 }
 
-                Button {
+                PanelButton {
                   id: tourReplayButton
                   width: (learningActions.width - (learningActions.columns - 1) * learningActions.columnSpacing) / learningActions.columns
-                  implicitHeight: Style.space(44)
                   text: Strings.t("help.tour", root.lang)
-                  focusable: true
-                  bordered: true
-                  foreground: Color.popups.text
-                  Accessible.role: Accessible.Button
-                  Accessible.name: text
                   Accessible.description: Strings.t("help.tour.a11y", root.lang)
-                  Accessible.onPressAction: root.showTour("settings", "settings")
-                  onActiveFocusChanged: if (activeFocus) root.reveal(tourReplayButton)
+                  onFocusEntered: function(item) { root.reveal(item) }
                   onClicked: root.showTour("settings", "settings")
                 }
               }

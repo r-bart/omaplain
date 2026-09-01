@@ -25,6 +25,7 @@ def _parser() -> argparse.ArgumentParser:
     commands.add_parser("check-dependencies", help="Check required runtime commands.")
     commands.add_parser("inspect", help="Inspect clipboard types without printing its content.")
     commands.add_parser("active-window", help="Print content-free active-window metadata.")
+    commands.add_parser("open-windows", help="Print the classes of the open windows, without titles.")
 
     transform_parser = commands.add_parser("transform", help="Transform stdin and write clean text to stdout.")
     transform_parser.add_argument("--mime", default="text/plain;charset=utf-8")
@@ -96,6 +97,13 @@ def _active_window() -> int:
     return 0
 
 
+def _open_windows() -> int:
+    # Sólo clases. El título de la ventana no entra en la respuesta ni en el
+    # error: nombra el documento abierto, y eso es contenido (`0011`).
+    _print_json({"result": "ok", "classes": ClipboardBackend().open_windows()})
+    return 0
+
+
 def _transform(args: argparse.Namespace) -> int:
     config = dict(DEFAULTS)
     if args.config:
@@ -133,6 +141,8 @@ def main(argv: list[str] | None = None) -> int:
         return _inspect()
     if args.command == "active-window":
         return _active_window()
+    if args.command == "open-windows":
+        return _open_windows()
     if args.command == "transform":
         return _transform(args)
     if args.command == "write-config":

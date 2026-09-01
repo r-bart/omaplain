@@ -31,7 +31,11 @@ Item {
   // sitio: no se persiste, no se registra y se tira al cerrar el panel.
   property var peekResult: ({ eligible: false, reason: "unknown", types: [] })
   property bool peekBusy: peekProcess.running
-  property string currentAppClass: ""
+
+  // Las clases de las ventanas abiertas ahora mismo. Es lo que ofrece el
+  // selector de la sección «Aplicaciones»: la cadena que aquí llega es la
+  // misma contra la que compara el demonio ([`0011`]). Nunca trae títulos.
+  property var openWindows: []
   property string dependencyError: ""
   property int restartAttempt: 0
   property double lastErrorNotificationMs: 0
@@ -86,17 +90,44 @@ Item {
     }
   }
 
+  // Dónde vive nuestra entrada en `shell.json`.
+  //
+  // No es siempre `plugins[]`. `updateEntryInline` del shell busca primero el
+  // id en `bar.layout.left/center/right` y, **si lo encuentra ahí, escribe
+  // ahí y no toca `plugins[]`**. Desde que OmaPlain declara `bar-widget` y el
+  // usuario coloca su icono, ése es el caso normal.
+  //
+  // Leer sólo `plugins[]` hacía que cada ajuste se guardara en un sitio y se
+  // leyera de otro: el panel escribía «es» en la barra y seguía leyendo
+  // «auto» del array de plugins. Con el icono puesto, **ningún ajuste se
+  // quedaba puesto** — ni el idioma, ni el movimiento, ni las cuatro listas
+  // de la `0009`. Aquí se lee en el mismo orden en que el shell escribe.
+  function entryFor() {
+    if (!shell || !shell.shellConfig) return null
+    var config = shell.shellConfig
+    var layout = config.bar && config.bar.layout ? config.bar.layout : null
+    var sections = ["left", "center", "right"]
+    for (var s = 0; s < sections.length; s++) {
+      var arr = layout ? layout[sections[s]] : null
+      if (!Array.isArray(arr)) continue
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] && String(arr[i].id || "") === pluginId) return arr[i]
+      }
+    }
+    if (!Array.isArray(config.plugins)) return null
+    for (var j = 0; j < config.plugins.length; j++) {
+      var entry = config.plugins[j]
+      if (entry && String(entry.id || "") === pluginId) return entry
+    }
+    return null
+  }
+
   function entrySettings() {
     var result = defaults()
-    if (!shell || !shell.shellConfig || !Array.isArray(shell.shellConfig.plugins)) return result
-    var entries = shell.shellConfig.plugins
-    for (var i = 0; i < entries.length; i++) {
-      var entry = entries[i]
-      if (!entry || String(entry.id || "") !== pluginId) continue
-      for (var key in result) {
-        if (entry[key] !== undefined && entry[key] !== null) result[key] = entry[key]
-      }
-      break
+    var entry = entryFor()
+    if (!entry) return result
+    for (var key in result) {
+      if (entry[key] !== undefined && entry[key] !== null) result[key] = entry[key]
     }
     return result
   }
@@ -266,12 +297,11 @@ Item {
     return "ok"
   }
 
-  function captureCurrentApp() {
+  function captureOpenWindows() {
     if (helperPath === "") return
-    if (captureProcess.running) captureProcess.running = false
-    currentAppClass = ""
-    captureProcess.command = [helperPath, "active-window"]
-    captureProcess.running = true
+    if (windowsProcess.running) windowsProcess.running = false
+    windowsProcess.command = [helperPath, "open-windows"]
+    windowsProcess.running = true
   }
 
   onShellChanged: Qt.callLater(ensureStarted)
@@ -378,17 +408,17 @@ Item {
   }
 
   Process {
-    id: captureProcess
+    id: windowsProcess
     command: []
     stdout: StdioCollector {
-      id: captureOutput
+      id: windowsOutput
       waitForEnd: true
       onStreamFinished: {
         try {
           var data = JSON.parse(String(text || "{}"))
-          root.currentAppClass = String(data.appClass || data.initialClass || "")
+          root.openWindows = Array.isArray(data.classes) ? data.classes : []
         } catch (error) {
-          root.currentAppClass = ""
+          root.openWindows = []
         }
       }
     }

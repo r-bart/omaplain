@@ -37,6 +37,23 @@ nueve controles no se veían por un import que faltaba.
 
 ### Cambiado
 
+- **Una sola sección de aplicaciones.** «Privacidad» y «Aplicaciones excluidas»
+  montaban el mismo formulario dos veces, con dos rótulos que se diferenciaban
+  en una palabra y dos botones de «app detectada» que hacían cosas distintas.
+  Ahora eliges la aplicación una vez y decides después: cada una lleva sus
+  cuatro reglas como cuatro interruptores independientes, agrupados en «Al
+  leer» y «Al limpiar». Siete secciones de ajustes pasan a seis y veinticinco
+  controles a veinte ([`0011`](docs/decisions/0011-una-sola-seccion-de-aplicaciones.md)).
+- **Un selector de ventanas abiertas** sustituye a los botones de «app
+  detectada». Ofrece todas las ventanas y no sólo la última enfocada, y la
+  clase que da es exactamente la que compara el demonio. No son las
+  aplicaciones instaladas a propósito: de 93 entradas `.desktop` de un
+  escritorio real, sólo 23 declaran su clase de ventana, así que tres de cada
+  cuatro darían una regla que nunca dispara. El título de la ventana no cruza
+  la frontera del helper.
+- **Enter ya no elige lista a escondidas.** Había dos botones idénticos de
+  confirmar y `onAccepted` disparaba uno de los dos sin decir cuál. Ahora el
+  formulario tiene una sola acción: traer la aplicación.
 - **La primera experiencia enseña; la de todos los días informa.** El titular
   educativo y la ilustración salen de la pantalla frecuente y se quedan en la
   bienvenida y el tour, que es donde tienen trabajo
@@ -117,6 +134,18 @@ nueve controles no se veían por un import que faltaba.
 
 ### Arreglado
 
+- **Con el icono en la barra, ningún ajuste se guardaba.** `updateEntryInline`
+  del shell escribe en `bar.layout` cuando encuentra ahí el id del plugin, y
+  sólo entonces deja `plugins[]` en paz; el panel leía siempre de `plugins[]`.
+  Desde que OmaPlain declara `bar-widget`, cada ajuste se guardaba en un sitio
+  y se leía de otro: ni el idioma, ni el movimiento reducido, ni las cuatro
+  listas de privacidad se quedaban puestos, y sin ningún error a la vista
+  ([`0012`](docs/decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md)).
+- **Enfocar un control lo apagaba.** El borde de foco del kit sale de
+  `focus-border-alpha`, que cae en 0,25 frente al 0,4 del borde normal: medido
+  en el panel, 2,79:1 en reposo y **1,82:1 con el foco puesto**. Con veinte
+  controles navegables, el recorrido por teclado no dejaba rastro. Los botones
+  y las filas dibujan ahora su propio anillo, neutro y a 6,17:1.
 - **Los nueve controles del panel eran invisibles.** `SettingRow.qml` usaba
   `Style.space()` sin importar `qs.Commons`, así que su altura colapsaba a
   cero. Se publicó así en la `0.1.0`.

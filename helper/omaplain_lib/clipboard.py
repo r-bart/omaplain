@@ -148,6 +148,43 @@ class ClipboardBackend:
             terminal="terminal" in tags,
         )
 
+    def open_windows(self, limit: int = 64) -> list[str]:
+        """Las clases de las ventanas abiertas ahora mismo, sin repetir.
+
+        Es la única lista que sirve para el filtro por aplicación: la clase
+        que devuelve Hyprland es exactamente la cadena contra la que compara
+        el demonio. Un catálogo de aplicaciones instaladas no lo es —en este
+        equipo, 23 de 93 entradas `.desktop` declaran `StartupWMClass`—, así
+        que ofrecerlo daría a elegir nombres que generan reglas que nunca
+        disparan.
+
+        **El título de la ventana no sale de aquí.** Nombra el documento
+        abierto, y eso es contenido: la `0011` lo deja fuera a propósito.
+        """
+        try:
+            raw = self._capture(["hyprctl", "clients", "-j"])
+            data = json.loads(raw)
+        except (ClipboardError, json.JSONDecodeError, TypeError):
+            return []
+        if not isinstance(data, list):
+            return []
+        seen: set[str] = set()
+        classes: list[str] = []
+        for entry in data:
+            if not isinstance(entry, dict):
+                continue
+            value = str(entry.get("class", ""))
+            if not value or len(value) > 256:
+                continue
+            if "\n" in value or "\r" in value:
+                continue
+            if value in seen:
+                continue
+            seen.add(value)
+            classes.append(value)
+        classes.sort(key=str.lower)
+        return classes[:limit]
+
     def send_paste(self, target: WindowTarget, release_delay: float = 0.12) -> None:
         if not _ADDRESS_RE.fullmatch(target.address):
             raise ClipboardError("invalid_target")

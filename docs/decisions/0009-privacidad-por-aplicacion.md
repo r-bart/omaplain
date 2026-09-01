@@ -111,8 +111,14 @@ Cuando el origen es desconocido —antes del primer evento, o si `hyprctl` falla
   automático apagado no habría a quién atribuir nada.
 - La ruta automática salta las bloqueadas con su propio motivo,
   `source_blocked`, distinto de `source_excluded`: si no se lee, no se limpia.
-- La sección «Privacidad» de los ajustes va separada de las exclusiones de
-  limpieza, con su propio encabezado y su propio estado vacío.
+- ~~La sección «Privacidad» de los ajustes va separada de las exclusiones de
+  limpieza, con su propio encabezado y su propio estado vacío.~~ **Enmendado
+  por la [`0011`](./0011-una-sola-seccion-de-aplicaciones.md)**: las dos
+  secciones montaban el mismo formulario dos veces, con dos rótulos que se
+  diferenciaban en una palabra. Ahora hay una sección, «Aplicaciones», y cada
+  aplicación lleva sus cuatro reglas como cuatro interruptores independientes.
+  Lo que esta decisión defiende —que las cuatro decisiones no se fundan en
+  una— no sólo se mantiene: se ve mejor.
 - El panel reinicia el ojo con cada respuesta nueva del helper. Es el arreglo
   del fallo que se encontró escribiendo esto, y vale para todo el mundo, no
   sólo para las apps de la lista.

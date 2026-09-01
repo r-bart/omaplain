@@ -494,7 +494,8 @@ omarchy-omaplain/
 ├── components/
 │   ├── SettingRow.qml
 │   ├── StatusHeader.qml
-│   └── ExcludedAppRow.qml
+│   ├── PanelButton.qml
+│   └── AppRules.qml
 ├── helper/
 │   ├── omaplain
 │   └── omaplain_lib/

@@ -75,7 +75,7 @@ class UiContractTests(unittest.TestCase):
             REPO / "Panel.qml",
             REPO / "components" / "WelcomePage.qml",
             REPO / "components" / "TourPage.qml",
-            REPO / "components" / "ExcludedAppRow.qml",
+            REPO / "components" / "AppRules.qml",
             REPO / "components" / "EmptyState.qml",
             REPO / "components" / "DemoTransformation.qml",
         ]
@@ -222,31 +222,29 @@ class UiContractTests(unittest.TestCase):
         self.assertIn("features.columns === 1", welcome)
         self.assertIn(": Style.space(108)", welcome)
 
-    def test_each_pair_of_lists_renders_its_own_empty_state(self) -> None:
-        # Ambas listas de una sección comparten un solo hueco: mostrarlo con
-        # una de las dos ya poblada repetiría la explicación justo al lado de
-        # las filas que la contradicen.
+    def test_the_only_empty_state_speaks_for_the_four_lists(self) -> None:
+        # Hubo un hueco por sección, cuando eran dos. La `0011` las funde: hay
+        # un solo formulario, así que hay un solo hueco, y tiene que mirar las
+        # cuatro listas o se enseñaría con alguna ya poblada.
         #
-        # Buscar «el primer EmptyState» dejó de valer al añadir la sección de
-        # privacidad: el test seguía en verde porque el bloque que encontraba
-        # abarcaba los dos. Ahora se localiza cada uno por sus propias listas.
+        # Buscar «el primer EmptyState» no vale: la página monta más de uno.
+        # Éste se localiza por lo único que le pertenece, `ruledApps()`.
         panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
-        pairs = {
-            "exclusiones": ("sourceExclusions", "targetExclusions"),
-            "privacidad": ("alwaysCovered", "blockedApps"),
-        }
-        for section, (first, second) in pairs.items():
-            with self.subTest(section=section):
-                block = next(
-                    (b for b in _blocks(panel, "EmptyState") if first in b and second in b),
-                    None,
-                )
-                self.assertIsNotNone(block, f"{section} no monta su propio EmptyState")
-                self.assertIn(f'root.setting("{first}", []).length === 0', block)
-                self.assertIn(f'root.setting("{second}", []).length === 0', block)
-                self.assertIn("&&", block)
-                # Y precede a sus Repeater, o aparecería debajo de las filas.
-                self.assertLess(panel.index(block), panel.index(f'model: root.setting("{first}"'))
+        block = next(
+            (b for b in _blocks(panel, "EmptyState") if "ruledApps()" in b),
+            None,
+        )
+        self.assertIsNotNone(block, "la sección de aplicaciones no monta su hueco")
+        self.assertIn("visible: root.ruledApps().length === 0", block)
+
+        # Y `ruledApps()` mira las cuatro, o el hueco mentiría.
+        cuerpo = panel.split("function ruledApps()", 1)[1].split("\n  }", 1)[0]
+        for lista in ("alwaysCovered", "blockedApps", "sourceExclusions", "targetExclusions"):
+            with self.subTest(lista=lista):
+                self.assertIn(lista, cuerpo)
+
+        # Precede a las tarjetas, o aparecería debajo de ellas.
+        self.assertLess(panel.index(block), panel.index("id: appsList"))
 
     def test_empty_state_stays_a_static_text_for_assistive_tools(self) -> None:
         empty = (REPO / "components" / "EmptyState.qml").read_text(encoding="utf-8")
@@ -708,7 +706,7 @@ class SettingsHarmonyTests(unittest.TestCase):
 
     def test_a_field_label_is_not_dressed_as_a_section(self) -> None:
         panel = self._panel()
-        for ident in ("privacyFieldLabel", "classFieldLabel"):
+        for ident in ("classFieldLabel",):
             bloque = panel.split(f"id: {ident}", 1)[1].split("}", 1)[0]
             with self.subTest(label=ident):
                 self.assertNotIn("font.bold: true", bloque)
@@ -733,7 +731,7 @@ class SettingsHarmonyTests(unittest.TestCase):
         # 0,68 es para rótulos y foregrounds de control; la prosa que
         # envuelve va a 0,72.
         panel = self._panel()
-        for clave in ("root.historyDetail()", 'Strings.t("privacy.note", root.lang)'):
+        for clave in ("root.historyDetail()", 'Strings.t("apps.note", root.lang)'):
             bloque = panel.split(clave, 1)[1].split("}", 1)[0]
             with self.subTest(text=clave):
                 self.assertIn("0.72", bloque)
