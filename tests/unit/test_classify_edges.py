@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -53,6 +54,25 @@ class StateTests(unittest.TestCase):
     def test_no_text_at_all_says_so(self) -> None:
         result = classify(["application/x-example"])
         self.assertEqual(result.reason, "no_plain_text")
+
+
+class BrokenDataTests(unittest.TestCase):
+    def test_an_unreadable_data_file_still_bypasses_files_and_folders(self) -> None:
+        # Las reglas de archivo van en el código además de en el fichero:
+        # un JSON corrupto no puede convertir una copia de archivos en
+        # texto que se reescribe.
+        from unittest.mock import patch
+        from omaplain_lib import classify as classify_module
+        with tempfile.TemporaryDirectory() as temporary:
+            broken = Path(temporary) / "structural-mime-types.json"
+            broken.write_text("{no es json", encoding="utf-8")
+            with patch.object(classify_module, "_DATA_PATH", broken):
+                exact, prefixes = classify_module._load_structural_rules()
+        self.assertEqual(prefixes, ())
+        for name in ("text/uri-list", "x-special/gnome-copied-files",
+                     "application/x-kde-cutselection", "application/vnd.portal.filetransfer"):
+            with self.subTest(mime=name):
+                self.assertIn(name, exact)
 
 
 class MetadataTests(unittest.TestCase):

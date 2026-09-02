@@ -197,6 +197,31 @@ class SocketTests(unittest.TestCase):
         self.assertEqual(answers["second"]["result"], "cleaned")
         self.assertEqual(len(self.backend.writes), 1)
 
+    def test_every_command_the_ipc_documents_answers_over_the_socket(self) -> None:
+        # Es la superficie que `Service.qml` expone al `omarchy-shell`.
+        with RunningDaemon(self.base, self.backend) as running:
+            cleaned = running.request({"kind": "command", "name": "cleanNow"})
+            self.assertEqual(cleaned["result"], "cleaned")
+
+            pasted = running.request({"kind": "command", "name": "pasteClean"})
+            self.assertTrue(pasted["pasted"])
+            self.assertEqual(self.backend.paste_targets, [self.backend.target])
+
+            skipped = running.request({"kind": "command", "name": "skipNext"})
+            self.assertEqual(skipped, {"result": "ok", "expiresIn": 60})
+            self.assertTrue(running.request({"kind": "command", "name": "status"})["skipNext"])
+
+            reloaded = running.request({"kind": "command", "name": "reload"})
+            self.assertEqual(reloaded, {"result": "ok", "warnings": []})
+
+    def test_a_response_bigger_than_the_client_accepts_is_named(self) -> None:
+        # No debería ocurrir con el tope del vistazo, pero si ocurriera, el
+        # cliente lo dice en vez de devolver medio JSON.
+        with RunningDaemon(self.base, self.backend) as running:
+            with patch("omaplain_lib.daemon.RESPONSE_LIMIT", 8):
+                answer = running.request({"kind": "command", "name": "status"})
+        self.assertEqual(answer, {"result": "error", "reason": "response_too_large"})
+
     def test_the_idle_loop_ticks_without_any_client(self) -> None:
         # La caducidad de `skipNext` depende de que alguien despierte al
         # demonio con el escritorio quieto. Es el bucle de `accept`, cada
@@ -454,6 +479,16 @@ class LoopGuardAndPasteTests(unittest.TestCase):
         self.backend.types = ["text/plain"]
         self.assertEqual(self._event()["result"], "unchanged")
         self.assertEqual(json.loads(self.daemon.status_path.read_text(encoding="utf-8"))["eventSeq"], 2)
+
+    def test_peek_refuses_to_show_what_it_cannot_decode(self) -> None:
+        # El portapapeles anuncia texto y sirve bytes que no lo son. No se
+        # puede enseñar honestamente, así que no se enseña.
+        self.backend.payload = b"\xff\xfe\x00 no soy utf-8"
+        self.backend.types = ["text/plain"]
+        answer = self.daemon.peek()
+        self.assertFalse(answer["eligible"])
+        self.assertIn(answer["reason"], {"undecodable", "invalid_text", "nul"})
+        self.assertNotIn("original", answer)
 
     def test_an_encoding_only_rewrite_is_named_as_such(self) -> None:
         self.backend.payload = "﻿hola".encode("utf-8")

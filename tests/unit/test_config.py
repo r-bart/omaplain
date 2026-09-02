@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import pathlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -54,3 +55,28 @@ class ConfigTests(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
+class EscrituraAtomicaTests(unittest.TestCase):
+    def test_una_escritura_que_falla_no_deja_restos_ni_pisa_lo_bueno(self) -> None:
+        # `write_json_secure` escribe a un temporal y renombra. Si algo
+        # falla en medio, el fichero anterior tiene que seguir entero y el
+        # temporal no puede quedarse en el directorio.
+        import json as _json
+        from unittest.mock import patch
+        from omaplain_lib.config import write_config, write_json_secure
+        with tempfile.TemporaryDirectory() as temporary:
+            path = pathlib.Path(temporary) / "config.json"
+            write_config(path, {"automatic": False})
+            antes = path.read_text(encoding="utf-8")
+
+            with patch("omaplain_lib.config.json.dump", side_effect=RuntimeError("disco lleno")):
+                with self.assertRaises(RuntimeError):
+                    write_json_secure(path, {"automatic": True})
+
+            self.assertEqual(path.read_text(encoding="utf-8"), antes)
+            self.assertFalse(_json.loads(antes)["automatic"])
+            sobrantes = [p.name for p in pathlib.Path(temporary).iterdir() if p.name != "config.json"]
+            self.assertEqual(sobrantes, [], f"quedaron temporales: {sobrantes}")
+
+
+if __name__ == "__main__":
+    unittest.main()
