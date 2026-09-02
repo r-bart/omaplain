@@ -272,8 +272,6 @@ class AnilloDeFocoTests(unittest.TestCase):
         self.assertIn('styleAlpha("focus-border-alpha", hoverBorderAlpha)', source)
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class AvisosDelFormularioTests(unittest.TestCase):
@@ -585,3 +583,7 @@ class LaVersionEsUnaSolaTests(unittest.TestCase):
         manifiesto = json.loads((REPO / "manifest.json").read_text(encoding="utf-8"))
         changelog = _lee("CHANGELOG.md")
         self.assertIn(f"## {manifiesto['version']} —", changelog)
+
+
+if __name__ == "__main__":
+    unittest.main()

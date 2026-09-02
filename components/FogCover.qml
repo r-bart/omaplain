@@ -32,11 +32,26 @@ Canvas {
   property var strokes: []
   property real phase: 0
 
+  // La rejilla de lo ya limpiado. Cada celda mide medio pincel, y un trazo
+  // sólo se guarda si cae en una celda que aún no tenía ninguno: así la
+  // lista de trazos queda acotada por la superficie —unas ciento sesenta
+  // celdas en una fila— y no por lo que dure el gesto. Antes crecía con
+  // cada arrastre y cada fotograma pintaba un gradiente por trazo, treinta
+  // veces por segundo, mientras la fila estuviera a la vista.
+  //
+  // La misma rejilla dice cuánto se ha limpiado, sin leer píxeles: eran
+  // ciento cuarenta y siete `getImageData` por cada suelta del ratón.
+  readonly property real cell: brush / 2
+  property var wiped: ({})
+  property int wipedCount: 0
+
   renderTarget: Canvas.FramebufferObject
   renderStrategy: Canvas.Cooperative
 
   function reset() {
     strokes = []
+    wiped = ({})
+    wipedCount = 0
     phase = 0
     requestPaint()
   }
@@ -135,42 +150,50 @@ Canvas {
     property point last: Qt.point(-1, -1)
 
     function wipe(x, y) {
-      var next = root.strokes
+      var added = false
       if (last.x >= 0) {
         // Interpolar el segmento: un arrastre rápido dejaría huecos.
         var dx = x - last.x, dy = y - last.y
         var steps = Math.max(1, Math.ceil(Math.sqrt(dx * dx + dy * dy) / 11))
         for (var i = 1; i <= steps; i++)
-          next.push({ x: last.x + dx * i / steps, y: last.y + dy * i / steps })
+          added = root.stroke(last.x + dx * i / steps, last.y + dy * i / steps) || added
       } else {
-        next.push({ x: x, y: y })
+        added = root.stroke(x, y)
       }
-      root.strokes = next
       last = Qt.point(x, y)
-      root.requestPaint()
+      if (added) root.requestPaint()
     }
 
     onPressed: function(mouse) { last = Qt.point(-1, -1); wipe(mouse.x, mouse.y) }
     onPositionChanged: function(mouse) { if (pressed) wipe(mouse.x, mouse.y) }
     onReleased: {
       last = Qt.point(-1, -1)
-      // Muestrear una rejilla al soltar, no en cada trazo: leer píxeles es
-      // caro y aquí basta con saberlo una vez por gesto.
-      if (root.clearedFraction() > 0.62) root.cleared()
+      // Se decide al soltar, no en cada trazo: una vez por gesto.
+      if (root.clearedFraction() > 0.55) root.cleared()
     }
     onCanceled: last = Qt.point(-1, -1)
   }
 
+  // Guarda un trazo si su celda estaba sin limpiar. Devuelve si lo guardó.
+  function stroke(x, y) {
+    if (root.cell <= 0) return false
+    var key = Math.floor(x / root.cell) + "," + Math.floor(y / root.cell)
+    if (root.wiped[key] === true) return false
+    root.wiped[key] = true
+    root.wipedCount += 1
+    var next = root.strokes
+    next.push({ x: x, y: y })
+    root.strokes = next
+    return true
+  }
+
+  // La parte de la superficie con algún trazo encima, por celdas. El
+  // pincel mide dos celdas de radio, así que lo limpiado de verdad es
+  // siempre algo más que esto; por eso el umbral de arriba queda por
+  // debajo del 0,62 que se usaba midiendo píxeles.
   function clearedFraction() {
-    var ctx = getContext("2d")
-    var cols = 22, rows = 8, clear = 0, total = 0
-    for (var i = 1; i < cols; i++) {
-      for (var j = 1; j < rows; j++) {
-        var px = ctx.getImageData(Math.round(width * i / cols), Math.round(height * j / rows), 1, 1).data
-        if (px[3] < 40) clear++
-        total++
-      }
-    }
-    return total === 0 ? 0 : clear / total
+    if (root.cell <= 0 || width <= 0 || height <= 0) return 0
+    var total = Math.ceil(width / root.cell) * Math.ceil(height / root.cell)
+    return total === 0 ? 0 : root.wipedCount / total
   }
 }

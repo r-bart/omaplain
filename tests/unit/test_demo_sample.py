@@ -194,8 +194,6 @@ class DemoSampleTests(unittest.TestCase):
                 self.assertNotIn("https://", code, "muestra escrita fuera del catálogo")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class DemoRunTests(unittest.TestCase):
@@ -253,3 +251,6 @@ class DemoRunTests(unittest.TestCase):
                 with self.subTest(lang=lang, sample=key):
                     self.assertEqual(changes, f"{key}.spare" in table)
 
+
+if __name__ == "__main__":
+    unittest.main()

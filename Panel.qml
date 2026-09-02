@@ -132,6 +132,10 @@ Item {
     if (rule === "invisible") return Strings.t("setting.invisible", root.lang)
     if (rule === "line_endings") return Strings.t("setting.line_endings", root.lang)
     if (rule === "rich_text") return Strings.t("setting.rich_text", root.lang)
+    if (rule === "quotes") return Strings.t("setting.quotes", root.lang)
+    if (rule === "lists") return Strings.t("setting.lists", root.lang)
+    if (rule === "unicode_nfc") return Strings.t("setting.unicode_nfc", root.lang)
+    if (rule === "trailing_whitespace") return Strings.t("setting.trailing_whitespace", root.lang)
     return ""
   }
 
@@ -177,6 +181,13 @@ Item {
     if (rule === "invisible") return Strings.t("rule.invisible", root.lang)
     if (rule === "line_endings") return Strings.t("rule.line_endings", root.lang)
     if (rule === "rich_text") return Strings.t("rule.rich_text", root.lang)
+    if (rule === "quotes") return Strings.t("rule.quotes", root.lang)
+    if (rule === "lists") return Strings.t("rule.lists", root.lang)
+    if (rule === "unicode_nfc") return Strings.t("rule.unicode_nfc", root.lang)
+    if (rule === "trailing_whitespace") return Strings.t("rule.trailing_whitespace", root.lang)
+    // Un BOM o un texto que no venía en UTF-8: se reescribe sin que ninguna
+    // regla haya tocado un carácter, y no depende de ningún ajuste.
+    if (rule === "encoding") return Strings.t("rule.encoding", root.lang)
     return rule
   }
 
@@ -202,6 +213,7 @@ Item {
     tourStep = 0
     mainFocusTarget = "clean"
     opened = true
+    peekStamp = eventStamp()
     if (service) service.requestPeek()
     feedback = ""
     appsError = ""
@@ -218,6 +230,46 @@ Item {
     feedbackTimer.stop()
     appsError = ""
     pendingApp = ""
+    // El contenido muere con el panel: es la promesa de la 0005 y de
+    // `Service.forgetPeek`, que hasta aquí nadie llamaba. Sin esto el texto
+    // seguía en memoria, volvía a las filas al reabrir hasta que llegaba
+    // el vistazo nuevo, y las filas —con su vaho a 30 fps y el carrusel—
+    // seguían vivas dentro de una ventana que no se veía.
+    showBefore = false
+    showAfter = false
+    if (service) service.forgetPeek()
+  }
+
+  // La previsualización sigue al portapapeles mientras el panel está
+  // abierto. Antes sólo se pedía al abrir: tras «Aplicar», tras omitir o
+  // tras copiar otra cosa, las filas seguían diciendo «quedaría así» con
+  // el botón habilitado.
+  //
+  // La señal es `status.json`: el helper apunta ahí cada evento —también
+  // los que no procesa, con el automático apagado— y cada acción manual.
+  // Se compara la marca en vez de reaccionar a cada relectura, porque el
+  // servicio relee el fichero una vez por segundo aunque no haya cambiado.
+  //
+  // Una copia de imagen o de archivos sin texto no llega aquí: `wl-paste
+  // --type text --watch` no ejecuta el comando cuando la oferta no trae
+  // texto. Es un límite conocido y está escrito en el README.
+  property string peekStamp: ""
+
+  function eventStamp() {
+    if (!service || !service.status) return ""
+    return String(service.status.lastEventAt || "") + "|" + String(service.status.lastAt || "")
+  }
+
+  function refreshPeek() {
+    if (!opened || !service) return
+    peekStamp = eventStamp()
+    service.requestPeek()
+  }
+
+  function maybeRefreshPeek() {
+    if (!opened || !service) return
+    if (eventStamp() === peekStamp) return
+    refreshPeek()
   }
 
   function dismiss() {
@@ -319,10 +371,26 @@ Item {
     return ""
   }
 
+  // Las reglas que cambian caracteres, que son todas menos retirar el
+  // formato: ésa deja el texto igual y sólo quita la versión con formato.
+  // Antes sólo se miraban dos, y la frase «ninguna regla activa cambia
+  // caracteres» salía con los finales de línea —activos de fábrica— o las
+  // comillas puestas, que sí los cambian y duplican el historial igual.
+  readonly property var characterRules: [
+    "removeTracking", "removeInvisible", "normalizeLineEndings",
+    "normalizeQuotes", "normalizeLists", "normalizeUnicodeNfc", "trimTrailingWhitespace"
+  ]
+
+  function changesCharacters() {
+    for (var i = 0; i < characterRules.length; i++)
+      if (setting(characterRules[i], i < 3)) return true
+    return false
+  }
+
   function historyDetail() {
     if (!setting("automatic", true))
       return Strings.t("hint.manual", root.lang)
-    if (setting("removeTracking", true) || setting("removeInvisible", true))
+    if (changesCharacters())
       return Strings.t("settings.history", root.lang)
     return Strings.t("hint.chars", root.lang)
   }
@@ -494,7 +562,11 @@ Item {
         root.cleanConfirmed = true
         confirmTimer.restart()
       }
+      // La acción acaba de cambiar —o de confirmar— lo que hay: se vuelve
+      // a mirar para que las filas y el botón digan la verdad.
+      root.refreshPeek()
     }
+    function onStatusChanged() { root.maybeRefreshPeek() }
   }
 
   Timer {

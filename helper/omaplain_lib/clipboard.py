@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import select
 import subprocess
 import time
 from dataclasses import dataclass
@@ -36,8 +38,20 @@ def digest(payload: bytes) -> str:
 
 
 class ClipboardBackend:
-    def __init__(self, timeout: float = 0.25):
+    """Los cuatro procesos que tocan el portapapeles, con plazo cada uno.
+
+    `timeout` acota las órdenes cortas —listar tipos, escribir, preguntar a
+    Hyprland—: un viaje de ida y vuelta al compositor, que en un equipo
+    cargado puede tardar más de los 250 ms que había. `read_timeout` acota
+    la lectura entera del contenido, que la sirve la aplicación de origen y
+    no el compositor: un navegador la genera al pedirla, y una aplicación
+    congelada no la sirve nunca. Sin este segundo plazo la lectura se
+    quedaba esperando para siempre con el cerrojo del demonio cogido.
+    """
+
+    def __init__(self, timeout: float = 1.0, read_timeout: float = 2.0):
         self.timeout = timeout
+        self.read_timeout = read_timeout
 
     def _capture(self, argv: Sequence[str], *, timeout: float | None = None) -> bytes:
         try:
@@ -60,9 +74,11 @@ class ClipboardBackend:
         el que tienes al arrancar la sesión— en un fallo: el panel decía
         «error» y el contador de la sesión se apuntaba una incidencia.
 
-        Se distinguen por la salida. Si el comando se ejecutó y no imprimió
-        nada, no hay tipos que listar. Si imprimió algo y aun así falló, es
-        un fallo de verdad y se propaga.
+        Se distinguen por cómo falla. Si el comando arrancó y salió con
+        error, se toma como portapapeles vacío: es lo que `wl-paste` hace
+        cuando no hay nada copiado, y también lo que hace sin display,
+        que aquí no se distingue. Si no llegó a arrancar o se pasó de
+        plazo, es un fallo de verdad y se propaga como `inspect_failed`.
         """
         try:
             output = self._capture(["wl-paste", "--list-types"])
@@ -81,20 +97,39 @@ class ClipboardBackend:
         except OSError:
             raise ClipboardError("wl_paste_unavailable") from None
         assert process.stdout is not None
+        deadline = time.monotonic() + self.read_timeout
+        payload = bytearray()
+        descriptor = process.stdout.fileno()
         try:
-            payload = process.stdout.read(maximum + 1)
+            # Se lee a trozos y con plazo. `stdout.read(n)` bloquea hasta
+            # tener los `n` bytes o el fin de la tubería, y quien escribe en
+            # ella es la aplicación de origen, no wl-paste: si no sirve la
+            # oferta, no hay fin de tubería que esperar.
+            while len(payload) <= maximum:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired("wl-paste", self.read_timeout)
+                ready, _, _ = select.select([descriptor], [], [], remaining)
+                if not ready:
+                    continue
+                chunk = os.read(descriptor, 65_536)
+                if not chunk:
+                    break
+                payload += chunk
             if len(payload) > maximum:
                 process.kill()
                 process.communicate(timeout=0.1)
                 raise ClipboardTooLarge("too_large")
-            process.wait(timeout=self.timeout)
+            process.wait(timeout=max(0.05, deadline - time.monotonic()))
         except subprocess.TimeoutExpired:
             process.kill()
             process.communicate()
             raise ClipboardError("timeout") from None
+        finally:
+            process.stdout.close()
         if process.returncode != 0:
             raise ClipboardError("read_failed")
-        return payload
+        return bytes(payload)
 
     def write(self, payload: bytes) -> None:
         try:
@@ -136,6 +171,10 @@ class ClipboardBackend:
             raw = self._capture(["hyprctl", "activewindow", "-j"])
             data = json.loads(raw)
         except (ClipboardError, json.JSONDecodeError, TypeError):
+            return None
+        # `hyprctl` contesta `{}` sin ventana activa; cualquier otra cosa
+        # que no sea un objeto tampoco es una ventana.
+        if not isinstance(data, dict):
             return None
         address = str(data.get("address", ""))
         if not _ADDRESS_RE.fullmatch(address):

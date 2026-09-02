@@ -228,8 +228,18 @@ Item {
   // Pedir un vistazo es una lectura: no consume la omision pendiente, no
   // avanza la generacion y no cuenta como operacion. Todo eso lo garantiza
   // el helper; aqui solo se transporta.
+  //
+  // Si ya hay un vistazo en marcha, el siguiente se apunta y se lanza al
+  // terminar: perderlo dejaba el panel enseñando el portapapeles anterior.
+  property bool peekPending: false
+
   function requestPeek() {
-    if (peekProcess.running || socketPath === "" || helperPath === "") return "busy"
+    if (socketPath === "" || helperPath === "") return "busy"
+    if (peekProcess.running) {
+      peekPending = true
+      return "queued"
+    }
+    peekPending = false
     peekProcess.command = [helperPath, "peek", "--socket", socketPath]
     peekProcess.running = true
     return "accepted"
@@ -442,14 +452,18 @@ Item {
     stdout: StdioCollector { id: peekOutput; waitForEnd: true }
     onExited: function(exitCode) {
       var text = String(peekOutput.text || "").trim()
-      if (text === "") { root.forgetPeek(); return }
-      try {
-        root.peekResult = JSON.parse(text)
-      } catch (error) {
-        // El mensaje de error no lleva el texto: una traza con el contenido
-        // dentro seria justo la fuga que 0005 prohibe.
+      if (text === "") {
         root.forgetPeek()
+      } else {
+        try {
+          root.peekResult = JSON.parse(text)
+        } catch (error) {
+          // El mensaje de error no lleva el texto: una traza con el contenido
+          // dentro seria justo la fuga que 0005 prohibe.
+          root.forgetPeek()
+        }
       }
+      if (root.peekPending) Qt.callLater(root.requestPeek)
     }
   }
 

@@ -129,6 +129,11 @@ Item {
           font.pixelSize: Style.font.bodySmall
           wrapMode: Text.WrapAnywhere
           Accessible.role: Accessible.StaticText
+          // Fuera del árbol de accesibilidad mientras está cubierto, en el
+          // propio ítem: el `ignored` del Flickable de arriba no baja a
+          // los hijos, y un nombre vacío no garantiza nada —Qt puede caer
+          // al `text` del ítem cuando el nombre adjunto no cuenta.
+          Accessible.ignored: !root.revealed
           Accessible.name: root.revealed ? root.body : ""
         }
       }

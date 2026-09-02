@@ -14,6 +14,11 @@ class StatusStore:
     def __init__(self, path: str | Path, automatic: bool = True):
         self.path = Path(path)
         self.lock = threading.Lock()
+        # Un cerrojo aparte para el disco. La instantánea se tomaba bajo
+        # `lock` y se escribía fuera de él, así que dos hilos podían
+        # escribir sus instantáneas en orden inverso y dejar en disco la
+        # vieja hasta la siguiente actualización.
+        self.write_lock = threading.Lock()
         self.value: dict[str, object] = {
             "version": 1,
             "watcher": "starting",
@@ -22,16 +27,38 @@ class StatusStore:
             "lastResult": "none",
             "lastReason": "none",
             "lastAt": "",
+            # El último evento del portapapeles, se procesara o no. Es lo
+            # que el panel abierto vigila para saber que lo que enseña ya
+            # no es lo que hay.
+            "lastEventAt": "",
             "lastBytes": 0,
             "configWarnings": [],
             "session": {"cleaned": 0, "unchanged": 0, "bypassed": 0, "errors": 0},
         }
         self.write()
 
+    @staticmethod
+    def _now() -> str:
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
     def write(self) -> None:
+        with self.write_lock:
+            with self.lock:
+                snapshot = copy.deepcopy(self.value)
+            write_json_secure(self.path, snapshot)
+
+    def mark_event(self, write: bool = False) -> None:
+        """Deja constancia de un evento, en memoria; a disco si se pide.
+
+        La marca viaja con la siguiente escritura —el `record` del mismo
+        evento, casi siempre— y no cuesta un `fsync` propio. Sólo cuando
+        el evento no se va a apuntar, con el automático apagado, se
+        escribe aquí: es el único caso en que nadie más lo haría.
+        """
         with self.lock:
-            snapshot = copy.deepcopy(self.value)
-        write_json_secure(self.path, snapshot)
+            self.value["lastEventAt"] = self._now()
+        if write:
+            self.write()
 
     def update(self, **values: object) -> None:
         with self.lock:
@@ -52,7 +79,7 @@ class StatusStore:
             self.value.update({
                 "lastResult": result,
                 "lastReason": reason,
-                "lastAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "lastAt": self._now(),
                 "lastBytes": max(0, int(byte_count)),
             })
         self.write()

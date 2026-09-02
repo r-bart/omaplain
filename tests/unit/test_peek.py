@@ -27,6 +27,8 @@ MARK = "zqx-marca-de-fuga-7f3a1c"
 class PeekTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
+        # Se recoge aunque el propio `setUp` falle a medias.
+        self.addCleanup(self.temporary.cleanup)
         self.base = Path(self.temporary.name)
         self.config = self.base / "config.json"
         self.status = self.base / "status.json"
@@ -36,9 +38,6 @@ class PeekTests(unittest.TestCase):
         )
         self.backend = FakeBackend()
         self.daemon.backend = self.backend
-
-    def tearDown(self) -> None:
-        self.temporary.cleanup()
 
     # ---------------------------------------------------------------- enseña
 
@@ -80,6 +79,10 @@ class PeekTests(unittest.TestCase):
             (["text/plain"], b"nada que hacer"),
         ):
             with self.subTest(types=types):
+                # Un demonio limpio por caso, recogiendo el anterior: llamar
+                # a `setUp` a secas dejaba tres directorios temporales sin
+                # cerrar, que es de donde salían los `ResourceWarning`.
+                self.temporary.cleanup()
                 self.setUp()
                 self.backend.types = types
                 self.backend.payload = payload

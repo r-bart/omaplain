@@ -26,6 +26,7 @@ var EN = {
   "state.starting": "Starting",
   "state.attention": "Needs attention",
   "state.a11y": "OmaPlain, %1. %2",
+  "state.a11y.short": "OmaPlain, %1",
 
   // --- Estado del servicio y avisos ---
   "status.unavailable": "The service is not available yet.",
@@ -109,11 +110,20 @@ var EN = {
   "rule.invisible": "Invisible characters",
   "rule.line_endings": "Windows line endings",
   "rule.rich_text": "Rich formatting",
+  "rule.quotes": "Curly quotes",
+  "rule.lists": "List bullets",
+  "rule.unicode_nfc": "Unicode composition",
+  "rule.trailing_whitespace": "Trailing whitespace",
+  "rule.encoding": "Text encoding",
   "rule.removed.a11y": "Removed: %1, under the %2 setting",
   "setting.tracking": "Tracking",
   "setting.invisible": "Invisibles",
   "setting.line_endings": "Line endings",
   "setting.rich_text": "Formatting",
+  "setting.quotes": "Quotes",
+  "setting.lists": "Bullets",
+  "setting.unicode_nfc": "NFC",
+  "setting.trailing_whitespace": "Trailing whitespace",
 
   // --- Acciones ---
   "action.apply": "Apply to the clipboard",
@@ -318,6 +328,7 @@ var ES = {
   "state.starting": "Iniciando",
   "state.attention": "Necesita atención",
   "state.a11y": "OmaPlain, %1. %2",
+  "state.a11y.short": "OmaPlain, %1",
 
   "status.unavailable": "El servicio todavía no está disponible.",
   "status.deps": "OmaPlain necesita %1. Instálalo y vuelve a abrir este panel.",
@@ -388,11 +399,20 @@ var ES = {
   "rule.invisible": "Caracteres invisibles",
   "rule.line_endings": "Finales de línea de Windows",
   "rule.rich_text": "Formato enriquecido",
+  "rule.quotes": "Comillas tipográficas",
+  "rule.lists": "Viñetas de lista",
+  "rule.unicode_nfc": "Composición Unicode",
+  "rule.trailing_whitespace": "Espacios al final de línea",
+  "rule.encoding": "Codificación del texto",
   "rule.removed.a11y": "Se retira: %1, según el ajuste %2",
   "setting.tracking": "Seguimiento",
   "setting.invisible": "Invisibles",
   "setting.line_endings": "Saltos",
   "setting.rich_text": "Formato",
+  "setting.quotes": "Comillas",
+  "setting.lists": "Viñetas",
+  "setting.unicode_nfc": "NFC",
+  "setting.trailing_whitespace": "Espacios finales",
 
   "action.apply": "Aplicar al portapapeles",
   "action.applying": "Limpiando…",
@@ -569,14 +589,18 @@ function t(key, lang) {
 }
 
 // Sustituye %1, %2… por los argumentos, en el orden en que vengan.
+//
+// De una sola pasada y con función, no con `replace(cadena, cadena)`: así
+// un argumento que contenga `$&`, `$1` o un `%2` se inserta tal cual, en
+// vez de expandirse o de recibir dentro el argumento siguiente. Hoy los
+// argumentos son clases de ventana y rótulos, y una clase de ventana la
+// pone la aplicación, no nosotros.
 function f(key, lang, a, b, c) {
-  var out = t(key, lang);
   var args = [a, b, c];
-  for (var i = 0; i < args.length; i++) {
-    if (args[i] === undefined) continue;
-    out = out.replace("%" + (i + 1), String(args[i]));
-  }
-  return out;
+  return t(key, lang).replace(/%([123])/g, function(match, index) {
+    var value = args[Number(index) - 1];
+    return value === undefined ? match : String(value);
+  });
 }
 
 // Del locale del sistema. Sólo se distinguen dos familias: cualquier

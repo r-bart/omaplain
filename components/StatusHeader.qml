@@ -50,7 +50,10 @@ Item {
   implicitHeight: lines.implicitHeight
 
   Accessible.role: Accessible.StaticText
-  Accessible.name: Strings.f("state.a11y", root.lang, stateLabel, detail)
+  // Sin detalle, sin el punto y el hueco que dejaba «OmaPlain, Activo. ».
+  Accessible.name: detail !== ""
+    ? Strings.f("state.a11y", root.lang, stateLabel, detail)
+    : Strings.f("state.a11y.short", root.lang, stateLabel)
 
   Column {
     id: lines

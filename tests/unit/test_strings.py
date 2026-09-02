@@ -97,7 +97,9 @@ class CatalogueTests(unittest.TestCase):
     # explícita envejece mejor que una regex que las esconda a todas.
     LEGITIMATELY_IDENTICAL = {
         "state.a11y": "sólo la marca y los marcadores",
+        "state.a11y.short": "sólo la marca y un marcador",
         "setting.invisible": "«Invisibles» se escribe igual en los dos idiomas",
+        "setting.unicode_nfc": "NFC es una sigla, igual en los dos idiomas",
         "empty.sample.text.spare": "la etiqueta de un carácter que no se puede enseñar",
         "empty.sample.rich.tail": "un punto y nada más",
     }
@@ -149,14 +151,9 @@ class CatalogueTests(unittest.TestCase):
                         f"español fuera del catálogo: {code.strip()[:70]}",
                     )
 
-    def test_the_locale_maps_to_one_of_the_two(self) -> None:
-        source = CATALOGUE.read_text(encoding="utf-8")
-        self.assertIn("function fromLocale", source)
-        self.assertIn('indexOf("es") === 0', source)
-
-    def test_a_missing_spanish_key_falls_back_instead_of_blanking(self) -> None:
-        source = CATALOGUE.read_text(encoding="utf-8")
-        self.assertIn("if (value === undefined) value = EN[key]", source)
+    # `fromLocale`, `t` y `f` se prueban ejecutándolos, en
+    # `test_strings_runtime.py`: leer el fuente para ver si contiene una
+    # línea no dice qué hace esa línea.
 
     # ------------------------------------------------------------------
     # Que la clave exista en las dos tablas no dice en qué idioma está

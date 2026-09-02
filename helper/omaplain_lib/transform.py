@@ -173,6 +173,10 @@ def clean_tracking_url(text: str) -> str:
     remaining = [part for part, key in zip(parts, keys, strict=True) if not _is_tracking_key(key or "")]
     if len(remaining) == len(parts):
         return text
+    # Sólo cuando ya se ha quitado algo: los trozos vacíos —el `&` final
+    # que dejaba `?fbclid=1&`— se van con él, para no devolver una URL que
+    # acaba en `?`.
+    remaining = [part for part in remaining if part]
     rebuilt = prefix
     if remaining:
         rebuilt += "?" + "&".join(remaining)
@@ -241,6 +245,19 @@ def transform(payload: bytes, mime: str, config: dict[str, object]) -> Transform
         raise TransformBypass("empty_output")
     if len(output) > maximum:
         raise TransformBypass("too_large")
-    if len(output) > max(len(payload) + 4, int(len(payload) * 1.10)):
+    # El tope de crecimiento vigila a las reglas, no a la codificación: se
+    # mide contra el original ya en UTF-8. Medido contra los bytes de
+    # entrada, un texto en Latin-1 con acentos crecía por recodificarse y
+    # salía rechazado como «growth» sin que ninguna regla hubiera tocado
+    # nada.
+    baseline = len(original.encode("utf-8"))
+    if len(output) > max(baseline + 4, int(baseline * 1.10)):
         raise TransformBypass("growth")
-    return TransformResult(output, output != payload, tuple(applied))
+    changed = output != payload
+    # Bytes distintos sin regla aplicada sólo pasa por la codificación: un
+    # BOM que `decode_text` consumió, o un texto que no venía en UTF-8. Es
+    # una reescritura y hay que nombrarla; antes heredaba el nombre del
+    # formato enriquecido, que no tenía nada que ver.
+    if changed and not applied:
+        applied.append("encoding")
+    return TransformResult(output, changed, tuple(applied))

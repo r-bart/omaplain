@@ -45,6 +45,10 @@ Item {
   Component.onCompleted: play()
   onMotionEnabledChanged: play()
   onVisibleChanged: if (visible) play()
+  // El tour cambia la variante con la ilustración ya visible: sin esto la
+  // transformación corría en el paso 0, con su capa oculta, y el paso que
+  // de verdad la enseña llegaba con el recorrido ya consumido.
+  onVariantChanged: play()
 
   SequentialAnimation {
     id: sequence
@@ -103,6 +107,8 @@ Item {
           spacing: Style.space(8)
 
           Text {
+            // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+            Accessible.ignored: true
             text: Strings.t("art.copied", root.lang)
             color: Color.popups.background
             font.family: Style.font.family
@@ -148,6 +154,8 @@ Item {
           spacing: Style.space(8)
 
           Text {
+            // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+            Accessible.ignored: true
             text: Strings.t("art.clean", root.lang)
             color: Color.popups.background
             font.family: Style.font.family
@@ -185,6 +193,8 @@ Item {
           transformOrigin: Item.Center
 
           Text {
+            // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+            Accessible.ignored: true
             anchors.centerIn: parent
             text: "✓"
             color: Color.background
@@ -206,6 +216,8 @@ Item {
         transformOrigin: Item.Center
 
         Text {
+          // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+          Accessible.ignored: true
           anchors.centerIn: parent
           text: "→"
           color: Color.background
@@ -249,6 +261,8 @@ Item {
               }
 
               Text {
+                // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+                Accessible.ignored: true
                 text: modelData
                 color: Color.popups.text
                 font.family: Style.font.family
@@ -269,6 +283,8 @@ Item {
         color: Color.accent
 
         Text {
+          // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+          Accessible.ignored: true
           anchors.centerIn: parent
           rotation: -45
           text: "✓"
@@ -309,6 +325,8 @@ Item {
               spacing: Style.space(8)
 
               Text {
+                // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+                Accessible.ignored: true
                 width: parent.width - Style.space(42)
                 text: modelData.label
                 color: Color.popups.text
@@ -345,6 +363,8 @@ Item {
         color: Color.accent
 
         Text {
+          // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+          Accessible.ignored: true
           anchors.centerIn: parent
           text: "✓"
           color: Color.background

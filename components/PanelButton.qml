@@ -32,7 +32,9 @@ Button {
 
   Accessible.role: Accessible.Button
   Accessible.name: root.text
-  Accessible.onPressAction: root.clicked()
+  // Con el mismo guardia que el clic: un lector de pantalla no debe poder
+  // pulsar lo que el ratón no puede.
+  Accessible.onPressAction: if (root.enabled) root.clicked()
 
   onActiveFocusChanged: if (activeFocus) root.focusEntered(root)
 

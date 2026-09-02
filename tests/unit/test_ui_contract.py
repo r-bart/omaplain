@@ -200,7 +200,11 @@ class UiContractTests(unittest.TestCase):
         self.assertIn('readonly property bool motionEnabled: !setting("reduceMotion", false)', panel)
         for name in ("WelcomePage", "TourPage", "EmptyCarousel", "ClipboardRow"):
             with self.subTest(component=name):
-                for block in _blocks(panel, name):
+                blocks = list(_blocks(panel, name))
+                # Sin bloques el bucle pasaba en vacío: un componente que
+                # desapareciera del panel «cumplía».
+                self.assertTrue(blocks, f"{name} ya no está en el panel")
+                for block in blocks:
                     self.assertIn("motionEnabled: root.motionEnabled", block)
 
     def test_controls_scale_the_minimum_hit_height(self) -> None:
@@ -437,8 +441,10 @@ class UiContractTests(unittest.TestCase):
             "EmptyCarousel": "visible: root.peekEmpty",
         }
         for name, condicion in permitido.items():
-            for block in re.finditer(name + r" \{(?P<body>.*?)\n\s{14}\}", panel, re.DOTALL):
-                with self.subTest(component=name):
+            bloques = list(re.finditer(name + r" \{(?P<body>.*?)\n\s{14}\}", panel, re.DOTALL))
+            with self.subTest(component=name):
+                self.assertTrue(bloques, f"{name} ya no está en la página del portapapeles")
+                for block in bloques:
                     self.assertIn(condicion, block.group("body"))
 
     def test_skip_state_label_keeps_button_padding(self) -> None:
@@ -632,8 +638,6 @@ class UiContractTests(unittest.TestCase):
                 )
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class PanelHeightTests(unittest.TestCase):
@@ -851,3 +855,7 @@ class EverydayHeaderTests(unittest.TestCase):
                       "status.done"):
             with self.subTest(key=clave):
                 self.assertEqual(catalogue.count(f'"{clave}"'), 2, "falta en un idioma")
+
+
+if __name__ == "__main__":
+    unittest.main()

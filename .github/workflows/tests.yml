@@ -1,8 +1,12 @@
-# La suite entera menos el validador, que necesita una instalación de Omarchy
-# y por eso se queda como paso manual documentado en el README.
+# La misma suite que `tests/run.sh`, llamada tal cual: el script ya sabe
+# saltarse el validador de Omarchy cuando no está instalado, así que aquí no
+# hay una lista de pasos que pueda desviarse de la del script.
 #
-# Python 3.10 es el suelo real: `dataclass(slots=True)` en `clipboard.py` es lo
-# que lo ata. Se prueba ahí y en la última, que es lo que la gente tendrá.
+# Python 3.10 es el suelo real. Lo atan `dataclass(slots=True)` en
+# `clipboard.py`, `classify.py`, `daemon.py` y `transform.py`,
+# `zip(strict=True)` en `transform.py`, y `TimeoutError` como alias del
+# timeout de socket en `daemon.py`. Se prueba ahí y en la última, que es lo
+# que la gente tendrá.
 name: tests
 
 on:
@@ -28,20 +32,10 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Unitarias y de propiedades
-        run: python -m unittest discover -s tests/unit -v
-        env:
-          PYTHONPATH: ${{ github.workspace }}/helper
-
-      - name: Benchmark
-        run: tests/benchmark.py
-        env:
-          PYTHONPATH: ${{ github.workspace }}/helper
-
-      - name: Soak acelerado
-        run: tests/soak.py
-        env:
-          PYTHONPATH: ${{ github.workspace }}/helper
+      # `node` viene en la imagen y ejecuta `Strings.js` en
+      # `test_strings_runtime.py`; sin él esos tests se saltan diciéndolo.
+      - name: La suite entera
+        run: tests/run.sh
 
   manifiesto:
     runs-on: ubuntu-latest

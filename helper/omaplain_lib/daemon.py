@@ -51,6 +51,10 @@ class OmaPlainDaemon:
         # procedencia. No se persiste, no entra en `status.json` y muere
         # con el proceso.
         self.last_source: tuple[str, str] = ("", "")
+        # La generación del evento que fijó `last_source`. Dos eventos casi
+        # simultáneos llegan por hilos distintos y pueden ejecutarse en
+        # orden inverso; sin esto el más viejo podía quedar como «último».
+        self.last_source_generation = 0
         self.loop_guard: tuple[str, int, float] | None = None
         self.watcher: subprocess.Popen[bytes] | None = None
         self.server: socket.socket | None = None
@@ -100,13 +104,24 @@ class OmaPlainDaemon:
         delays = (1, 2, 5, 10, 30)
         failures: list[float] = []
         index = 0
+        healthy_since: float | None = None
         while not self.stop_event.is_set():
             watcher = self.watcher
             if watcher is not None and watcher.poll() is None:
+                now = time.monotonic()
+                if healthy_since is None:
+                    healthy_since = now
+                # Un tramo sano de un minuto vuelve a poner la escalera de
+                # reintentos al principio. Sin esto, una caída aislada tras
+                # horas corriendo esperaba el último retardo alcanzado, que
+                # podía ser el tope de treinta segundos.
+                elif index and now - healthy_since >= 60:
+                    index = 0
                 self.status.update(watcher="running")
                 if self.stop_event.wait(0.5):
                     break
                 continue
+            healthy_since = None
             now = time.monotonic()
             failures = [value for value in failures if now - value < 60]
             failures.append(now)
@@ -278,8 +293,17 @@ class OmaPlainDaemon:
     ) -> dict[str, object]:
         # Se recuerda antes de mirar si el automático está puesto: con el
         # automático apagado no habría a quién atribuir la copia siguiente.
-        self.last_source = self._classes(source)
-        if not bool(self.config.get("automatic", True)):
+        with self.generation_lock:
+            if generation >= self.last_source_generation:
+                self.last_source = self._classes(source)
+                self.last_source_generation = generation
+        # Y se deja constancia de que hubo evento, aunque no se procese: el
+        # panel abierto relee `status.json` para saber si lo que enseña
+        # sigue siendo lo que hay, y con el automático apagado no había
+        # nada que cambiara ahí.
+        automatic = bool(self.config.get("automatic", True))
+        self.status.mark_event(write=not automatic)
+        if not automatic:
             return {"result": "paused", "reason": "automatic_disabled", "bytes": 0}
         with self.process_lock:
             operation = self._clean(state, automatic=True, generation=generation, source=source)
@@ -300,7 +324,10 @@ class OmaPlainDaemon:
             self._record(operation)
             return operation.public() | {"pasted": False}
         if self._target_excluded(target):
+            # 0009: en esta ventana «pegar limpio» pega sin limpiar. Se
+            # pega lo que haya, tal cual, y se apunta como bypass.
             operation = OperationResult("bypassed", "target_excluded")
+            self._record(operation)
         else:
             generation = self._next_generation()
             with self.process_lock:
@@ -439,7 +466,10 @@ class OmaPlainDaemon:
                 response: dict[str, object] = {"result": "invalid", "reason": "request_too_large"}
             else:
                 request = json.loads(raw.decode("utf-8"))
-                kind = request.get("kind")
+                # Un JSON válido que no sea un objeto —una lista, un
+                # número— no es una petición; antes hacía saltar un
+                # `AttributeError` fuera de la lista de excepciones.
+                kind = request.get("kind") if isinstance(request, dict) else None
                 if kind == "event":
                     generation = self._next_generation()
                     # Snapshot attribution before this event waits on the
@@ -451,8 +481,13 @@ class OmaPlainDaemon:
                     response = self.command(str(request.get("name", "")))
                 else:
                     response = {"result": "invalid", "reason": "bad_request"}
-            connection.sendall(json.dumps(response, separators=(",", ":")).encode("utf-8") + b"\n")
-        except (OSError, UnicodeError, json.JSONDecodeError, TypeError):
+            # UTF-8 tal cual, sin `\uXXXX`: con el escape ASCII cada emoji
+            # de un `peek` ocupaba doce bytes, y cuatro mil de ellos por
+            # dos campos superaban el tope de respuesta del cliente.
+            connection.sendall(
+                json.dumps(response, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n"
+            )
+        except (OSError, UnicodeError, json.JSONDecodeError, TypeError, AttributeError):
             pass
         finally:
             connection.close()
@@ -513,6 +548,13 @@ class OmaPlainDaemon:
         return 0
 
 
+# Tope de una respuesta del socket. Un `peek` trae dos campos de hasta
+# `PEEK_LIMIT` caracteres en UTF-8 sin escapar —cuatro bytes por carácter
+# como mucho— más el escape JSON de los de control; el resto de respuestas
+# son de unas decenas de bytes.
+RESPONSE_LIMIT = 262_144
+
+
 def socket_request(socket_path: str, request: dict[str, Any], timeout: float = 1.5) -> dict[str, object]:
     client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     client.settimeout(timeout)
@@ -521,12 +563,12 @@ def socket_request(socket_path: str, request: dict[str, Any], timeout: float = 1
         client.sendall(json.dumps(request, separators=(",", ":")).encode("utf-8") + b"\n")
         client.shutdown(socket.SHUT_WR)
         raw = b""
-        while len(raw) <= 65_536 and not raw.endswith(b"\n"):
+        while len(raw) <= RESPONSE_LIMIT and not raw.endswith(b"\n"):
             part = client.recv(4096)
             if not part:
                 break
             raw += part
-        if len(raw) > 65_536:
+        if len(raw) > RESPONSE_LIMIT:
             return {"result": "error", "reason": "response_too_large"}
         return json.loads(raw.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError, TypeError):

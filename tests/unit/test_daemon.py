@@ -52,6 +52,8 @@ class FakeBackend:
 class DaemonTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
+        # Se recoge aunque el propio `setUp` falle a medias.
+        self.addCleanup(self.temporary.cleanup)
         base = Path(self.temporary.name)
         self.config = base / "config.json"
         write_config(self.config, {})
@@ -60,9 +62,6 @@ class DaemonTests(unittest.TestCase):
         )
         self.backend = FakeBackend()
         self.daemon.backend = self.backend
-
-    def tearDown(self) -> None:
-        self.temporary.cleanup()
 
     def test_clean_now_rewrites_tracking_url(self) -> None:
         result = self.daemon.clean_now()
@@ -176,15 +175,8 @@ class DaemonTests(unittest.TestCase):
         on_disk = json.loads(Path(self.daemon.status_path).read_text(encoding="utf-8"))
         self.assertTrue(on_disk["skipNext"])
 
-    def test_tick_is_wired_into_the_idle_loop(self) -> None:
-        # La caducidad no sirve de nada si nadie la llama. El bucle de
-        # `accept` es el único que despierta con el escritorio quieto.
-        source = Path(daemon_module.__file__).read_text(encoding="utf-8")
-        # `def run(` aparece dos veces: la anidada de `_spawn_handler` y el
-        # bucle. Aquí interesa el bucle, que es el único que despierta solo.
-        loop = source.split("def run(self)")[1]
-        timeout_branch = loop.split("except TimeoutError:")[1].split("except")[0]
-        self.assertIn("self.tick()", timeout_branch)
+    # Que el bucle de `accept` llame a `tick` se comprueba con el demonio
+    # corriendo de verdad, en `test_daemon_runtime.py`.
 
     def test_status_never_contains_clipboard_content(self) -> None:
         original = self.backend.payload.decode()

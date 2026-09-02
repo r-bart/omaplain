@@ -30,6 +30,8 @@ NOTES = WindowTarget("0x901", "com.ejemplo.Notas", "notas", False)
 class PrivacyListTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
+        # Se recoge aunque el propio `setUp` falle a medias.
+        self.addCleanup(self.temporary.cleanup)
         self.base = Path(self.temporary.name)
         self.config = self.base / "config.json"
         write_config(self.config, {
@@ -42,9 +44,6 @@ class PrivacyListTests(unittest.TestCase):
         )
         self.backend = FakeBackend()
         self.daemon.backend = self.backend
-
-    def tearDown(self) -> None:
-        self.temporary.cleanup()
 
     def _copy_from(self, target: WindowTarget, payload: bytes) -> None:
         """Una copia hecha desde `target`, como la ve el demonio."""
