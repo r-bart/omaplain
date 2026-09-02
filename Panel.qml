@@ -1595,6 +1595,23 @@ Item {
                 onClicked: root.finishOnboarding()
               }
 
+              // La promesa, al cierre y sin encabezado propio. Vivía dentro
+              // del párrafo de «Aplicaciones», heredada de cuando esa
+              // sección se llamaba «Privacidad»: allí explicaba una cosa
+              // bajo el título de otra. Aquí no reabre la sección que la
+              // `0011` fundió —no trae formulario ni encabezado— y deja de
+              // ser lo único que el panel no decía en ninguna parte.
+              Text {
+                width: parent.width
+                text: Strings.t("settings.privacy", root.lang)
+                color: Util.alpha(Color.popups.text, 0.72)
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
+                lineHeightMode: Text.ProportionalHeight
+                lineHeight: 1.4
+                wrapMode: Text.WordWrap
+              }
+
             }
           }
         }

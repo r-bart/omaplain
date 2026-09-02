@@ -949,5 +949,66 @@ class PeekLifetimeTests(unittest.TestCase):
         self.assertIn("onLockedChanged: if (locked) reset()", fog)
 
 
+class CopyTests(unittest.TestCase):
+    """Que cada frase hable de lo que hay debajo de ella."""
+
+    def setUp(self) -> None:
+        self.catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+
+    def _value(self, key: str) -> list[str]:
+        return re.findall(rf'"{re.escape(key)}":\s*"((?:[^"\\]|\\.)*)"', self.catalogue)
+
+    def test_the_english_table_uses_english_punctuation(self) -> None:
+        # Las comillas angulares se colaron del español a la tabla inglesa.
+        english = self.catalogue.split("var ES", 1)[0]
+        for line in english.splitlines():
+            code = line.split("//", 1)[0]
+            with self.subTest(line=code.strip()[:60]):
+                self.assertNotIn("«", code)
+                self.assertNotIn("»", code)
+
+    def test_the_chip_names_the_setting_that_governs_the_rule(self) -> None:
+        # El chip del desglose y el rótulo del ajuste hablaban de lo mismo
+        # con tres nombres distintos.
+        for chip, row in (("setting.trailing_whitespace", "settings.trim"),
+                          ("setting.tracking", "settings.tracking"),
+                          ("setting.rich_text", "settings.formatting"),
+                          ("setting.line_endings", "settings.endings")):
+            with self.subTest(chip=chip):
+                for short, long in zip(self._value(chip), self._value(row), strict=True):
+                    palabras = {p.strip(".,").lower() for p in short.split()}
+                    self.assertTrue(
+                        palabras & {p.strip(".,").lower() for p in long.split()},
+                        f"«{short}» no comparte ni una palabra con «{long}»",
+                    )
+
+    def test_the_applications_section_talks_about_applications(self) -> None:
+        # Heredado de cuando la sección se llamaba «Privacidad»: explicaba
+        # el almacenamiento bajo el título de las reglas por aplicación.
+        for body in self._value("apps.body"):
+            with self.subTest(body=body[:40]):
+                self.assertNotIn("network", body.lower())
+                self.assertNotIn("historial", body.lower())
+                self.assertNotIn("history", body.lower())
+
+    def test_the_privacy_promise_is_somewhere_in_the_panel(self) -> None:
+        # Y no sólo en la bienvenida, que se ve una vez en la vida.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        self.assertIn('Strings.t("settings.privacy"', panel)
+        for promise in self._value("settings.privacy"):
+            with self.subTest(promise=promise[:40]):
+                self.assertRegex(promise, r"(red|network)")
+
+    def test_no_screen_invents_a_word_the_product_does_not_use(self) -> None:
+        # «Excluida» es de las dos listas que la 0011 retiró; «ZWSP» es una
+        # sigla técnica en la pantalla de quien acaba de llegar.
+        for key in ("fb.excluded", "empty.sample.text.spare", "state.skipping"):
+            for value in self._value(key):
+                with self.subTest(key=key, value=value):
+                    self.assertNotIn("ZWSP", value)
+                    self.assertNotIn("excluida", value.lower())
+                    self.assertNotIn("excluded", value.lower())
+
+
 if __name__ == "__main__":
     unittest.main()

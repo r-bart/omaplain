@@ -85,6 +85,16 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Cambiado
 
+- **Repaso de los textos, en los dos idiomas.** Veintidós cadenas decían
+  algo distinto de lo que había debajo: el párrafo de «Aplicaciones»
+  explicaba el almacenamiento —herencia de cuando esa sección se llamaba
+  «Privacidad»—, el chip del desglose llamaba «Saltos» a lo que el ajuste
+  llama «Normalizar finales de línea», la tabla inglesa llevaba comillas
+  angulares españolas, un mensaje seguía hablando de aplicaciones
+  «excluidas» cuando ya no hay listas sino reglas, y el estado vacío
+  enseñaba la sigla «ZWSP» a quien acaba de llegar. La promesa de que nada
+  sale del equipo vuelve al panel, al cierre de los ajustes, que era donde
+  se había quedado sin decir.
 - **La pantalla frecuente no ofrece un botón muerto.** Con el automático
   puesto, el texto llega limpio y «Apply» vivía gris casi siempre en la
   pantalla más vista. Ahora sólo existe cuando hay algo que aplicar. La
