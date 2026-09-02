@@ -3,8 +3,8 @@
 `test_daemon.py` llama a los métodos uno a uno. Aquí se arranca `run()`
 sobre un socket temporal y se habla con él como lo hacen `emit-event`,
 `peek` y `control`, que es la única forma de probar lo que pasa entre
-hilos: una limpieza que otra adelanta, un `tick` que nadie llama, una
-petición malformada que no debe tumbar nada.
+hilos: una limpieza que otra adelanta, una petición malformada que no debe
+tumbar nada.
 """
 
 from __future__ import annotations
@@ -207,10 +207,6 @@ class SocketTests(unittest.TestCase):
             self.assertTrue(pasted["pasted"])
             self.assertEqual(self.backend.paste_targets, [self.backend.target])
 
-            skipped = running.request({"kind": "command", "name": "skipNext"})
-            self.assertEqual(skipped, {"result": "ok", "expiresIn": 60})
-            self.assertTrue(running.request({"kind": "command", "name": "status"})["skipNext"])
-
             reloaded = running.request({"kind": "command", "name": "reload"})
             self.assertEqual(reloaded, {"result": "ok", "warnings": []})
 
@@ -221,17 +217,6 @@ class SocketTests(unittest.TestCase):
             with patch("omaplain_lib.daemon.RESPONSE_LIMIT", 8):
                 answer = running.request({"kind": "command", "name": "status"})
         self.assertEqual(answer, {"result": "error", "reason": "response_too_large"})
-
-    def test_the_idle_loop_ticks_without_any_client(self) -> None:
-        # La caducidad de `skipNext` depende de que alguien despierte al
-        # demonio con el escritorio quieto. Es el bucle de `accept`, cada
-        # medio segundo de silencio.
-        with RunningDaemon(self.base, self.backend) as running:
-            with patch.object(running.daemon, "tick", wraps=running.daemon.tick) as tick:
-                deadline = time.monotonic() + 3
-                while not tick.called and time.monotonic() < deadline:
-                    time.sleep(0.05)
-                self.assertTrue(tick.called, "el bucle no llamó a tick en tres segundos")
 
     def test_a_paused_event_still_leaves_its_mark_for_the_panel(self) -> None:
         with RunningDaemon(self.base, self.backend, {"automatic": False}) as running:
@@ -386,26 +371,16 @@ class LoopGuardAndPasteTests(unittest.TestCase):
         self.assertIsNone(self.daemon.loop_guard)
         self.assertEqual(self.daemon.status.snapshot()["session"]["errors"], 1)
 
-    def test_a_self_event_does_not_consume_a_pending_skip(self) -> None:
-        self.assertEqual(self.daemon.clean_now()["result"], "cleaned")
-        self.daemon.skip_next()
-        self.assertEqual(self._event()["result"], "self")
-        self.assertTrue(self.daemon.status.snapshot()["skipNext"])
-
-    def test_manual_cleaning_and_oversize_copies_leave_the_skip_alone(self) -> None:
-        self.daemon.skip_next()
-        self.assertEqual(self.daemon.clean_now()["result"], "cleaned")
-        self.assertTrue(self.daemon.status.snapshot()["skipNext"])
-
+    def test_an_oversize_copy_is_a_bypass_and_writes_nothing(self) -> None:
         self.backend.payload = b"x" * 2048
         self.daemon.config["maxBytes"] = 1024
 
-        def too_big(mime: str, maximum: int) -> bytes:
+        def too_big(mime: str, maximum: int, timeout: float | None = None) -> bytes:
             from omaplain_lib.clipboard import ClipboardTooLarge
             raise ClipboardTooLarge("too_large")
         self.backend.read = too_big  # type: ignore[method-assign]
         self.assertEqual(self._event()["reason"], "too_large")
-        self.assertTrue(self.daemon.status.snapshot()["skipNext"])
+        self.assertEqual(self.backend.writes, [])
 
     def test_paste_without_a_target_is_an_error_that_counts(self) -> None:
         self.backend.target = None

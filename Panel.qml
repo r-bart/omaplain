@@ -41,10 +41,9 @@ Item {
   // Igual que el del historial: nacen cerrados y no se recuerdan. Son
   // ajustes que la mayoría no toca, no una preferencia sobre la vista.
   property bool optionalOpen: false
-  // F.5: mientras el foco siga en los botones del resultado, el mensaje no
-  // se va solo. Leerlo con el teclado no puede depender de leer rápido.
-  readonly property bool holdingFeedback: (applyButton && applyButton.activeFocus)
-    || (skipButton && skipButton.activeFocus)
+  // F.5: mientras el foco siga en el botón del resultado, el mensaje no se
+  // va solo. Leerlo con el teclado no puede depender de leer rápido.
+  readonly property bool holdingFeedback: applyButton && applyButton.activeFocus
   // La pantalla frecuente informa; los ajustes viven detrás del engranaje.
   property string panelPage: "clipboard"
 
@@ -362,11 +361,10 @@ Item {
     if (watcherState === "degraded") return Strings.t("status.degraded", root.lang)
     if (watcherState === "restarting") return Strings.t("status.restarting", root.lang)
     if (!setting("automatic", true)) return Strings.t("status.paused", root.lang)
-    if (service.status && service.status.skipNext === true) return Strings.t("status.willskip", root.lang)
     if (service.status && service.status.lastResult === "cleaned") return Strings.t("status.done", root.lang)
-    // Nada que contar. Las otras siete ramas informan de algo que está
-    // pasando —pausado, va a omitir, se acaba de limpiar, falta una
-    // dependencia—; ésta era la única que describía el producto, y describía
+    // Nada que contar. Las otras ramas informan de algo que está
+    // pasando —pausado, se acaba de limpiar, falta una dependencia—; ésta
+    // era la única que describía el producto, y describía
     // el producto justo en el caso más frecuente de todos.
     //
     // Era el titular educativo que la 0007 echó de esta pantalla, sobrevivido
@@ -413,14 +411,13 @@ Item {
     if (data.reason === "too_large") return Strings.t("fb.large", root.lang)
     if (data.reason === "target_excluded" || data.reason === "source_excluded") return Strings.t("fb.excluded", root.lang)
     if (data.result === "bypassed") return Strings.t("fb.bypassed", root.lang)
-    if (data.result === "ok") return Strings.t("fb.skip", root.lang)
     if (data.result === "error") return Strings.t("fb.error", root.lang)
     return ""
   }
 
   function runAction(name) {
     if (!service) return
-    var result = name === "cleanNow" ? service.cleanNow() : service.skipNext()
+    var result = service.cleanNow()
     if (result === "busy") {
       feedbackError = false
       feedback = Strings.t("err.busy", root.lang)
@@ -532,7 +529,6 @@ Item {
   function settleFocus() {
     if (!opened || viewMode !== "main" || panelPage !== "clipboard") return
     if (applyButton.visible) applyButton.forceActiveFocus()
-    else if (skipButton.visible) skipButton.forceActiveFocus()
     else optionsButton.forceActiveFocus()
   }
 
@@ -798,7 +794,6 @@ Item {
             visible: root.panelPage === "clipboard" && !statusLine.silent
             serviceState: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
             detail: root.statusDetail()
-            skipping: service && service.status && service.status.skipNext === true
           }
 
           Text {
@@ -1035,29 +1030,6 @@ Item {
                 // los 2,5 s sin que nadie lo leyera, que es justo el caso
                 // de la F.5. El foco pasa a la siguiente acción viva.
                 onActiveFocusChanged: if (!activeFocus && !visible && root.opened) Qt.callLater(root.settleFocus)
-              }
-
-              // 0015: la excepción de un solo uso al automático, fuera de
-              // la fila de «esta copia» —habla de la siguiente— y sin borde:
-              // es una salida discreta, no una acción de producto. Y sólo
-              // con el automático puesto, que es cuando significa algo.
-              PanelButton {
-                id: skipButton
-                width: parent.width
-                visible: root.peekReady && root.setting("automatic", true)
-                leftAlign: true
-                bordered: false
-                foreground: service && service.status && service.status.skipNext
-                  ? Color.accent
-                  : Util.alpha(Color.popups.text, 0.68)
-                iconText: service && service.status && service.status.skipNext ? "󰄬" : "󰒭"
-                text: service && service.status && service.status.skipNext ? Strings.t("action.skipped", root.lang) : Strings.t("action.skip", root.lang)
-                // Armada sigue viva: deshabilitarla dejaba el foco sin
-                // sitio, y pulsarla otra vez sólo vuelve a contar el minuto.
-                enabled: service && !service.actionBusy
-                Accessible.description: Strings.t("action.skip.a11y", root.lang)
-                onFocusEntered: function(item) { root.reveal(item) }
-                onClicked: root.runAction("skipNext")
               }
 
               PanelButton {

@@ -316,7 +316,7 @@ Item {
           Repeater {
             model: [
               { label: Strings.t("art.automatic", root.lang), active: true },
-              { label: Strings.t("art.skip", root.lang), active: false },
+              { label: Strings.t("art.cleaning", root.lang), active: true },
               { label: Strings.t("art.exclude", root.lang), active: false }
             ]
             delegate: Row {

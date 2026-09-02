@@ -53,7 +53,7 @@ def _parser() -> argparse.ArgumentParser:
 
     control = commands.add_parser("control", help="Call the running daemon.")
     control.add_argument("--socket", required=True)
-    control.add_argument("name", choices=("ping", "status", "cleanNow", "pasteClean", "skipNext", "reload"))
+    control.add_argument("name", choices=("ping", "status", "cleanNow", "pasteClean", "reload"))
     return parser
 
 

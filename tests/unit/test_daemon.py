@@ -93,19 +93,6 @@ class DaemonTests(unittest.TestCase):
         self.assertEqual(self.backend.list_calls, 0)
         self.assertEqual(self.backend.writes, [])
 
-    def test_skip_next_is_not_consumed_by_ineligible_content(self) -> None:
-        self.daemon.skip_next()
-        self.backend.types = ["image/png"]
-        generation = self.daemon._next_generation()
-        self.daemon.automatic_event("data", generation)
-        self.assertTrue(self.daemon.status.snapshot()["skipNext"])
-
-        self.backend.types = ["text/plain"]
-        generation = self.daemon._next_generation()
-        result = self.daemon.automatic_event("data", generation)
-        self.assertEqual(result["reason"], "skip_next")
-        self.assertFalse(self.daemon.status.snapshot()["skipNext"])
-
     def test_compare_before_write_rejects_stale_clipboard(self) -> None:
         self.backend.current = False
         result = self.daemon.clean_now()
@@ -143,40 +130,6 @@ class DaemonTests(unittest.TestCase):
 
         manual = self.daemon.clean_now()
         self.assertEqual(manual["result"], "cleaned")
-
-    def test_skip_next_expires_after_sixty_seconds(self) -> None:
-        with patch("omaplain_lib.daemon.time.monotonic", return_value=100.0):
-            self.daemon.skip_next()
-        with patch("omaplain_lib.daemon.time.monotonic", return_value=160.01):
-            status = self.daemon.command("status")
-        self.assertFalse(status["skipNext"])
-
-    def test_skip_next_expires_with_nothing_happening(self) -> None:
-        # El test de arriba pregunta por el socket, y ésa es justo la vía que
-        # el panel no usa: relee `status.json` del disco. Mientras la
-        # caducidad sólo corría ahí, la marca se quedaba puesta con el
-        # escritorio quieto y la cabecera seguía diciendo «omitiendo».
-        with patch("omaplain_lib.daemon.time.monotonic", return_value=100.0):
-            self.daemon.skip_next()
-        on_disk = json.loads(Path(self.daemon.status_path).read_text(encoding="utf-8"))
-        self.assertTrue(on_disk["skipNext"])
-
-        with patch("omaplain_lib.daemon.time.monotonic", return_value=160.01):
-            self.daemon.tick()
-
-        on_disk = json.loads(Path(self.daemon.status_path).read_text(encoding="utf-8"))
-        self.assertFalse(on_disk["skipNext"])
-
-    def test_tick_leaves_a_live_skip_alone(self) -> None:
-        with patch("omaplain_lib.daemon.time.monotonic", return_value=100.0):
-            self.daemon.skip_next()
-        with patch("omaplain_lib.daemon.time.monotonic", return_value=159.99):
-            self.daemon.tick()
-        on_disk = json.loads(Path(self.daemon.status_path).read_text(encoding="utf-8"))
-        self.assertTrue(on_disk["skipNext"])
-
-    # Que el bucle de `accept` llame a `tick` se comprueba con el demonio
-    # corriendo de verdad, en `test_daemon_runtime.py`.
 
     def test_status_never_contains_clipboard_content(self) -> None:
         original = self.backend.payload.decode()

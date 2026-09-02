@@ -1,7 +1,10 @@
 # 0015 — La pantalla frecuente no ofrece un botón muerto
 
 - Fecha: 2 de septiembre de 2026
-- Estado: aceptada
+- Estado: aceptada; su punto 2 lo deja sin efecto la
+  [`0016`](./0016-la-omision-de-una-copia-no-se-gana-su-sitio.md), que retira la
+  omisión entera. El punto 1 —el primario sólo cuando hay algo que aplicar— y
+  el punto 3 siguen en pie, y el 3 se cumple ahora del todo.
 - Enmienda a: [`0007`](./0007-la-pantalla-frecuente-informa.md) y
   [`0013`](./0013-el-titular-nombra-lo-que-tienes.md)
 

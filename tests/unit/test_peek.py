@@ -171,13 +171,6 @@ class PeekTests(unittest.TestCase):
         self.daemon.peek()
         self.assertEqual(self.backend.writes, [])
 
-    def test_peek_does_not_consume_a_pending_skip(self) -> None:
-        # Mirar antes de copiar no puede gastarle al usuario la omision que
-        # habia armado para la copia siguiente.
-        self.daemon.skip_next()
-        self.daemon.peek()
-        self.assertTrue(self.daemon._skip_active(), "peek se comió el skipNext")
-
     def test_peek_does_not_advance_the_generation(self) -> None:
         before = self.daemon.generation
         self.daemon.peek()

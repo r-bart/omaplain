@@ -157,7 +157,6 @@ is being left alone:
 ```sh
 omarchy-shell omaplain cleanNow        # clean what is on the clipboard now
 omarchy-shell omaplain pasteClean      # clean, then paste into the focused window
-omarchy-shell omaplain skipNext        # leave the next copy alone for 60 s
 omarchy-shell omaplain setAutomatic false
 omarchy-shell omaplain reload
 omarchy-shell omaplain status

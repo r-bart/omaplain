@@ -82,6 +82,18 @@ Lo que salió de la revisión completa del 2 de septiembre.
   mismo: el supervisor del watcher lo actualizaba con «running» cada medio
   segundo, con su `fsync`.
 
+### Retirado
+
+- **«Omitir la próxima copia» se va entera**: del panel, del IPC, del CLI, del
+  helper y del demonio. Pedía adivinar el futuro —armarla antes de copiar y
+  acordarse de que estaba armada—, caducaba en silencio al minuto, y apagar
+  «Limpiar automáticamente» en Ajustes hace lo mismo sin reloj y a la vista.
+  Era además la única acción que le quedaba a la pantalla más vista, así que
+  la más marginal del producto ocupaba el sitio de la principal.
+  Con ella desaparece el `tick()` del demonio, que sólo existía para
+  caducarla, y la rama del bucle de `accept` que lo llamaba
+  ([`0016`](docs/decisions/0016-la-omision-de-una-copia-no-se-gana-su-sitio.md)).
+
 ### Cambiado
 
 - **Repaso de los textos, en los dos idiomas.** Veintidós cadenas decían
@@ -108,7 +120,7 @@ Lo que salió de la revisión completa del 2 de septiembre.
   Un clic suelto o un roce corto no bastan.
 - `tests/run.sh` se salta el validador de Omarchy cuando no está instalado y
   falla ante cualquier `ResourceWarning`; la CI lo llama tal cual. La suite
-  pasa de 256 a 381 tests, con el demonio corriendo sobre un socket de verdad,
+  pasa de 256 a 366 tests, con el demonio corriendo sobre un socket de verdad,
   `clipboard.py` probado por primera vez, `Strings.js` ejecutado con `node`
   y un `qmllint` que carga cada fichero QML contra el shell instalado. La
   cobertura de línea del helper queda en el 96 %, con los nueve subcomandos

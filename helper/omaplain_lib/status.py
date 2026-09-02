@@ -23,7 +23,6 @@ class StatusStore:
             "version": 1,
             "watcher": "starting",
             "automatic": automatic,
-            "skipNext": False,
             "lastResult": "none",
             "lastReason": "none",
             "lastAt": "",

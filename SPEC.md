@@ -65,7 +65,7 @@ Las alternativas actuales tienen fricción:
 3. Retirar un conjunto estrecho y auditable de caracteres invisibles no semánticos.
 4. Preservar imágenes, archivos, secretos, cortes y payloads estructurados.
 5. Permitir exclusiones por aplicación de origen y, en el pegado manual, por aplicación de destino.
-6. Ofrecer modo automático, limpieza inmediata, pegar limpio y omitir una copia.
+6. Ofrecer modo automático, limpieza inmediata y pegar limpio.
 7. Mantener toda la operación local, sin telemetría y sin persistir el contenido.
 8. Integrarse con el historial existente de Omarchy sin reemplazarlo.
 9. Fallar de forma abierta: ante una duda o error, dejar el portapapeles original intacto.
@@ -122,7 +122,7 @@ Cuando aparece una nueva selección estándar de portapapeles:
 5. Reescribir como `text/plain;charset=utf-8` si había formato rico o cambió el texto.
 6. Registrar únicamente metadatos de resultado en memoria.
 
-La limpieza automática se activa en la configuración inicial. “Omitir la próxima copia” permite preservar el siguiente elemento elegible sin apagar el servicio.
+La limpieza automática se activa en la configuración inicial. Para preservar una copia concreta se apaga el automático en Ajustes; la excepción de un solo uso se retiró en la [`0016`](docs/decisions/0016-la-omision-de-una-copia-no-se-gana-su-sitio.md).
 
 ### 7.2 Limpiar el portapapeles ahora
 
@@ -149,14 +149,7 @@ o.bind("SUPER + ALT + V", "Paste clean", "omarchy-shell omaplain pasteClean")
 
 OmaPlain no se adueñará de `Super+V`, que Omarchy ya usa como pegado universal, ni de `Super+Ctrl+V`, reservado al gestor de portapapeles.
 
-### 7.4 Omitir la próxima copia
-
-- Solo afecta al siguiente evento elegible.
-- No se consume con imágenes, secretos, archivos ni eventos generados por el propio OmaPlain.
-- Caduca después de 60 segundos.
-- Es estado efímero; no sobrevive a un reinicio del shell.
-
-### 7.5 Pausa
+### 7.4 Pausa
 
 El interruptor superior permite pausar y reanudar la limpieza automática. La limpieza manual y `pasteClean` siguen disponibles durante la pausa. v1 no necesita temporizadores de cinco o treinta minutos; se pueden añadir cuando exista evidencia de uso.
 
@@ -404,7 +397,6 @@ y Ayuda y aprendizaje.
 | Activo | — | Sin insignia y sin frase: un servicio que va bien no tiene nada que contar | Ausente |
 | Recién limpiado | — | `Listo · última limpieza completada` | Neutro/confirmación |
 | Pausado | `Limpieza pausada` | Las acciones manuales siguen disponibles | Atenuado |
-| Omitir siguiente | `Se omitirá la próxima copia` | Caduca en menos de un minuto | Informativo |
 | Procesando | `Limpiando…` | Tipo y tamaño, nunca contenido | Indicador si supera 400 ms; en principio no debería |
 | Bypass | `No se ha modificado` | Motivo específico | Neutro |
 | Error recuperable | `El texto original sigue intacto` | Acción concreta para reintentar | Warning + icono + texto |
@@ -617,7 +609,7 @@ Reglas:
 | `$XDG_RUNTIME_DIR/omaplain/config.json` | Snapshot de preferencias | Sesión, `0600` |
 | `$XDG_RUNTIME_DIR/omaplain/status.json` | Estado, contadores, último resultado y marca del último evento | Sesión, `0600` |
 | `$XDG_RUNTIME_DIR/omaplain/omaplain.sock` | Eventos, órdenes y `peek` | Sesión, `0600` |
-| Memoria del helper | Hash de loop guard, skip-next, origen de la última copia y transacción activa | No persiste |
+| Memoria del helper | Hash de loop guard, origen de la última copia y transacción activa | No persiste |
 
 No hay ningún fichero persistente entre sesiones.
 
@@ -631,7 +623,6 @@ No se crea una base de datos. El historial pertenece a Omarchy.
 | `omarchy-shell omaplain status` | JSON | Estado sin contenido |
 | `omarchy-shell omaplain cleanNow` | `accepted` o `busy` | Limpia el portapapeles actual |
 | `omarchy-shell omaplain pasteClean` | `accepted` o `busy` | Limpia y pega en el target capturado |
-| `omarchy-shell omaplain skipNext` | `accepted` o `busy` | Omite la próxima copia elegible |
 | `omarchy-shell omaplain setAutomatic true` | `ok` | Activa modo automático |
 | `omarchy-shell omaplain setAutomatic false` | `ok` | Pausa modo automático |
 | `omarchy-shell omaplain reload` | `ok` | Recarga configuración derivada |
@@ -645,7 +636,6 @@ Ejemplo de `status`:
   "version": 1,
   "watcher": "running",
   "automatic": true,
-  "skipNext": false,
   "lastResult": "cleaned",
   "lastReason": "rich_text",
   "lastAt": "2026-08-31T16:42:10Z",
@@ -768,7 +758,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 - URLs firmadas que deben quedar byte-a-byte iguales.
 - Invariantes de tamaño, NUL, vacío y crecimiento.
 - Configuración ausente, parcial, corrupta y con tipos incorrectos.
-- Loop guard y expiración de `skipNext`.
+- Loop guard y su expiración.
 
 ### Corpus Unicode obligatorio
 
@@ -824,7 +814,6 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 - [x] Copiar rich text con representación plain deja únicamente plain text pegable.
 - [x] Archivos, imágenes, secretos y MIME estructurales quedan byte-a-byte bajo el owner original.
 - [x] Las transformaciones recomendadas pueden activarse o apagarse de forma independiente.
-- [x] `skipNext` omite exactamente un evento elegible y caduca a los 60 segundos.
 - [x] Una exclusión de origen bloquea la limpieza automática de esa clase.
 - [x] Una exclusión de destino bloquea la limpieza de `pasteClean`.
 - [x] `cleanNow` informa de éxito, sin cambios, bypass o error sin revelar contenido.
@@ -872,7 +861,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 
 - Helper con clasificador, format stripping, invisibles, URL cleanup y loop guard.
 - `Service.qml`, IPC y panel mínimo.
-- `cleanNow`, `pasteClean`, pausa y `skipNext`.
+- `cleanNow`, `pasteClean` y pausa.
 - Exclusiones exactas por clase.
 - Tests unitarios y de integración principales.
 - Documentación de la limitación del historial.

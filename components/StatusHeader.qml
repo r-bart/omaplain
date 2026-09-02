@@ -24,29 +24,21 @@ Item {
   // máquina de estados de QML— y declararlo encima lo sombreaba.
   property string serviceState: "starting"
   property string detail: Strings.t("state.preparing", root.lang)
-  // F.4: omitir la próxima copia era un estado sólo textual, en la línea de
-  // detalle. Aquí cambia el estado, que es donde se mira. Sin cuenta atrás:
-  // expira por evento o por tiempo, y un reloj añade presión sin ayudar a
-  // decidir nada.
-  property bool skipping: false
-
   readonly property bool healthy: serviceState === "running"
   readonly property bool paused: serviceState === "paused"
   readonly property bool failed: ["degraded", "missing_dependencies", "config_error", "stopped"].indexOf(serviceState) !== -1
   readonly property string stateLabel: failed
     ? Strings.t("state.attention", root.lang)
-    : (skipping
-      ? Strings.t("state.skipping", root.lang)
-      : (paused
-        ? Strings.t("state.paused", root.lang)
-        : (healthy ? Strings.t("state.active", root.lang) : Strings.t("state.starting", root.lang))))
+    : (paused
+      ? Strings.t("state.paused", root.lang)
+      : (healthy ? Strings.t("state.active", root.lang) : Strings.t("state.starting", root.lang)))
   // Con el servicio corriendo, sin omisión pendiente y sin nada que contar,
   // la cabecera de estado no tiene contenido: ni insignia ni frase. Sin esto
   // dejaría su hueco y su `spacing` en la columna, que es peor que la frase
   // que se acaba de quitar.
-  readonly property bool silent: detail === "" && healthy && !skipping
+  readonly property bool silent: detail === "" && healthy
 
-  readonly property color stateColor: failed ? Color.urgent : (healthy && !skipping ? Color.accent : Color.muted)
+  readonly property color stateColor: failed ? Color.urgent : (healthy ? Color.accent : Color.muted)
 
   implicitWidth: Style.space(460)
   implicitHeight: lines.implicitHeight
@@ -66,13 +58,12 @@ Item {
     // El estado normal no se anuncia. Un servicio que está corriendo es lo
     // que se espera de él, y rotularlo «ACTIVO» gasta la primera línea de la
     // cabecera en decir que no pasa nada. La insignia sólo aparece cuando
-    // hay algo que contar: pausado, omitiendo la próxima copia, arrancando
-    // o pidiendo atención.
+    // hay algo que contar: pausado, arrancando o pidiendo atención.
     //
     // El `Accessible.name` de la raíz sí sigue nombrando el estado siempre:
     // ahí no hay un panel vivo delante del que deducirlo.
     Row {
-      visible: !(root.healthy && !root.skipping)
+      visible: !root.healthy
       spacing: Style.space(7)
 
       Rectangle {

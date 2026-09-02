@@ -25,7 +25,7 @@ class StatusStoreTests(unittest.TestCase):
         self.assertEqual(self.path.stat().st_mode & 0o777, 0o600)
         self.assertEqual(
             set(self.on_disk()),
-            {"version", "watcher", "automatic", "skipNext", "lastResult", "lastReason",
+            {"version", "watcher", "automatic", "lastResult", "lastReason",
              "lastAt", "lastEventAt", "eventSeq", "lastBytes", "configWarnings", "session"},
         )
 

@@ -56,7 +56,7 @@ class BarWidgetTests(unittest.TestCase):
         code = self._code()
         self.assertIn("shell toggle io.github.r-bart.omaplain", code)
         for prohibido in ("peek", "cleanNow", "pasteClean", "wl-paste", "wl-copy",
-                          "clipboard", "skipNext"):
+                          "clipboard"):
             with self.subTest(forbidden=prohibido):
                 self.assertNotIn(prohibido, code)
 

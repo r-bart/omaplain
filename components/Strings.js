@@ -34,7 +34,6 @@ var EN = {
   "status.degraded": "OmaPlain stopped watching the clipboard. Cleaning by hand still works.",
   "status.restarting": "Watching the clipboard again…",
   "status.paused": "Automatic cleaning is paused. Manual actions are still available.",
-  "status.willskip": "The next eligible copy will be left alone.",
   "status.done": "Ready · last clean completed",
   "hint.manual": "Manual cleaning and Paste clean are still available.",
   "hint.chars": "No active rule changes characters, so the history keeps one version.",
@@ -46,7 +45,6 @@ var EN = {
   "fb.large": "Over 1 MB, left alone",
   "fb.excluded": "That application has a rule of its own",
   "fb.bypassed": "Not text, so it is left alone",
-  "fb.skip": "The next copy will be left alone",
   "fb.error": "Could not clean it. Your original is intact — try again.",
 
   // --- Veredictos sobre el portapapeles ---
@@ -128,9 +126,6 @@ var EN = {
   // --- Acciones ---
   "action.apply": "Apply to the clipboard",
   "action.applying": "Cleaning…",
-  "action.skip": "Leave the next copy alone",
-  "action.skipped": "The next copy will be left alone",
-  "action.skip.a11y": "A one-off exception: the next text you copy is not cleaned. It expires after a minute.",
   "footnote.safe": "The original stays intact if cleaning is not safe.",
   "footnote.sensitive": "Revealing is not available for content marked as sensitive.",
 
@@ -199,7 +194,7 @@ var EN = {
   "tour.2.body": "It removes rich formatting, tracking parameters from whole URLs and non-semantic invisible characters.",
   "tour.2.note": "When in doubt, it keeps the original.",
   "tour.3.title": "You keep control",
-  "tour.3.body": "Clean by hand, skip the next copy, or give an application its own rules. The history is still Omarchy's.",
+  "tour.3.body": "Clean by hand, turn the automatic mode off, or give an application its own rules. The history is still Omarchy's.",
   "tour.3.note": "Everything happens on this machine.",
   "tour.back": "Back",
   "tour.back.first.a11y": "Back to the previous screen",
@@ -225,7 +220,7 @@ var EN = {
 
   // --- Ilustración ---
   "state.preparing": "Getting the service ready…",
-  "art.skip": "Skip a copy",
+  "art.cleaning": "Cleaning rules",
   "art.exclude": "App rules",
   "settings.trim": "Trim end-of-line spaces",
   "art.automatic": "Automatic",
@@ -258,7 +253,6 @@ var EN = {
   "chips.plain.a11y": "The clipboard offers %1.",
   "notify.title": "OmaPlain stopped cleaning",
   "notify.body": "Open the panel to check the service. What you copied is intact.",
-  "state.skipping": "Next copy untouched",
   "history.why": "Why can the original still show up?",
   "history.why.body": "Cleaning replaces what is on the clipboard, but Omarchy's own history keeps every entry it saw. If a rule changed characters, the history may hold both versions until you clear it.",
   "privacy.blockedState": "That app is on your never-read list, so there is nothing here.",
@@ -337,7 +331,6 @@ var ES = {
   "status.degraded": "OmaPlain ha dejado de vigilar el portapapeles. Limpiar a mano sigue funcionando.",
   "status.restarting": "Volviendo a vigilar el portapapeles…",
   "status.paused": "La limpieza automática está pausada. Las acciones manuales siguen disponibles.",
-  "status.willskip": "La próxima copia elegible se dejará en paz.",
   "status.done": "Listo · última limpieza completada",
   "hint.manual": "La limpieza manual y «pegar limpio» siguen disponibles.",
   "hint.chars": "Ninguna regla activa cambia caracteres, así que el historial guarda una sola versión.",
@@ -349,7 +342,6 @@ var ES = {
   "fb.large": "Supera 1 MB, se deja igual",
   "fb.excluded": "Esa aplicación tiene una regla propia",
   "fb.bypassed": "No es texto, así que se deja igual",
-  "fb.skip": "La próxima copia se dejará en paz",
   "fb.error": "No se pudo limpiar. Tu original está intacto; inténtalo otra vez.",
 
   "verdict.cleanable": "Esto se puede limpiar",
@@ -418,9 +410,6 @@ var ES = {
 
   "action.apply": "Aplicar al portapapeles",
   "action.applying": "Limpiando…",
-  "action.skip": "Dejar en paz la próxima copia",
-  "action.skipped": "La próxima copia se dejará en paz",
-  "action.skip.a11y": "Una excepción de un solo uso: el próximo texto que copies no se limpia. Caduca al minuto.",
   "footnote.safe": "El original permanece intacto si la limpieza no es segura.",
   "footnote.sensitive": "Revelar no está disponible para contenido marcado como sensible.",
 
@@ -485,7 +474,7 @@ var ES = {
   "tour.2.body": "Retira formato enriquecido, parámetros de seguimiento de URLs completas y caracteres invisibles no semánticos.",
   "tour.2.note": "Ante una duda, conserva el original.",
   "tour.3.title": "Tú mantienes el control",
-  "tour.3.body": "Limpia manualmente, omite la próxima copia o dale a una aplicación sus propias reglas. El historial sigue siendo el de Omarchy.",
+  "tour.3.body": "Limpia manualmente, apaga el modo automático o dale a una aplicación sus propias reglas. El historial sigue siendo el de Omarchy.",
   "tour.3.note": "Todo ocurre en este equipo.",
   "tour.back": "Volver",
   "tour.back.first.a11y": "Volver a la pantalla anterior",
@@ -508,7 +497,7 @@ var ES = {
   "onboarding.done": "Empezar a usarlo",
 
   "state.preparing": "Preparando el servicio…",
-  "art.skip": "Omitir una copia",
+  "art.cleaning": "Reglas de limpieza",
   "art.exclude": "Reglas por app",
   "settings.trim": "Retirar espacios al final de línea",
   "art.automatic": "Automático",
@@ -529,7 +518,6 @@ var ES = {
   "chips.plain.a11y": "El portapapeles ofrece %1.",
   "notify.title": "OmaPlain ha dejado de limpiar",
   "notify.body": "Abre el panel para revisar el servicio. Lo que copiaste está intacto.",
-  "state.skipping": "Próxima copia intacta",
   "history.why": "¿Por qué puede seguir apareciendo el original?",
   "history.why.body": "Limpiar sustituye lo que hay en el portapapeles, pero el historial de Omarchy conserva cada entrada que vio pasar. Si una regla cambió caracteres, el historial puede guardar las dos versiones hasta que lo vacíes.",
   "privacy.blockedState": "Esa aplicación está en tu lista de no leer, así que aquí no hay nada.",

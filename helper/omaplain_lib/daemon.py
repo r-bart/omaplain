@@ -45,7 +45,6 @@ class OmaPlainDaemon:
         self.process_lock = threading.Lock()
         self.generation_lock = threading.Lock()
         self.generation = 0
-        self.skip_until = 0.0
         # 0009: de dónde vino la última copia, sólo la clase de la
         # ventana. Es metadato: la 0007 prohíbe recordar el texto, no su
         # procedencia. No se persiste, no entra en `status.json` y muere
@@ -170,38 +169,6 @@ class OmaPlainDaemon:
         exclusions = self.config.get("targetExclusions", [])
         return target.app_class in exclusions or target.initial_class in exclusions
 
-    def _skip_active(self) -> bool:
-        if self.skip_until and time.monotonic() >= self.skip_until:
-            self.skip_until = 0.0
-            self.status.update(skipNext=False)
-        return self.skip_until > 0
-
-    def tick(self) -> None:
-        """Caducidades que no dependen de que llegue nada.
-
-        La omisión expira por tiempo, pero `_skip_active` sólo corría al
-        llegar un evento de portapapeles o al pedir `status` por el socket.
-        El panel no usa esa vía: relee `status.json` del disco una vez por
-        segundo, y nadie despertaba al demonio. Con el escritorio quieto la
-        marca se quedaba puesta indefinidamente y la cabecera seguía
-        diciendo «omitiendo» pasados los sesenta segundos.
-
-        El bucle de `accept` ya despierta cada 0,5 s, así que esto no añade
-        ningún temporizador. La comparación va fuera del cerrojo para no
-        pelearse con una limpieza en curso dos veces por segundo; sólo se
-        toma cuando de verdad toca caducar.
-        """
-        if self.skip_until and time.monotonic() >= self.skip_until:
-            with self.process_lock:
-                self._skip_active()
-
-    def _consume_skip(self) -> bool:
-        if not self._skip_active():
-            return False
-        self.skip_until = 0.0
-        self.status.update(skipNext=False)
-        return True
-
     def _self_event(self, payload: bytes) -> bool:
         guard = self.loop_guard
         if guard is None:
@@ -245,8 +212,6 @@ class OmaPlainDaemon:
 
         if automatic and self._self_event(payload):
             return OperationResult("self", "self_event", len(payload)), types, decision.plain_mime, payload, None
-        if automatic and self._consume_skip():
-            return OperationResult("bypassed", "skip_next", len(payload)), types, decision.plain_mime, payload, None
 
         try:
             transformed = transform(payload, decision.plain_mime, self.config)
@@ -350,11 +315,6 @@ class OmaPlainDaemon:
             return failed.public() | {"pasted": False}
         return operation.public() | {"pasted": True}
 
-    def skip_next(self) -> dict[str, object]:
-        self.skip_until = time.monotonic() + 60.0
-        self.status.update(skipNext=True)
-        return {"result": "ok", "expiresIn": 60}
-
     # Tope de lo que se manda al panel para enseñarlo. El limite de
     # `maxBytes` sigue rigiendo lo que el motor acepta procesar; esto es
     # otra cosa: nadie lee un megabyte en una tarjeta de cien pixeles, y
@@ -371,7 +331,7 @@ class OmaPlainDaemon:
         """Describe the current clipboard for the panel, without touching it.
 
         Deliberadamente inerte: no avanza la generacion, no consume
-        `skipNext`, no reescribe el portapapeles y —sobre todo— no llama a
+        el portapapeles y —sobre todo— no llama a
         `_record`, que es lo unico de esta clase que escribe en disco. La
         respuesta viaja por el socket 0600 y muere con ella.
         """
@@ -443,14 +403,11 @@ class OmaPlainDaemon:
 
     def command(self, name: str) -> dict[str, object]:
         if name == "status":
-            self._skip_active()
             return self.status.snapshot()
         if name == "cleanNow":
             return self.clean_now()
         if name == "pasteClean":
             return self.paste_clean()
-        if name == "skipNext":
-            return self.skip_next()
         if name == "reload":
             return {"result": "ok", "warnings": self.reload_config()}
         if name == "peek":
@@ -531,7 +488,6 @@ class OmaPlainDaemon:
                 try:
                     connection, _ = server.accept()
                 except TimeoutError:
-                    self.tick()
                     continue
                 except OSError:
                     if self.stop_event.is_set():

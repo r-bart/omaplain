@@ -51,7 +51,6 @@ Item {
     version: 1,
     watcher: "starting",
     automatic: true,
-    skipNext: false,
     lastResult: "none",
     lastReason: "none",
     lastAt: "",
@@ -262,7 +261,6 @@ Item {
 
   function cleanNow() { return runAction("cleanNow") }
   function pasteClean() { return runAction("pasteClean") }
-  function skipNext() { return runAction("skipNext") }
 
   function reload() {
     syncConfig()
@@ -532,7 +530,6 @@ Item {
     function status(): string { return JSON.stringify(root.status) }
     function cleanNow(): string { return root.cleanNow() }
     function pasteClean(): string { return root.pasteClean() }
-    function skipNext(): string { return root.skipNext() }
     function reload(): string { return root.reload() }
     function setAutomatic(value: string): string {
       if (value !== "true" && value !== "false") return "invalid"
