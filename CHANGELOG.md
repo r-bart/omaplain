@@ -57,6 +57,13 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Cambiado
 
+- **La pantalla frecuente no ofrece un botón muerto.** Con el automático
+  puesto, el texto llega limpio y «Apply» vivía gris casi siempre en la
+  pantalla más vista. Ahora sólo existe cuando hay algo que aplicar. La
+  omisión de la próxima copia pasa a una línea propia, sin borde, que dice
+  de qué habla —«Leave the next copy alone»— y sólo aparece con el
+  automático puesto
+  ([`0015`](docs/decisions/0015-la-pantalla-frecuente-no-ofrece-un-boton-muerto.md)).
 - **El vaho se remata solo.** Limpiar a mano toda la cubierta era trabajo
   sin información: quien ha despejado un cuarto ya ha dicho que quiere ver.
   Al soltar, el resto se despeja con un círculo que crece desde donde

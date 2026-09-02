@@ -447,15 +447,40 @@ class UiContractTests(unittest.TestCase):
                 for block in bloques:
                     self.assertIn(condicion, block.group("body"))
 
-    def test_skip_state_label_keeps_button_padding(self) -> None:
-        # La etiqueta larga desbordaba el padding del botón. Vive ahora en
-        # el catálogo, y la restricción aplica a los dos idiomas.
+    def test_skip_labels_fit_a_full_width_line(self) -> None:
+        # 0015: la omisión vive en una línea secundaria de ancho completo,
+        # así que las dos etiquetas tienen aire; lo que no pueden es crecer
+        # hasta envolver, porque el kit no envuelve el texto de un botón.
         catalogue = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
-        self.assertIn('"action.skipped": "Próxima copia omitida"', catalogue)
-        self.assertIn('"action.skipped": "Next copy skipped"', catalogue)
-        for label in re.findall(r'"action\.skipped":\s*"([^"]+)"', catalogue):
+        labels = re.findall(r'"action\.skip(?:ped)?":\s*"([^"]+)"', catalogue)
+        self.assertEqual(len(labels), 4)
+        for label in labels:
             with self.subTest(label=label):
-                self.assertLessEqual(len(label), 26, "no cabe en el botón")
+                self.assertLessEqual(len(label), 44, "no cabe en una línea")
+
+    def test_apply_only_exists_when_there_is_something_to_apply(self) -> None:
+        # 0015: con el automático puesto el texto llega limpio, y el
+        # primario vivía gris casi siempre en la pantalla más vista.
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        blocks = [b for b in _blocks(panel, "PrimaryButton") if "id: applyButton" in b]
+        self.assertEqual(len(blocks), 1)
+        self.assertIn("visible: root.peekChanges", blocks[0])
+        self.assertIn("width: parent.width", blocks[0])
+
+    def test_skip_is_its_own_line_and_only_with_automatic_on(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        blocks = [b for b in _blocks(panel, "PanelButton") if "id: skipButton" in b]
+        self.assertEqual(len(blocks), 1)
+        skip = blocks[0]
+        self.assertIn('visible: root.peekReady && root.setting("automatic", true)', skip)
+        self.assertIn("leftAlign: true", skip)
+        self.assertIn("bordered: false", skip)
+        # Ya no comparte fila con «aplicar»: no queda ninguna rejilla de
+        # acciones en la página del portapapeles.
+        self.assertNotIn("id: clipboardActions", panel)
+        # Y el foco de entrada tiene a dónde ir cuando no hay primario.
+        self.assertIn("else if (skipButton.visible) skipButton.forceActiveFocus()", panel)
+        self.assertIn("else optionsButton.forceActiveFocus()", panel)
 
     # ------------------------------------------------------------------
     # Toda negativa del helper tiene su propia frase en el panel

@@ -44,7 +44,7 @@ Item {
   // F.5: mientras el foco siga en los botones del resultado, el mensaje no
   // se va solo. Leerlo con el teclado no puede depender de leer rápido.
   readonly property bool holdingFeedback: (applyButton && applyButton.activeFocus)
-    || (skipButton2 && skipButton2.activeFocus)
+    || (skipButton && skipButton.activeFocus)
   // La pantalla frecuente informa; los ajustes viven detrás del engranaje.
   property string panelPage: "clipboard"
 
@@ -532,7 +532,12 @@ Item {
       scroll.contentY = root.learningOrigin === "settings" ? root.savedSettingsScroll : 0
       if (root.mainFocusTarget === "welcome") welcomeReplayButton.forceActiveFocus()
       else if (root.mainFocusTarget === "tour") tourReplayButton.forceActiveFocus()
-      else applyButton.forceActiveFocus()
+      // 0015: el primario ya no está siempre. Sin nada que aplicar, el
+      // foco va a la siguiente acción viva, y si no hay ninguna, al
+      // engranaje, que siempre está.
+      else if (applyButton.visible) applyButton.forceActiveFocus()
+      else if (skipButton.visible) skipButton.forceActiveFocus()
+      else optionsButton.forceActiveFocus()
     }
     Qt.callLater(function() {
       root.focusReady = true
@@ -999,33 +1004,40 @@ Item {
                 }
               }
 
-              Grid {
-                id: clipboardActions
+              // 0015: sólo cuando hay algo que aplicar. Con el automático
+              // puesto, que es el modo por defecto, el texto ya llega limpio
+              // y este botón vivía gris casi siempre en la pantalla más
+              // vista. Un botón apagado es para una condición que el usuario
+              // puede resolver desde ahí; aquí no había nada que resolver.
+              PrimaryButton {
+                id: applyButton
                 width: parent.width
-                // De una imagen, un archivo o un secreto no hay nada que
-                // aplicar ni que omitir: no se llegó a mirar.
-                visible: root.peekReady
-                columns: width < Style.space(410) ? 1 : 2
-                columnSpacing: Style.space(8)
-                rowSpacing: Style.space(8)
+                visible: root.peekChanges
+                text: service && service.actionBusy ? Strings.t("action.applying", root.lang) : Strings.t("action.apply", root.lang)
+                iconText: service && service.actionBusy ? "" : "󰅍"
+                enabled: service && !service.actionBusy && root.peekChanges
+                onClicked: root.runAction("cleanNow")
+              }
 
-                PrimaryButton {
-                  id: applyButton
-                  width: (clipboardActions.width - (clipboardActions.columns - 1) * clipboardActions.columnSpacing) / clipboardActions.columns
-                  text: service && service.actionBusy ? Strings.t("action.applying", root.lang) : Strings.t("action.apply", root.lang)
-                  iconText: service && service.actionBusy ? "" : "󰅍"
-                  enabled: service && !service.actionBusy && root.peekChanges
-                  onClicked: root.runAction("cleanNow")
-                }
-
-                PanelButton {
-                  id: skipButton2
-                  width: (clipboardActions.width - (clipboardActions.columns - 1) * clipboardActions.columnSpacing) / clipboardActions.columns
-                  text: service && service.status && service.status.skipNext ? Strings.t("action.skipped", root.lang) : Strings.t("action.skip", root.lang)
-                  enabled: service && !service.actionBusy
-                  onFocusEntered: function(item) { root.reveal(item) }
-                  onClicked: root.runAction("skipNext")
-                }
+              // 0015: la excepción de un solo uso al automático, fuera de
+              // la fila de «esta copia» —habla de la siguiente— y sin borde:
+              // es una salida discreta, no una acción de producto. Y sólo
+              // con el automático puesto, que es cuando significa algo.
+              PanelButton {
+                id: skipButton
+                width: parent.width
+                visible: root.peekReady && root.setting("automatic", true)
+                leftAlign: true
+                bordered: false
+                foreground: service && service.status && service.status.skipNext
+                  ? Color.accent
+                  : Util.alpha(Color.popups.text, 0.68)
+                iconText: service && service.status && service.status.skipNext ? "󰄬" : "󰒭"
+                text: service && service.status && service.status.skipNext ? Strings.t("action.skipped", root.lang) : Strings.t("action.skip", root.lang)
+                enabled: service && !service.actionBusy && !(service.status && service.status.skipNext)
+                Accessible.description: Strings.t("action.skip.a11y", root.lang)
+                onFocusEntered: function(item) { root.reveal(item) }
+                onClicked: root.runAction("skipNext")
               }
 
               PanelButton {
