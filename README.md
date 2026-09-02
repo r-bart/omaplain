@@ -235,7 +235,9 @@ keeps showing the previous version **without reporting any error**.
 Architecture lives in [SPEC.md](SPEC.md). Every product and design decision is
 written down and argued in [docs/decisions](docs/decisions) — read those before
 proposing a change; several of them exist to record what was deliberately
-rejected and why.
+rejected and why. They are in Spanish on purpose: their value is in the nuance
+of the argument, and the plugin's author writes that best in Spanish
+([`0014`](docs/decisions/0014-el-idioma-del-repositorio.md)).
 
 ## Licence
 

@@ -79,10 +79,12 @@ Column {
 
         HoverHandler { id: appNameHover }
 
-        ToolTip {
+        // El del kit, que sigue el tema. El `ToolTip` a secas venía con la
+        // paleta del estilo Basic de Qt, la única cosa del panel que no
+        // cambiaba con el tema.
+        PanelToolTip {
           visible: appNameHover.hovered && appName.truncated
           text: root.appClass
-          delay: 400
         }
       }
 

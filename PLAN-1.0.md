@@ -267,10 +267,13 @@ bajo «Sin publicar». Lo que queda como deuda, nombrado:
   (`test_ui_contract.py`, `test_apps_section.py`). Los bucles que pasaban en
   vacío ya afirman que hay algo que recorrer; el resto se irá sustituyendo
   cuando exista el runner de arriba.
-- **`AppRules` usa un `ToolTip` del estilo Basic**, que no sigue el tema.
 - **`FogCover` usa `Canvas.FramebufferObject`**, destino heredado en Qt 6.
-- **La captura del estado vacío** para el README.
-- **La decisión `0014`** sobre el idioma del repositorio.
+  Se deja porque el SPIKE midió el repintado con él; cambiarlo sin medir
+  sería peor.
+- **La captura del estado vacío** para el README. Hay que hacerla con el
+  portapapeles vacío en la sesión real, así que la hace una persona.
+- **La decisión `0014`** sobre el idioma del repositorio está escrita como
+  propuesta; falta aceptarla o cambiarla.
 
 ## Criterios de terminado
 
