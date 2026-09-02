@@ -133,7 +133,12 @@ Lo que salió de la revisión completa del 2 de septiembre.
   falla ante cualquier `ResourceWarning`; la CI lo llama tal cual. La suite
   pasa de 256 a 366 tests, con el demonio corriendo sobre un socket de verdad,
   `clipboard.py` probado por primera vez, `Strings.js` ejecutado con `node`
-  y un `qmllint` que carga cada fichero QML contra el shell instalado. La
+  un `qmllint` que carga cada fichero QML contra el shell instalado y, desde
+  hoy, **el QML ejecutado**: `tests/qml.sh` levanta un Hyprland anidado y
+  corre los componentes dentro de un Quickshell de verdad. `qmltestrunner`
+  no sirve —los tipos de Quickshell están enlazados dentro de su binario—,
+  así que ésta era la única vía. Dieciocho comprobaciones en medio segundo,
+  y probado que caza una regresión inyectada. La
   cobertura de línea del helper queda en el 96 %, con los nueve subcomandos
   del CLI —la frontera que el panel usa de verdad— probados de extremo a
   extremo contra un demonio vivo.

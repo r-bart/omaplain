@@ -238,11 +238,11 @@ tests/run.sh
 ```
 
 Unit and property tests, a benchmark, an accelerated soak of 28,800 events plus
-a pass over a live socket, a `qmllint` pass that loads every QML file against
-the installed shell, and Omarchy's own plugin validator. The last two need
-Omarchy installed and are skipped without it; everything else runs anywhere,
-and CI runs exactly this script. The tests that execute `Strings.js` use `node`
-when it is present.
+a pass over a live socket, a `qmllint` pass, the components executed inside a
+real Quickshell running in a nested compositor, and Omarchy's own plugin
+validator. The last three need Omarchy installed and skip themselves without
+it; everything else runs anywhere, and CI runs exactly this script. The tests
+that execute `Strings.js` use `node` when it is present.
 
 After editing any `.qml`, restart the shell:
 

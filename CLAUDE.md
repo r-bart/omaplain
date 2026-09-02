@@ -6,13 +6,20 @@ argumentado en [`SPEC.md`](SPEC.md) y en [`docs/decisions/`](docs/decisions).
 ## Antes de dar nada por hecho
 
 - **`tests/run.sh` es la suite entera.** Unitarias con `ResourceWarning`
-  como error, benchmark, soak, `qmllint` contra el shell instalado y el
-  validador de Omarchy. Los dos últimos se saltan sin Omarchy delante.
+  como error, benchmark, soak, `qmllint`, el QML ejecutado dentro de un
+  Quickshell (`tests/qml.sh`) y el validador de Omarchy. Los tres últimos
+  se saltan solos sin Omarchy delante.
+- **Un componente nuevo se prueba en `tests/qml/TestRoot.qml`.** Los tipos
+  de Quickshell viven dentro de su binario, así que `qmltestrunner` no
+  sirve: la única forma de ejecutar nuestro QML es un Quickshell dentro de
+  un compositor, y eso es lo que `tests/qml.sh` levanta.
 - **Después de tocar un `.qml`, `omarchy restart shell`.**
   `rescanPlugins` no basta: Qt conserva el QML ya compilado para esa URL y
   el panel sigue enseñando la versión anterior **sin dar ningún error**.
 - **Un cambio de interfaz se comprueba en el panel real.** Los tests de
-  contrato leen el fuente; no ven un binding que no se evalúa.
+  contrato leen el fuente; no ven un binding que no se evalúa. Los de
+  `tests/qml/` sí lo ejecutan, pero sólo de los componentes: `Panel.qml` y
+  `Service.qml` necesitan el shell entero y siguen siendo cosa de mirar.
 
 ## Lo que este proyecto promete
 

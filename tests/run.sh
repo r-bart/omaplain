@@ -17,6 +17,10 @@ tests/soak.py
 # instalado. El propio script se salta sin Omarchy o sin qmllint.
 tests/qmllint.sh
 
+# Y el QML ejecutado, no leído: los componentes corriendo dentro de un
+# Quickshell, dentro de un Hyprland anidado. También se salta solo.
+tests/qml.sh
+
 # El validador de Omarchy sólo existe con Omarchy instalado. Sin él se dice
 # y se sigue: la CI es la misma suite y no tiene Omarchy.
 if command -v omarchy > /dev/null 2>&1; then

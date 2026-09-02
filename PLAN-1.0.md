@@ -262,10 +262,16 @@ Una lectura de todo —helper, QML, docs, tests— contra el código instalado d
 shell y el fuente de `wl-clipboard`. Lo que se arregló está en el `CHANGELOG`
 bajo «Sin publicar». Lo que queda como deuda, nombrado:
 
-- **El humo del QML sólo corre con Omarchy delante.** `tests/qmllint.sh`
-  enseña a `qmllint` dónde vive `qs` con un enlace al shell instalado y falla
-  si un fichero no carga o un tipo no resuelve; en la CI no hay shell y se
-  salta. Un runner con Quickshell en CI sigue siendo deuda.
+- **El QML se ejecuta, pero sólo con Omarchy delante y sólo los
+  componentes.** `tests/qml.sh` levanta un Hyprland anidado y corre los
+  componentes dentro de un Quickshell de verdad: dieciocho comprobaciones en
+  medio segundo, y probado que caza una regresión inyectada. `qmltestrunner`
+  no vale —los tipos de Quickshell están enlazados dentro de su binario— y
+  el backend headless de Hyprland pide permisos de DRM, así que en la CI se
+  salta. **`Panel.qml` y `Service.qml` siguen sin ejecutarse en ninguna
+  prueba**: necesitan el shell entero, con su `shell.json` y sus procesos.
+  Ésa es la deuda que queda, y es la que esconde los fallos de ciclo de vida
+  que la revisión del 2 de septiembre encontró leyendo.
 - **Parte de la suite sigue leyendo el fuente en vez de ejecutarlo**
   (`test_ui_contract.py`, `test_apps_section.py`). Los bucles que pasaban en
   vacío ya afirman que hay algo que recorrer; el resto se irá sustituyendo
