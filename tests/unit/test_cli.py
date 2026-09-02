@@ -246,7 +246,16 @@ class SocketCommandTests(unittest.TestCase):
                 patch.dict(os.environ, {"CLIPBOARD_STATE": "sensitive"}):
             code, _, _ = run_cli("emit-event", "--socket", "/x")
         self.assertEqual(code, 0)
-        self.assertEqual(seen, [{"kind": "event", "state": "sensitive"}])
+        self.assertEqual(seen, [{"kind": "event", "state": "sensitive", "secondary": False}])
+
+    def test_the_general_watcher_marks_its_own_events(self) -> None:
+        # El demonio necesita saber cuál de los dos vigilantes avisa: el
+        # general se calla cuando la oferta trae texto.
+        seen: list[dict] = []
+        with patch("omaplain_lib.cli.socket_request", side_effect=lambda p, r, timeout=1.5: seen.append(r) or {}), \
+                patch.dict(os.environ, {}, clear=True):
+            run_cli("emit-event", "--socket", "/x", "--secondary")
+        self.assertTrue(seen[0]["secondary"])
 
     def test_a_missing_clipboard_state_defaults_to_data(self) -> None:
         seen: list[dict] = []

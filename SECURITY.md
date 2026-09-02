@@ -20,7 +20,7 @@ The repository lives at <https://github.com/r-bart/omaplain>. For a security pro
 
 OmaPlain has no network, no telemetry and no persistence of content of its own. It bypasses secrets when Wayland or the MIME type marks them. An application that publishes a password as ordinary text, with no signal at all, cannot be told apart from any other text; give it a *never read* rule by application class.
 
-One precision about "without reading". The watcher is `wl-paste --type text --watch`, and `wl-paste` pipes the content of every text copy, the one marked as sensitive included, into the short-lived process that notifies the daemon. That process does not read its input: it only forwards `CLIPBOARD_STATE`. The daemon, which does the classifying, never asks for the content of a sensitive copy. The bytes pass through a kernel pipe between `wl-paste` and a process that discards them, and nowhere else.
+One precision about "without reading". OmaPlain runs two `wl-paste --watch` processes, one asking for text and one asking for nothing in particular, and `wl-paste` pipes the content of every copy it reports — a copy marked as sensitive included, and an image for the second watcher — into the short-lived process that notifies the daemon. That process does not read its input: it only forwards `CLIPBOARD_STATE` and which watcher it is. The daemon, which does the classifying, never asks for the content of a sensitive copy, and never asks for the content of an image at all. The bytes pass through a kernel pipe between `wl-paste` and a process that discards them, and nowhere else.
 
 ## What is shown on screen
 

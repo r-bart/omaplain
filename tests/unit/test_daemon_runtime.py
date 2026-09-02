@@ -218,6 +218,29 @@ class SocketTests(unittest.TestCase):
                 answer = running.request({"kind": "command", "name": "status"})
         self.assertEqual(answer, {"result": "error", "reason": "response_too_large"})
 
+    def test_the_general_watcher_stays_quiet_when_the_offer_has_text(self) -> None:
+        # Los dos vigilantes ven la misma copia de texto. Sólo cuenta el de
+        # texto, que además la limpia; si contaran los dos, cada copia
+        # aparecería dos veces en los contadores de la sesión.
+        with RunningDaemon(self.base, self.backend) as running:
+            ignored = running.request({"kind": "event", "state": "data", "secondary": True})
+            self.assertEqual(ignored, {"result": "ignored", "reason": "text_watcher", "bytes": 0})
+            status = running.request({"kind": "command", "name": "status"})
+            self.assertEqual(status["eventSeq"], 0, "un aviso ignorado no es una copia nueva")
+            self.assertEqual(self.backend.writes, [])
+
+    def test_the_general_watcher_is_what_sees_an_image(self) -> None:
+        # `wl-paste --type text --watch` no ejecuta nada con una oferta sin
+        # texto, así que una captura de pantalla no generaba ningún evento.
+        self.backend.types = ["image/png"]
+        with RunningDaemon(self.base, self.backend) as running:
+            answer = running.request({"kind": "event", "state": "data", "secondary": True})
+            self.assertEqual((answer["result"], answer["reason"]), ("bypassed", "image"))
+            status = running.request({"kind": "command", "name": "status"})
+            self.assertEqual(status["eventSeq"], 1, "el panel abierto tiene que enterarse")
+            self.assertEqual(status["session"]["bypassed"], 1)
+            self.assertEqual(self.backend.writes, [], "de una imagen no se toca nada")
+
     def test_a_paused_event_still_leaves_its_mark_for_the_panel(self) -> None:
         with RunningDaemon(self.base, self.backend, {"automatic": False}) as running:
             before = running.request({"kind": "command", "name": "status"})
@@ -284,15 +307,19 @@ class WatcherSupervisionTests(unittest.TestCase):
         self.spawned: list[FakeWatcher] = []
 
     def _start_with(self, outcomes: list[bool]) -> None:
+        # Son dos vigilantes desde que el general cubre las copias sin
+        # texto; el supervisor mira que estén vivos los dos.
         def start() -> None:
             alive = outcomes.pop(0) if outcomes else True
             watcher = FakeWatcher(alive)
             self.spawned.append(watcher)
             self.daemon.watcher = watcher
+            self.daemon.other_watcher = FakeWatcher(alive=True)
         self.daemon._start_watcher = start  # type: ignore[method-assign]
 
     def test_repeated_failures_climb_the_backoff_and_degrade(self) -> None:
         self.daemon.watcher = FakeWatcher(alive=False)
+        self.daemon.other_watcher = FakeWatcher(alive=True)
         self._start_with([False, False, False, False, False, False])
         stop = FakeStopEvent(budget=6)
         self.daemon.stop_event = stop  # type: ignore[assignment]
@@ -305,6 +332,7 @@ class WatcherSupervisionTests(unittest.TestCase):
         # Muere una vez (1 s), corre sano más de un minuto, y vuelve a
         # morir: el siguiente reintento espera 1 s otra vez, no 2 s.
         self.daemon.watcher = FakeWatcher(alive=False)
+        self.daemon.other_watcher = FakeWatcher(alive=True)
         self._start_with([True, True])
         stop = FakeStopEvent(budget=99)
         self.daemon.stop_event = stop  # type: ignore[assignment]

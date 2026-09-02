@@ -110,6 +110,22 @@ def classify(mime_types: Iterable[str], clipboard_state: str = "data") -> Classi
     return Classification(True, "text", plain_mime=plain, rich=rich)
 
 
+def offers_text(mime_types: Iterable[str]) -> bool:
+    """¿Dispararía `wl-paste --type text --watch` con esta oferta?
+
+    Es la línea que reparte el trabajo entre los dos vigilantes. `--type
+    text` de wl-clipboard cubre cualquier `text/*` y los nombres heredados
+    de X11, así que el vigilante general sólo actúa cuando aquí sale que
+    no. Ante la duda se responde que sí: perder un evento es callarse, y
+    contarlo dos veces sería mentir en los contadores.
+    """
+    for mime in mime_types:
+        base = _base_mime(str(mime))
+        if base.startswith("text/") or _is_plain(str(mime)):
+            return True
+    return False
+
+
 def safe_type_metadata(mime_types: Iterable[str]) -> dict[str, object]:
     """Return content-free type metadata suitable for diagnostics."""
 

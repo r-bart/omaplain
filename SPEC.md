@@ -409,7 +409,7 @@ y Ayuda y aprendizaje.
 - Bypass esperado no es un error y no lanza notificación.
 - Un error repetido del watcher sí crea una notificación accionable, limitada a una cada diez minutos.
 - La previsualización llega cubierta y se olvida al cerrar el panel; lo sensible no se muestra nunca ([`0005`](docs/decisions/0005-previsualizacion-del-portapapeles.md)).
-- El panel abierto vuelve a mirar el portapapeles en cada evento de texto y tras cada acción manual. Una copia de imagen o de archivos sin texto no genera evento: `wl-paste --type text --watch` no ejecuta el comando cuando la oferta no trae texto.
+- El panel abierto vuelve a mirar el portapapeles en cada evento y tras cada acción manual. Una copia sin texto —una captura de pantalla— llega por el segundo vigilante, el que no pide tipo: `wl-paste --type text --watch` no ejecuta nada con una oferta sin texto, y sin ese segundo vigilante el panel se quedaba en la copia anterior.
 
 ### Iconografía
 
@@ -555,7 +555,7 @@ La versión del manifiesto es la única: `helper/omaplain_lib/__init__.py` y el 
 
 ### Responsabilidades del helper
 
-- Ejecutar o supervisar `wl-paste --type text --watch`.
+- Ejecutar y supervisar dos `wl-paste --watch`: uno de texto, que es el único que reescribe, y uno general que sólo avisa cuando la oferta no trae texto.
 - Consultar MIME types y metadata antes de transformar.
 - Serializar eventos con un lock para que dos copias rápidas no se crucen.
 - Aplicar límites, clasificación, transformaciones e invariantes.
@@ -677,7 +677,7 @@ El evento generado por `WRITING` se reconoce mediante hash efímero, longitud y 
 
 Dependencias runtime esperadas en Omarchy:
 
-- `wl-clipboard >= 2.3` para `--watch`, `--sensitive` y `CLIPBOARD_STATE`.
+- `wl-clipboard >= 2.3` para `--watch`, `--sensitive` y `CLIPBOARD_STATE`. Se ejecutan dos vigilantes: `--type text`, que limpia, y uno sin tipo, que sólo avisa de las copias sin texto.
 - `hyprctl` para metadata de ventana y para enviar el atajo de pegado con `eval`.
 - Python 3 con biblioteca estándar.
 - `setpriv` para `PDEATHSIG`.

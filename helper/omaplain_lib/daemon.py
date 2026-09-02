@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .classify import Classification, classify
+from .classify import Classification, classify, offers_text
 from .clipboard import ClipboardBackend, ClipboardError, ClipboardTooLarge, WindowTarget, digest
 from .config import load_config
 from .status import StatusStore
@@ -55,7 +55,15 @@ class OmaPlainDaemon:
         # orden inverso; sin esto el más viejo podía quedar como «último».
         self.last_source_generation = 0
         self.loop_guard: tuple[str, int, float] | None = None
+        # Dos vigilantes, y ninguno pisa al otro. El de texto es el que
+        # limpia. El general —sin `--type`— existe porque `wl-paste --type
+        # text` no ejecuta nada cuando la oferta no trae texto: una captura
+        # de pantalla no generaba ningún evento, así que un panel abierto se
+        # quedaba enseñando la copia anterior y los contadores no veían una
+        # sola imagen. El general no limpia nunca: sólo avisa, y sólo cuando
+        # la oferta no trae texto.
         self.watcher: subprocess.Popen[bytes] | None = None
+        self.other_watcher: subprocess.Popen[bytes] | None = None
         self.server: socket.socket | None = None
         self.workers: set[threading.Thread] = set()
         self.workers_lock = threading.Lock()
@@ -82,22 +90,31 @@ class OmaPlainDaemon:
         self.status.update(automatic=bool(config["automatic"]), configWarnings=warnings)
         return warnings
 
-    def _start_watcher(self) -> None:
-        command = [
-            # Quickshell may use SIGKILL when it hot-reloads a plugin. Giving
-            # wl-paste its own parent-death signal prevents an orphan watcher
-            # even when this daemon cannot execute its finally block.
-            "setpriv", "--pdeathsig", "TERM", "--",
-            "wl-paste", "--type", "text", "--watch",
-            self.executable, "emit-event", "--socket", str(self.socket_path),
-        ]
+    def _spawn(self, argv: list[str]) -> subprocess.Popen[bytes] | None:
+        # Quickshell may use SIGKILL when it hot-reloads a plugin. Giving
+        # wl-paste its own parent-death signal prevents an orphan watcher
+        # even when this daemon cannot execute its finally block.
+        command = ["setpriv", "--pdeathsig", "TERM", "--", *argv]
         try:
-            self.watcher = subprocess.Popen(
+            return subprocess.Popen(
                 command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
         except OSError:
-            self.watcher = None
+            return None
+
+    def _start_watcher(self) -> None:
+        base = [self.executable, "emit-event", "--socket", str(self.socket_path)]
+        if self.watcher is None or self.watcher.poll() is not None:
+            self.watcher = self._spawn(["wl-paste", "--type", "text", "--watch", *base])
+        if self.other_watcher is None or self.other_watcher.poll() is not None:
+            self.other_watcher = self._spawn(["wl-paste", "--watch", *base, "--secondary"])
+
+    def _watchers_alive(self) -> bool:
+        return all(
+            w is not None and w.poll() is None
+            for w in (self.watcher, self.other_watcher)
+        )
 
     def _supervise_watcher(self) -> None:
         delays = (1, 2, 5, 10, 30)
@@ -105,8 +122,7 @@ class OmaPlainDaemon:
         index = 0
         healthy_since: float | None = None
         while not self.stop_event.is_set():
-            watcher = self.watcher
-            if watcher is not None and watcher.poll() is None:
+            if self._watchers_alive():
                 now = time.monotonic()
                 if healthy_since is None:
                     healthy_since = now
@@ -255,7 +271,19 @@ class OmaPlainDaemon:
 
     def automatic_event(
         self, state: str, generation: int, source: WindowTarget | None = None,
+        secondary: bool = False,
     ) -> dict[str, object]:
+        # El vigilante general se calla cuando la oferta trae texto: de esa
+        # copia se encarga el de texto, que además la limpia. La frontera es
+        # el tipo y no el reloj, así que los dos no pueden contar la misma
+        # copia por muy juntos que lleguen.
+        if secondary:
+            try:
+                if state not in {"nil", "clear"} and offers_text(self.backend.list_types()):
+                    return {"result": "ignored", "reason": "text_watcher", "bytes": 0}
+            except ClipboardError:
+                return {"result": "ignored", "reason": "inspect_failed", "bytes": 0}
+
         # Se recuerda antes de mirar si el automático está puesto: con el
         # automático apagado no habría a quién atribuir la copia siguiente.
         with self.generation_lock:
@@ -439,7 +467,10 @@ class OmaPlainDaemon:
                     # serialization lock. Wayland cannot guarantee the source,
                     # so this remains best effort and is never a safety gate.
                     source = self.backend.active_window()
-                    response = self.automatic_event(str(request.get("state", "data")), generation, source)
+                    response = self.automatic_event(
+                        str(request.get("state", "data")), generation, source,
+                        secondary=request.get("secondary") is True,
+                    )
                 elif kind == "command":
                     response = self.command(str(request.get("name", "")))
                 else:
@@ -497,8 +528,9 @@ class OmaPlainDaemon:
         finally:
             self.stop_event.set()
             server.close()
-            watcher = self.watcher
-            if watcher is not None and watcher.poll() is None:
+            for watcher in (self.watcher, self.other_watcher):
+                if watcher is None or watcher.poll() is not None:
+                    continue
                 watcher.terminate()
                 try:
                     watcher.wait(timeout=1.0)

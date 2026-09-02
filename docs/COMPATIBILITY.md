@@ -22,11 +22,13 @@ desviaciones.
 
 Dos precisiones de plataforma, comprobadas el 2 de septiembre:
 
-- **Una copia de imagen o de archivos sin texto no genera evento.** El watcher
-  es `wl-paste --type text --watch`, y `wl-paste` no ejecuta el comando cuando
-  la oferta no trae ningún tipo de texto. La fila «Captura/imagen» de arriba
-  significa eso: el demonio ni se entera. El panel la clasifica bien cuando se
-  abre; un panel ya abierto sólo se refresca con la siguiente copia de texto.
+- **Una copia de archivos sí llega; una imagen pura necesitaba un segundo
+  vigilante.** Medido el 2 de septiembre: una copia de Nautilus ofrece
+  `text/uri-list` junto a `text/plain`, así que `wl-paste --type text --watch`
+  la ve y el demonio la clasifica como `files`. Una captura de pantalla ofrece
+  sólo `image/png`, y con un único vigilante de texto no generaba ningún
+  evento. Desde la `0016` hay un segundo `wl-paste --watch` sin tipo que avisa
+  de esas copias y nunca de las que traen texto.
 - **`Shift+Insert` pega el portapapeles en los terminales de Omarchy** porque
   sus configuraciones de alacritty, ghostty, kitty y foot lo mapean así. Con
   los valores de fábrica de esos cuatro terminales pegaría la selección

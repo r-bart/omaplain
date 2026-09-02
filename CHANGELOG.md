@@ -82,6 +82,17 @@ Lo que salió de la revisión completa del 2 de septiembre.
   mismo: el supervisor del watcher lo actualizaba con «running» cada medio
   segundo, con su `fsync`.
 
+- **Una captura de pantalla no llegaba al demonio.** `wl-paste --type text
+  --watch` no ejecuta nada cuando la oferta no trae texto, así que una imagen
+  pura no generaba ningún evento: un panel abierto se quedaba enseñando la
+  copia anterior, los contadores de la sesión no veían una sola imagen, y la
+  atribución de origen de la copia anterior podía sobrevivir y dar un
+  veredicto equivocado. Ahora hay un segundo `wl-paste --watch`, sin tipo, que
+  avisa sólo cuando la oferta no trae texto: los dos vigilantes se reparten
+  el trabajo por el tipo, no por el reloj, así que no pueden contar la misma
+  copia dos veces. El general no limpia nunca. Medido de paso: una copia de
+  **archivos** sí llegaba, porque ofrece `text/uri-list` junto a `text/plain`.
+
 ### Retirado
 
 - **«Omitir la próxima copia» se va entera**: del panel, del IPC, del CLI, del

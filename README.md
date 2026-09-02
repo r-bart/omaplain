@@ -172,6 +172,13 @@ A global shortcut of your own can call `pasteClean`.
 
 The flow is deliberately conservative:
 
+Two watchers, and they never overlap. One asks Wayland for text and is the only
+one that ever rewrites anything. The other asks for nothing in particular and
+speaks up only when the copy offers no text at all, which is how a screenshot
+reaches the daemon: `wl-paste --type text` runs nothing for an offer with no
+text in it, so an open panel used to sit on the previous copy and the session
+counters never saw a single image.
+
 ```text
 Wayland event
   → classify state and MIME types
@@ -202,10 +209,6 @@ of them.
   both versions** until you clear it. Every rule except *rich formatting*
   changes characters, line endings included. Turn them off, or use
   `pasteClean`, if you want an explicit action instead.
-- **Image and file copies raise no event.** The watcher asks Wayland for text,
-  so a copy that offers none never reaches the daemon. The panel shows them
-  correctly when you open it, but an open panel only refreshes on the next text
-  copy, and the session counters never see them.
 - A password copied without `CLIPBOARD_STATE=sensitive` and without a password
   manager MIME type is indistinguishable from ordinary text. Give that
   application a *never read* rule if it does not mark its secrets.

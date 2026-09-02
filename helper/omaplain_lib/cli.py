@@ -42,6 +42,9 @@ def _parser() -> argparse.ArgumentParser:
 
     emit = commands.add_parser("emit-event")
     emit.add_argument("--socket", required=True)
+    # Lo lanza el vigilante general, el que no pide un tipo. Su aviso sólo
+    # cuenta cuando la oferta no trae texto; con texto manda el otro.
+    emit.add_argument("--secondary", action="store_true")
 
     # Fontaneria interna del panel, como `emit-event`: oculta del `--help`
     # a proposito. `peek` responde con contenido del portapapeles, y ese
@@ -149,7 +152,11 @@ def main(argv: list[str] | None = None) -> int:
         return _write_config(args)
     if args.command == "emit-event":
         state = os.environ.get("CLIPBOARD_STATE", "data")
-        socket_request(args.socket, {"kind": "event", "state": state}, timeout=0.4)
+        socket_request(
+            args.socket,
+            {"kind": "event", "state": state, "secondary": bool(args.secondary)},
+            timeout=0.4,
+        )
         return 0
     # Los plazos de cliente cubren lo que el demonio puede tardar con el
     # cerrojo cogido por una fuente lenta: una lectura entera (2 s) más su
