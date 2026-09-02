@@ -49,7 +49,6 @@ Lo que salió de la revisión completa del 2 de septiembre.
   marcas direccionales, que Quickshell nunca recibía el contenido, que «pegar
   limpio» no hacía nada en una ventana excluida. Corregido en el README, el
   SPEC, SECURITY y las decisiones afectadas.
-
 - **Una fila «no destapar nunca» se podía destapar a mano.** La cubierta
   callaba la señal de «limpiado» cuando la fila estaba bajo llave, pero el
   arrastre seguía abriendo huecos, y por los huecos se leía el texto de
@@ -109,9 +108,12 @@ Lo que salió de la revisión completa del 2 de septiembre.
   Un clic suelto o un roce corto no bastan.
 - `tests/run.sh` se salta el validador de Omarchy cuando no está instalado y
   falla ante cualquier `ResourceWarning`; la CI lo llama tal cual. La suite
-  pasa de 256 a 343 tests, con el demonio corriendo sobre un socket de verdad,
+  pasa de 256 a 381 tests, con el demonio corriendo sobre un socket de verdad,
   `clipboard.py` probado por primera vez, `Strings.js` ejecutado con `node`
-  y un `qmllint` que carga cada fichero QML contra el shell instalado.
+  y un `qmllint` que carga cada fichero QML contra el shell instalado. La
+  cobertura de línea del helper queda en el 96 %, con los nueve subcomandos
+  del CLI —la frontera que el panel usa de verdad— probados de extremo a
+  extremo contra un demonio vivo.
 
 ## 0.2.0 — 2026-09-01
 
