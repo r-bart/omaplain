@@ -33,6 +33,11 @@ do:
 cp io.github.r-bart.omaplain.desktop ~/.local/share/applications/
 ```
 
+Enabling it puts an icon in your bar, because that is what Omarchy does with
+any plugin that declares a bar widget. It asks which section; answer, or move
+it later. Removing that entry from `bar.layout` leaves the plugin running with
+no icon, which is a supported way to use it.
+
 **You need** Omarchy with `omarchy-shell` (developed against the **4.0.1-1**
 package, whose shell reports itself as `4.0.0.alpha`),
 `wl-copy` and `wl-paste`, `hyprctl`, Python **3.10+** (standard library only)
@@ -44,14 +49,20 @@ anything.
 Three ways, and none of them turns itself on
 ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)):
 
-**The bar icon.** The plugin declares a bar widget; placing it is yours to do,
-in `bar.layout` in `~/.config/omarchy/shell.json`:
+**The bar icon**, placed when you enable the plugin. Where it sits is
+`bar.layout` in `~/.config/omarchy/shell.json`, and you can move it between
+sections or take it out entirely:
 
 ```json
 { "id": "io.github.r-bart.omaplain" }
 ```
 
 Left click opens and closes it. Right click deliberately does nothing.
+
+Your settings live on that same entry, so they follow the icon rather than the
+plugin ([`0012`](docs/decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md)).
+A copy is mirrored into `plugins[]` so that removing the icon does not take
+your settings with it.
 
 **The launcher.** Omarchy's Apps menu lists `.desktop` entries, so once you have
 copied ours it is there under *OmaPlain*.

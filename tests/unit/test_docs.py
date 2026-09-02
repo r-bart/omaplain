@@ -145,6 +145,14 @@ class ElReadmeNoMienteTests(unittest.TestCase):
         self.assertTrue((REPO / "io.github.r-bart.omaplain.desktop").is_file())
         self.assertIn(manifiesto["id"], self.readme)
 
+    def test_no_miente_sobre_quien_coloca_el_icono(self) -> None:
+        # `omarchy plugin enable` coloca el widget de barra de cualquier
+        # plugin que lo declare. El README decía que colocarlo era cosa de
+        # quien instala, y la prueba de instalación lo desmintió.
+        plano = " ".join(self.readme.split())
+        self.assertNotIn("placing it is yours to do", plano)
+        self.assertIn("placed when you enable the plugin", plano)
+
     def test_no_promete_un_atajo_global(self) -> None:
         # La promesa que la `0010` protege. Se comprueba sobre el texto sin
         # saltos de línea, o el README no puede envolver donde le conviene.

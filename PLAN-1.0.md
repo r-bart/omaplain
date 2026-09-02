@@ -40,7 +40,11 @@ pide, y entonces será su propia decisión.
 
 ### `A.1` La prueba final y la fusión a `main`
 
-Bloquea todo lo demás. Los siete criterios sin marcar de
+Bloquea todo lo demás, y la prueba de instalación del 2 de septiembre dice
+por qué con un caso concreto: **`omarchy plugin add` clona `main`, y `main`
+sirve hoy la `0.1.0`**, la versión cuyos nueve controles no se ven. Quien
+siga el README instala un producto que no se deja usar. Está medido en
+[`INSTALL-TEST-2026-09-02.md`](docs/notes/INSTALL-TEST-2026-09-02.md). Los siete criterios sin marcar de
 [`PLAN-CIERRE-0.2.0.md`](docs/notes/PLAN-CIERRE-0.2.0.md) dicen «verificado en el panel
 real» y son del usuario. Hasta que estén, `main` no se toca.
 
@@ -288,7 +292,10 @@ inyector de ratón; queda por probar a mano.
 - [ ] `manifest.json` en `1.0.0`, `CHANGELOG` cerrado, notas de publicación,
       tag `v1.0.0`.
 - [ ] Repositorio público.
-- [ ] `omarchy plugin add` funciona desde una sesión limpia.
+- [x] `omarchy plugin add` funciona desde una sesión limpia: probado el 2 de
+      septiembre de punta a punta, incluida la primera ejecución y la
+      persistencia de ajustes con la entrada sólo en `bar.layout`. Falta
+      repetirlo contra `main` cuando lleve el código.
 - [ ] Anunciado, con la versión de Omarchy contra la que se probó.
 
 ## Riesgos
