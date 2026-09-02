@@ -81,7 +81,6 @@ Lo que salió de la revisión completa del 2 de septiembre.
 - `status.json` deja de reescribirse dos veces por segundo para decir lo
   mismo: el supervisor del watcher lo actualizaba con «running» cada medio
   segundo, con su `fsync`.
-
 - **Una captura de pantalla no llegaba al demonio.** `wl-paste --type text
   --watch` no ejecuta nada cuando la oferta no trae texto, así que una imagen
   pura no generaba ningún evento: un panel abierto se quedaba enseñando la
