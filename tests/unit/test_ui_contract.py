@@ -857,5 +857,32 @@ class EverydayHeaderTests(unittest.TestCase):
                 self.assertEqual(catalogue.count(f'"{clave}"'), 2, "falta en un idioma")
 
 
+class FogCoverTests(unittest.TestCase):
+    """La cubierta de vaho: bajo llave no escucha, y se remata sola."""
+
+    def setUp(self) -> None:
+        self.fog = (REPO / "components" / "FogCover.qml").read_text(encoding="utf-8")
+        self.row = (REPO / "components" / "ClipboardRow.qml").read_text(encoding="utf-8")
+
+    def test_a_locked_row_cannot_be_wiped_by_hand(self) -> None:
+        # Antes sólo se callaba `cleared`; el arrastre seguía abriendo
+        # huecos y el texto se leía por ellos.
+        self.assertIn("property bool locked", self.fog)
+        areas = _blocks(self.fog, "MouseArea")
+        self.assertEqual(len(areas), 1)
+        self.assertIn("enabled: !root.locked", areas[0])
+        fog_in_row = _blocks(self.row, "FogCover")
+        self.assertEqual(len(fog_in_row), 1)
+        self.assertIn("locked: root.locked", fog_in_row[0])
+
+    def test_the_sweep_finishes_from_the_release_point_and_then_clears(self) -> None:
+        self.assertIn("root.finish(mouse.x, mouse.y)", self.fog)
+        self.assertIn("onFinished: root.cleared()", self.fog)
+        # Sin movimiento no hay recorrido: se descubre de golpe.
+        self.assertIn("if (!motionEnabled) {", self.fog)
+        # Y el umbral es un cuarto: un clic suelto no descubre nada.
+        self.assertIn("finishThreshold: 0.25", self.fog)
+
+
 if __name__ == "__main__":
     unittest.main()

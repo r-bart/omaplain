@@ -69,7 +69,9 @@ will not add it for you.
 
 The everyday screen shows what is on your clipboard and what OmaPlain would do
 with it — before it does it, as in the screenshot above. Both rows arrive
-covered; an eye reveals them, and every new copy comes back covered.
+covered; an eye reveals them, or you wipe the fog with the pointer and it
+finishes clearing itself once a quarter is gone. Every new copy comes back
+covered.
 
 The whole panel is keyboard operable. A first run walks through a welcome, a
 three-step tour and the settings, all replayable later from *Help and learning*.

@@ -50,8 +50,18 @@ Lo que salió de la revisión completa del 2 de septiembre.
   limpio» no hacía nada en una ventana excluida. Corregido en el README, el
   SPEC, SECURITY y las decisiones afectadas.
 
+- **Una fila «no destapar nunca» se podía destapar a mano.** La cubierta
+  callaba la señal de «limpiado» cuando la fila estaba bajo llave, pero el
+  arrastre seguía abriendo huecos, y por los huecos se leía el texto de
+  debajo. Ahora bajo llave la cubierta no escucha al ratón.
+
 ### Cambiado
 
+- **El vaho se remata solo.** Limpiar a mano toda la cubierta era trabajo
+  sin información: quien ha despejado un cuarto ya ha dicho que quiere ver.
+  Al soltar, el resto se despeja con un círculo que crece desde donde
+  estaba el dedo, en menos de 400 ms; con «reducir movimiento», de golpe.
+  Un clic suelto o un roce corto no bastan.
 - `tests/run.sh` se salta el validador de Omarchy cuando no está instalado y
   falla ante cualquier `ResourceWarning`; la CI lo llama tal cual. La suite
   pasa de 256 a 330 tests, con el demonio corriendo sobre un socket de verdad,

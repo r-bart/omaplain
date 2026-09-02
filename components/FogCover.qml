@@ -45,15 +45,59 @@ Canvas {
   property var wiped: ({})
   property int wipedCount: 0
 
+  // 0009: bajo llave la cubierta no escucha. Antes sólo se callaba la
+  // señal `cleared`, pero el arrastre seguía abriendo huecos, y por los
+  // huecos se leía el texto de debajo: la lista «no destapar nunca» se
+  // podía destapar a mano. Ahora el ratón no entra.
+  property bool locked: false
+
+  // El remate. Quien ha limpiado un cuarto de la cubierta ya ha dicho
+  // que quiere ver; hacerle frotar el resto es trabajo sin información.
+  // Al soltar, un círculo crece desde donde estaba el dedo hasta comerse
+  // lo que queda, y entonces se avisa. Un clic suelto o un roce no bastan:
+  // descubrir sigue siendo un acto, no un accidente.
+  readonly property real finishThreshold: 0.25
+  property real sweep: 0
+  property point sweepOrigin: Qt.point(0, 0)
+  readonly property real reach: Math.sqrt(width * width + height * height)
+
   renderTarget: Canvas.FramebufferObject
   renderStrategy: Canvas.Cooperative
 
   function reset() {
+    finishing.stop()
     strokes = []
     wiped = ({})
     wipedCount = 0
+    sweep = 0
     phase = 0
     requestPaint()
+  }
+
+  function finish(x, y) {
+    sweepOrigin = Qt.point(x, y)
+    if (!motionEnabled) {
+      sweep = 1
+      requestPaint()
+      root.cleared()
+      return
+    }
+    finishing.restart()
+  }
+
+  onSweepChanged: requestPaint()
+
+  NumberAnimation {
+    id: finishing
+    target: root
+    property: "sweep"
+    from: 0
+    to: 1
+    // Respuesta a una acción: por debajo de los 400 ms, y arrancando
+    // despacio para que se vea salir de donde estaba el dedo.
+    duration: 380
+    easing.type: Easing.InOutCubic
+    onFinished: root.cleared()
   }
 
   // Todo el vaho se deriva de los tokens del tema. La primera versión
@@ -112,6 +156,19 @@ Canvas {
       ctx.fillStyle = e
       ctx.beginPath(); ctx.arc(s.x, s.y, root.brush, 0, Math.PI * 2); ctx.fill()
     }
+    // El remate: un solo círculo que crece desde el último punto hasta
+    // alcanzar la esquina más lejana, con el mismo borde suave que los
+    // trazos para que se lea como el mismo gesto que continúa solo.
+    if (root.sweep > 0) {
+      var radius = root.brush + root.sweep * root.reach
+      var f = ctx.createRadialGradient(root.sweepOrigin.x, root.sweepOrigin.y, 0,
+                                       root.sweepOrigin.x, root.sweepOrigin.y, radius)
+      f.addColorStop(0, "rgba(0,0,0,1)")
+      f.addColorStop(0.72, "rgba(0,0,0,0.96)")
+      f.addColorStop(1, "rgba(0,0,0,0)")
+      ctx.fillStyle = f
+      ctx.beginPath(); ctx.arc(root.sweepOrigin.x, root.sweepOrigin.y, radius, 0, Math.PI * 2); ctx.fill()
+    }
     ctx.globalCompositeOperation = "source-over"
   }
 
@@ -146,6 +203,8 @@ Canvas {
     anchors.fill: parent
     acceptedButtons: Qt.LeftButton
     preventStealing: true
+    // Bajo llave no hay gesto; y mientras el remate corre, tampoco.
+    enabled: !root.locked && !finishing.running
 
     property point last: Qt.point(-1, -1)
 
@@ -166,10 +225,11 @@ Canvas {
 
     onPressed: function(mouse) { last = Qt.point(-1, -1); wipe(mouse.x, mouse.y) }
     onPositionChanged: function(mouse) { if (pressed) wipe(mouse.x, mouse.y) }
-    onReleased: {
+    onReleased: function(mouse) {
       last = Qt.point(-1, -1)
-      // Se decide al soltar, no en cada trazo: una vez por gesto.
-      if (root.clearedFraction() > 0.55) root.cleared()
+      // Se decide al soltar, no en cada trazo: una vez por gesto. Pasado
+      // el umbral, el resto se limpia solo desde donde se soltó.
+      if (root.clearedFraction() >= root.finishThreshold) root.finish(mouse.x, mouse.y)
     }
     onCanceled: last = Qt.point(-1, -1)
   }
@@ -189,8 +249,7 @@ Canvas {
 
   // La parte de la superficie con algún trazo encima, por celdas. El
   // pincel mide dos celdas de radio, así que lo limpiado de verdad es
-  // siempre algo más que esto; por eso el umbral de arriba queda por
-  // debajo del 0,62 que se usaba midiendo píxeles.
+  // siempre algo más que esto.
   function clearedFraction() {
     if (root.cell <= 0 || width <= 0 || height <= 0) return 0
     var total = Math.ceil(width / root.cell) * Math.ceil(height / root.cell)

@@ -176,6 +176,9 @@ Item {
         visible: !root.revealed
         seed: root.seed
         motionEnabled: root.motionEnabled
+        // La llave llega a la cubierta, no sólo a la señal: sin esto el
+        // arrastre abría huecos y el texto se leía por ellos.
+        locked: root.locked
         Accessible.role: Accessible.StaticText
         // Bajo llave no se invita a nada: el arrastre no responde y el ojo
         // es un candado deshabilitado. Decirlo igualmente eran dos
