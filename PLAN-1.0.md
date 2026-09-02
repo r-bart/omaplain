@@ -1,8 +1,11 @@
 # Plan de la 1.0
 
-- Escrito el 1 de septiembre de 2026, sobre `develop` en `8fca03b`
+- Escrito el 1 de septiembre de 2026, sobre `develop` en `8fca03b`; puesto al
+  día el 2 de septiembre tras la revisión completa
 - Estado del repositorio al escribirlo: **privado**, `main` 19 commits por
-  detrás, un único tag `v0.1.0`, sin CI, README en español y desactualizado
+  detrás, un único tag `v0.1.0`, sin CI, README en español y desactualizado.
+  Al ponerlo al día: CI en marcha, README en inglés y rehecho, la raíz
+  ordenada; sigue privado, sigue sin `v0.2.0`
 - Objetivo: consolidar, publicar una `1.0` y dejar OmaPlain instalable por
   cualquiera con `omarchy plugin add`
 
@@ -55,9 +58,11 @@ de fuera, eso era ruido delante de la puerta. **Hecho el 1 de septiembre**:
 - **Bajan a `docs/notes/`**: los planes cumplidos, los informes de prueba, la
   `SPIKE`, la `BASELINE`, la `UI-REVIEW`, las `UX-OPPORTUNITIES`. Son historia
   útil y no material de entrada.
-- **`SPEC.md`**: decidir si se mantiene como contrato vivo o se marca como
-  documento de la 0.1. Hoy tiene un árbol de ficheros que ya se quedó atrás
-  dos veces en un día.
+- **`SPEC.md`**: se mantiene como contrato vivo. El 2 de septiembre se revisó
+  entero contra el código —árbol, manifiesto, configuración, IPC, invariantes,
+  garantías, criterios de aceptación— y se le puso fecha de revisión. La regla
+  a partir de aquí: cada cambio de comportamiento toca el SPEC en el mismo
+  commit.
 
 ### `A.3` El idioma
 
@@ -72,24 +77,31 @@ Recomendación, que necesita su decisión (`0014`):
   matiz del argumento, traducirlas lo pierde, y son notas de diseño internas.
   El `README` puede decir en una línea que están en español y por qué.
 
-Es la decisión más discutible del plan y por eso va con su documento.
+Es la decisión más discutible del plan y por eso va con su documento. **Estado**:
+el README ya está en inglés y un test lo vigila, así que la decisión está
+tomada de hecho para lo que lee quien llega; la `0014` que la argumente sigue
+sin escribirse, y el `CHANGELOG`, `SECURITY` y las notas de publicación siguen
+en español hasta que exista.
 
 ### `A.4` Integración continua — **hecho**
 
-`tests/run.sh` ya lo hace todo en un comando, pero su última línea es
-`omarchy plugin validate .`, que necesita Omarchy instalado. En CI se puede
-correr lo demás: **238 unitarias, benchmark y soak**, todo Python puro.
+`tests/run.sh` lo hace todo en un comando y, desde el 2 de septiembre, se
+salta el validador de Omarchy cuando no está instalado y falla ante cualquier
+`ResourceWarning`. La CI lo llama tal cual, así que no hay dos listas de pasos
+que puedan desviarse.
 
-`.github/workflows/tests.yml`, en **3.10 y 3.13**. Corre las unitarias, el
-benchmark y el soak, y comprueba el manifiesto y la entrada `.desktop` con los
-mismos criterios que el validador aplica sin necesitar el shell.
+`.github/workflows/tests.yml`, en **3.10 y 3.13**. Corre la suite entera
+—unitarias, benchmark y soak— y comprueba el manifiesto y la entrada
+`.desktop` con los mismos criterios que el validador aplica sin necesitar el
+shell.
 
 Comprobado que la suite pasa en un entorno pelado y que el helper degrada bien
 sin Omarchy delante: `open-windows` devuelve lista vacía en vez de reventar, y
 `check-dependencies` enumera lo que falta.
 
-El validador completo y `qmllint` se quedan como paso manual documentado,
-porque dependen de una instalación de Omarchy.
+El validador completo y el humo del QML (`tests/qmllint.sh`) se quedan como
+pasos locales, porque dependen de una instalación de Omarchy; `run.sh` los
+salta cuando no está.
 
 ### `A.5` Higiene previa a hacerlo público — **en marcha**
 
@@ -113,9 +125,16 @@ helper a la del `manifest.json` y ésta al `CHANGELOG`.
 La instalación en sí funciona: `plugin add` es clonar, validar y mover, y las
 tres pasan sobre un clon limpio.
 
-## Fase B — El README
+## Fase B — El README — **hecho, salvo una captura**
 
-Hoy tiene tres problemas, y el tercero es el grave.
+Rehecho en inglés el 1 de septiembre con la estructura de abajo, y repasado
+afirmación por afirmación el 2 de septiembre: tres decían cosas que el código
+no hacía —las marcas direccionales, que Quickshell no recibía el contenido,
+qué hace «pegar limpio» en una ventana excluida— y las tres están corregidas.
+`test_docs.py` ata al código lo que se puede atar. Falta la captura del estado
+vacío; las otras tres están.
+
+Tenía tres problemas, y el tercero era el grave.
 
 1. **Está en español** (ver `A.3`).
 2. **Cita la `0.2.0`** y habrá que moverlo con cada versión.
@@ -162,12 +181,22 @@ que no haya más funciones; promete que las que hay no cambian debajo.
 
 ### `C.2` Lo que hay que resolver antes
 
-- **Repasar «Limitaciones conocidas»** una por una y clasificarlas: las que se
-  arreglan para la 1.0 y las que son de diseño y se documentan para siempre.
-- **La selección primaria de Wayland** y la sincronización entre dispositivos
-  están hoy en esa lista. Confirmar que son permanentes y decirlo así.
-- **`maxBytes` no tiene control en la interfaz** y aparece en un titular
-  («Más de 1 MB en tu portapapeles»). O se expone, o se documenta como fijo.
+Las «limitaciones conocidas», clasificadas el 2 de septiembre:
+
+| Limitación | Veredicto |
+|---|---|
+| El historial de Omarchy puede guardar las dos versiones | **Permanente** hasta que el core ofrezca una API de filtro; documentada en el README y explicada en el panel |
+| Un secreto sin marca es texto normal | **Permanente**, de plataforma; la salida es la regla «no leer» por aplicación |
+| La atribución de origen es best effort | **Permanente**, Wayland no dice quién copió; el panel lo dice en esas palabras |
+| LibreOffice se evita por conservador | **Permanente** en la 1.0; revisar si alguien lo pide con un caso |
+| La selección primaria no se procesa | **Permanente**: es otra cosa y tocarla sorprendería |
+| Los dispositivos no se sincronizan | **Permanente**: no hay red y no la habrá |
+| Sólo el seat por defecto | **Permanente** en la 1.0 |
+| Una imagen o un archivo no genera evento | **Permanente**, es cómo funciona `wl-paste --type text`; documentada en README y COMPATIBILITY |
+| `maxBytes` sin control en la interfaz | **Fijo y documentado** («1 MiB» en el README); se expone sólo si alguien lo pide |
+
+Lo que sigue abierto:
+
 - **El clic derecho del icono de la barra sigue libre** ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)).
   Decidir si `pasteClean` se le cuelga o se deja libre para siempre.
 - **Dos defectos de plataforma anotados y no arreglados**: el borde en reposo
@@ -224,15 +253,34 @@ A.1 prueba final + merge + tag v0.2.0
 
 `A.1` bloquea todo. `A.3` bloquea `B`. `C.4` bloquea `D`.
 
+## Lo que dejó la revisión completa del 2 de septiembre
+
+Una lectura de todo —helper, QML, docs, tests— contra el código instalado del
+shell y el fuente de `wl-clipboard`. Lo que se arregló está en el `CHANGELOG`
+bajo «Sin publicar». Lo que queda como deuda, nombrado:
+
+- **El humo del QML sólo corre con Omarchy delante.** `tests/qmllint.sh`
+  enseña a `qmllint` dónde vive `qs` con un enlace al shell instalado y falla
+  si un fichero no carga o un tipo no resuelve; en la CI no hay shell y se
+  salta. Un runner con Quickshell en CI sigue siendo deuda.
+- **Parte de la suite sigue leyendo el fuente en vez de ejecutarlo**
+  (`test_ui_contract.py`, `test_apps_section.py`). Los bucles que pasaban en
+  vacío ya afirman que hay algo que recorrer; el resto se irá sustituyendo
+  cuando exista el runner de arriba.
+- **`AppRules` usa un `ToolTip` del estilo Basic**, que no sigue el tema.
+- **`FogCover` usa `Canvas.FramebufferObject`**, destino heredado en Qt 6.
+- **La captura del estado vacío** para el README.
+- **La decisión `0014`** sobre el idioma del repositorio.
+
 ## Criterios de terminado
 
 - [ ] `main` tiene la 0.2.0 fusionada y etiquetada.
-- [ ] La raíz del repositorio se lee en diez segundos: sin planes cumplidos.
+- [x] La raíz del repositorio se lee en diez segundos: sin planes cumplidos.
 - [ ] Decisión `0014` escrita, y el idioma del repositorio es coherente con ella.
-- [ ] CI en verde en cada push, con la versión mínima de Python declarada.
-- [ ] README rehecho, con capturas, y **sin una sola afirmación que el código
-      contradiga** — hoy tiene al menos una.
-- [ ] Cada «limitación conocida» está clasificada: arreglada o permanente.
+- [x] CI en verde en cada push, con la versión mínima de Python declarada.
+- [x] README rehecho, con capturas, y **sin una sola afirmación que el código
+      contradiga** — repasado el 2 de septiembre; falta la captura del vacío.
+- [x] Cada «limitación conocida» está clasificada: arreglada o permanente.
 - [ ] `manifest.json` en `1.0.0`, `CHANGELOG` cerrado, notas de publicación,
       tag `v1.0.0`.
 - [ ] Repositorio público.

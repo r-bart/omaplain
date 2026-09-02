@@ -33,7 +33,8 @@ do:
 cp io.github.r-bart.omaplain.desktop ~/.local/share/applications/
 ```
 
-**You need** Omarchy with `omarchy-shell` (developed against **4.0.0.alpha**),
+**You need** Omarchy with `omarchy-shell` (developed against the **4.0.1-1**
+package, whose shell reports itself as `4.0.0.alpha`),
 `wl-copy` and `wl-paste`, `hyprctl`, Python **3.10+** (standard library only)
 and `setpriv`. The plugin checks all of them at startup, and never installs
 anything.
@@ -82,7 +83,7 @@ Four rules are on out of the box:
 |---|---|
 | Rich formatting | Pastes the plain-text representation only |
 | Link tracking | `utm_*` and friends, **only** when the clipboard is one whole URL. Signed links are left alone |
-| Invisible characters | Zero-width and directional marks. Emoji, right-to-left writing and language marks stay |
+| Invisible characters | Soft hyphens, zero-width spaces, word joiners and byte-order marks. Emoji joiners, right-to-left writing and bidirectional marks stay |
 | Line endings | `CRLF` and `CR` become `LF`, without dropping the final break |
 
 Four more are available and off by default: straight quotes, list bullets,
@@ -101,8 +102,8 @@ then choose any combination of four independent rules.
 |---|---|---|
 | **When reading** | Never uncover | The panel shows that something is there, never what it says |
 | | Never read | The daemon does not read the clipboard at all for copies from this app |
-| **When cleaning** | Don't clean its copies | Text copied there passes through untouched |
-| | Don't paste clean here | *Paste clean* does nothing in this window |
+| **When cleaning** | Don't clean its copies | Copies from it are not cleaned automatically. *Clean now* and *Paste clean* still clean them |
+| | Don't paste clean here | *Paste clean* pastes into this window without cleaning first |
 
 The four are independent on purpose: an app whose text should not be rewritten
 is not necessarily an app whose text should not be seen.
@@ -164,8 +165,13 @@ Wayland event
 
 The daemon serialises events, uses monotonic generations, compares before
 writing, and recognises its own rewrite through an in-memory hash that never
-touches disk. Quickshell only supervises the process; it never receives the
-content.
+touches disk. Every external call has a deadline: a source application that
+never serves its offer cannot hang the daemon.
+
+The panel is the one place the content goes. When it is open it asks the
+daemon for at most 4 KiB of the text over the private socket, keeps it in
+memory, and forgets it the moment it closes. Nothing else in the shell sees it
+([`0005`](docs/decisions/0005-previsualizacion-del-portapapeles.md)).
 
 Session files live in `$XDG_RUNTIME_DIR/omaplain/` with `0700` on the directory
 and `0600` on the config, state and socket. Copied text is not persisted in any
@@ -174,8 +180,13 @@ of them.
 ## Known limits
 
 - When a transformation changes characters, **Omarchy's own history may keep
-  both versions** until you clear it. Turn off tracking/invisible removal, or
-  use `pasteClean`, if you want an explicit action instead.
+  both versions** until you clear it. Every rule except *rich formatting*
+  changes characters, line endings included. Turn them off, or use
+  `pasteClean`, if you want an explicit action instead.
+- **Image and file copies raise no event.** The watcher asks Wayland for text,
+  so a copy that offers none never reaches the daemon. The panel shows them
+  correctly when you open it, but an open panel only refreshes on the next text
+  copy, and the session counters never see them.
 - A password copied without `CLIPBOARD_STATE=sensitive` and without a password
   manager MIME type is indistinguishable from ordinary text. Give that
   application a *never read* rule if it does not mark its secrets.
@@ -204,9 +215,12 @@ put real clipboard content in the report.
 tests/run.sh
 ```
 
-Unit and property tests, a benchmark, an accelerated soak of 28,800 events, and
-Omarchy's own plugin validator. The validator and `qmllint` need Omarchy
-installed; everything else runs anywhere and runs in CI.
+Unit and property tests, a benchmark, an accelerated soak of 28,800 events plus
+a pass over a live socket, a `qmllint` pass that loads every QML file against
+the installed shell, and Omarchy's own plugin validator. The last two need
+Omarchy installed and are skipped without it; everything else runs anywhere,
+and CI runs exactly this script. The tests that execute `Strings.js` use `node`
+when it is present.
 
 After editing any `.qml`, restart the shell:
 

@@ -126,7 +126,7 @@ que la `0009` descartó, y por el mismo motivo.
 - El helper gana `open-windows`. `active-window` se queda como superficie de
   diagnóstico, pero el panel ya no la usa: `Service.currentAppClass` y
   `captureCurrentApp()` se van con ella.
-- Veintisiete cadenas del catálogo se retiran y entran veintitrés `apps.*` y
+- Veintisiete cadenas del catálogo se retiran y entran veintidós `apps.*` y
   `rules.*`.
 - El selector se refresca al abrir el panel y al entrar en los ajustes, porque
   ofrece lo que hay abierto **ahora**.

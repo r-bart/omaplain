@@ -778,7 +778,7 @@ Item {
             lang: root.lang
             width: parent.width
             visible: root.panelPage === "clipboard" && !statusLine.silent
-            state: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
+            serviceState: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
             detail: root.statusDetail()
             skipping: service && service.status && service.status.skipNext === true
           }

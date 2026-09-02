@@ -77,6 +77,20 @@ class RunningDaemon:
     def request(self, request: dict, timeout: float = 5.0) -> dict:
         return socket_request(str(self.socket), request, timeout=timeout)
 
+    def drained(self, timeout: float = 2.0) -> bool:
+        """Los hilos de petición se recogen justo después de contestar.
+
+        El cliente ve el cierre de la conexión un instante antes de que el
+        hilo se quite de `workers`, así que se espera un poco en vez de
+        mirar una sola vez.
+        """
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if not self.daemon.workers:
+                return True
+            time.sleep(0.01)
+        return not self.daemon.workers
+
     def raw(self, payload: bytes, timeout: float = 5.0) -> bytes:
         client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         client.settimeout(timeout)
@@ -148,7 +162,7 @@ class SocketTests(unittest.TestCase):
                         self.assertEqual(json.loads(answer)["reason"], reason)
             # Y el demonio sigue vivo y entero.
             self.assertEqual(running.request({"kind": "command", "name": "ping"}), {"result": "ok"})
-            self.assertEqual(running.daemon.workers, set(), "quedaron hilos sin recoger")
+            self.assertTrue(running.drained(), "quedaron hilos sin recoger")
 
     def test_a_newer_event_supersedes_the_one_still_reading(self) -> None:
         # El evento 1 se queda leyendo; mientras, llega el 2 y avanza la

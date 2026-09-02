@@ -42,7 +42,7 @@ configuración: aparece sólo donde tiene que aparecer.
 
 ## Verificación
 
-189 tests unitarios y de propiedades, el validador oficial de plugins, un
+La suite de `tests/run.sh` entera —256 tests al cerrar la versión—, el validador oficial de plugins, un
 benchmark y un soak acelerado de 28.800 eventos. Consulta
-[TEST-REPORT.md](notes/TEST-REPORT.md) para el detalle, incluido lo que **no** se ha
+[TEST-REPORT-0.2.0.md](notes/TEST-REPORT-0.2.0.md) para el detalle, incluido lo que **no** se ha
 podido comprobar.

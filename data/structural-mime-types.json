@@ -1,5 +1,8 @@
 {
   "version": 1,
+  "updated": "2026-08-31",
+  "license": "CC0-1.0",
+  "source": "OmaPlain conservative built-in rules, observed on the baseline applications",
   "exact": [
     "text/uri-list",
     "x-special/gnome-copied-files",

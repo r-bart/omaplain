@@ -22,7 +22,7 @@ ellas lo nuevo. No sirven: deciden **si algo se limpia**, no **si algo se lee**.
 | Lista | Qué decide | Dónde vive |
 |---|---|---|
 | `sourceExclusions` | Lo copiado ahí no se limpia | helper |
-| `targetExclusions` | «Pegar limpio» no actúa ahí | helper |
+| `targetExclusions` | «Pegar limpio» pega ahí sin limpiar antes | helper |
 | **`alwaysCovered`** | El vaho no se puede levantar | helper marca, panel obedece |
 | **`blockedApps`** | Ni se lee ni se enseña | **helper**, nunca la interfaz |
 

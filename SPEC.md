@@ -4,9 +4,9 @@ Especificación de producto y técnica para un limpiador de portapapeles nativo 
 
 | Campo | Valor |
 |---|---|
-| Estado | Implementada — release local `0.1.0` |
-| Versión del documento | 0.1 final |
-| Fecha | 31 de agosto de 2026 |
+| Estado | Implementada — `0.2.x`; el documento se revisó contra el código el 2 de septiembre de 2026 |
+| Versión del documento | 0.2 |
+| Fecha | 31 de agosto de 2026, revisado el 2 de septiembre de 2026 |
 | Nombre de producto | OmaPlain |
 | ID provisional del plugin | `io.github.r-bart.omaplain` |
 | Repositorio propuesto | `omarchy-omaplain` |
@@ -104,7 +104,7 @@ Necesita que tablas, fórmulas y operaciones de cortar sigan funcionando. Debe p
 
 1. **La semántica gana al aspecto.** Es aceptable perder estilo cuando se pide texto limpio; no es aceptable perder contenido significativo.
 2. **La duda provoca bypass.** Un MIME desconocido, texto inválido o una operación sensible no se “arregla” por intuición.
-3. **Nada de contenido en la interfaz.** El panel informa de tipo, tamaño y resultado, pero no previsualiza el texto.
+3. **El contenido sólo vive en el panel, cubierto y mientras está abierto.** Desde la [`0005`](docs/decisions/0005-previsualizacion-del-portapapeles.md) el panel enseña el antes y el después, tapados hasta que alguien pide verlos; nunca lo marcado como sensible, y nunca en estado, logs ni notificaciones.
 4. **Una reescritura como máximo.** Cada cambio del portapapeles genera cero o una reescritura y nunca un bucle.
 5. **Configuración mínima con salida rápida.** Los valores recomendados funcionan sin crear un perfil complejo.
 6. **Complementar Omarchy.** El historial sigue perteneciendo a `omarchy.clipboard`.
@@ -133,13 +133,13 @@ Acción principal del panel. Limpia el contenido actual, pero no pega ni cambia 
 Acción pensada para un atajo global y no para el panel:
 
 1. Capturar la ventana activa como destino.
-2. Aplicar las exclusiones de destino.
+2. Aplicar las exclusiones de destino: en una ventana excluida no se limpia, pero sí se pega lo que haya ([`0009`](docs/decisions/0009-privacidad-por-aplicacion.md)).
 3. Limpiar el portapapeles actual si es elegible.
 4. Esperar hasta confirmar que el nuevo owner ofrece el hash esperado, con límite de 250 ms.
-5. Enviar `Ctrl+V` a una ventana normal o `Shift+Insert` a una ventana etiquetada como terminal.
+5. Enviar `Ctrl+V` a una ventana normal o `Shift+Insert` a una ventana etiquetada como terminal. Los terminales que Omarchy configura pegan el portapapeles con `Shift+Insert`; con los valores de fábrica de foot, alacritty, kitty o ghostty pegaría la selección primaria.
 6. Si la limpieza falla o hay bypass, pegar el contenido original sin leerlo cuando sea sensible.
 
-El envío se realizará con el dispatcher `sendshortcut` de Hyprland, no con interpolación de shell. El target de ventana se conserva antes de iniciar la operación para no pegar en otra ventana si cambia el foco.
+El envío se realiza con `hyprctl eval` y el dispatcher Lua `hl.dsp.send_shortcut` ([`0002`](docs/decisions/0002-hyprland-input.md)); en la expresión sólo entran literales y una dirección hexadecimal validada, nunca contenido. El target de ventana se conserva antes de iniciar la operación para no pegar en otra ventana si cambia el foco.
 
 Atajo sugerido, solo como documentación y después de comprobar conflictos locales:
 
@@ -204,11 +204,13 @@ Wayland no garantiza que la ventana enfocada sea quien originó una copia progra
 
 El destino sí es la ventana activa capturada al ejecutar el atajo. Las exclusiones de destino se aplican antes de leer o reescribir el contenido.
 
-### Edición de exclusiones
+### Edición de reglas por aplicación
 
-- Acción “Excluir la aplicación actual”.
-- Campo avanzado para añadir una clase manualmente.
-- Cada fila muestra nombre resuelto, clase exacta y botón “Quitar”.
+Una sola sección ([`0011`](docs/decisions/0011-una-sola-seccion-de-aplicaciones.md)) con las cuatro listas de la [`0009`](docs/decisions/0009-privacidad-por-aplicacion.md):
+
+- Un selector con las clases de las ventanas abiertas ahora mismo: la clase que da Hyprland es la que compara el demonio. No se ofrece un catálogo de aplicaciones instaladas porque tres de cada cuatro no declaran su clase.
+- Campo para teclear una clase a mano.
+- Cada aplicación es una tarjeta con la clase exacta, cuatro interruptores independientes y un botón «Quitar».
 - Comparación exacta por defecto; glob o regex quedan fuera de v1.
 - Validación al perder foco o al pulsar Añadir, no en cada tecla.
 - Una clase vacía, con saltos de línea o de más de 256 bytes se rechaza con mensaje inline.
@@ -284,7 +286,8 @@ Antes de reescribir:
 
 - La salida debe ser UTF-8 válido.
 - Una entrada no vacía no puede quedar vacía salvo que una acción manual futura lo permita explícitamente.
-- El tamaño no puede crecer más de un 10 % ni superar 1 MiB.
+- El tamaño no puede crecer más de un 10 % —con cuatro bytes de margen para textos cortos— sobre el original ya en UTF-8, ni superar 1 MiB. Se mide sobre el original recodificado para que un texto en Latin-1 no cuente su paso a UTF-8 como crecimiento.
+- Si los bytes cambian sin que ninguna regla haya actuado —un BOM consumido, un texto que no venía en UTF-8— la reescritura se nombra `encoding`.
 - Debe conservar NUL = 0; cualquier NUL produce bypass.
 - Debe completar antes del timeout.
 - Si la salida es idéntica y no había rich text, no se reescribe.
@@ -342,7 +345,7 @@ Cuando el filtro core esté disponible, OmaPlain detectará su versión y desact
 
 ### Decisión de superficie
 
-Se necesita interfaz para entender el estado, configurar exclusiones y resolver incompatibilidades. No se necesita widget de barra en el MVP.
+Se necesita interfaz para entender el estado, configurar exclusiones y resolver incompatibilidades. Desde la `0.2.0` hay además un widget de barra y una entrada `.desktop`, y ninguno de los dos se activa solo ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)).
 
 El panel se abre con:
 
@@ -412,7 +415,8 @@ Ancho objetivo de 520 px y alto máximo de 720 px o el espacio disponible. Una �
 - La limpieza automática no genera toast por defecto; sería ruido.
 - Bypass esperado no es un error y no lanza notificación.
 - Un error repetido del watcher sí crea una notificación accionable, limitada a una cada diez minutos.
-- Nunca se muestra una previsualización ni una porción del clipboard.
+- La previsualización llega cubierta y se olvida al cerrar el panel; lo sensible no se muestra nunca ([`0005`](docs/decisions/0005-previsualizacion-del-portapapeles.md)).
+- El panel abierto vuelve a mirar el portapapeles en cada evento de texto y tras cada acción manual. Una copia de imagen o de archivos sin texto no genera evento: `wl-paste --type text --watch` no ejecuta el comando cuando la oferta no trae texto.
 
 ### Iconografía
 
@@ -484,65 +488,71 @@ En paralelo: omarchy.clipboard conserva su historial actual.
 
 Los plugins se ejecutan como código sin sandbox dentro del proceso permanente `omarchy-shell`. El parseo de texto arbitrario, control de tamaños, subprocesses y timeouts deben vivir en un proceso separado. `Service.qml` solo supervisa y expone estado; no procesa el contenido en JavaScript/QML.
 
-### Árbol del repositorio propuesto
+### Árbol del repositorio
 
 ```text
-omarchy-omaplain/
+omaplain/
 ├── manifest.json
-├── Service.qml
-├── Panel.qml
-├── components/
-│   ├── SettingRow.qml
-│   ├── StatusHeader.qml
-│   ├── PanelButton.qml
-│   └── AppRules.qml
+├── io.github.r-bart.omaplain.desktop
+├── Service.qml            supervisa el helper y expone estado
+├── Panel.qml              las dos páginas: portapapeles y ajustes
+├── BarWidget.qml          el icono de la barra
+├── components/            filas, botones, cubierta, tour, catálogo Strings.js
 ├── helper/
-│   ├── omaplain
+│   ├── omaplain           ejecutable
 │   └── omaplain_lib/
-│       ├── classify.py
-│       ├── transform.py
-│       ├── urls.py
-│       ├── unicode_rules.py
-│       └── state.py
+│       ├── cli.py         subcomandos
+│       ├── daemon.py      socket, generaciones, loop guard, peek
+│       ├── clipboard.py   wl-paste, wl-copy, hyprctl
+│       ├── classify.py    MIME → elegible o bypass
+│       ├── transform.py   reglas puras
+│       ├── config.py      validación y escritura 0600
+│       └── status.py      status.json
 ├── data/
 │   ├── tracking-parameters.json
 │   └── structural-mime-types.json
 ├── tests/
+│   ├── run.sh             la suite entera
 │   ├── unit/
 │   ├── fixtures/
-│   └── integration/
-├── README.md
-├── LICENSE
-└── CHANGELOG.md
+│   ├── benchmark.py
+│   └── soak.py
+├── docs/decisions/        las decisiones, argumentadas
+├── docs/notes/            planes cumplidos e informes
+├── README.md, CHANGELOG.md, SECURITY.md, ATTRIBUTIONS.md, LICENSE
 ```
 
 No hay instalador ni hook de instalación. Git conserva el bit ejecutable de `helper/omaplain`, y el plugin funciona desde su propio directorio.
 
-### Manifest provisional
+### Manifest
 
 ```json
 {
   "schemaVersion": 1,
   "id": "io.github.r-bart.omaplain",
   "name": "OmaPlain",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "OmaPlain contributors",
   "license": "GPL-3.0-or-later",
   "description": "Paste clean text by default while preserving files, images and secrets.",
-  "kinds": ["service", "panel"],
+  "kinds": ["service", "panel", "bar-widget"],
   "entryPoints": {
     "service": "Service.qml",
-    "panel": "Panel.qml"
-  }
+    "panel": "Panel.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": { "displayName": "OmaPlain", "category": "Utilities", "allowMultiple": false }
 }
 ```
+
+La versión del manifiesto es la única: `helper/omaplain_lib/__init__.py` y el `CHANGELOG` la repiten y un test las ata.
 
 `io.github.r-bart.omaplain` evita el namespace reservado `omarchy.*`. Antes de publicar se debe comprobar que el ID no esté ocupado en el catálogo comunitario.
 
 ### Responsabilidades de `Service.qml`
 
 - Recibir `shell`, `manifest` y exponer estado reactivo al panel.
-- Leer la entrada canónica de `shell.shellConfig.plugins`.
+- Leer nuestra entrada en el mismo orden en que el shell la escribe: primero `bar.layout`, si el icono está colocado, y si no `plugins[]`; y al escribir en la barra, dejar la misma copia en `plugins[]` ([`0012`](docs/decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md)).
 - Escribir preferencias con `shell.updateEntryInline("io.github.r-bart.omaplain", settings)`.
 - Materializar una configuración de runtime con permisos `0600` para el helper.
 - Lanzar el watcher con `setpriv --pdeathsig TERM`.
@@ -579,10 +589,17 @@ Las preferencias viven inline en `~/.config/omarchy/shell.json`, según el contr
   "trimTrailingWhitespace": false,
   "sourceExclusions": [],
   "targetExclusions": [],
+  "alwaysCovered": [],
+  "blockedApps": [],
   "maxBytes": 1048576,
-  "notifyOnError": true
+  "notifyOnError": true,
+  "language": "auto",
+  "reduceMotion": false,
+  "onboardingVersion": 0
 }
 ```
+
+`language`, `reduceMotion` y `onboardingVersion` son sólo de interfaz: el helper los ignora al validar. Las cuatro listas son las de la [`0009`](docs/decisions/0009-privacidad-por-aplicacion.md).
 
 Reglas:
 
@@ -597,9 +614,11 @@ Reglas:
 | Ruta | Contenido | Persistencia |
 |---|---|---|
 | `$XDG_RUNTIME_DIR/omaplain/config.json` | Snapshot de preferencias | Sesión, `0600` |
-| `$XDG_RUNTIME_DIR/omaplain/status.json` | Estado, contadores y último resultado | Sesión, `0600` |
-| Memoria del helper | Hash de loop guard, skip-next y transacción activa | No persiste |
-| `$XDG_STATE_HOME/omaplain/health.json` | Opcional: fallos y versión, sin hashes de contenido | Persistente |
+| `$XDG_RUNTIME_DIR/omaplain/status.json` | Estado, contadores, último resultado y marca del último evento | Sesión, `0600` |
+| `$XDG_RUNTIME_DIR/omaplain/omaplain.sock` | Eventos, órdenes y `peek` | Sesión, `0600` |
+| Memoria del helper | Hash de loop guard, skip-next, origen de la última copia y transacción activa | No persiste |
+
+No hay ningún fichero persistente entre sesiones.
 
 No se crea una base de datos. El historial pertenece a Omarchy.
 
@@ -609,14 +628,14 @@ No se crea una base de datos. El historial pertenece a Omarchy.
 |---|---|---|
 | `omarchy-shell omaplain ping` | `ok` | Salud del servicio QML |
 | `omarchy-shell omaplain status` | JSON | Estado sin contenido |
-| `omarchy-shell omaplain cleanNow` | JSON | Limpia el portapapeles actual |
-| `omarchy-shell omaplain pasteClean` | JSON | Limpia y pega en el target capturado |
-| `omarchy-shell omaplain skipNext` | `ok` | Omite la próxima copia elegible |
+| `omarchy-shell omaplain cleanNow` | `accepted` o `busy` | Limpia el portapapeles actual |
+| `omarchy-shell omaplain pasteClean` | `accepted` o `busy` | Limpia y pega en el target capturado |
+| `omarchy-shell omaplain skipNext` | `accepted` o `busy` | Omite la próxima copia elegible |
 | `omarchy-shell omaplain setAutomatic true` | `ok` | Activa modo automático |
 | `omarchy-shell omaplain setAutomatic false` | `ok` | Pausa modo automático |
 | `omarchy-shell omaplain reload` | `ok` | Recarga configuración derivada |
 
-Solo las cadenas literales `true` y `false` son válidas. Los demás argumentos devuelven `invalid` sin cambiar estado.
+Las acciones son asíncronas: la llamada devuelve `accepted` y el resultado, sin contenido, aparece en `status`. Solo las cadenas literales `true` y `false` son válidas para `setAutomatic`. Los demás argumentos devuelven `invalid` sin cambiar estado.
 
 Ejemplo de `status`:
 
@@ -668,7 +687,7 @@ El evento generado por `WRITING` se reconoce mediante hash efímero, longitud y 
 Dependencias runtime esperadas en Omarchy:
 
 - `wl-clipboard >= 2.3` para `--watch`, `--sensitive` y `CLIPBOARD_STATE`.
-- `hyprctl` para metadata de ventana y `sendshortcut`.
+- `hyprctl` para metadata de ventana y para enviar el atajo de pegado con `eval`.
 - Python 3 con biblioteca estándar.
 - `setpriv` para `PDEATHSIG`.
 - Quickshell y los módulos ya incluidos por Omarchy.
@@ -681,9 +700,9 @@ No se incorporan dependencias Python de red ni un entorno virtual. La instalaci�
 
 - Cero red en runtime.
 - Cero telemetría.
-- Cero contenido en logs, estado, notificaciones o panel.
+- Cero contenido en logs, estado y notificaciones. En el panel, sólo cubierto, sólo mientras está abierto y nunca lo sensible ([`0005`](docs/decisions/0005-previsualizacion-del-portapapeles.md)).
 - Cero persistencia propia del texto.
-- Bypass de secretos antes de leer stdin siempre que la plataforma los marque.
+- Bypass de secretos sin que el demonio los lea, siempre que la plataforma los marque. `wl-paste` sí entuba el contenido al proceso efímero que avisa; ese proceso no lo lee.
 - Bypass conservador de archivos, imágenes y estructuras.
 - Sin `eval`, `sh -c`, plantillas de comandos ni interpolación de contenido.
 - Todos los subprocesses reciben argv separados.
@@ -698,7 +717,8 @@ OmaPlain no guarda contenido, pero el gestor de portapapeles de Omarchy puede gu
 
 | Amenaza | Mitigación |
 |---|---|
-| Secreto copiado desde un password manager | `CLIPBOARD_STATE` y MIME sensible provocan bypass sin lectura |
+| Secreto copiado desde un password manager | `CLIPBOARD_STATE` y MIME sensible provocan bypass sin que el demonio lo lea ni lo pida |
+| Aplicación de origen que no sirve su oferta | La lectura tiene plazo (2 s) y las órdenes cortas también (1 s); después, fail open |
 | Texto malformado | Decodificación estricta; bypass sin sustitución |
 | URL especialmente construida | Parser estándar, allowlist de esquemas e invariantes host/ruta |
 | Payload enorme | Límite previo de 1 MiB y timeout |
@@ -723,7 +743,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 | Memoria helper | Menos de 30 MiB RSS |
 | Transformación p50, 10 KiB | Menos de 15 ms |
 | Transformación p95, 100 KiB | Menos de 50 ms |
-| Límite completo | 250 ms; después, fail open |
+| Límite completo | Órdenes cortas 1 s, lectura del contenido 2 s; después, fail open |
 | Escrituras por evento | 0 o 1 |
 | Reinicio del watcher | 1 s, 2 s, 5 s, 10 s; máximo 30 s |
 | Notificaciones de error | Máximo una por causa cada 10 min |
@@ -813,10 +833,10 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 
 ### Privacidad
 
-- [x] El test de red confirma cero sockets o DNS durante todas las operaciones.
-- [x] Logs, estado, IPC y notificaciones no contienen texto, URLs, hashes persistentes ni títulos de ventana.
+- [x] `test_no_network.py` confirma que el helper no importa nada de red y que el único socket es de dominio Unix.
+- [x] Logs, estado, notificaciones y las respuestas de IPC que no son `peek` no contienen texto, URLs, hashes persistentes ni títulos de ventana.
 - [x] Contenido sensible marcado no llega al proceso transformador.
-- [x] El panel no renderiza preview.
+- [x] El panel renderiza la previsualización cubierta, la olvida al cerrar y nunca enseña lo sensible ([`0005`](docs/decisions/0005-previsualizacion-del-portapapeles.md)).
 
 ### Omarchy
 
@@ -844,7 +864,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 - Probar `wl-paste --watch` + `wl-copy` con Firefox, Chromium, Foot y LibreOffice.
 - Enumerar MIME reales de texto, archivo, imagen, contraseña, celda, fórmula y corte.
 - Medir el orden de eventos frente a `omarchy.clipboard`.
-- Validar `hyprctl dispatch sendshortcut` en ventanas normales y terminales.
+- Validar el envío del atajo en ventanas normales y terminales (se planeó con `hyprctl dispatch sendshortcut`; Hyprland 0.56 obligó a `hyprctl eval`, ver [`0002`](docs/decisions/0002-hyprland-input.md)).
 - Resultado: matriz de compatibilidad y decisión go/no-go del modo automático standalone.
 
 ### Fase 1 — MVP comunitario, 4–6 días
@@ -873,7 +893,6 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 
 ### Fuera de v1
 
-- Widget de barra opcional.
 - Limpieza de varias URLs dentro de un párrafo.
 - Perfiles por aplicación.
 - Pausa temporizada.
@@ -891,7 +910,7 @@ Una aplicación que copie una contraseña sin ninguna marca de sensibilidad es i
 | ¿Qué hacer con HTML sin plain? | Bypass |
 | ¿Qué hacer con scripts personalizados? | Fuera de alcance por seguridad y determinismo |
 | ¿Qué licencia usar? | GPL-3.0-or-later encaja con wl-clipboard y facilita compartir mejoras; auditar datos vendorizados |
-| ¿Bar widget? | No en MVP; medir demanda |
+| ¿Bar widget? | Sí desde la `0.2.0`, declarado y no colocado ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)) |
 | ¿Notificar cada limpieza? | No; solo feedback de acciones manuales y errores repetidos limitados |
 
 ## 20. Definición de “terminado”

@@ -2,7 +2,67 @@
 
 Todos los cambios relevantes de OmaPlain se documentan aquí.
 
-## 0.2.0 — 2026-08-31
+## Sin publicar
+
+Lo que salió de la revisión completa del 2 de septiembre.
+
+### Arreglado
+
+- **La previsualización sigue al portapapeles.** Sólo se pedía al abrir el
+  panel: tras «Aplicar», tras omitir o tras copiar otra cosa, las filas
+  seguían diciendo «quedaría así» con el botón habilitado. Ahora el helper
+  apunta cada evento en `status.json` —también con el automático apagado— y
+  el panel abierto vuelve a mirar en cuanto cambia.
+- **El contenido muere con el panel.** `Service.forgetPeek` lo prometía y
+  nadie lo llamaba: el texto seguía en memoria, volvía a las filas al reabrir
+  hasta que llegaba el vistazo nuevo, y el vaho a 30 fps y el carrusel seguían
+  corriendo dentro de una ventana cerrada.
+- **La lectura del portapapeles tiene plazo.** Una aplicación de origen que no
+  sirviera su oferta dejaba el demonio colgado para siempre con el cerrojo
+  cogido: ni eventos, ni limpieza manual, ni vistazo. Dos segundos para la
+  lectura, uno para las órdenes cortas.
+- `hyprctl activewindow` devolviendo algo que no es un objeto tumbaba el hilo
+  del evento. Una petición JSON al socket que no es un objeto, también.
+- Reescribir sólo por codificación —un BOM, un texto en UTF-16— se llamaba
+  «formato enriquecido» en el desglose; ahora se llama codificación. Y un
+  texto en Latin-1 con acentos dejaba de limpiarse como «crecería demasiado»:
+  el tope se mide ahora contra el original ya en UTF-8.
+- Un portapapeles de más de dos mil setecientos emoji no cabía en la
+  respuesta del vistazo y el panel daba error.
+- `status.json` se escribe bajo cerrojo: dos hilos podían dejar en disco la
+  instantánea vieja. La escalera de reintentos del watcher vuelve al principio
+  tras un minuto sano. La atribución de origen sigue a la copia más nueva
+  aunque dos eventos se ejecuten en orden inverso.
+- «No pegar limpio ahí» cuenta como bypass en la sesión.
+- La frase «ninguna regla activa cambia caracteres» salía con los finales de
+  línea puestos, que sí los cambian.
+- Accesibilidad: el texto cubierto sale del árbol en su propio ítem; los
+  textos decorativos de la ilustración también; un botón deshabilitado no se
+  pulsa desde el lector; la cabecera sin detalle no lee «OmaPlain, Activo. ».
+- El vaho guarda un trazo por celda y mide lo limpiado por celdas, en vez de
+  acumular trazos sin tope y leer 147 píxeles por suelta. La ilustración del
+  tour vuelve a animar la transformación en el paso que la enseña.
+- `StatusHeader` declaraba una propiedad `state` encima de la que todo `Item`
+  ya tiene —la máquina de estados de QML—. Lo encontró el `qmllint` nuevo;
+  ahora se llama `serviceState`.
+- La documentación decía cosas que el código no hacía: que se retiraban las
+  marcas direccionales, que Quickshell nunca recibía el contenido, que «pegar
+  limpio» no hacía nada en una ventana excluida. Corregido en el README, el
+  SPEC, SECURITY y las decisiones afectadas.
+
+### Cambiado
+
+- `tests/run.sh` se salta el validador de Omarchy cuando no está instalado y
+  falla ante cualquier `ResourceWarning`; la CI lo llama tal cual. La suite
+  pasa de 256 a 330 tests, con el demonio corriendo sobre un socket de verdad,
+  `clipboard.py` probado por primera vez, `Strings.js` ejecutado con `node`
+  y un `qmllint` que carga cada fichero QML contra el shell instalado.
+
+## 0.2.0 — 2026-09-01
+
+Nunca se etiquetó el 31 de agosto: el trabajo del 1 de septiembre —el widget
+de barra, la entrada del lanzador, la sección única de aplicaciones— entró
+en esta misma versión, y la fecha es la del último cambio.
 
 Esta versión rehace el panel entero. La `0.1.0` funcionaba y no se dejaba
 mirar: enseñaba una ilustración donde debía enseñar tu portapapeles, y sus

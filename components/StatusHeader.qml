@@ -20,7 +20,9 @@ Item {
   // Idioma heredado del panel: en o es.
   property string lang: "en"
 
-  property string state: "starting"
+  // `serviceState` y no `state`: `state` ya existe en todo Item —es la
+  // máquina de estados de QML— y declararlo encima lo sombreaba.
+  property string serviceState: "starting"
   property string detail: Strings.t("state.preparing", root.lang)
   // F.4: omitir la próxima copia era un estado sólo textual, en la línea de
   // detalle. Aquí cambia el estado, que es donde se mira. Sin cuenta atrás:
@@ -28,9 +30,9 @@ Item {
   // decidir nada.
   property bool skipping: false
 
-  readonly property bool healthy: state === "running"
-  readonly property bool paused: state === "paused"
-  readonly property bool failed: ["degraded", "missing_dependencies", "config_error", "stopped"].indexOf(state) !== -1
+  readonly property bool healthy: serviceState === "running"
+  readonly property bool paused: serviceState === "paused"
+  readonly property bool failed: ["degraded", "missing_dependencies", "config_error", "stopped"].indexOf(serviceState) !== -1
   readonly property string stateLabel: failed
     ? Strings.t("state.attention", root.lang)
     : (skipping

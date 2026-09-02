@@ -8,7 +8,9 @@ El spike se convirtió en la base del helper definitivo para evitar desechar tra
 
 ```text
 wl-paste --watch
-  → proceso efímero que envía solo CLIPBOARD_STATE
+  → proceso efímero que transmite solo CLIPBOARD_STATE
+    (wl-paste le entuba el contenido por stdin y espera a que acabe;
+     el proceso no lo lee)
   → socket Unix 0600
   → daemon serializado
   → clasificación MIME

@@ -13,8 +13,12 @@ python3 -W error::ResourceWarning -m unittest discover -s tests/unit -q
 tests/benchmark.py
 tests/soak.py
 
-# El validador de Omarchy y `qmllint` sólo existen con Omarchy instalado.
-# Sin él se dice y se sigue: la CI es la misma suite y no tiene Omarchy.
+# El humo del QML: cada fichero carga y sus tipos resuelven contra el shell
+# instalado. El propio script se salta sin Omarchy o sin qmllint.
+tests/qmllint.sh
+
+# El validador de Omarchy sólo existe con Omarchy instalado. Sin él se dice
+# y se sigue: la CI es la misma suite y no tiene Omarchy.
 if command -v omarchy > /dev/null 2>&1; then
   omarchy plugin validate .
 else

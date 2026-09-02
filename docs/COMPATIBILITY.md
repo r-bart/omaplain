@@ -14,9 +14,23 @@ Matriz observada sobre el baseline descrito en [BASELINE.md](./notes/BASELINE.md
 
 ## Revisión para la 0.2.0
 
-La matriz de arriba sigue vigente: el motor de clasificación no cambió en esta
-versión, y el soak de 28.800 eventos y el benchmark se repitieron sobre el
-estado final sin desviaciones.
+La matriz de arriba sigue vigente: las reglas de clasificación no cambiaron en
+esta versión —lo único que cambió en esa capa es que un `wl-paste --list-types`
+que sale con error se toma como portapapeles vacío y no como fallo—, y el soak
+de 28.800 eventos y el benchmark se repitieron sobre el estado final sin
+desviaciones.
+
+Dos precisiones de plataforma, comprobadas el 2 de septiembre:
+
+- **Una copia de imagen o de archivos sin texto no genera evento.** El watcher
+  es `wl-paste --type text --watch`, y `wl-paste` no ejecuta el comando cuando
+  la oferta no trae ningún tipo de texto. La fila «Captura/imagen» de arriba
+  significa eso: el demonio ni se entera. El panel la clasifica bien cuando se
+  abre; un panel ya abierto sólo se refresca con la siguiente copia de texto.
+- **`Shift+Insert` pega el portapapeles en los terminales de Omarchy** porque
+  sus configuraciones de alacritty, ghostty, kitty y foot lo mapean así. Con
+  los valores de fábrica de esos cuatro terminales pegaría la selección
+  primaria, que OmaPlain no toca.
 
 Lo que la `0.2.0` añade por encima de ella son dos negativas nuevas, y ésas no
 dependen del MIME sino de la aplicación de origen:
@@ -84,5 +98,5 @@ application/x-libreoffice-internal-id-*
 
 Firefox y un gestor de contraseñas gráfico no están instalados en el host de desarrollo. La compatibilidad de Firefox queda cubierta por el mismo contrato observable `text/plain` + `text/html` usado por Chromium y por fixtures sintéticos del clasificador. El caso de password manager usa la marca interoperable que `wl-clipboard` documenta y que también consume el historial nativo de Omarchy.
 
-Antes de promover `0.1.0` a `1.0.0` se repetirá la matriz en más aplicaciones y versiones. La ausencia de una app opcional no relaja la clasificación: cualquier MIME estructural o sensible conocido sigue provocando bypass.
+Antes de la `1.0.0` se repetirá la matriz en más aplicaciones y versiones. La ausencia de una app opcional no relaja la clasificación: cualquier MIME estructural o sensible conocido sigue provocando bypass.
 

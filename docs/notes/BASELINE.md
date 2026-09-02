@@ -4,7 +4,7 @@ Registrado el 31 de agosto de 2026 sobre la máquina de desarrollo de OmaPlain.
 
 | Componente | Versión o valor |
 |---|---|
-| Omarchy | 4.0.1-1 |
+| Omarchy | paquete 4.0.1-1; la shell se identifica como `4.0.0.alpha` |
 | Quickshell | 0.3.1 |
 | Hyprland | 0.56.2 |
 | wl-clipboard | 2.3.0 |
