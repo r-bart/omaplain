@@ -31,6 +31,9 @@ class StatusStore:
             # que el panel abierto vigila para saber que lo que enseña ya
             # no es lo que hay.
             "lastEventAt": "",
+            # Y un contador, para que dos eventos en el mismo microsegundo
+            # o un reloj que salte no se confundan con «nada nuevo».
+            "eventSeq": 0,
             "lastBytes": 0,
             "configWarnings": [],
             "session": {"cleaned": 0, "unchanged": 0, "bypassed": 0, "errors": 0},
@@ -51,19 +54,29 @@ class StatusStore:
         """Deja constancia de un evento, en memoria; a disco si se pide.
 
         La marca viaja con la siguiente escritura —el `record` del mismo
-        evento, casi siempre— y no cuesta un `fsync` propio. Sólo cuando
-        el evento no se va a apuntar, con el automático apagado, se
-        escribe aquí: es el único caso en que nadie más lo haría.
+        evento— y no cuesta un `fsync` propio. Con el automático apagado
+        el evento no se apunta, y entonces se pide escribir aquí. El evento
+        propio de una reescritura no se marca en absoluto.
         """
         with self.lock:
             self.value["lastEventAt"] = self._now()
+            self.value["eventSeq"] = int(self.value.get("eventSeq", 0)) + 1
         if write:
             self.write()
 
     def update(self, **values: object) -> None:
+        """Cambia campos y escribe, sólo si algo cambió de verdad.
+
+        El supervisor del watcher llama a `update(watcher="running")` cada
+        medio segundo mientras todo va bien. Escribir y hacer `fsync` dos
+        veces por segundo para dejar el fichero igual es gasto sin nada a
+        cambio; y `mark_event` ya se encarga de sus propias escrituras.
+        """
         with self.lock:
+            changed = any(self.value.get(key) != value for key, value in values.items())
             self.value.update(values)
-        self.write()
+        if changed:
+            self.write()
 
     def record(self, result: str, reason: str, byte_count: int = 0) -> None:
         counter = {

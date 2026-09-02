@@ -151,12 +151,17 @@ def main(argv: list[str] | None = None) -> int:
         state = os.environ.get("CLIPBOARD_STATE", "data")
         socket_request(args.socket, {"kind": "event", "state": state}, timeout=0.4)
         return 0
+    # Los plazos de cliente cubren lo que el demonio puede tardar con el
+    # cerrojo cogido por una fuente lenta: una lectura entera (2 s) más su
+    # comprobación (1 s) más las órdenes cortas. Con el plazo por defecto de
+    # 1,5 s el panel decía «no se pudo leer» de un portapapeles que sólo
+    # estaba tardando.
     if args.command == "peek":
-        response = socket_request(args.socket, {"kind": "command", "name": "peek"})
+        response = socket_request(args.socket, {"kind": "command", "name": "peek"}, timeout=5.0)
         _print_json(response)
         return 0 if response.get("result") != "error" else 1
     if args.command == "control":
-        response = socket_request(args.socket, {"kind": "command", "name": args.name})
+        response = socket_request(args.socket, {"kind": "command", "name": args.name}, timeout=8.0)
         _print_json(response)
         return 0 if response.get("result") != "error" else 1
     if args.command == "watch":

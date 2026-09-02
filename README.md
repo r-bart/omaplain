@@ -2,7 +2,7 @@
 
 **Paste clean text by default. Keep everything else untouched.**
 
-![The OmaPlain panel showing a copied URL before and after cleaning, with the tracking parameters removed](docs/images/panel.png)
+![The OmaPlain panel with a copied link: two rows headed Now and Would be, both still covered by fog that you drag away to read, a breakdown row naming the tracking parameters it would remove, and an Apply to the clipboard button](docs/images/panel.png)
 
 OmaPlain is an [Omarchy](https://omarchy.org) shell plugin. It watches the
 Wayland clipboard and, when what you copied is plain text it can safely rewrite,

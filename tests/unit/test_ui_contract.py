@@ -902,11 +902,51 @@ class FogCoverTests(unittest.TestCase):
 
     def test_the_sweep_finishes_from_the_release_point_and_then_clears(self) -> None:
         self.assertIn("root.finish(mouse.x, mouse.y)", self.fog)
-        self.assertIn("onFinished: root.cleared()", self.fog)
+        # Con su guarda: la llave puede llegar con el remate en marcha.
+        self.assertIn("onFinished: if (!root.locked) root.cleared()", self.fog)
         # Sin movimiento no hay recorrido: se descubre de golpe.
         self.assertIn("if (!motionEnabled) {", self.fog)
         # Y el umbral es un cuarto: un clic suelto no descubre nada.
         self.assertIn("finishThreshold: 0.25", self.fog)
+
+
+class PeekLifetimeTests(unittest.TestCase):
+    """El contenido muere con el panel, también con un vistazo en vuelo."""
+
+    def test_a_late_peek_from_a_closed_epoch_is_dropped(self) -> None:
+        service = (REPO / "Service.qml").read_text(encoding="utf-8")
+        self.assertIn("property int peekEpoch", service)
+        forget = _blocks(service, "function forgetPeek()")
+        self.assertEqual(len(forget), 1)
+        self.assertIn("peekEpoch += 1", forget[0])
+        self.assertIn("peekPending = false", forget[0])
+        self.assertIn("if (root.peekIssuedIn !== root.peekEpoch) {", service)
+
+    def test_an_action_does_not_ask_for_a_second_peek(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        handler = _blocks(panel, "function onLastActionJsonChanged()")
+        self.assertEqual(len(handler), 1)
+        self.assertNotIn("refreshPeek()", handler[0])
+        self.assertIn("function onStatusChanged() { root.maybeRefreshPeek() }", panel)
+
+    def test_the_stamp_starts_with_the_event_counter(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        self.assertIn('String(service.status.eventSeq || 0) + "|"', panel)
+
+    def test_focus_settles_when_apply_disappears_under_it(self) -> None:
+        panel = (REPO / "Panel.qml").read_text(encoding="utf-8")
+        apply = [b for b in _blocks(panel, "PrimaryButton") if "id: applyButton" in b][0]
+        self.assertIn("onActiveFocusChanged: if (!activeFocus && !visible && root.opened) Qt.callLater(root.settleFocus)", apply)
+        skip = [b for b in _blocks(panel, "PanelButton") if "id: skipButton" in b][0]
+        # Armada sigue viva: si se deshabilitara, el foco no tendría sitio.
+        self.assertIn("enabled: service && !service.actionBusy\n", skip)
+
+    def test_a_new_body_gets_a_fresh_cover(self) -> None:
+        row = (REPO / "components" / "ClipboardRow.qml").read_text(encoding="utf-8")
+        self.assertIn("onBodyChanged: fog.reset()", row)
+        fog = (REPO / "components" / "FogCover.qml").read_text(encoding="utf-8")
+        self.assertIn("onFinished: if (!root.locked) root.cleared()", fog)
+        self.assertIn("onLockedChanged: if (locked) reset()", fog)
 
 
 if __name__ == "__main__":

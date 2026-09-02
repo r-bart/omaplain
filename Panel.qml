@@ -166,6 +166,9 @@ Item {
   onPeekChanged: {
     showBefore = false
     showAfter = false
+    // Cinturón además de tirantes: si algo llegara con el panel cerrado,
+    // se olvida aquí mismo.
+    if (!opened && service && peek && peek.reason !== "unknown") service.forgetPeek()
   }
 
   readonly property var settings: service && service.settings ? service.settings : ({})
@@ -257,7 +260,10 @@ Item {
 
   function eventStamp() {
     if (!service || !service.status) return ""
-    return String(service.status.lastEventAt || "") + "|" + String(service.status.lastAt || "")
+    // El contador va delante: dos eventos en el mismo microsegundo, o un
+    // reloj que salta hacia atrás, no lo confunden.
+    return String(service.status.eventSeq || 0) + "|"
+      + String(service.status.lastEventAt || "") + "|" + String(service.status.lastAt || "")
   }
 
   function refreshPeek() {
@@ -521,6 +527,15 @@ Item {
       scroll.contentY = Math.min(scroll.contentHeight - scroll.height, bottom - scroll.height + Style.space(8))
   }
 
+  // A dónde va el foco cuando la acción que lo tenía desaparece: la
+  // siguiente viva de la pantalla, y si no hay ninguna, el engranaje.
+  function settleFocus() {
+    if (!opened || viewMode !== "main" || panelPage !== "clipboard") return
+    if (applyButton.visible) applyButton.forceActiveFocus()
+    else if (skipButton.visible) skipButton.forceActiveFocus()
+    else optionsButton.forceActiveFocus()
+  }
+
   function applyViewFocus() {
     if (!root.opened) return
     focusScope.forceActiveFocus()
@@ -535,9 +550,7 @@ Item {
       // 0015: el primario ya no está siempre. Sin nada que aplicar, el
       // foco va a la siguiente acción viva, y si no hay ninguna, al
       // engranaje, que siempre está.
-      else if (applyButton.visible) applyButton.forceActiveFocus()
-      else if (skipButton.visible) skipButton.forceActiveFocus()
-      else optionsButton.forceActiveFocus()
+      else settleFocus()
     }
     Qt.callLater(function() {
       root.focusReady = true
@@ -567,9 +580,9 @@ Item {
         root.cleanConfirmed = true
         confirmTimer.restart()
       }
-      // La acción acaba de cambiar —o de confirmar— lo que hay: se vuelve
-      // a mirar para que las filas y el botón digan la verdad.
-      root.refreshPeek()
+      // El vistazo nuevo no se pide aquí: la acción que cambia algo queda
+      // apuntada en `status.json` y es la marca la que lo pide, una vez.
+      // Pedirlo también aquí era pedirlo dos veces por cada «Aplicar».
     }
     function onStatusChanged() { root.maybeRefreshPeek() }
   }
@@ -1017,6 +1030,11 @@ Item {
                 iconText: service && service.actionBusy ? "" : "󰅍"
                 enabled: service && !service.actionBusy && root.peekChanges
                 onClicked: root.runAction("cleanNow")
+                // Al aplicar con Enter, el botón desaparece con el foco
+                // dentro y Qt lo suelta: el mensaje de resultado se iba a
+                // los 2,5 s sin que nadie lo leyera, que es justo el caso
+                // de la F.5. El foco pasa a la siguiente acción viva.
+                onActiveFocusChanged: if (!activeFocus && !visible && root.opened) Qt.callLater(root.settleFocus)
               }
 
               // 0015: la excepción de un solo uso al automático, fuera de
@@ -1034,7 +1052,9 @@ Item {
                   : Util.alpha(Color.popups.text, 0.68)
                 iconText: service && service.status && service.status.skipNext ? "󰄬" : "󰒭"
                 text: service && service.status && service.status.skipNext ? Strings.t("action.skipped", root.lang) : Strings.t("action.skip", root.lang)
-                enabled: service && !service.actionBusy && !(service.status && service.status.skipNext)
+                // Armada sigue viva: deshabilitarla dejaba el foco sin
+                // sitio, y pulsarla otra vez sólo vuelve a contar el minuto.
+                enabled: service && !service.actionBusy
                 Accessible.description: Strings.t("action.skip.a11y", root.lang)
                 onFocusEntered: function(item) { root.reveal(item) }
                 onClicked: root.runAction("skipNext")

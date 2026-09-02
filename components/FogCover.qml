@@ -75,6 +75,7 @@ Canvas {
   }
 
   function finish(x, y) {
+    if (locked) return
     sweepOrigin = Qt.point(x, y)
     if (!motionEnabled) {
       sweep = 1
@@ -97,8 +98,13 @@ Canvas {
     // despacio para que se vea salir de donde estaba el dedo.
     duration: 380
     easing.type: Easing.InOutCubic
-    onFinished: root.cleared()
+    // La llave puede llegar con el remate en marcha —una copia nueva de
+    // una app «no destapar nunca»—: entonces no se avisa.
+    onFinished: if (!root.locked) root.cleared()
   }
+
+  // Bajo llave, cubierta entera: lo frotado antes de la llave no vale.
+  onLockedChanged: if (locked) reset()
 
   // Todo el vaho se deriva de los tokens del tema. La primera versión
   // llevaba un lavanda fijado a mano, que sobre un tema verde o ámbar

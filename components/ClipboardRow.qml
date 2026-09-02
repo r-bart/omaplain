@@ -170,6 +170,7 @@ Item {
       }
 
       FogCover {
+        id: fog
 
         lang: root.lang
         anchors.fill: parent
@@ -192,6 +193,11 @@ Item {
       }
     }
   }
+
+  // Texto nuevo, cubierta nueva. Si llega otra copia con la fila cubierta
+  // y a medio frotar, los huecos —o el remate en marcha— enseñarían lo
+  // nuevo sin que nadie lo hubiera pedido.
+  onBodyChanged: fog.reset()
 
   function toggle() {
     if (root.locked) return

@@ -359,49 +359,50 @@ Puede añadirse manualmente al menú de Omarchy o a un atajo. El servicio se car
 
 Ancho objetivo de 520 px y alto máximo de 720 px o el espacio disponible. Una única columna con scroll interno cuando sea necesario. El panel hereda colores, tipografía, radios, espaciado, borders y focus ring de `qs.Commons` y `qs.Ui`; no define una paleta propia.
 
+Dos páginas tras la misma cabecera: el portapapeles y los ajustes, detrás
+del engranaje ([`0007`](docs/decisions/0007-la-pantalla-frecuente-informa.md)).
+
 ```text
 ┌──────────────────────────────────────────────────────┐
-│ OmaPlain                                  [Activo ●] │
-│ Listo · última limpieza hace 2 min                   │
-│                                                      │
-│ [ Limpiar portapapeles ahora ]  Omitir próxima copia │
-│                                                      │
-│ Modo                                                 │
-│ Limpiar automáticamente                       [on]   │
-│ El historial puede guardar el original si cambia…   │
-│                                                      │
-│ Limpieza                                             │
-│ Retirar formato                                [on]  │
-│ Retirar parámetros de seguimiento              [on]  │
-│ Retirar invisibles no semánticos                [on]  │
-│ Normalizar finales de línea                     [on]  │
-│ Normalizar comillas                             [off] │
-│ Normalizar viñetas                              [off] │
-│                                                      │
-│ Aplicaciones excluidas                               │
-│ [ Excluir aplicación actual ]                        │
-│ LibreOffice Writer  org.libreoffice.LibreOffice  ×   │
-│ Añadir clase de aplicación…                 [Añadir] │
-│                                                      │
-│ Privacidad                                           │
-│ Todo ocurre en este equipo. OmaPlain no guarda texto.│
+│ OmaPlain                                 [⚙ Opciones]│
+│ ──────────────────────────────────────────────────── │
+│ Esto se puede limpiar                                │
+│ Así está y así quedaría.                             │
+│ ┌──────────────────────────────────────────────────┐ │
+│ │ AHORA                                        [◎] │ │
+│ │ ▓▓▓▓▓▓▓ vaho: arrastra para limpiar ▓▓▓▓▓▓▓▓▓▓▓▓ │ │
+│ └──────────────────────────────────────────────────┘ │
+│ ┌──────────────────────────────────────────────────┐ │
+│ │ QUEDARÍA                                     [◎] │ │
+│ │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │ │
+│ └──────────────────────────────────────────────────┘ │
+│ ✕ Parámetros de seguimiento          (Seguimiento)   │
+│ [        Aplicar al portapapeles                   ] │
+│ ▸ Dejar en paz la próxima copia                      │
+│ El original queda intacto si limpiar no es seguro.   │
 └──────────────────────────────────────────────────────┘
 ```
 
+Y detrás del engranaje: Idioma, Movimiento, Modo, Limpieza —con cuatro
+opcionales bajo divulgación—, Aplicaciones ([`0011`](docs/decisions/0011-una-sola-seccion-de-aplicaciones.md))
+y Ayuda y aprendizaje.
+
 ### Jerarquía
 
-- El estado y el switch maestro encabezan la vista.
-- “Limpiar portapapeles ahora” es la única acción primaria.
-- “Omitir próxima copia” es una acción secundaria de texto.
-- Las preferencias son filas completas clicables, agrupadas en Modo, Limpieza, Aplicaciones y Privacidad.
+- El veredicto encabeza la vista: nombra lo que tienes, no lo que hace el producto ([`0013`](docs/decisions/0013-el-titular-nombra-lo-que-tienes.md)).
+- La insignia de estado sólo aparece cuando hay algo que contar: pausado, omitiendo, arrancando o pidiendo atención. Un servicio que va bien se calla.
+- «Aplicar al portapapeles» es la única acción primaria, y **sólo existe cuando hay algo que aplicar** ([`0015`](docs/decisions/0015-la-pantalla-frecuente-no-ofrece-un-boton-muerto.md)).
+- «Dejar en paz la próxima copia» es una línea secundaria sin borde, y sólo con el automático puesto.
+- Las preferencias son filas completas clicables, agrupadas en Idioma, Movimiento, Modo, Limpieza, Aplicaciones y Ayuda.
 - No hay botón Guardar: cada cambio se persiste de inmediato y revierte visualmente si falla.
-- Las opciones avanzadas apagadas no compiten con las recomendadas.
+- Las opciones avanzadas apagadas no compiten con las recomendadas: van bajo divulgación.
 
 ### Estados del encabezado
 
 | Estado | Título | Detalle | Tratamiento |
 |---|---|---|---|
-| Activo | `Listo` | Última limpieza relativa | Neutro/confirmación |
+| Activo | — | Sin insignia y sin frase: un servicio que va bien no tiene nada que contar | Ausente |
+| Recién limpiado | — | `Listo · última limpieza completada` | Neutro/confirmación |
 | Pausado | `Limpieza pausada` | Las acciones manuales siguen disponibles | Atenuado |
 | Omitir siguiente | `Se omitirá la próxima copia` | Caduca en menos de un minuto | Informativo |
 | Procesando | `Limpiando…` | Tipo y tamaño, nunca contenido | Indicador si supera 400 ms; en principio no debería |
@@ -411,7 +412,7 @@ Ancho objetivo de 520 px y alto máximo de 720 px o el espacio disponible. Una �
 
 ### Feedback
 
-- Una limpieza manual correcta cambia temporalmente el botón a icono de check y “Portapapeles limpio” durante 1,5 segundos.
+- Una limpieza manual correcta pone un sello de check sobre la fila del portapapeles durante 1,5 segundos, y el mensaje “Portapapeles limpio” bajo las acciones. El sello va en la fila y no en el botón porque el botón, al no quedar nada que aplicar, desaparece ([`0015`](docs/decisions/0015-la-pantalla-frecuente-no-ofrece-un-boton-muerto.md)).
 - La limpieza automática no genera toast por defecto; sería ruido.
 - Bypass esperado no es un error y no lanza notificación.
 - Un error repetido del watcher sí crea una notificación accionable, limitada a una cada diez minutos.

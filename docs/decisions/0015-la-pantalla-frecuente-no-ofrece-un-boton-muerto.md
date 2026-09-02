@@ -41,15 +41,21 @@ automático apagado seguía vivo, aunque entonces no hay nada que omitir.
 2. **La omisión es una línea secundaria propia**, debajo, sin borde y
    alineada a la izquierda, con un rótulo que dice de qué habla: «Leave the
    next copy alone». Armada, cambia a «The next copy will be left alone» y
-   pasa al color de acento. Sólo aparece con el automático puesto, que es
-   cuando significa algo.
+   pasa al color de acento; **sigue viva**, porque volver a pulsarla sólo
+   vuelve a contar el minuto y porque deshabilitarla dejaba al foco sin
+   sitio a donde ir. Sólo aparece con el automático puesto, que es cuando
+   significa algo.
 3. **«Already clean» con automático, la pantalla más vista, se queda sin
    ninguna acción de primer nivel.** El veredicto, la fila cubierta y,
    discreta, la línea de la omisión. Es lo que la `0007` ya defendía para
    esta pantalla: informa, no ofrece producto.
 
-El foco de entrada sigue la misma regla: va al primario si existe, si no a la
-línea de la omisión, y si tampoco, al engranaje, que siempre está.
+El foco sigue la misma regla, al entrar y al desaparecer bajo él: va al
+primario si existe, si no a la línea de la omisión, y si tampoco, al
+engranaje, que siempre está. Sin esa segunda parte, aplicar con Enter dejaba
+el foco en el vacío —el botón se va con la acción— y el mensaje del resultado
+se borraba a los 2,5 s sin que nadie pudiera leerlo con el teclado, que es
+justo lo que la retención del `feedback` existe para evitar.
 
 ## Lo que se descartó
 

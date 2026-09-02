@@ -53,7 +53,35 @@ Lo que salió de la revisión completa del 2 de septiembre.
 - **Una fila «no destapar nunca» se podía destapar a mano.** La cubierta
   callaba la señal de «limpiado» cuando la fila estaba bajo llave, pero el
   arrastre seguía abriendo huecos, y por los huecos se leía el texto de
-  debajo. Ahora bajo llave la cubierta no escucha al ratón.
+  debajo. Ahora bajo llave la cubierta no escucha al ratón, y la llave que
+  llega con el vaho a medio frotar lo devuelve entero.
+- **Un vistazo en vuelo al cerrar el panel devolvía el contenido a la
+  memoria**, después de que `forgetPeek` lo hubiera tirado: con el panel
+  cerrado, las filas volvían a existir y el vaho a animarse. Cada olvido
+  abre ahora una época, y lo que llega de una época cerrada se descarta.
+- **Una copia nueva sobre una fila cubierta y a medio frotar** enseñaba lo
+  nuevo por los huecos de lo viejo; si llegaba durante el remate, lo
+  descubría entero. Texto nuevo, cubierta nueva.
+- **El evento de nuestra propia reescritura marcaba «copia nueva».** La
+  marca se quedaba sin escribir y salía a disco con cualquier escritura
+  posterior —la caducidad de una omisión, una recarga—, y entonces el panel
+  volvía a cubrir las filas que acababas de destapar, sin que hubieras
+  copiado nada. Ese evento ya no se marca, y la marca lleva un contador
+  además de la hora, para que dos eventos en el mismo microsegundo o un
+  reloj que salte no se confundan con «nada nuevo».
+- **Aplicar con Enter dejaba el foco en el vacío**: el botón desaparece con
+  la acción, y con él se iba la retención del mensaje de resultado. El foco
+  pasa ahora a la siguiente acción viva.
+- **«Demasiado grande» se apuntaba como error** en un equipo cargado: la
+  espera al proceso ya matado tenía plazo y podía vencer.
+- Los plazos del cliente del socket cubren lo que el demonio puede tardar
+  con una fuente lenta; el de por defecto, 1,5 s, era menor que la lectura
+  que él mismo permite, así que el panel decía «no se pudo leer» de un
+  portapapeles que sólo estaba tardando. La comprobación previa a reescribir
+  va además con la mitad del plazo: la fuente ya demostró que sirve.
+- `status.json` deja de reescribirse dos veces por segundo para decir lo
+  mismo: el supervisor del watcher lo actualizaba con «running» cada medio
+  segundo, con su `fsync`.
 
 ### Cambiado
 
@@ -71,7 +99,7 @@ Lo que salió de la revisión completa del 2 de septiembre.
   Un clic suelto o un roce corto no bastan.
 - `tests/run.sh` se salta el validador de Omarchy cuando no está instalado y
   falla ante cualquier `ResourceWarning`; la CI lo llama tal cual. La suite
-  pasa de 256 a 330 tests, con el demonio corriendo sobre un socket de verdad,
+  pasa de 256 a 343 tests, con el demonio corriendo sobre un socket de verdad,
   `clipboard.py` probado por primera vez, `Strings.js` ejecutado con `node`
   y un `qmllint` que carga cada fichero QML contra el shell instalado.
 

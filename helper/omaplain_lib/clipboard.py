@@ -88,7 +88,14 @@ class ClipboardBackend:
             raise
         return [line.decode("utf-8", "replace").strip() for line in output.splitlines() if line.strip()]
 
-    def read(self, mime: str, maximum: int) -> bytes:
+    def read(self, mime: str, maximum: int, timeout: float | None = None) -> bytes:
+        """Lee el contenido, hasta `maximum` bytes y dentro de un plazo.
+
+        Se espera al fin de la tubería aunque ya se tengan `maximum` bytes:
+        es lo que distingue «cabe justo» de «hay más». Una fuente que sirve
+        exactamente `maximum` y se queda colgada sale por plazo, no por
+        tamaño; es el único caso en que se confunden y es de laboratorio.
+        """
         try:
             process = subprocess.Popen(
                 ["wl-paste", "--no-newline", "--type", mime],
@@ -97,7 +104,8 @@ class ClipboardBackend:
         except OSError:
             raise ClipboardError("wl_paste_unavailable") from None
         assert process.stdout is not None
-        deadline = time.monotonic() + self.read_timeout
+        budget = self.read_timeout if timeout is None else timeout
+        deadline = time.monotonic() + budget
         payload = bytearray()
         descriptor = process.stdout.fileno()
         try:
@@ -108,7 +116,7 @@ class ClipboardBackend:
             while len(payload) <= maximum:
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
-                    raise subprocess.TimeoutExpired("wl-paste", self.read_timeout)
+                    raise subprocess.TimeoutExpired("wl-paste", budget)
                 ready, _, _ = select.select([descriptor], [], [], remaining)
                 if not ready:
                     continue
@@ -117,8 +125,11 @@ class ClipboardBackend:
                     break
                 payload += chunk
             if len(payload) > maximum:
+                # Ya está matado: el fin de la tubería es inmediato. Con un
+                # plazo aquí, un equipo cargado convertía «demasiado grande»
+                # en «timeout» y el bypass se apuntaba como error.
                 process.kill()
-                process.communicate(timeout=0.1)
+                process.communicate()
                 raise ClipboardTooLarge("too_large")
             process.wait(timeout=max(0.05, deadline - time.monotonic()))
         except subprocess.TimeoutExpired:
@@ -144,11 +155,19 @@ class ClipboardBackend:
             raise ClipboardError("write_failed")
 
     def unchanged(self, mime: str, maximum: int, expected: bytes, expected_types: Sequence[str]) -> bool:
+        """¿Sigue el portapapeles como cuando se leyó?
+
+        La segunda lectura va con la mitad del plazo: la primera ya
+        demostró que la fuente sirve, y si ahora tarda el doble es que algo
+        cambió debajo. Sin esto una fuente lenta retenía el cerrojo del
+        demonio dos veces el plazo entero antes de decidir nada.
+        """
         try:
             current_types = self.list_types()
             if tuple(current_types) != tuple(expected_types):
                 return False
-            return digest(self.read(mime, maximum)) == digest(expected)
+            current = self.read(mime, maximum, timeout=self.read_timeout / 2)
+            return digest(current) == digest(expected)
         except ClipboardError:
             return False
 

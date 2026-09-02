@@ -71,6 +71,18 @@ class ReadTests(unittest.TestCase):
             with self.assertRaisesRegex(ClipboardError, "timeout"):
                 backend.read("text/plain", 1024)
 
+    def test_the_verification_read_gets_half_the_budget(self) -> None:
+        backend = ClipboardBackend(read_timeout=2.0)
+        seen: list[float | None] = []
+
+        def read(mime: str, maximum: int, timeout: float | None = None) -> bytes:
+            seen.append(timeout)
+            return b"abc"
+        with patch.object(backend, "list_types", return_value=["text/plain"]), \
+                patch.object(backend, "read", side_effect=read):
+            self.assertTrue(backend.unchanged("text/plain", 100, b"abc", ["text/plain"]))
+        self.assertEqual(seen, [1.0])
+
     def test_a_failed_exit_after_output_is_a_read_failure(self) -> None:
         with fake_wl_paste("import sys; sys.stdout.buffer.write(b'x'); sys.stdout.flush(); sys.exit(1)"):
             with self.assertRaisesRegex(ClipboardError, "read_failed"):

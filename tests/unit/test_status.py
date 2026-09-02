@@ -26,7 +26,7 @@ class StatusStoreTests(unittest.TestCase):
         self.assertEqual(
             set(self.on_disk()),
             {"version", "watcher", "automatic", "skipNext", "lastResult", "lastReason",
-             "lastAt", "lastEventAt", "lastBytes", "configWarnings", "session"},
+             "lastAt", "lastEventAt", "eventSeq", "lastBytes", "configWarnings", "session"},
         )
 
     def test_an_event_mark_is_memory_only_until_the_next_write(self) -> None:
@@ -64,6 +64,16 @@ class StatusStoreTests(unittest.TestCase):
         self.store.update(lastReason="final")
         self.assertEqual(self.on_disk()["lastReason"], "final")
         self.assertEqual(self.store.snapshot()["lastReason"], "final")
+
+    def test_an_update_that_changes_nothing_does_not_touch_the_disk(self) -> None:
+        # El supervisor dice «running» dos veces por segundo; sin esto eran
+        # dos `fsync` por segundo para dejar el fichero igual.
+        self.store.update(watcher="running")
+        before = self.path.stat().st_mtime_ns
+        self.store.update(watcher="running")
+        self.assertEqual(self.path.stat().st_mtime_ns, before)
+        self.store.update(watcher="degraded")
+        self.assertNotEqual(self.path.stat().st_mtime_ns, before)
 
     def test_snapshot_is_a_copy(self) -> None:
         snapshot = self.store.snapshot()

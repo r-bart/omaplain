@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import socket
+import sys
 import tempfile
 import threading
 import time
@@ -22,7 +23,10 @@ from omaplain_lib.clipboard import ClipboardError, WindowTarget
 from omaplain_lib.config import write_config
 from omaplain_lib.daemon import RESPONSE_LIMIT, OmaPlainDaemon, socket_request
 
-from test_daemon import FakeBackend
+# El doble del backend vive en `test_daemon.py`, al lado. `discover` pone
+# este directorio en el path; ejecutar un solo módulo a mano, no.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from test_daemon import FakeBackend  # noqa: E402
 
 
 class GatedBackend(FakeBackend):
@@ -430,6 +434,26 @@ class LoopGuardAndPasteTests(unittest.TestCase):
         self.daemon.automatic_event("data", newer, WindowTarget("0x2", "nueva", "nueva", False))
         self.daemon.automatic_event("data", older, WindowTarget("0x1", "vieja", "vieja", False))
         self.assertEqual(self.daemon.last_source, ("nueva", "nueva"))
+
+    def test_a_self_event_is_not_a_new_copy_and_leaves_no_mark(self) -> None:
+        # El evento de nuestra propia reescritura no es una copia nueva. Si
+        # se marcara, el panel volvería a mirar y a cubrir las filas sin que
+        # hubiera nada nuevo que ver.
+        self.assertEqual(self.daemon.clean_now()["result"], "cleaned")
+        before = self.daemon.status.snapshot()
+        self.assertEqual(self._event()["result"], "self")
+        after = self.daemon.status.snapshot()
+        self.assertEqual((after["lastEventAt"], after["eventSeq"]), (before["lastEventAt"], before["eventSeq"]))
+
+    def test_a_real_event_bumps_the_sequence_and_the_record_carries_it(self) -> None:
+        self.assertEqual(self._event()["result"], "cleaned")
+        on_disk = json.loads(self.daemon.status_path.read_text(encoding="utf-8"))
+        self.assertEqual(on_disk["eventSeq"], 1)
+        self.assertNotEqual(on_disk["lastEventAt"], "")
+        self.backend.payload = b"otra cosa"
+        self.backend.types = ["text/plain"]
+        self.assertEqual(self._event()["result"], "unchanged")
+        self.assertEqual(json.loads(self.daemon.status_path.read_text(encoding="utf-8"))["eventSeq"], 2)
 
     def test_an_encoding_only_rewrite_is_named_as_such(self) -> None:
         self.backend.payload = "﻿hola".encode("utf-8")

@@ -302,11 +302,17 @@ class OmaPlainDaemon:
         # sigue siendo lo que hay, y con el automático apagado no había
         # nada que cambiara ahí.
         automatic = bool(self.config.get("automatic", True))
-        self.status.mark_event(write=not automatic)
         if not automatic:
+            self.status.mark_event(write=True)
             return {"result": "paused", "reason": "automatic_disabled", "bytes": 0}
         with self.process_lock:
             operation = self._clean(state, automatic=True, generation=generation, source=source)
+            # El evento de nuestra propia reescritura no es una copia nueva
+            # y no se marca: el panel volvería a mirar y a cubrir las filas
+            # sin que hubiera nada nuevo que ver. Para los demás, la marca
+            # va en memoria y la escribe el `record` de este mismo evento.
+            if operation.result != "self":
+                self.status.mark_event()
             self._record(operation)
             return operation.public()
 
@@ -487,7 +493,7 @@ class OmaPlainDaemon:
             connection.sendall(
                 json.dumps(response, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n"
             )
-        except (OSError, UnicodeError, json.JSONDecodeError, TypeError, AttributeError):
+        except (OSError, UnicodeError, json.JSONDecodeError, TypeError):
             pass
         finally:
             connection.close()

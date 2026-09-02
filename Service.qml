@@ -232,6 +232,12 @@ Item {
   // Si ya hay un vistazo en marcha, el siguiente se apunta y se lanza al
   // terminar: perderlo dejaba el panel enseñando el portapapeles anterior.
   property bool peekPending: false
+  // Cada `forgetPeek` abre una época nueva. Un vistazo lanzado en la época
+  // anterior —el panel se cerró con la lectura en vuelo— llega tarde y se
+  // tira sin mirarlo: si se aceptara, el contenido volvería a la memoria
+  // de un panel cerrado, que es justo lo que `forgetPeek` promete evitar.
+  property int peekEpoch: 0
+  property int peekIssuedIn: 0
 
   function requestPeek() {
     if (socketPath === "" || helperPath === "") return "busy"
@@ -240,6 +246,7 @@ Item {
       return "queued"
     }
     peekPending = false
+    peekIssuedIn = peekEpoch
     peekProcess.command = [helperPath, "peek", "--socket", socketPath]
     peekProcess.running = true
     return "accepted"
@@ -248,6 +255,8 @@ Item {
   // El contenido muere con el panel. Si se quedase, un segundo vistazo
   // podria enseñar por un instante lo que habia en el portapapeles anterior.
   function forgetPeek() {
+    peekEpoch += 1
+    peekPending = false
     peekResult = { eligible: false, reason: "unknown", types: [] }
   }
 
@@ -452,6 +461,10 @@ Item {
     stdout: StdioCollector { id: peekOutput; waitForEnd: true }
     onExited: function(exitCode) {
       var text = String(peekOutput.text || "").trim()
+      if (root.peekIssuedIn !== root.peekEpoch) {
+        // Llegó de una época cerrada: ni se lee ni se relanza.
+        return
+      }
       if (text === "") {
         root.forgetPeek()
       } else {
