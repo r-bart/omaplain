@@ -47,6 +47,10 @@ class LaRaizSeLeeDeUnVistazoTests(unittest.TestCase):
     ESPERADOS = {
         "README.md", "CHANGELOG.md", "SECURITY.md",
         "ATTRIBUTIONS.md", "SPEC.md",
+        # No es material de entrada para una persona: son las reglas del
+        # repositorio para un agente, y la herramienta las lee de la raíz
+        # y de ningún otro sitio. Se queda por eso y no por costumbre.
+        "CLAUDE.md",
     }
 
     def test_solo_el_plan_en_curso_vive_en_la_raiz(self) -> None:
