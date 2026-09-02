@@ -33,10 +33,12 @@ do:
 cp io.github.r-bart.omaplain.desktop ~/.local/share/applications/
 ```
 
-Enabling it puts an icon in your bar, because that is what Omarchy does with
-any plugin that declares a bar widget. It asks which section; answer, or move
-it later. Removing that entry from `bar.layout` leaves the plugin running with
-no icon, which is a supported way to use it.
+Enabling it for the first time puts an icon in your bar, because that is what
+Omarchy does with any plugin that declares a bar widget. Interactively it asks
+which section and suggests the right-hand one; otherwise it uses that
+suggestion. Once you have an entry it is yours: enabling again never moves it,
+and taking it out of `bar.layout` leaves the plugin running with no icon, which
+is a supported way to use it.
 
 **You need** Omarchy with `omarchy-shell` (developed against the **4.0.1-1**
 package, whose shell reports itself as `4.0.0.alpha`),

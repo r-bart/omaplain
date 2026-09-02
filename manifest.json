@@ -20,6 +20,7 @@
     "displayName": "OmaPlain",
     "description": "Opens the OmaPlain clipboard panel",
     "category": "Utilities",
-    "allowMultiple": false
+    "allowMultiple": false,
+    "defaultSection": "right"
   }
 }

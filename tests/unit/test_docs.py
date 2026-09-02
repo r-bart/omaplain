@@ -147,11 +147,20 @@ class ElReadmeNoMienteTests(unittest.TestCase):
 
     def test_no_miente_sobre_quien_coloca_el_icono(self) -> None:
         # `omarchy plugin enable` coloca el widget de barra de cualquier
-        # plugin que lo declare. El README decía que colocarlo era cosa de
-        # quien instala, y la prueba de instalación lo desmintió.
+        # plugin que lo declare, y sólo si no hay ya una entrada suya. El
+        # README decía que colocarlo era cosa de quien instala, y la prueba
+        # de instalación lo desmintió.
+        import json
         plano = " ".join(self.readme.split())
         self.assertNotIn("placing it is yours to do", plano)
-        self.assertIn("placed when you enable the plugin", plano)
+        self.assertIn("Enabling it for the first time puts an icon in your bar", plano)
+        self.assertIn("enabling again never moves it", plano)
+        # Y la sección que el README dice que se sugiere es la que el
+        # manifiesto declara, que es de donde Omarchy la saca.
+        manifiesto = json.loads((REPO / "manifest.json").read_text(encoding="utf-8"))
+        seccion = manifiesto["barWidget"]["defaultSection"]
+        self.assertIn(seccion, {"left", "center", "right"})
+        self.assertIn(f"the {seccion}-hand one", plano)
 
     def test_no_promete_un_atajo_global(self) -> None:
         # La promesa que la `0010` protege. Se comprueba sobre el texto sin

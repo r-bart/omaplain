@@ -8,7 +8,15 @@ la misma tubería.
 
 ## Lo que encontró
 
-### 1. Instalar desde GitHub da la `0.1.0`, y la `0.1.0` está rota
+### 0. El repositorio es privado
+
+`git ls-remote` sin credenciales falla con «could not read Username». La
+primera comprobación pareció decir lo contrario porque el ayudante de
+credenciales de git respondió sin que se viera. Hoy `omarchy plugin add`
+sobre esa URL sólo funciona para quien tenga acceso; para cualquier otro no
+falla a medias, falla del todo. Hacerlo público es la `C.4` del plan.
+
+### 1. Instalar desde GitHub daba la `0.1.0`, y la `0.1.0` está rota
 
 `omarchy plugin add` clona la rama por defecto del repositorio, que es `main`,
 y `main` va **69 commits por detrás** de `develop`. La instalación aterriza
@@ -23,16 +31,27 @@ WARN scene: …/components/SettingRow.qml[9:-1]: ReferenceError: Style is not de
 Es el fallo que el `CHANGELOG` de la `0.2.0` describe: los encabezados de
 ajustes se pintan y debajo no hay ni un control. Se comprobó en pantalla.
 
-**Consecuencia:** hasta que `develop` se fusione en `main`, quien siga el
-README instala un producto que no se deja usar. Es la tarea `A.1` del plan, y
-bloquea todo lo demás por una razón concreta y no sólo por orden.
+**Arreglado el mismo día** apuntando la rama por defecto del repositorio a
+`develop`, que es donde vive el proyecto. Un clon trae ahora la última
+versión, `omarchy plugin update` también, y `main` queda intacta. No sustituye
+a la `A.1`: fusionar y etiquetar sigue pendiente, y hasta entonces `main` es
+un `v0.1.0` que no se debe servir a nadie.
 
 ### 2. El README decía que colocar el icono era cosa tuya
 
-No lo es. `omarchy plugin enable` coloca el widget de barra de cualquier
-plugin que lo declare: pregunta la sección de forma interactiva y, con
-`--yes`, usa la de por defecto. La instalación de prueba dejó el icono en
-`bar.center` sin que nadie lo pidiera. Corregido en el README.
+No lo es. `PluginRegistry.setEnabled` coloca el widget de cualquier plugin que
+declare `bar-widget`, **y sólo si no encuentra ya una entrada suya** ni en
+`bar.layout` ni en `plugins[]`. Interactivamente `plugin add` pregunta la
+sección; con `--yes` usa la que sugiera el manifiesto, y si no sugiere
+ninguna, el centro.
+
+Eso explica que la primera instalación de prueba dejara el icono en el centro
+y la segunda no colocara nada: la segunda encontró la entrada espejo que la
+`0012` deja en `plugins[]`.
+
+Corregido en el README, y el manifiesto declara ahora
+`barWidget.defaultSection: "right"`, que es una sugerencia y no una
+imposición: quien ya tiene el icono en otro sitio se queda donde estaba.
 
 ## Lo que funcionó, en una instalación desde cero
 
