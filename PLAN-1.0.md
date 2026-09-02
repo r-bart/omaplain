@@ -44,12 +44,17 @@ Bloquea todo lo demás, y la prueba de instalación del 2 de septiembre dice
 por qué con un caso concreto: **`omarchy plugin add` clona `main`, y `main`
 sirve hoy la `0.1.0`**, la versión cuyos nueve controles no se ven. Quien
 siga el README instala un producto que no se deja usar. Está medido en
-[`INSTALL-TEST-2026-09-02.md`](docs/notes/INSTALL-TEST-2026-09-02.md). Los siete criterios sin marcar de
-[`PLAN-CIERRE-0.2.0.md`](docs/notes/PLAN-CIERRE-0.2.0.md) dicen «verificado en el panel
-real» y son del usuario. Hasta que estén, `main` no se toca.
+[`INSTALL-TEST-2026-09-02.md`](docs/notes/INSTALL-TEST-2026-09-02.md).
 
-Al cerrarlos: fusionar `develop` en `main`, etiquetar `v0.2.0` —que nunca se
-etiquetó— y sólo entonces empezar la 1.0.
+**Los criterios de cierre de la `0.2.0` ya están todos**: los siete que
+faltaban se verificaron el 2 de septiembre sobre una instalación hecha desde
+cero, y [`PLAN-CIERRE-0.2.0.md`](docs/notes/PLAN-CIERRE-0.2.0.md) no tiene
+ninguna casilla vacía. Uno de ellos quedó sin efecto porque la
+[`0016`](docs/decisions/0016-la-omision-de-una-copia-no-se-gana-su-sitio.md)
+retiró la función que describía.
+
+Así que sólo queda la parte que es tuya: **fusionar `develop` en `main`,
+etiquetar `v0.2.0`** —que nunca se etiquetó— y sólo entonces empezar la 1.0.
 
 ### `A.2` Decidir qué es público y qué son notas de trabajo
 

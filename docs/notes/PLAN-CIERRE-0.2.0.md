@@ -283,30 +283,47 @@ en [`docs/TEST-REPORT-0.2.0.md`](TEST-REPORT-0.2.0.md).
 
 ## Criterios de terminado
 
+Los que quedaban sin marcar se cerraron el **2 de septiembre**, sobre una
+instalación hecha desde cero con `omarchy plugin add` en un workspace vacío;
+el detalle de esa instalación está en
+[`INSTALL-TEST-2026-09-02.md`](INSTALL-TEST-2026-09-02.md).
+
 ### Fase 1 — `D2`
 
-- [ ] `docs/decisions/0009-*.md` existe y dice qué **no** garantiza la lista.
-- [ ] Una muestra marcada copiada desde una app bloqueada: `peek` responde
-      `blocked` y su respuesta no contiene ni contenido ni tipos.
-- [ ] Con la app en `alwaysCovered`, el panel abre con las dos filas cubiertas;
-      tras levantar el ojo y copiar otra vez, vuelven a estar cubiertas.
+- [x] `docs/decisions/0009-*.md` existe y dice qué **no** garantiza la lista:
+      «Wayland no dice quién copió… no es una barrera de seguridad, y la
+      interfaz no la vende como tal».
+- [x] Una muestra marcada copiada desde una app bloqueada: `peek` responde
+      `blocked` y su respuesta no contiene ni contenido ni tipos. Verificado
+      el 2 de septiembre sobre la instalación limpia, con `foot` en
+      `blockedApps`: `{"result":"ok","reason":"source_blocked","types":[],
+      "eligible":false}`, sin `original` ni `cleaned` y sin la marca.
+- [x] Con la app en `alwaysCovered`, el panel abre con las dos filas cubiertas
+      y el ojo convertido en candado, sin la pista de arrastrar. Y sin la
+      regla: levantado el ojo de la primera fila, una copia nueva con el panel
+      abierto la devuelve cubierta. Las dos mitades, en pantalla.
 - [x] `tests/run.sh` en verde.
 
 ### Fase 2 — `F`
 
-- [ ] Con «Reducir movimiento» puesto, el carrusel no cicla y la ilustración se
-      pinta en su estado final: verificado en el panel real, no sólo por test.
-- [ ] La confirmación de limpieza dura menos de 220 ms y sólo mueve `opacity` y
-      `scale`.
-- [ ] Con `skipNext` activo, el encabezado lo enseña y no hay ninguna cuenta
-      atrás en el código.
+- [x] Con «Reducir movimiento» puesto, el carrusel no cicla y la ilustración se
+      pinta en su estado final. Medido comparando la zona del panel a los
+      cuatro segundos: con el ajuste puesto la diferencia es **0**; sin él,
+      4409 de RMSE.
+- [x] La confirmación de limpieza dura 180 ms y sólo mueve `opacity` y
+      `scale`. Leído del `ClipboardRow.qml` instalado.
+- [~] Sin efecto: la omisión de la próxima copia se retiró entera en la
+      [`0016`](../decisions/0016-la-omision-de-una-copia-no-se-gana-su-sitio.md),
+      con su estado de cabecera y su cuenta atrás.
 
 ### Fase 3 — `G`
 
 - [x] Matriz de compatibilidad repetida, incluido `text/html` + `text/plain`,
       **visto en el panel** (con `skipNext` armado, para que llegue intacto).
-- [ ] Auditoría de privacidad: la muestra marcada no aparece en stdout, stderr,
-      `status.json` ni ningún fichero de runtime.
+- [x] Auditoría de privacidad: con la marca en el portapapeles y el vistazo
+      sirviéndola al panel, no aparece en `status.json`, `config.json`, ningún
+      fichero de `$XDG_RUNTIME_DIR/omaplain/`, `shell.json`, los logs de
+      Quickshell, el diario del shell, ni el plugin en disco.
 - [x] `omarchy plugin validate .` en verde.
 - [x] `CHANGELOG.md` sin sección «Sin publicar».
 - [x] `docs/RELEASE-NOTES-0.2.0.md` con la advertencia de pantalla compartida.
