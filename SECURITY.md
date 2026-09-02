@@ -1,49 +1,49 @@
-# Seguridad
+# Security
 
-## Versiones soportadas
+## Supported versions
 
-La rama `0.2.x` recibe correcciones de seguridad. La `0.1.x` ya no.
+The `0.2.x` line receives security fixes. `0.1.x` no longer does.
 
-## Reportar un problema
+## Reporting a problem
 
-No abras un informe que contenga contraseñas, tokens, URLs privadas, títulos de ventana ni texto real del portapapeles. Usa un payload sintético mínimo y describe:
+Do not file a report that contains passwords, tokens, private URLs, window titles or real clipboard text. Use a minimal synthetic payload and describe:
 
-- versión de OmaPlain y Omarchy;
-- MIME types observados, sin contenido;
-- aplicación y versión;
-- resultado esperado y observado;
-- si el contenido estaba marcado como sensible.
+- the OmaPlain and Omarchy versions;
+- the MIME types observed, without content;
+- the application and its version;
+- the expected and the observed result;
+- whether the content was marked as sensitive.
 
-El repositorio vive en <https://github.com/r-bart/omaplain>. Para un problema de seguridad usa el informe privado de vulnerabilidades de GitHub sobre ese repositorio, no un issue público. Si esa vía no está disponible, abre un issue que diga sólo que hay un problema de seguridad y por dónde contactarte, sin ningún detalle, y el mantenedor te responderá por un canal privado.
+The repository lives at <https://github.com/r-bart/omaplain>. For a security problem use GitHub's private vulnerability reporting on that repository, not a public issue. If that path is not available, open an issue that says only that there is a security problem and how to reach you, with no detail, and the maintainer will answer through a private channel.
 
-## Garantías y frontera
+## Guarantees and boundary
 
-OmaPlain no tiene red, telemetría ni persistencia propia de contenido. Hace bypass de secretos cuando Wayland o el MIME los marca. Una aplicación que publique una contraseña como texto normal sin ninguna señal no puede distinguirse de otro texto; debe excluirse por clase de aplicación.
+OmaPlain has no network, no telemetry and no persistence of content of its own. It bypasses secrets when Wayland or the MIME type marks them. An application that publishes a password as ordinary text, with no signal at all, cannot be told apart from any other text; give it a *never read* rule by application class.
 
-Una precisión sobre «sin lectura». El watcher es `wl-paste --type text --watch`, y `wl-paste` entuba el contenido de cada copia de texto —también la marcada como sensible— al proceso efímero que avisa al demonio. Ese proceso no lee su entrada: sólo transmite `CLIPBOARD_STATE`. El demonio, que es quien clasifica, no llega a pedir el contenido de una copia sensible. Los bytes pasan por una tubería del núcleo entre `wl-paste` y un proceso que los descarta, y por ningún otro sitio.
+One precision about "without reading". The watcher is `wl-paste --type text --watch`, and `wl-paste` pipes the content of every text copy, the one marked as sensitive included, into the short-lived process that notifies the daemon. That process does not read its input: it only forwards `CLIPBOARD_STATE`. The daemon, which does the classifying, never asks for the content of a sensitive copy. The bytes pass through a kernel pipe between `wl-paste` and a process that discards them, and nowhere else.
 
-## Qué se muestra en pantalla
+## What is shown on screen
 
-Desde [`0005`](./docs/decisions/0005-previsualizacion-del-portapapeles.md) el
-panel muestra el contenido del portapapeles y cómo quedaría. El contenido viaja
-por el socket local `0600` de `$XDG_RUNTIME_DIR`, vive en memoria mientras el
-panel está abierto, se olvida al cerrarlo y no se escribe en ningún sitio: ni
-estado, ni configuración, ni log, ni notificación, ni traza de error.
+Since [`0005`](./docs/decisions/0005-previsualizacion-del-portapapeles.md) the
+panel shows the clipboard content and what it would become. The content travels
+over the local `0600` socket in `$XDG_RUNTIME_DIR`, lives in memory while the
+panel is open, is forgotten when it closes, and is written nowhere: not state,
+not configuration, not a log, not a notification, not an error trace.
 
-Tres límites, por orden de importancia:
+Three limits, in order of importance:
 
-- **Lo marcado como sensible no se muestra nunca.** La negativa está en el
-  helper, no en la interfaz: `peek` sobre ese contenido devuelve el motivo y los
-  tipos MIME, jamás el texto, aunque el panel lo pida. No hay ajuste que lo
-  cambie.
-- **El contenido llega cubierto.** El panel es una superficie layer-shell y se
-  abre encima de lo que estés compartiendo o grabando. Descubrirlo es un acto
-  explícito y por elemento, y cambiar de portapapeles vuelve a cubrir. Mientras
-  está cubierto, el texto tampoco está en el árbol de accesibilidad.
-- **Compartir pantalla es el riesgo nuevo.** Si descubres el contenido durante
-  una llamada o una grabación, lo estás enseñando. La cubierta por defecto
-  reduce el accidente; no puede impedir la decisión.
+- **Anything marked as sensitive is never shown.** The refusal lives in the
+  helper, not in the interface: `peek` on such content returns the reason and
+  the MIME types, never the text, even when the panel asks. No setting changes
+  that.
+- **Content arrives covered.** The panel is a layer-shell surface and opens on
+  top of whatever you are sharing or recording. Uncovering is an explicit act,
+  per element, and a new copy covers it again. While covered, the text is not
+  in the accessibility tree either.
+- **Screen sharing is the new risk.** If you uncover the content during a call
+  or a recording, you are showing it. The cover-by-default reduces the
+  accident; it cannot prevent the decision.
 
-Un secreto que su aplicación publique como texto normal, sin ninguna marca, es
-indistinguible de cualquier otro texto y puede acabar visible en el panel.
-Excluye esa aplicación por clase.
+A secret that its application publishes as ordinary text, with no mark, is
+indistinguishable from any other text and can end up visible in the panel.
+Exclude that application by class.

@@ -1,7 +1,7 @@
 # 0014 — El idioma del repositorio
 
 - Fecha: 2 de septiembre de 2026
-- Estado: **propuesta**, pendiente de aceptar
+- Estado: aceptada el 2 de septiembre de 2026
 - Relacionada con: [`PLAN-1.0.md`](../../PLAN-1.0.md), fase `A.3`
 
 ## Contexto
@@ -47,8 +47,7 @@ para que nadie lo tome por descuido.
 
 ## Consecuencias
 
-- `SECURITY.md` se traduce antes de hacer público el repositorio.
+- `SECURITY.md` está en inglés desde el mismo día.
 - El primer `CHANGELOG` en inglés es el de la 1.0; la sección «Sin publicar»
   actual se traduce al cerrarla.
-- `test_docs.py` ya comprueba que el README está en inglés; al aceptar esta
-  decisión se extiende a `SECURITY.md`.
+- `test_docs.py` comprueba que el README y `SECURITY.md` están en inglés.

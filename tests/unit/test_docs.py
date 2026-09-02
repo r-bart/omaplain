@@ -176,11 +176,16 @@ class ElReadmeNoMienteTests(unittest.TestCase):
         self.assertIn("## What it never does", self.readme)
 
     def test_esta_en_ingles(self) -> None:
-        # Decisión del 1 de septiembre: lo que lee quien llega, en inglés.
+        # Decisión `0014`: lo que lee quien llega, en inglés. El README y
+        # SECURITY; el CHANGELOG a partir de la 1.0.
         castellano = (" el ", " la ", " los ", " las ", " que ", " para ", " con ")
-        cuerpo = self.readme.lower()
-        encontradas = [p for p in castellano if p in cuerpo]
-        self.assertEqual(encontradas, [], f"quedan trozos en español: {encontradas}")
+        for nombre in ("README.md", "SECURITY.md"):
+            cuerpo = (REPO / nombre).read_text(encoding="utf-8").lower()
+            # Los nombres de fichero en español —las decisiones— no cuentan.
+            cuerpo = re.sub(r"\([^)]*\)", "", cuerpo)
+            encontradas = [p for p in castellano if p in cuerpo]
+            with self.subTest(documento=nombre):
+                self.assertEqual(encontradas, [], f"quedan trozos en español: {encontradas}")
 
 
 if __name__ == "__main__":

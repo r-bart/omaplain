@@ -75,6 +75,11 @@ The whole panel is keyboard operable. A first run walks through a welcome, a
 three-step tour and the settings, all replayable later from *Help and learning*.
 Language follows your system locale and can be forced to English or Spanish.
 
+With nothing on the clipboard, the panel shows three built-in examples of what
+a clean would remove, and offers the tour. None of them is your text.
+
+![The panel with an empty clipboard: the headline Waiting for your next copy, a carousel card showing a paragraph with a zero-width space marked, and a See how it works button](docs/images/empty-state.png)
+
 ## What it cleans
 
 Four rules are on out of the box:

@@ -77,11 +77,10 @@ Recomendación, que necesita su decisión (`0014`):
   matiz del argumento, traducirlas lo pierde, y son notas de diseño internas.
   El `README` puede decir en una línea que están en español y por qué.
 
-Es la decisión más discutible del plan y por eso va con su documento. **Estado**:
-el README ya está en inglés y un test lo vigila, así que la decisión está
-tomada de hecho para lo que lee quien llega; la `0014` que la argumente sigue
-sin escribirse, y el `CHANGELOG`, `SECURITY` y las notas de publicación siguen
-en español hasta que exista.
+Es la decisión más discutible del plan y por eso va con su documento. **Hecho**:
+la [`0014`](docs/decisions/0014-el-idioma-del-repositorio.md) está escrita y
+aceptada; README y `SECURITY` en inglés con test, decisiones y cuaderno en
+español, y el `CHANGELOG` pasa al inglés con la 1.0.
 
 ### `A.4` Integración continua — **hecho**
 
@@ -131,8 +130,8 @@ Rehecho en inglés el 1 de septiembre con la estructura de abajo, y repasado
 afirmación por afirmación el 2 de septiembre: tres decían cosas que el código
 no hacía —las marcas direccionales, que Quickshell no recibía el contenido,
 qué hace «pegar limpio» en una ventana excluida— y las tres están corregidas.
-`test_docs.py` ata al código lo que se puede atar. Falta la captura del estado
-vacío; las otras tres están.
+`test_docs.py` ata al código lo que se puede atar. Las cuatro capturas están,
+la del estado vacío desde el 2 de septiembre.
 
 Tenía tres problemas, y el tercero era el grave.
 
@@ -270,19 +269,21 @@ bajo «Sin publicar». Lo que queda como deuda, nombrado:
 - **`FogCover` usa `Canvas.FramebufferObject`**, destino heredado en Qt 6.
   Se deja porque el SPIKE midió el repintado con él; cambiarlo sin medir
   sería peor.
-- **La captura del estado vacío** para el README. Hay que hacerla con el
-  portapapeles vacío en la sesión real, así que la hace una persona.
-- **La decisión `0014`** sobre el idioma del repositorio está escrita como
-  propuesta; falta aceptarla o cambiarla.
+Saldado el mismo día: la captura del estado vacío está en el README, y la
+`0014` está aceptada con `SECURITY.md` ya en inglés. Y los cambios de
+comportamiento se comprobaron en la sesión real: refresco tras «Aplicar» y
+tras una copia con el automático pausado, contenido olvidado al cerrar,
+descubrir con el teclado. El arrastre sobre el vaho no se pudo simular sin un
+inyector de ratón; queda por probar a mano.
 
 ## Criterios de terminado
 
 - [ ] `main` tiene la 0.2.0 fusionada y etiquetada.
 - [x] La raíz del repositorio se lee en diez segundos: sin planes cumplidos.
-- [ ] Decisión `0014` escrita, y el idioma del repositorio es coherente con ella.
+- [x] Decisión `0014` escrita y aceptada; README y SECURITY en inglés, con test.
 - [x] CI en verde en cada push, con la versión mínima de Python declarada.
-- [x] README rehecho, con capturas, y **sin una sola afirmación que el código
-      contradiga** — repasado el 2 de septiembre; falta la captura del vacío.
+- [x] README rehecho, con las cuatro capturas, y **sin una sola afirmación que
+      el código contradiga** — repasado el 2 de septiembre.
 - [x] Cada «limitación conocida» está clasificada: arreglada o permanente.
 - [ ] `manifest.json` en `1.0.0`, `CHANGELOG` cerrado, notas de publicación,
       tag `v1.0.0`.
