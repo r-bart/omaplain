@@ -934,7 +934,11 @@ Item {
                 lang: root.lang
                 width: parent.width
                 height: Style.space(160)
-                variant: "protect"
+                variant: "unread"
+                // De qué es la copia. La ilustración traduce el motivo del
+                // rechazo a un dibujo, y lo que no reconoce lo pinta como
+                // una hoja de texto, que no afirma nada.
+                subject: root.peek ? String(root.peek.reason || "") : ""
                 visible: root.peekBypass
                 motionEnabled: false
               }

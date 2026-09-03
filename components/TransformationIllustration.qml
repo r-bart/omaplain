@@ -56,7 +56,8 @@ Item {
   // Cada variante ocupa el marco que le da su pantalla. La bienvenida
   // reparte 464 × 190; el tour, 460 × 220.
   readonly property real sceneWidth: variant === "transform" ? Style.space(464) : Style.space(460)
-  readonly property real sceneHeight: variant === "transform" ? Style.space(190) : Style.space(220)
+  readonly property real sceneHeight: variant === "transform" ? Style.space(190)
+    : variant === "unread" ? Style.space(160) : Style.space(220)
 
   // Y cada una tiene su propio reloj. `progress` es siempre 0 → 1; lo que
   // cambia es cuánto dura y si vuelve a empezar.
@@ -73,6 +74,119 @@ Item {
   readonly property bool cycles: variant === "protect"
 
   readonly property real clockMs: progress * runMs
+
+  // De qué es la copia que se está enseñando. La cinta del tour trae los
+  // tres tipos que el helper no toca; el bypass trae el que hay ahora
+  // mismo en el portapapeles, traducido del motivo del rechazo.
+  //
+  // Cualquier motivo que no sea de los tres cae en la hoja de texto, que
+  // no afirma nada: puede ser un texto demasiado grande, unos bytes que no
+  // se dejan descodificar o una aplicación de la lista. El dibujo no puede
+  // decir más de lo que se sabe.
+  property string subject: "text"
+
+  readonly property string subjectGlyph: ["image", "files", "secret"].indexOf(subject) !== -1
+    ? subject : (subject === "sensitive" ? "secret" : "text")
+
+  // El dibujo de una copia. En línea y no repetido: lo montan la cinta del
+  // paso 1 y la tarjeta del bypass, y dos copias del mismo dibujo acaban
+  // siendo dos dibujos distintos.
+  component CopyGlyph: Item {
+    id: glyph
+    property string kind: "image"
+    property color ink: "white"
+
+    implicitWidth: Style.space(70)
+    implicitHeight: Style.space(54)
+    Accessible.ignored: true
+
+    // Una imagen: marco, sol y horizonte.
+    Item {
+      anchors.fill: parent
+      visible: glyph.kind === "image"
+
+      Rectangle {
+        anchors.fill: parent
+        radius: Style.space(4)
+        color: "transparent"
+        border.width: Math.max(1, Style.space(2))
+        border.color: glyph.ink
+      }
+      Rectangle {
+        width: Style.space(12); height: width; radius: width / 2
+        x: Style.space(12); y: Style.space(10)
+        color: glyph.ink
+      }
+      Rectangle {
+        width: Style.space(46); height: Style.space(3); radius: height / 2
+        x: Style.space(12); y: Style.space(36)
+        color: glyph.ink
+      }
+      Rectangle {
+        width: Style.space(28); height: Style.space(3); radius: height / 2
+        x: Style.space(12); y: Style.space(43)
+        color: glyph.ink
+      }
+    }
+
+    // Unos archivos: dos hojas, una detrás de la otra.
+    Item {
+      anchors.fill: parent
+      visible: glyph.kind === "files"
+
+      Rectangle {
+        x: Style.space(14); y: 0
+        width: Style.space(46); height: Style.space(44)
+        radius: Style.space(3)
+        color: "transparent"
+        border.width: Math.max(1, Style.space(2))
+        border.color: Util.alpha(glyph.ink, 0.55)
+      }
+      Rectangle {
+        x: 0; y: Style.space(10)
+        width: Style.space(46); height: Style.space(44)
+        radius: Style.space(3)
+        color: "transparent"
+        border.width: Math.max(1, Style.space(2))
+        border.color: glyph.ink
+      }
+    }
+
+    // Un secreto: lo que se ve de una contraseña, que es lo que se ve de
+    // una contraseña.
+    Row {
+      anchors.centerIn: parent
+      visible: glyph.kind === "secret"
+      spacing: Style.space(7)
+
+      Repeater {
+        model: 5
+        delegate: Rectangle {
+          required property int index
+          width: Style.space(9); height: width; radius: width / 2
+          color: glyph.ink
+        }
+      }
+    }
+
+    // Y una hoja de texto, para todo lo demás.
+    Column {
+      anchors.centerIn: parent
+      visible: glyph.kind === "text"
+      spacing: Style.space(7)
+
+      Repeater {
+        model: [0.95, 0.72, 0.86, 0.5]
+        delegate: Rectangle {
+          required property real modelData
+          width: Style.space(62) * modelData
+          height: Style.space(4)
+          radius: height / 2
+          color: glyph.ink
+        }
+      }
+    }
+  }
 
   function play() {
     if (!motionEnabled) { progress = 1; enterFactor = 1; return }
@@ -129,8 +243,9 @@ Item {
     Halo {
       width: root.variant === "transform" ? Style.space(460) : Style.space(420)
       height: width
-      x: Style.space(230) - width / 2
-      y: (root.variant === "transform" ? Style.space(92) : Style.space(100)) - height / 2
+      x: (root.variant === "unread" ? Style.space(112) : Style.space(230)) - width / 2
+      y: (root.variant === "transform" ? Style.space(92)
+          : root.variant === "unread" ? Style.space(80) : Style.space(100)) - height / 2
       intensity: 0.15
     }
 
@@ -491,76 +606,10 @@ Item {
                 anchors.centerIn: parent
                 spacing: Style.space(14)
 
-                // Una imagen: marco, horizonte y sol.
-                Item {
-                  visible: parcel.modelData.kind === "image"
-                  width: Style.space(70)
-                  height: Style.space(54)
+                CopyGlyph {
                   anchors.horizontalCenter: parent.horizontalCenter
-
-                  Rectangle {
-                    anchors.fill: parent
-                    radius: Style.space(4)
-                    color: "transparent"
-                    border.width: Math.max(1, Style.space(2))
-                    border.color: root.fillerInk
-                  }
-                  Rectangle {
-                    width: Style.space(12); height: width; radius: width / 2
-                    x: Style.space(12); y: Style.space(10)
-                    color: root.fillerInk
-                  }
-                  Rectangle {
-                    width: Style.space(46); height: Style.space(3); radius: height / 2
-                    x: Style.space(12); y: Style.space(36)
-                    color: root.fillerInk
-                  }
-                  Rectangle {
-                    width: Style.space(28); height: Style.space(3); radius: height / 2
-                    x: Style.space(12); y: Style.space(43)
-                    color: root.fillerInk
-                  }
-                }
-
-                // Unos archivos: dos hojas, una detrás de la otra.
-                Item {
-                  visible: parcel.modelData.kind === "files"
-                  width: Style.space(70)
-                  height: Style.space(54)
-                  anchors.horizontalCenter: parent.horizontalCenter
-
-                  Rectangle {
-                    x: Style.space(14); y: 0
-                    width: Style.space(46); height: Style.space(44)
-                    radius: Style.space(3)
-                    color: "transparent"
-                    border.width: Math.max(1, Style.space(2))
-                    border.color: Util.alpha(Color.popups.text, 0.2)
-                  }
-                  Rectangle {
-                    x: 0; y: Style.space(10)
-                    width: Style.space(46); height: Style.space(44)
-                    radius: Style.space(3)
-                    color: "transparent"
-                    border.width: Math.max(1, Style.space(2))
-                    border.color: root.fillerInk
-                  }
-                }
-
-                // Un secreto: lo que se ve de una contraseña.
-                Row {
-                  visible: parcel.modelData.kind === "secret"
-                  anchors.horizontalCenter: parent.horizontalCenter
-                  spacing: Style.space(7)
-
-                  Repeater {
-                    model: 5
-                    delegate: Rectangle {
-                      required property int index
-                      width: Style.space(9); height: width; radius: width / 2
-                      color: root.fillerInk
-                    }
-                  }
+                  kind: parcel.modelData.kind
+                  ink: root.fillerInk
                 }
 
                 Text {
@@ -806,5 +855,99 @@ Item {
         font.letterSpacing: Style.spaceReal(0.9)
       }
     }
+    // ---------- El bypass: una sola tarjeta, y nadie la ha leído ----------
+    //
+    // Fuera el inventario de tres filas. Es del tour, y aquí sobraba dos
+    // tercios: esta pantalla habla de **una** cosa concreta, la que tienes
+    // en el portapapeles ahora. Y «Untouched» colgando debajo de la lista
+    // se leía como una cuarta fila del inventario; ahora rotula la tarjeta.
+    //
+    // Variante propia y no la cinta del tour ([`0018`]): una cinta ciclando
+    // en la pantalla más vista es justo lo que la 0007 no quiere. Aquí el
+    // grano está quieto, y es lo único que OmaPlain llega a ver de esta
+    // copia — miró el tipo de la oferta y se plantó.
+    Item {
+      anchors.fill: parent
+      visible: root.variant === "unread"
+
+      GlassSurface {
+        id: unreadCard
+        x: Style.space(4)
+        y: Style.space(7)
+        width: Style.space(206)
+        height: Style.space(146)
+        clip: true
+
+        CopyGlyph {
+          anchors.centerIn: parent
+          kind: root.subjectGlyph
+          ink: root.fillerInk
+        }
+
+        // Al 34%: lo justo para que se vea que hay algo debajo y que nadie
+        // lo ha mirado. Quieto siempre — el panel le pasa
+        // `motionEnabled: false` y la 0007 es la razón.
+        Grain {
+          anchors.fill: parent
+          intensity: 0.34
+          motionEnabled: root.motionEnabled
+        }
+      }
+
+      Column {
+        x: Style.space(230)
+        width: root.sceneWidth - Style.space(234)
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: Style.space(12)
+
+        Row {
+          spacing: Style.space(8)
+
+          Rectangle {
+            width: Style.space(14)
+            height: width
+            radius: width / 2
+            color: "transparent"
+            border.width: Math.max(1, Style.space(2))
+            border.color: Color.accent
+            anchors.verticalCenter: parent.verticalCenter
+          }
+
+          Text {
+            // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+            Accessible.ignored: true
+            text: Strings.t("art.untouched", root.lang)
+            color: Color.accent
+            font.family: Style.font.family
+            font.pixelSize: Style.font.caption
+            font.bold: true
+            font.capitalization: Font.AllUppercase
+            font.letterSpacing: Style.spaceReal(0.9)
+            anchors.verticalCenter: parent.verticalCenter
+          }
+        }
+
+        Rectangle {
+          width: Style.space(44)
+          height: 1
+          color: Util.alpha(Color.popups.text, 0.14)
+        }
+
+        Text {
+          // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
+          Accessible.ignored: true
+          width: parent.width
+          text: Strings.t("art.byteForByte", root.lang)
+          // Prosa que envuelve, no un rótulo: 0,72 y su interlínea.
+          color: Util.alpha(Color.popups.text, 0.72)
+          font.family: Style.font.family
+          font.pixelSize: Style.font.bodySmall
+          lineHeightMode: Text.ProportionalHeight
+          lineHeight: 1.45
+          wrapMode: Text.WordWrap
+        }
+      }
+    }
+
   }
 }

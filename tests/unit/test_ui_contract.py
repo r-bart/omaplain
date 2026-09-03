@@ -665,9 +665,24 @@ class BypassScreenTests(unittest.TestCase):
         self.assertIn('!== "empty"', bandera)
 
     def test_only_the_bypass_states_get_the_drawing(self) -> None:
+        """Y con su propia variante, no con la del tour.
+
+        `protect` era una tarjeta con tres filas y un sello, y servía igual
+        para el paso 1 del recorrido y para «esto no lo hemos tocado». Ya
+        no: desde la `0018` es la cinta en marcha, y una cinta ciclando en
+        la pantalla más vista es justo lo que la
+        [`0007`](docs/decisions/0007-la-pantalla-frecuente-informa.md) no
+        quiere.
+
+        El bypass estrena `unread` —el grano dice que el control no la lee,
+        y aquí es literal— y va **quieta**. Esa segunda mitad es la que de
+        verdad protege la `0007`, y hasta ahora no estaba escrita en el
+        mismo sitio que la primera.
+        """
         bloque = self._block("TransformationIllustration {")
         self.assertIn("visible: root.peekBypass", bloque)
-        self.assertIn('variant: "protect"', bloque)
+        self.assertIn('variant: "unread"', bloque)
+        self.assertIn("motionEnabled: false", bloque)
 
     def test_the_drawing_never_moves_on_the_everyday_screen(self) -> None:
         # Se abre muchas veces al día. Una animación de entrada en cada
