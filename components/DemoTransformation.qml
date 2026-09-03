@@ -495,13 +495,28 @@ Column {
           }
 
           // El carácter que no tiene glifo no se ve caer, y es justo el que
-          // más importa que se vea irse: una caja vacía, como la que dibuja
-          // `CopySpecimen` para el mismo carácter.
+          // más importa que se vea irse. Se le dibuja una caja vacía, como
+          // la que dibuja `CopySpecimen` para el mismo carácter.
+          //
+          // **Pero sólo mientras cae.** Un carácter de ancho cero no ocupa
+          // sitio en el renglón, así que en reposo la caja se plantaba
+          // encima de la letra siguiente: la cadena se leía
+          // `IwAR9x&▢ervings` y parecía un error de trazado.
+          //
+          // Y contarlo así es además más fiel: un carácter invisible **no
+          // se ve**. Aparece al soltarse, que es el único momento en que
+          // hay algo que enseñar, y ésa es la frase que la pantalla dice
+          // debajo — «y un carácter invisible que no podías ver».
           Rectangle {
             visible: glyph.implicitWidth <= 0
+            // Con el desvanecido pegado a la suelta todavía se materializaba
+            // un instante encima de la letra siguiente. Sesenta milisegundos
+            // de retraso son dieciséis píxeles de caída: cuando se ve, ya
+            // está en el aire y no en el renglón.
+            opacity: shard.returning ? 0 : root.clamp((shard.tau - 60) / 90)
             anchors.centerIn: parent
-            width: Style.space(9)
-            height: Style.space(11)
+            width: Style.space(8)
+            height: Style.space(10)
             radius: Style.space(2)
             color: "transparent"
             border.color: Color.accent
