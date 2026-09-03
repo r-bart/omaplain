@@ -2,18 +2,28 @@ import QtQuick
 import qs.Commons
 import qs.Ui
 
-// La pieza gráfica de cada ejemplo del carrusel, en el mismo lenguaje que
-// la ilustración de la bienvenida: hojas, renglones y un acento reservado
-// para lo que sobra.
+// La pieza gráfica de cada ejemplo del carrusel.
 //
-// Comparte el mismo `combed` que el texto de al lado, así que el dibujo y
-// la frase pierden lo que sobra en el mismo gesto en vez de contar dos
-// historias a destiempo.
+// Baja a cristal ([`0018`]): tres tarjetas pequeñas de 100 × 96 en el
+// mismo material que el resto del panel, en vez de las hojas opacas de
+// color tinta que había. Y comparte el mismo `combed` que el texto de al
+// lado, así que el dibujo y la frase pierden lo que sobra en el mismo
+// gesto en vez de contar dos historias a destiempo.
 //
 // Tres siluetas distintas, para que de un vistazo se sepa que son tres
 // cosas distintas y no el mismo icono con otro pie: una barra de
 // dirección sobre su página, una hoja de párrafo, y dos copias
-// superpuestas de las que se retira la de arriba.
+// superpuestas de las que se retira el formato.
+//
+// **Lo que sobra se comprime, no cae** (`ANIMACIONES.md` §1 y §2). Un
+// tramo de una ilustración no es un carácter real: no hay 34 letras ahí,
+// hay una idea de que sobra algo. Se nombra y se cierra.
+//
+// Fuera las motas y el barrido que tenía la versión anterior. Ataban
+// dibujo y frase cuando el dibujo no se explicaba solo; ahora sí. Y cada
+// uno costaba un `Repeater` y un gradiente animado repintándose veintitrés
+// veces por minuto, para siempre, en un panel que también corre en
+// portátiles.
 Item {
   id: root
 
@@ -34,35 +44,46 @@ Item {
   readonly property real sweep: Math.max(0, Math.min(1, root.combed / 0.86))
   readonly property real settle: 1 - Math.max(0, Math.min(1, root.landed))
 
-  // De dónde salen las motas: del sitio exacto donde desaparece lo que
-  // sobra, o serían confeti.
-  readonly property point spark: root.kind === "link"
-    ? Qt.point(Style.space(84), Style.space(54))
-    : root.kind === "text" ? Qt.point(Style.space(36), Style.space(48))
-    : Qt.point(Style.space(44), Style.space(46))
+  // Nombrar y comprimir, los dos tiempos del motor de compresión, dentro
+  // del único recorrido de 620 ms que el carrusel ya tenía. Primero el
+  // tramo pasa al acento **sin moverse** —se ve *qué* se va—, y sólo
+  // después se cierra. Al revés sería un tramo desapareciendo, que no
+  // explica nada.
+  readonly property real naming: Math.max(0, Math.min(1, root.combed / 0.36))
+  readonly property real squeeze: Math.max(0, Math.min(1, (root.combed - 0.42) / 0.58))
 
-  // El halo de la familia: el mismo círculo suave que en la bienvenida.
-  // Da un único empujón cuando pasa el peine.
-  //
-  // Va centrado en el dibujo, no en el recuadro: cada composición ocupa
-  // un trozo distinto, y un halo centrado «bien» asomaba por una esquina
-  // como si fuera una sombra mal puesta.
+  // La tinta de reposo de un tramo que va a marcarse, interpolada hasta el
+  // acento sobre el progreso del nombrado.
+  readonly property color restInk: Util.alpha(Color.popups.text, 0.45)
+  readonly property color markInk: Qt.rgba(
+    restInk.r + (Color.accent.r - restInk.r) * root.naming,
+    restInk.g + (Color.accent.g - restInk.g) * root.naming,
+    restInk.b + (Color.accent.b - restInk.b) * root.naming,
+    restInk.a + (1 - restInk.a) * root.naming)
+
+  // Los renglones que se quedan. Sobre cristal van en tinta del panel a un
+  // tercio: son relleno de ilustración, no texto que alguien vaya a leer.
+  readonly property color fillerInk: Util.alpha(Color.popups.text, 0.32)
+
+  // El halo de la familia. Va centrado en el dibujo, no en el recuadro:
+  // cada composición ocupa un trozo distinto, y un halo centrado «bien»
+  // asomaba por una esquina como si fuera una sombra mal puesta.
   readonly property point haloAt: root.kind === "link"
     ? Qt.point(Style.space(48), Style.space(40))
     : root.kind === "text" ? Qt.point(Style.space(53), Style.space(47))
     : Qt.point(Style.space(58), Style.space(42))
 
-  Rectangle {
-    width: Style.space(82)
+  // Ancho de sobra a propósito: las tarjetas son opacas por debajo —el
+  // molde de su sombra lo es—, así que un halo del tamaño del dibujo
+  // queda entero debajo y no se ve. Lo que tiene que verse es el borde,
+  // rodeándolas.
+  Halo {
+    width: Style.space(150)
     height: width
-    radius: width / 2
     x: root.haloAt.x - width / 2
     y: root.haloAt.y - height / 2
-    // Al 10% sobre un fondo tan oscuro no llegaba a brillar y sí llegaba a
-    // ensuciar: se leía como un disco gris detrás del dibujo, no como un
-    // halo. En modo oscuro la profundidad sale de un escalón claro, no de
-    // un velo.
-    color: Util.alpha(Color.accent, 0.18)
+    intensity: 0.16
+    // El único empujón de escala del carrusel, cuando pasa el peine.
     scale: 1 + 0.11 * Math.sin(Math.PI * root.sweep)
     transformOrigin: Item.Center
   }
@@ -73,16 +94,12 @@ Item {
     visible: root.kind === "link"
 
     // La página de la que se copia, detrás y a media luz.
-    BorderSurface {
-      x: Style.space(16)
-      y: Style.space(4)
-      width: Style.space(76)
-      height: Style.space(60)
-      rotation: -8 + 3 * root.settle
-      transformOrigin: Item.Center
-      radius: Math.max(2, Style.cornerRadius - Style.space(3))
-      color: Util.alpha(Color.popups.text, 0.34)
-      borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
+    GlassSurface {
+      x: Style.space(14)
+      y: Style.space(2) + Style.space(4) * root.settle
+      width: Style.space(80)
+      height: Style.space(48)
+      material: "dimmed"
 
       Column {
         anchors.left: parent.left
@@ -97,29 +114,22 @@ Item {
             width: Style.space(56) * modelData
             height: Style.space(4)
             radius: height / 2
-            color: Util.alpha(Color.popups.background, 0.7)
+            color: root.fillerInk
           }
         }
       }
     }
 
-    // La barra de dirección, delante: es donde vive lo que sobra.
-    //
-    // Baja diez puntos respecto de donde estaba. A `space(40)` cubría 24 de
-    // los 60 de alto de la hoja —el 40%, líneas de texto incluidas— y las
-    // dos formas se leían como una sola mancha. Desde aquí se solapan lo
-    // justo para que una esté delante de la otra, que es lo que el dibujo
-    // quiere contar, y sigue cabiendo entera (50 + 36 < 96).
-    BorderSurface {
+    // La barra de dirección, delante: es donde vive lo que sobra. Es la
+    // misma pieza de la bienvenida a un tercio de tamaño, y por eso se
+    // reconoce sin rótulo.
+    GlassSurface {
       x: Style.space(1)
-      y: Style.space(50)
-      width: Style.space(96)
-      height: Style.space(36)
-      rotation: 2 - 2.5 * root.settle - 1.2 * root.combed
-      transformOrigin: Item.Center
-      radius: Math.max(2, Style.cornerRadius - Style.space(2))
-      color: Color.popups.text
-      borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
+      y: Style.space(52) - Style.space(3) * root.settle
+      width: Style.space(98)
+      height: Style.space(30)
+      material: "small"
+      radius: height / 2
       clip: true
 
       Row {
@@ -132,7 +142,7 @@ Item {
           width: Style.space(8)
           height: width
           radius: width / 2
-          color: Util.alpha(Color.popups.background, 0.5)
+          color: Util.alpha(Color.popups.text, 0.45)
           anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -141,18 +151,44 @@ Item {
           width: Style.space(30)
           height: Style.space(6)
           radius: height / 2
-          color: Color.popups.background
+          color: Util.alpha(Color.popups.text, 0.72)
           anchors.verticalCenter: parent.verticalCenter
         }
 
-        // La cola: lo que el peine se lleva.
-        Rectangle {
-          width: Style.space(34) * (1 - root.combed)
-          height: Style.space(6)
-          radius: height / 2
-          color: Color.accent
-          opacity: 1 - root.combed * 0.35
+        // La cola: cuatro tramos, y son cuatro y no uno para que se lea
+        // como una ristra de parámetros pegados detrás de la dirección.
+        // **Van más gruesos que el dominio** —6 contra 6 de alto pero con
+        // el acento encima— porque hay que saber qué mirar antes de que
+        // empiece a irse.
+        Row {
           anchors.verticalCenter: parent.verticalCenter
+          spacing: Style.space(3) * (1 - root.squeeze)
+
+          Repeater {
+            model: 4
+            delegate: Item {
+              required property int index
+              // La caja se estrecha, y eso es lo que hace que el resto
+              // del renglón cierre el hueco. Sólo con el contenido
+              // aplastado quedaría un agujero.
+              width: Style.space(6) * (1 - root.squeeze)
+              height: Style.space(6)
+              clip: true
+
+              Rectangle {
+                width: Style.space(6)
+                height: parent.height
+                radius: height / 2
+                color: root.markInk
+                // Y el contenido se aplasta contra su borde izquierdo,
+                // que es lo que se lee como «comprimirse». Sólo con la
+                // caja, el tramo se leería recortado por la derecha.
+                transformOrigin: Item.Left
+                scale: 1 - root.squeeze
+                opacity: 1 - 0.35 * root.squeeze
+              }
+            }
+          }
         }
       }
     }
@@ -163,28 +199,11 @@ Item {
     anchors.fill: parent
     visible: root.kind === "text"
 
-    BorderSurface {
-      x: Style.space(28)
-      y: Style.space(2)
-      width: Style.space(68)
-      height: Style.space(74)
-      rotation: 9 - 3 * root.settle
-      transformOrigin: Item.Center
-      radius: Math.max(2, Style.cornerRadius - Style.space(3))
-      color: Util.alpha(Color.popups.text, 0.3)
-      borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
-    }
-
-    BorderSurface {
-      x: Style.space(10)
-      y: Style.space(12)
-      width: Style.space(76)
-      height: Style.space(80)
-      rotation: -4 + 3 * root.settle + 1.4 * root.combed
-      transformOrigin: Item.Center
-      radius: Math.max(2, Style.cornerRadius - Style.space(3))
-      color: Color.popups.text
-      borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
+    GlassSurface {
+      x: Style.space(9)
+      y: Style.space(4) + Style.space(4) * root.settle
+      width: Style.space(82)
+      height: Style.space(88)
       clip: true
 
       Column {
@@ -193,15 +212,18 @@ Item {
         anchors.margins: Style.space(12)
         spacing: Style.space(6)
 
-        Rectangle { width: Style.space(54); height: Style.space(5); radius: height / 2; color: Color.popups.background }
-        Rectangle { width: Style.space(44); height: Style.space(5); radius: height / 2; color: Color.popups.background }
+        Rectangle { width: Style.space(54); height: Style.space(5); radius: height / 2; color: root.fillerInk }
+        Rectangle { width: Style.space(44); height: Style.space(5); radius: height / 2; color: root.fillerInk }
 
         // El carácter que no se ve, dibujado como lo que es: una caja
-        // vacía, sin glifo dentro. Al retirarse cierra su propio hueco y
-        // los renglones de abajo suben — que es justo lo que pasa.
+        // vacía, sin glifo dentro. Es la única forma de que se vea irse
+        // algo que por definición no se ve.
+        //
+        // Cierra por el eje vertical, y por eso los renglones de abajo
+        // suben — que es justo lo que pasa en el texto de verdad.
         Item {
           width: Style.space(13)
-          height: Style.space(13) * (1 - root.combed)
+          height: Style.space(13) * (1 - root.squeeze)
           clip: true
 
           Rectangle {
@@ -209,35 +231,34 @@ Item {
             height: Style.space(13)
             radius: Style.space(3)
             color: "transparent"
-            border.color: Color.accent
+            // Si el tramo es una caja vacía, el nombrado va en el borde
+            // y no en el relleno: no hay relleno que teñir.
+            border.color: root.markInk
             border.width: Math.max(1, Style.space(2))
-            opacity: 1 - root.combed * 0.3
+            transformOrigin: Item.Top
+            scale: 1 - 0.35 * root.squeeze
+            opacity: 1 - 0.3 * root.squeeze
           }
         }
 
-        Rectangle { width: Style.space(50); height: Style.space(5); radius: height / 2; color: Color.popups.background }
-        Rectangle { width: Style.space(36); height: Style.space(5); radius: height / 2; color: Color.popups.background }
+        Rectangle { width: Style.space(50); height: Style.space(5); radius: height / 2; color: root.fillerInk }
+        Rectangle { width: Style.space(36); height: Style.space(5); radius: height / 2; color: root.fillerInk }
       }
     }
   }
 
-  // ---------- Texto con formato: la copia de arriba se retira ----------
+  // ---------- Texto con formato: el formato se retira, la letra no ----------
   Item {
     anchors.fill: parent
     visible: root.kind === "rich"
 
     // Debajo, la de texto plano: la que se queda.
-    BorderSurface {
+    GlassSurface {
       x: Style.space(20)
-      y: Style.space(6)
+      y: Style.space(6) + Style.space(4) * root.settle
       width: Style.space(76)
       height: Style.space(72)
-      rotation: 7 - 3 * root.settle - 2 * root.combed
-      transformOrigin: Item.Center
-      radius: Math.max(2, Style.cornerRadius - Style.space(3))
-      color: Color.popups.text
-      borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
-      clip: true
+      material: "dimmed"
 
       Column {
         anchors.left: parent.left
@@ -252,26 +273,22 @@ Item {
             width: Style.space(52) * modelData
             height: Style.space(5)
             radius: height / 2
-            color: Color.popups.background
+            color: root.fillerInk
           }
         }
       }
     }
 
-    // Y encima la copia con formato, que se levanta y se va entera:
-    // ni un carácter cambia, y aun así hay algo que retirar.
-    BorderSurface {
-      x: Style.space(4) - Style.space(12) * root.combed
-      y: Style.space(18) - Style.space(12) * root.combed
+    // Y delante la copia con formato. **No se levanta y se va**: ni un
+    // carácter cambia, así que lo que se retira son las marcas —el
+    // titular en negrita y el filete de la cita—, no la hoja. Enseñar la
+    // hoja entera yéndose decía que se pierde el texto, que es lo
+    // contrario de lo que hace el producto.
+    GlassSurface {
+      x: Style.space(4)
+      y: Style.space(18) - Style.space(3) * root.settle
       width: Style.space(76)
       height: Style.space(72)
-      rotation: -6 - 9 * root.combed + 3 * root.settle
-      scale: 1 - 0.06 * root.combed
-      opacity: 1 - root.combed
-      transformOrigin: Item.Center
-      radius: Math.max(2, Style.cornerRadius - Style.space(3))
-      color: Util.alpha(Color.accent, 0.88)
-      borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
       clip: true
 
       Column {
@@ -280,76 +297,53 @@ Item {
         anchors.margins: Style.space(12)
         spacing: Style.space(7)
 
-        // Un titular en negrita y una cita: el formato que sobra, dibujado.
-        Rectangle { width: Style.space(40); height: Style.space(9); radius: Style.space(2); color: Color.background }
-        Rectangle { width: Style.space(54); height: Style.space(5); radius: height / 2; color: Util.alpha(Color.background, 0.8) }
+        // La barra de titular: cierra por el eje vertical y el resto de la
+        // hoja sube a ocupar su sitio.
+        Item {
+          width: Style.space(42)
+          height: Style.space(9) * (1 - root.squeeze)
+          clip: true
+
+          Rectangle {
+            width: Style.space(42)
+            height: Style.space(9)
+            radius: Style.space(2)
+            color: root.markInk
+            transformOrigin: Item.Top
+            scale: 1 - 0.4 * root.squeeze
+            opacity: 1 - 0.35 * root.squeeze
+          }
+        }
+
+        Rectangle { width: Style.space(54); height: Style.space(5); radius: height / 2; color: root.fillerInk }
 
         Row {
           spacing: Style.space(6)
 
-          Rectangle { width: Style.space(4); height: Style.space(21); radius: width / 2; color: Color.background }
+          // El filete de la cita.
+          Item {
+            width: Style.space(4)
+            height: Style.space(17) * (1 - root.squeeze)
+            clip: true
+
+            Rectangle {
+              width: Style.space(4)
+              height: Style.space(17)
+              radius: width / 2
+              color: root.markInk
+              transformOrigin: Item.Top
+              scale: 1 - 0.4 * root.squeeze
+              opacity: 1 - 0.35 * root.squeeze
+            }
+          }
 
           Column {
             spacing: Style.space(6)
             anchors.verticalCenter: parent.verticalCenter
-            Rectangle { width: Style.space(42); height: Style.space(5); radius: height / 2; color: Util.alpha(Color.background, 0.8) }
-            Rectangle { width: Style.space(32); height: Style.space(5); radius: height / 2; color: Util.alpha(Color.background, 0.8) }
+            Rectangle { width: Style.space(42); height: Style.space(5); radius: height / 2; color: root.fillerInk }
+            Rectangle { width: Style.space(32); height: Style.space(5); radius: height / 2; color: root.fillerInk }
           }
         }
-      }
-    }
-  }
-
-  // ---------- Lo que el peine levanta ----------
-  //
-  // Tres motas, no un puñado: salen de donde desaparece lo que sobra y se
-  // apagan enseguida. Con más, la tarjeta pasaría a ser una fiesta.
-  Repeater {
-    model: [
-      { dx: 17, dy: -19, size: 5, delay: 0.0 },
-      { dx: 25, dy: -5, size: 4, delay: 0.09 },
-      { dx: 13, dy: 13, size: 3, delay: 0.17 }
-    ]
-
-    delegate: Rectangle {
-      required property var modelData
-      readonly property real flight: Math.max(0, Math.min(1,
-        (root.combed - modelData.delay) / Math.max(0.01, 0.76 - modelData.delay)))
-
-      width: Style.space(modelData.size)
-      height: width
-      radius: width / 2
-      color: Color.accent
-      x: root.spark.x + Style.space(modelData.dx) * flight
-      y: root.spark.y + Style.space(modelData.dy) * flight
-      opacity: Math.sin(Math.PI * flight) * 0.85
-      visible: opacity > 0.01
-    }
-  }
-
-  // ---------- El paso del peine ----------
-  //
-  // Una banda de luz que cruza la escena justo mientras lo que sobra se
-  // encoge. Es lo que ata dibujo y frase: se ve por qué desaparece.
-  Item {
-    anchors.fill: parent
-    clip: true
-    visible: root.sweep > 0 && root.sweep < 1
-
-    Rectangle {
-      width: Style.space(32)
-      height: parent.height * 1.9
-      anchors.verticalCenter: parent.verticalCenter
-      x: -width + (parent.width + 2 * width) * root.sweep
-      rotation: -14
-      transformOrigin: Item.Center
-      opacity: Math.sin(Math.PI * root.sweep) * 0.7
-
-      gradient: Gradient {
-        orientation: Gradient.Horizontal
-        GradientStop { position: 0.0; color: Util.alpha(Color.accent, 0) }
-        GradientStop { position: 0.5; color: Util.alpha(Color.accent, 0.5) }
-        GradientStop { position: 1.0; color: Util.alpha(Color.accent, 0) }
       }
     }
   }
