@@ -148,7 +148,7 @@ ShellRoot {
     Omaplain.TransformationIllustration {
       id: arte
       width: 460
-      height: 160
+      height: 124
       lang: "en"
       variant: "unread"
       motionEnabled: false

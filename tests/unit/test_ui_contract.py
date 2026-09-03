@@ -705,6 +705,39 @@ class BypassScreenTests(unittest.TestCase):
         bloque = self._block("TransformationIllustration {")
         self.assertIn("motionEnabled: false", bloque)
 
+    def test_the_bypass_card_says_it_once(self) -> None:
+        """El pie repetía el párrafo que el panel pone justo encima.
+
+        Para una imagen, el detalle del veredicto es «This one reaches its
+        destination byte for byte», y el dibujo llevaba debajo «Byte for
+        byte, exactly as you copied it.» — las mismas palabras a veinte
+        píxeles. Con el titular y el sello, cuatro maneras de decir «no la
+        hemos tocado» en la pantalla que más veces se abre.
+
+        Se queda el sello, que es el único de los cuatro que **no** es una
+        frase, y va dentro de la tarjeta: rotula el grano en vez de flotar
+        a su lado.
+        """
+        catalogo = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        arte = (REPO / "components"
+                / "TransformationIllustration.qml").read_text(encoding="utf-8")
+        self.assertNotIn("art.byteForByte", catalogo)
+        self.assertNotIn("art.byteForByte", arte)
+
+        bypass = arte.split('visible: root.variant === "unread"', 1)[1]
+        # Una sola tarjeta, y el sello dentro de ella.
+        self.assertEqual(bypass.count("GlassSurface {"), 1)
+        self.assertIn('Strings.t("art.untouched.one"', bypass)
+
+    def test_the_seal_counts_what_it_labels(self) -> None:
+        # La cinta del tour rotula tres bultos; el bypass, una copia. En
+        # inglés da igual, en español «Intactos» sobre una sola imagen es
+        # una falta.
+        catalogo = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        spanish = catalogue_es = catalogo.split("var ES", 1)[1]
+        self.assertIn('"art.untouched": "Intactos"', spanish)
+        self.assertIn('"art.untouched.one": "Intacto"', catalogue_es)
+
     def test_the_way_out_belongs_to_the_empty_screen_only(self) -> None:
         # Estuvo también en los bypass, cuando allí no había nada que leer.
         # Con la `0013` la pantalla dice qué tienes y qué no le hacemos, y un

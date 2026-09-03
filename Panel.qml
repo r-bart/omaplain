@@ -933,7 +933,7 @@ Item {
               TransformationIllustration {
                 lang: root.lang
                 width: parent.width
-                height: Style.space(160)
+                height: Style.space(124)
                 variant: "unread"
                 // De qué es la copia. La ilustración traduce el motivo del
                 // rechazo a un dibujo, y lo que no reconoce lo pinta como

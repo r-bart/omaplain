@@ -76,7 +76,7 @@ Item {
   // reparte 464 × 190; el tour, 460 × 220.
   readonly property real sceneWidth: variant === "transform" ? Style.space(464) : Style.space(460)
   readonly property real sceneHeight: variant === "transform" ? Style.space(190)
-    : variant === "unread" ? Style.space(160) : Style.space(220)
+    : variant === "unread" ? Style.space(124) : Style.space(220)
 
   // Y cada una tiene su propio reloj. `progress` es siempre 0 → 1; lo que
   // cambia es cuánto dura y si vuelve a empezar.
@@ -285,9 +285,9 @@ Item {
     Halo {
       width: root.variant === "transform" ? Style.space(460) : Style.space(420)
       height: width
-      x: (root.variant === "unread" ? Style.space(112) : Style.space(230)) - width / 2
+      x: Style.space(230) - width / 2
       y: (root.variant === "transform" ? Style.space(92)
-          : root.variant === "unread" ? Style.space(80) : Style.space(100)) - height / 2
+          : root.variant === "unread" ? Style.space(62) : Style.space(100)) - height / 2
       intensity: 0.15
     }
 
@@ -982,13 +982,25 @@ Item {
     //
     // Fuera el inventario de tres filas. Es del tour, y aquí sobraba dos
     // tercios: esta pantalla habla de **una** cosa concreta, la que tienes
-    // en el portapapeles ahora. Y «Untouched» colgando debajo de la lista
-    // se leía como una cuarta fila del inventario; ahora rotula la tarjeta.
+    // en el portapapeles ahora.
     //
     // Variante propia y no la cinta del tour ([`0018`]): una cinta ciclando
     // en la pantalla más vista es justo lo que la 0007 no quiere. Aquí el
     // grano está quieto, y es lo único que OmaPlain llega a ver de esta
     // copia — miró el tipo de la oferta y se plantó.
+    //
+    // **Una pieza, no dos.** Antes eran una tarjeta pequeña a la izquierda
+    // y una columna de texto a la derecha, y esa columna repetía palabra
+    // por palabra el párrafo que el panel pone justo encima: «byte for
+    // byte» dicho dos veces con veinte píxeles de separación. Con la frase
+    // fuera, la mitad derecha se quedaba vacía; así que la tarjeta ocupa el
+    // ancho entero y el sello se mete dentro. Cuatro maneras de decir «no
+    // la hemos tocado» en la misma pantalla —titular, párrafo, sello y pie—
+    // eran tres de más.
+    //
+    // Y más baja: 124 en vez de 160. Esto no es una pantalla de aprender,
+    // es la que sale al copiar una imagen, y un dibujo no se queda con más
+    // alto del que necesita para decir lo que dice.
     Item {
       anchors.fill: parent
       visible: root.variant === "unread"
@@ -996,9 +1008,9 @@ Item {
       GlassSurface {
         id: unreadCard
         x: Style.space(4)
-        y: Style.space(7)
-        width: Style.space(206)
-        height: Style.space(146)
+        y: Style.space(6)
+        width: root.sceneWidth - Style.space(8)
+        height: root.sceneHeight - Style.space(12)
         clip: true
 
         // El dibujo pesa más aquí que en la cinta, y va más grande.
@@ -1009,10 +1021,12 @@ Item {
         // existe precisamente para decir **qué** tienes en el portapapeles,
         // así que el dibujo tiene que ganarle al ruido, no empatar.
         //
-        // Grande porque la tarjeta es de 206 × 146 y el dibujo de la cinta
-        // mide 70 × 54: ahí dentro sobraba media tarjeta de ruido.
+        // A la izquierda y no en el centro: el sello va en el otro extremo,
+        // y entre los dos queda el grano, que es el contenido que nadie ha
+        // mirado. La tarjeta se lee de izquierda a derecha —esto es, esto
+        // no se ha tocado— y en medio está lo que no se enseña.
         CopyGlyph {
-          anchors.centerIn: parent
+          id: unreadGlyph
           kind: root.subjectGlyph
           // Los tres pesos se compararon puestos uno al lado del otro. A
           // 0,32 el dibujo no se lee; a 0,55 gana tanto que la tarjeta deja
@@ -1020,6 +1034,8 @@ Item {
           // tienes». Aquí se leen las dos cosas, que es lo que hace falta.
           ink: Util.alpha(Color.popups.text, 0.45)
           scale: 1.35
+          x: Style.space(76) - width / 2
+          y: (unreadCard.height - height) / 2
         }
 
         // Al 34%: lo justo para que se vea que hay algo debajo y que nadie
@@ -1031,15 +1047,17 @@ Item {
           intensity: 0.34
           motionEnabled: root.motionEnabled
         }
-      }
 
-      Column {
-        x: Style.space(230)
-        width: root.sceneWidth - Style.space(234)
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: Style.space(12)
-
+        // El sello, **encima del grano** y por eso declarado después.
+        //
+        // Es lo único de esta tarjeta que es nuestro. El contenido va
+        // velado porque nadie lo ha mirado; el rótulo va nítido porque lo
+        // firmamos nosotros. Debajo del grano se leía como una parte más de
+        // la copia, que es justo lo que no es.
         Row {
+          anchors.right: parent.right
+          anchors.rightMargin: Style.space(20)
+          anchors.verticalCenter: parent.verticalCenter
           spacing: Style.space(8)
 
           Rectangle {
@@ -1055,7 +1073,10 @@ Item {
           Text {
             // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
             Accessible.ignored: true
-            text: Strings.t("art.untouched", root.lang)
+            // En singular. El de la cinta rotula tres bultos y va en
+            // plural; aquí hay una copia, y en español «Intactos» sobre una
+            // sola imagen es una falta, no un matiz.
+            text: Strings.t("art.untouched.one", root.lang)
             color: Color.accent
             font.family: Style.font.family
             font.pixelSize: Style.font.caption
@@ -1064,26 +1085,6 @@ Item {
             font.letterSpacing: Style.spaceReal(0.9)
             anchors.verticalCenter: parent.verticalCenter
           }
-        }
-
-        Rectangle {
-          width: Style.space(44)
-          height: 1
-          color: Util.alpha(Color.popups.text, 0.14)
-        }
-
-        Text {
-          // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
-          Accessible.ignored: true
-          width: parent.width
-          text: Strings.t("art.byteForByte", root.lang)
-          // Prosa que envuelve, no un rótulo: 0,72 y su interlínea.
-          color: Util.alpha(Color.popups.text, 0.72)
-          font.family: Style.font.family
-          font.pixelSize: Style.font.bodySmall
-          lineHeightMode: Text.ProportionalHeight
-          lineHeight: 1.45
-          wrapMode: Text.WordWrap
         }
       }
     }

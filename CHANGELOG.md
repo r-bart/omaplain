@@ -120,6 +120,13 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Cambiado
 
+- **La pantalla de un bypass dice una cosa una vez.** El dibujo llevaba un pie
+  —«Byte for byte, exactly as you copied it.»— veinte píxeles debajo del
+  párrafo que ya lo decía, y el sello flotando al lado de la tarjeta. Ahora la
+  tarjeta ocupa el ancho entero, el sello va dentro y encima del grano, y el
+  pie se ha ido. El dibujo baja de 160 a 124 de alto: ésta no es una pantalla
+  de aprender, es la que sale al copiar una imagen. En español el sello va en
+  singular cuando rotula una sola copia.
 - **Las ilustraciones del panel cuentan lo que dicen, moviéndose.** Los
   dibujos quietos que había explicaban el producto con una metáfora; ahora lo
   demuestran con el gesto que hace.
