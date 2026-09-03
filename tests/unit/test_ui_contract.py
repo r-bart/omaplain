@@ -383,21 +383,34 @@ class UiContractTests(unittest.TestCase):
           una espera y se acaba solo en cuanto el demonio atiende.
         - `Grain`, que sólo se mueve con `motionEnabled` y en el panel
           frecuente lo recibe en falso desde `Panel.qml`.
+        - `DemoTransformation`, que **no es del panel de cada día**: sólo la
+          monta `TourPage`, en su paso 2, y cicla por el mismo motivo que
+          las tres ilustraciones — una demostración que se reproduce una
+          vez se queda muerta el resto del tiempo que el paso está delante.
+          Su reloj no arranca solo: lo arranca `revealed`, y se para al
+          ocultarse.
 
         El resto de la pantalla de cada día está quieto, y esto lo sujeta.
         """
         for nombre in ("ClipboardRow.qml", "FogCover.qml", "CopySpecimen.qml",
-                       "DemoTransformation.qml", "MimeChips.qml", "Chip.qml",
-                       "StatusHeader.qml"):
+                       "MimeChips.qml", "Chip.qml"):
             with self.subTest(fichero=nombre):
-                code = _sin_comentarios(REPO / "components" / nombre)
-                if nombre == "StatusHeader.qml":
-                    # El sónar, y sólo él: atado a `motionEnabled` y a que
-                    # el servicio siga arrancando.
-                    self.assertEqual(code.count("Animation.Infinite"), 1)
-                    self.assertIn("running: root.motionEnabled && sonar.visible", code)
-                else:
-                    self.assertNotIn("Animation.Infinite", code)
+                self.assertNotIn("Animation.Infinite",
+                                 _sin_comentarios(REPO / "components" / nombre))
+
+        # El sónar, y sólo él: atado a `motionEnabled` y a que el servicio
+        # siga arrancando.
+        cabecera = _sin_comentarios(REPO / "components" / "StatusHeader.qml")
+        self.assertEqual(cabecera.count("Animation.Infinite"), 1)
+        self.assertIn("running: root.motionEnabled && sonar.visible", cabecera)
+
+        # Y el reloj de la demo: un solo bucle, sin `running: true`, y con
+        # su parada escrita para cuando el paso deja de estar a la vista.
+        demo = _sin_comentarios(REPO / "components" / "DemoTransformation.qml")
+        self.assertEqual(demo.count("Animation.Infinite"), 1)
+        self.assertNotIn("running: true", demo)
+        self.assertIn("fallRun.stop()", demo)
+
         # Y el grano no se mueve si no se le deja.
         grano = _sin_comentarios(REPO / "components" / "Grain.qml")
         self.assertNotIn("running: true", grano)

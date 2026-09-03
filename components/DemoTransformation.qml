@@ -110,7 +110,32 @@ Column {
 
   property var shards: []
   property real lastSettle: 0
-  readonly property real totalMs: root.lastSettle + 220 + 180 + 60
+  // El ciclo, contado desde el arranque del gesto:
+  //
+  //   0 → asiento+400   la caída y la frase de resultado
+  //   → +2 200          quieto, con la copia limpia, para que se lea
+  //   → +200            la cadena vuelve: el hueco se reabre
+  //   → +200            y los caracteres que sobran aparecen en su sitio
+  //   → +700            quieto, con la copia entera, y otra vez
+  //
+  // **La vuelta no es un rebobinado.** Los añicos no suben volando del
+  // suelo: se apagan al asentarse, saltan a su sitio mientras nadie los ve
+  // y aparecen ahí. Verlos volver por donde bajaron leería «deshacer», y
+  // aquí lo que llega es otra copia.
+  readonly property real settledAt: root.lastSettle + 220 + 180
+  readonly property int holdMs: 2200
+  readonly property int reopenMs: 200
+  readonly property int refillMs: 200
+  readonly property real returnAt: root.settledAt + root.holdMs
+  readonly property real totalMs: root.returnAt + root.reopenMs + root.refillMs + 700
+
+  // 0 mientras la copia limpia está a la vista; 1 con la siguiente ya
+  // entera. El hueco se reabre primero y los caracteres llegan después,
+  // porque al revés se verían encima del texto que todavía no ha hecho
+  // sitio.
+  readonly property real reopened: clamp((root.fallClock - root.returnAt) / root.reopenMs)
+  readonly property real refilled: clamp(
+    (root.fallClock - (root.returnAt + root.reopenMs)) / root.refillMs)
 
   // Deterministas, no `Math.random()`: se ve irregular y es reproducible,
   // que es lo que necesita una captura de test.
@@ -129,6 +154,7 @@ Column {
   // último añico ya se ha soltado.
   readonly property real closed: outCubic(clamp(
     (root.fallClock - (root.t0 + root.releaseSpan)) / root.closeSpan))
+    * (1 - outCubic(root.reopened))
   readonly property int spareShown: root.animatable
     ? Math.round(root.spare.length * (1 - root.closed)) : 0
 
@@ -136,7 +162,7 @@ Column {
   // del asiento. Colgada de la limpieza contaría el desenlace en mitad del
   // vuelo, mientras todavía está ocurriendo.
   readonly property real outcomeIn: root.animatable
-    ? clamp((root.fallClock - (root.lastSettle + 220)) / 180)
+    ? clamp((root.fallClock - (root.lastSettle + 220)) / 180) * (1 - root.reopened)
     : (root.revealed ? 1 : 0)
 
   function measureShards() {
@@ -233,12 +259,19 @@ Column {
     to: root.totalMs
     duration: Math.max(1, root.totalMs)
     easing.type: Easing.Linear
+    // Cicla, como las tres ilustraciones del onboarding ([`0017`]): una
+    // demostración que se reproduce una vez se queda muerta el resto del
+    // tiempo que el paso está delante, y este paso se lee despacio.
+    loops: Animation.Infinite
   }
 
   onRevealedChanged: {
     if (!revealed) { fallRun.stop(); fallClock = 0; return }
     measureShards()
-    if (!motionEnabled) { fallRun.stop(); fallClock = totalMs; return }
+    // Sin movimiento se planta en el asiento y no al final del ciclo: el
+    // final del ciclo es la copia **siguiente**, entera otra vez, y quien
+    // apagó las animaciones pulsó el botón para ver el resultado.
+    if (!motionEnabled) { fallRun.stop(); fallClock = settledAt; return }
     fallRun.restart()
   }
 
@@ -400,18 +433,20 @@ Column {
           readonly property real flight: Math.max(0, Math.min(tau, modelData.t1))
           readonly property real fade: root.clamp((tau - modelData.rest) / 200)
 
-          x: modelData.x0 + modelData.drift * shard.flight / 1000
-          y: modelData.y0 + root.dropOf(modelData, shard.tau)
+          readonly property bool returning: root.reopened > 0
+
+          x: modelData.x0 + (shard.returning ? 0 : modelData.drift * shard.flight / 1000)
+          y: modelData.y0 + (shard.returning ? 0 : root.dropOf(modelData, shard.tau))
           width: glyph.implicitWidth > 0 ? glyph.implicitWidth : Style.space(9)
           height: modelData.line
-          rotation: modelData.spin * shard.flight / 1000
+          rotation: shard.returning ? 0 : modelData.spin * shard.flight / 1000
           transformOrigin: Item.Center
-          opacity: 1 - shard.fade
+          opacity: shard.returning ? root.refilled : 1 - shard.fade
           visible: opacity > 0.01
 
           // El aplastado del primer impacto conserva el área: lo que se
           // hunde de alto se gana de ancho.
-          readonly property real squash: root.squashOf(modelData, shard.tau)
+          readonly property real squash: shard.returning ? 1 : root.squashOf(modelData, shard.tau)
           transform: Scale {
             origin.x: shard.width / 2
             origin.y: shard.height
