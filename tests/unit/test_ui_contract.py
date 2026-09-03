@@ -347,24 +347,26 @@ class UiContractTests(unittest.TestCase):
     def test_the_loops_live_where_they_are_argued_for(self) -> None:
         """Un bucle ambiente es decoración, y compite con el texto de al lado.
 
-        La regla era «ninguno», y la `0017` la afina: **ninguno fuera de
-        donde el ciclo es la afirmación**. La cinta del control cicla porque
-        el paso 1 dice que las imágenes, los archivos y los secretos no se
-        tocan, y tres tarjetas quietas no decían eso: decían «aquí hay tres
-        cosas». Lo que lo afirma es verlas entrar y salir enteras.
+        La regla era «ninguno», y la `0017` la afinó dos veces. Primero a
+        «ninguno fuera de donde el ciclo es la afirmación», con la cinta del
+        control como único caso. Y después, **viéndolas correr**, a
+        «ninguno fuera del onboarding»: una ilustración que se reproduce una
+        vez se queda muerta el resto del tiempo que la pantalla está
+        delante, y la bienvenida y el paso 3 se leen despacio.
 
-        El recorrido de la lista del paso 3 no cicla, y ahí el test seguía
-        teniendo razón: su argumento —«hay más debajo»— se entrega en el
-        primer viaje, y del segundo en adelante es adorno.
+        Lo que el test protege sigue siendo lo mismo, y es la línea que no
+        se cruza: **el panel de cada día no cicla.** La variante `unread`,
+        que es la suya, va quieta siempre, y lo sujeta también
+        `test_the_drawing_never_moves_on_the_everyday_screen`.
 
-        `running: true` sigue prohibido en la ilustración: lo que arranca lo
-        arranca `play()`, para que cambiar de paso rebobine.
+        `running: true` sigue prohibido: lo que arranca lo arranca `play()`,
+        para que cambiar de paso rebobine.
         """
         code = _sin_comentarios(REPO / "components" / "TransformationIllustration.qml")
         self.assertEqual(code.count("Animation.Infinite"), 1,
-                         "más de un bucle en la ilustración")
-        self.assertIn('cycles: variant === "protect"', code,
-                      "el bucle no está atado a la variante que lo justifica")
+                         "más de un reloj en la ilustración")
+        self.assertIn('cycles: variant !== "unread"', code,
+                      "el bucle no está atado a lo que lo justifica")
         self.assertIn("loops: root.cycles ? Animation.Infinite : 1", code)
         self.assertNotIn("running: true", code)
 

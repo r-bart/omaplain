@@ -1,7 +1,8 @@
 # 0017 — Los bucles viven en el tour, y en ningún otro sitio
 
 - Fecha: 3 de septiembre de 2026
-- Estado: aceptada
+- Estado: aceptada, **revisada el mismo día** tras verlas correr en el panel
+  (ver «Lo que cambió al mirarlo», al final)
 - Enmienda a: [`0004`](./0004-transformation-experience.md), y al guarda
   `test_the_entrance_plays_once_and_never_loops` que la fijaba
 
@@ -106,3 +107,55 @@ decoración y esta decisión no lo ampara.
 - Con «Reducir movimiento» puesto, los dos siguen apagados: la cinta se pinta
   con las cuatro tarjetas repartidas en sus posiciones de reposo, y la lista en
   su primera parada. Ninguna de las dos pierde información al pararse.
+
+---
+
+## Lo que cambió al mirarlo
+
+El reparto de arriba se decidió sobre el papel. Con las cinco pantallas
+corriendo en el panel de verdad, dos de las tres que se quedaban quietas no
+aguantan el argumento.
+
+**La bienvenida.** Se reproduce en el primer segundo y medio y se queda
+muerta el resto del tiempo que la pantalla está delante — que es largo:
+tiene un titular, un párrafo, tres tarjetas y dos botones que leer. Quien
+llega dos segundos tarde no ve nada; ve un dibujo quieto de dos rectángulos
+grises, que es peor que lo que sustituyó. Y la frase que la acompaña habla
+en presente continuo: «convierte las copias que puede». Una sola pasada
+cuenta una copia; el ciclo cuenta lo que hace el producto.
+
+**El recorrido de la lista del paso 3.** El argumento «se cumple entero con
+un viaje» es cierto para quien está mirando en ese momento, y sólo para
+ése. La lista sube y baja una vez a los pocos segundos de entrar en el paso,
+y si estabas leyendo el titular te lo perdiste para siempre.
+
+### El reparto nuevo
+
+**Ciclan las tres ilustraciones del onboarding, y ninguna del panel de cada
+día.**
+
+- `transform` (la bienvenida) cicla cada 4 200 ms. **La vuelta no es un
+  deshacer**: el tramo reaparece en la tinta de reposo y no en acento, y en
+  360 ms contra los 520 del cierre. No se lee como que la limpieza se
+  rebobina, sino como que llega otra copia.
+- `protect` (la cinta) cicla, como ya decía el punto 1.
+- `control` cicla **sólo el recorrido de la lista**. Los cuatro
+  interruptores se encienden en la primera vuelta y se quedan: «ya viene
+  configurado» es una frase que se dice una vez, y apagarlos para volver a
+  encenderlos diría que alguien los está tocando.
+- `unread` (el bypass) no cicla, y sigue siendo lo que de verdad protegía
+  esta decisión: la pantalla más vista informa, no actúa
+  ([`0007`](./0007-la-pantalla-frecuente-informa.md)).
+
+La regla queda más simple de enunciar que la de arriba, y traza la línea
+donde importa: **el onboarding cicla, el panel de cada día no.** El sónar
+sigue amparado por su propia sección, y el carrusel por la
+[`0008`](./0008-el-estado-vacio.md).
+
+### Lo que sigue en pie
+
+El motivo original —un bucle ambiente compite con el texto que acompaña— no
+era falso, era incompleto: lo que compite es un bucle **rápido o
+llamativo**. Los tres van despacio (4,2 s, 15,6 s y 10,2 s por vuelta),
+ninguno pide atención, y ninguno se mueve mientras el ojo está en la línea
+de abajo. El día que uno de ellos parpadee, esta decisión no lo ampara.

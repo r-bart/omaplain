@@ -38,12 +38,31 @@ Item {
   }
   function clamp(t) { return Math.max(0, Math.min(1, t)) }
 
-  // Nombrar: 0 → 340 ms de los 940. El tramo pasa de la tinta de reposo al
-  // acento **sin moverse**. Es lo que convierte el gesto en explicación: se
-  // ve *qué* se va, y luego se va.
-  readonly property real naming: outCubic(clamp(progress / 0.362))
-  // Comprimir: 420 → 940 ms. Empieza después de que el nombrado termine.
-  readonly property real squeeze: inOutCubic(clamp((progress - 0.447) / 0.553))
+  // El ciclo de la bienvenida, en milisegundos desde t₀:
+  //
+  //     0 →  340   nombrar     el tramo pasa al acento **sin moverse**
+  //   420 →  940   comprimir   se cierra y el renglón cierra el hueco
+  //   940 → 2900   quieto      la copia limpia, para que se lea
+  //  2900 → 3260   la siguiente copia llega, con lo que sobra otra vez
+  //  3260 → 4200   quieto      y vuelve a empezar
+  //
+  // Nombrar antes de retirar es lo que convierte el gesto en explicación:
+  // se ve *qué* se va, y luego se va.
+  //
+  // **La vuelta no es un deshacer.** El tramo reaparece en la tinta de
+  // reposo, no en acento, y en 360 ms contra los 520 del cierre: no se lee
+  // como que la limpieza se rebobina, sino como que llega otra copia. Que
+  // es lo que dice la pantalla — «convierte las copias que puede».
+  readonly property int cycleReturn: 2900
+  readonly property int cycleReturnMs: 360
+
+  readonly property real phaseIn: root.variant === "transform"
+    ? 1 - outCubic(clamp((clockMs - cycleReturn) / cycleReturnMs)) : 1
+
+  readonly property real naming: outCubic(clamp(clockMs / 340)) * phaseIn
+  readonly property real squeeze: root.variant === "transform"
+    ? inOutCubic(clamp((clockMs - 420) / 520)) * phaseIn
+    : inOutCubic(clamp((clockMs - 420) / 520))
 
   readonly property color restInk: Util.alpha(Color.popups.text, 0.45)
   readonly property color markInk: Qt.rgba(
@@ -66,14 +85,28 @@ Item {
   // `test_the_entrance_animates_nothing_that_costs_a_layout` vigila qué se
   // anima aquí, y meter un reloj por variante lo dejaría sin sentido.
   readonly property int runMs: variant === "protect" ? 15600
-    : variant === "control" ? 10200 : 940
+    : variant === "control" ? 10200 : variant === "transform" ? 4200 : 940
   readonly property int leadMs: variant === "transform" ? 250 : 0
-  // La cinta cicla; nada más lo hace. La 0017 lo argumenta: el bucle **es**
-  // lo que el paso 1 afirma, y tres tarjetas quietas decían «aquí hay tres
-  // cosas», no «no se tocan».
-  readonly property bool cycles: variant === "protect"
+
+  // **Ciclan las tres del onboarding, y ninguna del panel de cada día.**
+  // Es la regla de la 0017 tras verlas correr: una ilustración que se
+  // reproduce una vez se queda muerta el resto del tiempo que la pantalla
+  // está delante, y estas pantallas se leen despacio. La que no cicla es
+  // `unread`, que vive en el panel frecuente y va quieta por la 0007.
+  readonly property bool cycles: variant !== "unread"
 
   readonly property real clockMs: progress * runMs
+
+  // Cuántas vueltas lleva dadas. Los interruptores del paso 3 se encienden
+  // en la primera y se quedan: «ya viene configurado» es una frase que se
+  // dice una vez, y apagarlos para volver a encenderlos diría que alguien
+  // los está tocando. Lo que sí cicla ahí es el recorrido de la lista.
+  property int laps: 0
+  property real lastProgress: 0
+  onProgressChanged: {
+    if (progress < lastProgress) laps += 1
+    lastProgress = progress
+  }
 
   // De qué es la copia que se está enseñando. La cinta del tour trae los
   // tres tipos que el helper no toca; el bypass trae el que hay ahora
@@ -188,6 +221,8 @@ Item {
   }
 
   function play() {
+    laps = 0
+    lastProgress = 0
     if (!motionEnabled) { progress = 1; enterFactor = 1; return }
     enterFactor = 0
     progress = 0
@@ -508,16 +543,15 @@ Item {
         return best
       }
 
-      // La luz del control. Va debajo del arco y de las tarjetas.
-      Rectangle {
-        x: belt.postLeft + belt.postWidth
-        y: belt.archTop
-        width: belt.postRight - belt.postLeft - belt.postWidth
-        height: belt.archHeight
-        color: Util.alpha(Color.accent, 0.06 + 0.34 * belt.gateProximity)
-      }
-
-      // El arco: dos montantes y un dintel, detrás de todo lo que pasa.
+      // **El arco es un marco, no un panel.** El paquete de diseño pinta el
+      // hueco con una luz de acento que sube con la presencia, y a tamaño
+      // real eso no se lee como un arco de control: se lee como un rectángulo
+      // amarillo detrás de la tarjeta. Un arco de aeropuerto es dos montantes
+      // y un dintel, y por dentro no hay nada — se ve lo que hay al otro
+      // lado.
+      //
+      // La reacción a la presencia se queda, pero en el propio marco: es lo
+      // que ya hacía además de la luz, y ahora es lo único que hace.
       Item {
         anchors.fill: parent
         opacity: 0.5 + 0.5 * belt.gateProximity
@@ -701,6 +735,7 @@ Item {
       // interruptor por decisión de nadie.
       function switchAt(i) {
         if (i >= 4) return 0
+        if (root.laps > 0) return 1
         return root.outCubic(root.clamp((root.clockMs - (420 + i * 180)) / 300))
       }
 
