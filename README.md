@@ -24,13 +24,15 @@ omarchy plugin add https://github.com/r-bart/omaplain.git --enable
 Plugins run as unsandboxed code inside your long-lived shell process. Read the
 source before you enable it — that advice is Omarchy's, and it is good advice.
 
-To also get it in the application launcher, copy the desktop entry. It is not
-installed for you, because a clipboard plugin that writes into your application
-directories without saying so is doing the thing this project promises not to
-do:
+To also get it in the application launcher, copy the desktop entry and its
+icon. Neither is installed for you, because a clipboard plugin that writes into
+your application directories without saying so is doing the thing this project
+promises not to do:
 
 ```sh
 cp io.github.r-bart.omaplain.desktop ~/.local/share/applications/
+mkdir -p ~/.local/share/icons/hicolor/scalable/apps
+cp io.github.r-bart.omaplain.svg ~/.local/share/icons/hicolor/scalable/apps/
 ```
 
 Enabling it for the first time puts an icon in your bar, because that is what

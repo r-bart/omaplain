@@ -106,6 +106,12 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Cambiado
 
+- **La entrada del lanzador tiene icono propio.** `Icon=edit-paste` tomaba
+  prestado un icono del tema. Cambiaba con el tema y no decía qué hace esto.
+  Ahora hay un `io.github.r-bart.omaplain.svg` en la raíz: un trazo que
+  empieza ondulado y acaba recto, con un punto donde reposa. Se copia a mano,
+  igual que el `.desktop` y por la misma razón. El icono de la barra no se
+  toca: sigue siendo el glifo de la Nerd Font que pide `SPEC.md`.
 - **Repaso de los textos, en los dos idiomas.** Veintidós cadenas decían
   algo distinto de lo que había debajo: el párrafo de «Aplicaciones»
   explicaba el almacenamiento —herencia de cuando esa sección se llamaba
