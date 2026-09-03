@@ -492,6 +492,8 @@ omaplain/
 ├── Panel.qml              las dos páginas: portapapeles y ajustes
 ├── BarWidget.qml          el icono de la barra: la marca
 ├── components/            filas, botones, cubierta, tour, marca, catálogo Strings.js
+├── launcher/
+│   └── omaplain-launcher-icon   hook de `theme-set`: repinta el icono
 ├── helper/
 │   ├── omaplain           ejecutable
 │   └── omaplain_lib/

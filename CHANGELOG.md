@@ -128,6 +128,15 @@ Lo que salió de la revisión completa del 2 de septiembre.
   dibuja con `QtQuick.Shapes`, así que el trazo va en la tinta del sitio y el
   punto en el acento del tema; en el lanzador sigue siendo el fichero SVG, que
   es lo único que el sistema de iconos sabe leer.
+- **El icono del lanzador puede seguir al tema**
+  ([`0020`](docs/decisions/0020-la-marca-se-dibuja.md), enmienda). Un hook de
+  `theme-set` opcional lo repinta con `foreground`, `background` y `accent` del
+  tema que acabas de poner. Escribe en `~/.local/share/omaplain/icons/` y
+  cambia una línea de la entrada `.desktop`; sin entrada instalada no hace
+  nada. Cambia la **ruta** y no el contenido a propósito: el shell es un
+  proceso largo y Qt cachea el pixmap por la URL, así que reescribir el fichero
+  en su sitio no se ve hasta el siguiente arranque — las dos cosas están
+  medidas en la decisión.
 - **El logotipo escribe el nombre en minúscula, y siempre con el dibujo
   delante.** «OmaPlain» en la cabecera era todo lo que había, y tenía que
   gritar para identificar; con la marca delante, el texto baja la voz. Llega a

@@ -55,22 +55,24 @@ Con una salvedad que conviene decir: hay temas que no declaran acento, y en
 ésos `Color.accent` vale lo mismo que la tinta. Ahí el punto no desaparece
 —sigue siendo un círculo al final de un trazo—, pero deja de ser un color.
 
-**En el lanzador, no.** El icono es un fichero que lee el sistema de iconos de
-freedesktop, que no tiene ninguna noción del tema de Omarchy. Y está bien que
-sea así: ese icono vive en una rejilla junto a los de otras cuarenta
-aplicaciones, cada una con su color; una baldosa que cambia de tono con el
-shell es más difícil de encontrar, no más bonita.
+**En el lanzador, no directamente.** El icono es un fichero que se dibuja tal
+cual: `shell/plugins/menu/Menu.qml:1303` lo pone en un `Image` sin `colorize`
+ni `MultiEffect`. Lo que sí se tiñe en ese mismo menú son sus propias filas,
+quince líneas más arriba, y no son ficheros: son glifos de Nerd Font pintados
+como texto con `color: root.foreground`. Ahí está la frontera, y no es del
+lanzador: **lo que dibujamos nosotros se puede teñir; un fichero que dibuja un
+`Image` se ve como está guardado.**
+
+Así que teñirlo es escribir otro fichero. Se hace, y cómo se hace está en la
+enmienda de abajo.
 
 ## Lo que se descartó
 
 - **Traer el SVG al shell con un `Image`.** Una línea, y trae sus colores
   dentro: el trazo en `#1B201E` sobre un panel casi negro es tinta invisible.
   Habría hecho falta un fichero por tema.
-- **Reescribir el SVG del lanzador al cambiar de tema.** Técnicamente se puede.
-  Pero es un fichero que OmaPlain no posee, en un directorio que el usuario
-  copió a mano, con una caché de iconos con la que competir y sin ningún gancho
-  de plugin en el cambio de tema de Omarchy. Todo eso por un punto en una
-  baldosa que ya tiene su propio fondo crema.
+- **Reescribir el SVG del lanzador al cambiar de tema.** Descartado aquí por
+  tres motivos, y dos de los tres eran falsos. Ver la enmienda.
 - **Un icono `-symbolic`.** GTK sabe teñirlos, pero tiñe el icono **entero** y
   de un solo color: adiós al punto, que es justamente lo que se quería teñir.
   Y el lanzador de Omarchy no tiene por qué ser GTK.
@@ -94,3 +96,55 @@ shell es más difícil de encontrar, no más bonita.
   convierten cualquier fila en una fila con un agujero.
 - El nombre en minúscula llega a la entrada `.desktop`, al manifiesto y a la
   cabecera. Un test lee los tres a la vez, porque ninguno importa a los otros.
+
+
+## Enmienda · el lanzador también, con un gancho y una ruta
+
+Descarté repintar el icono del lanzador con tres motivos. Al ir a comprobarlos
+uno por uno, dos no aguantaron.
+
+**«Sin ningún gancho de plugin en el cambio de tema»: falso.**
+`omarchy-theme-set` termina llamando a `omarchy-hook theme-set "$THEME_NAME"`,
+y `~/.config/omarchy/hooks/theme-set.d/` existe desde la instalación, con su
+`.sample` dentro explicando cómo se usa. El gancho estaba puesto; no lo busqué.
+Y `omarchy-theme-color` resuelve la paleta del tema actual desde un script,
+que es justo lo que hacía falta para pintar.
+
+**«Una caché de iconos con la que competir»: cierto, y medido.** Dos
+experimentos en el shell de verdad, con la entrada fijada arriba del menú de
+aplicaciones para poder verla:
+
+| qué se cambia | ¿lo ve el shell vivo? |
+| --- | --- |
+| el contenido del SVG, misma ruta | **no** — hasta que el shell reinicia |
+| el `Icon=` de la entrada, ruta nueva | **sí**, al momento |
+
+El motivo es que `Menu.qml` pinta con un `Image` cuya `source` es una URL de
+fichero, y Qt cachea el pixmap por esa URL en un proceso que vive horas.
+Reescribir el fichero deja la URL igual y la caché acierta con la imagen
+vieja. Cambiar la ruta hace que falle, y entonces lee. `omarchy-theme-set` no
+reinicia el shell a propósito —«the shell hot-reloads theme colors»—, así que
+la vía del contenido dejaría el lanzador desfasado hasta el siguiente arranque.
+
+**«Un fichero que OmaPlain no posee»: sigue siendo verdad, y por eso el hook
+se limita.** Los iconos generados van a `~/.local/share/omaplain/icons/`, que
+es nuestro; de la entrada del usuario se toca **una línea**, la del `Icon=`; y
+sin entrada instalada el hook no hace nada y no la crea. Un test cuenta qué
+ficheros aparecen tras una pasada y falla si sale alguno de más.
+
+Queda el motivo estético, que era el bueno de los tres: una baldosa que cambia
+de tono es más difícil de encontrar en una rejilla. Se sostiene menos de lo
+que parecía, porque en esa rejilla se busca por **forma** —la onda con su
+punto— y la forma no cambia. Y el reparto de color se eligió para que el
+contraste esté garantizado en los dos modos:
+
+- la baldosa va en `foreground` y el trazo en `background`, no al revés. El
+  menú de aplicaciones se pinta con `background`: una baldosa de ese color se
+  disuelve en la fila. Con este reparto, en un tema claro el icono se da la
+  vuelta solo y sigue contrastando.
+- el punto, en `accent`.
+
+Instalarlo sigue siendo una decisión del usuario, como la propia entrada
+`.desktop` ([`0010`](./0010-como-se-abre-el-panel.md)): es un enlace en
+`theme-set.d` y una pasada a mano la primera vez. Sin él, el lanzador enseña
+el icono de marca de siempre, que es el que este repositorio versiona.

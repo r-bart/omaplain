@@ -35,6 +35,20 @@ mkdir -p ~/.local/share/icons/hicolor/scalable/apps
 cp io.github.r-bart.omaplain.svg ~/.local/share/icons/hicolor/scalable/apps/
 ```
 
+That icon carries its own brand colours. To have it follow your Omarchy theme
+instead, link the shipped hook into Omarchy's `theme-set` hook directory and
+run it once. From then on it repaints itself every time you change theme:
+
+```sh
+ln -sf ~/.config/omarchy/plugins/io.github.r-bart.omaplain/launcher/omaplain-launcher-icon \
+       ~/.config/omarchy/hooks/theme-set.d/omaplain-launcher-icon
+~/.config/omarchy/hooks/theme-set.d/omaplain-launcher-icon
+```
+
+It writes the repainted icons under `~/.local/share/omaplain/icons/` and
+changes one line — `Icon=` — of the desktop entry you copied above. Remove the
+link and it stops; put back the entry to go back to the brand icon.
+
 Enabling it for the first time puts an icon in your bar, because that is what
 Omarchy does with any plugin that declares a bar widget. Interactively it asks
 which section and suggests the right-hand one; otherwise it uses that
