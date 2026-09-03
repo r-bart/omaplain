@@ -94,8 +94,11 @@ Item {
           var k = (x + root.tile * y) * 4
           d[k] = 255; d[k + 1] = 255; d[k + 2] = 255
           // La potencia empuja el grano hacia lo oscuro: sin ella la capa
-          // es una niebla plana en vez de puntos.
-          d[k + 3] = Math.round(Math.pow(v, 2.2) * 210)
+          // es una niebla plana en vez de puntos. Y el tope no llega a 255
+          // porque a plena intensidad el grano cubre la tarjeta entera: a
+          // 210 era lo más brillante de la pantalla, por encima del texto
+          // del paso que la acompaña, y la ilustración no manda ahí.
+          d[k + 3] = Math.round(Math.pow(v, 2.2) * 150)
         }
       }
       ctx.drawImage(img, 0, 0)

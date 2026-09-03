@@ -6,6 +6,13 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 
 
+def _sin_comentarios(ruta: Path) -> str:
+    """El fuente sin los `//`: un motivo escrito en un comentario no es una
+    declaración, y un test que los cuente encuentra lo que no hay."""
+    texto = ruta.read_text(encoding="utf-8")
+    return "\n".join(line.split("//", 1)[0] for line in texto.splitlines())
+
+
 def _rgb(value: str) -> tuple[float, float, float]:
     return tuple(int(value[index:index + 2], 16) / 255 for index in (1, 3, 5))
 
@@ -337,14 +344,62 @@ class UiContractTests(unittest.TestCase):
                 source = (REPO / "components" / user).read_text(encoding="utf-8")
                 self.assertIn("motionEnabled: root.motionEnabled", source)
 
-    def test_the_entrance_plays_once_and_never_loops(self) -> None:
-        # Un bucle ambiente en una ilustración de onboarding es decoración,
-        # y encima compite con el texto que la acompaña.
-        art = (REPO / "components" / "TransformationIllustration.qml").read_text(encoding="utf-8")
-        code = "\n".join(line.split("//", 1)[0] for line in art.splitlines())
-        self.assertNotIn("loops:", code)
-        self.assertNotIn("Animation.Infinite", code)
+    def test_the_loops_live_where_they_are_argued_for(self) -> None:
+        """Un bucle ambiente es decoración, y compite con el texto de al lado.
+
+        La regla era «ninguno», y la `0017` la afina: **ninguno fuera de
+        donde el ciclo es la afirmación**. La cinta del control cicla porque
+        el paso 1 dice que las imágenes, los archivos y los secretos no se
+        tocan, y tres tarjetas quietas no decían eso: decían «aquí hay tres
+        cosas». Lo que lo afirma es verlas entrar y salir enteras.
+
+        El recorrido de la lista del paso 3 no cicla, y ahí el test seguía
+        teniendo razón: su argumento —«hay más debajo»— se entrega en el
+        primer viaje, y del segundo en adelante es adorno.
+
+        `running: true` sigue prohibido en la ilustración: lo que arranca lo
+        arranca `play()`, para que cambiar de paso rebobine.
+        """
+        code = _sin_comentarios(REPO / "components" / "TransformationIllustration.qml")
+        self.assertEqual(code.count("Animation.Infinite"), 1,
+                         "más de un bucle en la ilustración")
+        self.assertIn('cycles: variant === "protect"', code,
+                      "el bucle no está atado a la variante que lo justifica")
+        self.assertIn("loops: root.cycles ? Animation.Infinite : 1", code)
         self.assertNotIn("running: true", code)
+
+    def test_nothing_on_the_everyday_screen_loops(self) -> None:
+        """Y fuera del tour, ni uno.
+
+        Los tres que ciclan en el resto del árbol están cada uno con su
+        motivo escrito, y no son ilustraciones de onboarding:
+
+        - `EmptyCarousel`, por la `0008`: su ciclo es de **contenido**, tres
+          ejemplos que se relevan, y es la pantalla que existe para llenar
+          una espera.
+        - `StatusHeader`, por la `0017`: el sónar representa literalmente
+          una espera y se acaba solo en cuanto el demonio atiende.
+        - `Grain`, que sólo se mueve con `motionEnabled` y en el panel
+          frecuente lo recibe en falso desde `Panel.qml`.
+
+        El resto de la pantalla de cada día está quieto, y esto lo sujeta.
+        """
+        for nombre in ("ClipboardRow.qml", "FogCover.qml", "CopySpecimen.qml",
+                       "DemoTransformation.qml", "MimeChips.qml", "Chip.qml",
+                       "StatusHeader.qml"):
+            with self.subTest(fichero=nombre):
+                code = _sin_comentarios(REPO / "components" / nombre)
+                if nombre == "StatusHeader.qml":
+                    # El sónar, y sólo él: atado a `motionEnabled` y a que
+                    # el servicio siga arrancando.
+                    self.assertEqual(code.count("Animation.Infinite"), 1)
+                    self.assertIn("running: root.motionEnabled && sonar.visible", code)
+                else:
+                    self.assertNotIn("Animation.Infinite", code)
+        # Y el grano no se mueve si no se le deja.
+        grano = _sin_comentarios(REPO / "components" / "Grain.qml")
+        self.assertNotIn("running: true", grano)
+        self.assertEqual(grano.count("running: root.motionEnabled && root.visible"), 3)
 
     def test_the_entrance_animates_nothing_that_costs_a_layout(self) -> None:
         """transform y opacity van en la GPU; animar x, y o anchors obliga a
