@@ -541,9 +541,14 @@ Item {
 
       readonly property real postLeft: Style.space(149)
       readonly property real postRight: Style.space(308)
-      readonly property real postWidth: Math.max(1, Style.space(3))
+      readonly property real postWidth: Math.max(1, Style.space(2))
       readonly property real archTop: Style.space(6)
-      readonly property real archHeight: Style.space(184)
+      // Dónde apoya la cinta. El arco **termina justo ahí**, derivado y no
+      // escrito: con un alto propio, los montantes sobresalían cuatro
+      // píxeles por debajo del riel y quedaban dos patitas colgando.
+      readonly property real beltY: Style.space(182)
+      readonly property real beltWidth: Math.max(1, Style.space(4))
+      readonly property real archHeight: beltY - archTop
       readonly property real cardWidth: Style.space(130)
       readonly property real cardHeight: Style.space(152)
       readonly property real cardTop: Style.space(22)
@@ -610,9 +615,13 @@ Item {
       //
       // La reacción a la presencia se queda, pero en el propio marco: es lo
       // que ya hacía además de la luz, y ahora es lo único que hace.
+      // **Un marco tenue.** A plena luz el arco era lo más brillante de la
+      // pantalla y le robaba el sitio a la tarjeta, que es el sujeto. Sigue
+      // reaccionando a la presencia; lo que baja es de dónde parte y hasta
+      // dónde llega.
       Item {
         anchors.fill: parent
-        opacity: 0.5 + 0.5 * belt.gateProximity
+        opacity: 0.3 + 0.4 * belt.gateProximity
 
         Rectangle {
           x: belt.postLeft; y: belt.archTop
@@ -636,17 +645,17 @@ Item {
       // montantes, que es el trozo que el control vigila.
       Rectangle {
         x: 0
-        y: Style.space(183)
+        y: belt.beltY + Math.max(1, Style.space(1))
         width: parent.width
         height: Math.max(1, Style.space(2))
         color: Util.alpha(Color.popups.text, 0.16)
       }
       Rectangle {
         x: belt.postLeft
-        y: Style.space(182)
+        y: belt.beltY
         width: belt.postRight + belt.postWidth - belt.postLeft
-        height: Math.max(1, Style.space(4))
-        color: Util.alpha(Color.accent, 0.55)
+        height: belt.beltWidth
+        color: Util.alpha(Color.accent, 0.45)
       }
 
       // Y la cola de copias. Cuatro tarjetas, tres tipos: una imagen, unos
@@ -681,11 +690,11 @@ Item {
             (Math.min(root.sceneWidth, parcel.x + width) - Math.max(0, parcel.x)) / width))
           visible: opacity > 0.01
 
-          // El temblor es de un píxel y medio y sale de un seno del reloj:
-          // señal inestable, no tarjeta rota.
-          transform: Translate {
-            x: Math.sin(root.clockMs / 38) * Style.spaceReal(1.5) * parcel.signal
-          }
+          // **Sin temblor.** El paquete de diseño mueve la tarjeta píxel y
+          // medio con un seno del reloj, para que se lea como señal
+          // inestable. Con la cinta de corrido colaba; parada bajo el arco
+          // no se lee como señal, se lee como una imagen que vibra. Lo que
+          // dice que ahí no se lee nada es el grano, y ése se queda.
 
           GlassSurface {
             id: parcelCard
