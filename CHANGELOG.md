@@ -94,6 +94,11 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Retirado
 
+- **«Ver el original» sale de la demostración del tour.** Se fue con la
+  tarjeta que lo envolvía —tres bordes concéntricos para enseñar una cadena—,
+  y con la caída el original ya es lo primero que se ve. El botón que queda
+  es «Verlo otra vez» con movimiento, y «Probar con un ejemplo» sin él, que
+  es la única vía que le queda a quien apagó las animaciones.
 - **«Omitir la próxima copia» se va entera**: del panel, del IPC, del CLI, del
   helper y del demonio. Pedía adivinar el futuro —armarla antes de copiar y
   acordarse de que estaba armada—, caducaba en silencio al minuto, y apagar
@@ -106,6 +111,44 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Cambiado
 
+- **Las ilustraciones del panel cuentan lo que dicen, moviéndose.** Los
+  dibujos quietos que había explicaban el producto con una metáfora; ahora lo
+  demuestran con el gesto que hace.
+  - La **bienvenida** deja los dos naipes rotados con sus rótulos y la flecha
+    del medio, y enseña una dirección y su página, rectas y alineadas. Lo que
+    sobra se marca primero y se cierra después: se ve *qué* se va antes de que
+    se vaya.
+  - El **paso 1 del tour** pasa de tres tarjetas quietas a una cola de copias
+    que entra en un control de seguridad, pierde el dibujo bajo el ruido y
+    sale entera por el otro lado. Tres tarjetas quietas no decían «no se
+    tocan»: decían «aquí hay tres cosas».
+  - El **paso 2** suelta los caracteres que se retiran de una URL real: caen,
+    rebotan en el borde de la tarjeta y se apagan, y el resultado se cuenta
+    cuando ya ha pasado. La cadena es la misma que el motor limpia de verdad.
+    El paso deja de montar además la ilustración de la bienvenida.
+  - El **paso 3** enseña los cinco ajustes reales con sus valores de fábrica:
+    cuatro se encienden solos y el quinto se queda apagado, porque no viene
+    nada impuesto. La lista sube a enseñar que hay más y vuelve.
+  - Un **bypass** —una imagen, unos archivos, un secreto— enseña una sola
+    tarjeta con ruido quieto encima: es todo lo que OmaPlain llega a ver de
+    ella. En vez del inventario de tres filas, que hablaba de las tres cosas
+    cuando en el portapapeles hay una.
+  - Los **ejemplares del carrusel** y la superficie de todas las tarjetas
+    bajan a un mismo material de cristal, con su sombra y su halo
+    ([`0018`](docs/decisions/0018-el-material-del-panel.md)).
+  - Con **«Reducir movimiento»** puesto, las seis se pintan en su estado final
+    y ninguna pierde información.
+- **«Arrancando» deja de parecerse a «pausado».** Los dos enseñaban el mismo
+  punto quieto y sólo cambiaba el rótulo. Arrancando lleva ahora tres anillos
+  que salen y se pierden: el servicio no está haciendo esfuerzo, está a la
+  escucha. Se acaba solo, y la insignia no cambia de alto.
+- **El tipo MIME que se retira deja de ser lo más brillante de la fila.**
+  Llevaba tachado, color de acento **y** fondo de acento a la vez: tres
+  señales para lo único que no va a estar. Se queda con el color, que llega
+  cuando el panel se abre para que el ojo vaya ahí; en «sólo se retira el
+  formato» las dos filas de texto salen idénticas y los chips son lo único
+  que cuenta el cambio. Y los que sobreviven vuelven a la tinta normal del
+  panel: son justamente lo que sobrevive.
 - **La entrada del lanzador tiene icono propio.** `Icon=edit-paste` tomaba
   prestado un icono del tema. Cambiaba con el tema y no decía qué hace esto.
   Ahora hay un `io.github.r-bart.omaplain.svg` en la raíz: un trazo que

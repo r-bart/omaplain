@@ -208,7 +208,6 @@ var EN = {
   // --- Demostración del tour ---
   "demo.label": "Demonstration · sample text, never your clipboard",
   "demo.try": "Try it with an example",
-  "demo.original": "See the original",
   "demo.replay": "Play it again",
   "demo.a11y.before": "Original example: %1",
   "demo.a11y.after": "Result: %1",
@@ -220,10 +219,7 @@ var EN = {
 
   // --- Ilustración ---
   "state.preparing": "Getting the service ready…",
-  "art.cleaning": "Cleaning rules",
-  "art.exclude": "App rules",
   "settings.trim": "Trim end-of-line spaces",
-  "art.automatic": "Automatic",
   // Las dos muestras del tour. Estaban escritas en el QML, en español, así
   // que en inglés la pantalla enseñaba una interfaz traducida con ejemplos
   // sin traducir —y la frase de resultado hablaba de «the servings»
@@ -281,8 +277,6 @@ var EN = {
   "empty.sample.rich.head": "Executive summary",
   "empty.sample.rich.spare": ", in bold and in colour",
   "empty.sample.rich.tail": ".",
-  "art.copied": "Copied",
-  "art.clean": "Clean",
 
   // --- Aplicaciones ---
   // Una sola sección, un solo formulario. Antes eran dos, con dos rótulos
@@ -490,7 +484,6 @@ var ES = {
 
   "demo.label": "Demostración · texto de ejemplo, nunca tu portapapeles",
   "demo.try": "Probar con un ejemplo",
-  "demo.original": "Ver el original",
   "demo.replay": "Verlo otra vez",
   "demo.a11y.before": "Ejemplo original: %1",
   "demo.a11y.after": "Resultado: %1",
@@ -500,10 +493,7 @@ var ES = {
   "onboarding.done": "Empezar a usarlo",
 
   "state.preparing": "Preparando el servicio…",
-  "art.cleaning": "Reglas de limpieza",
-  "art.exclude": "Reglas por app",
   "settings.trim": "Retirar espacios al final de línea",
-  "art.automatic": "Automático",
   "demo.sample1.original": "https://example.com/pan-de-masa-madre?utm_source=boletin&utm_medium=email&fbclid=IwAR9x&​porciones=8#horneado",
   "demo.sample1.head": "https://example.com/pan-de-masa-madre?",
   "demo.sample1.spare": "utm_source=boletin&utm_medium=email&fbclid=IwAR9x&​",
@@ -547,8 +537,6 @@ var ES = {
   "empty.sample.rich.head": "Resumen ejecutivo",
   "empty.sample.rich.spare": ", en negrita y con color",
   "empty.sample.rich.tail": ".",
-  "art.copied": "Copiado",
-  "art.clean": "Limpio",
 
   // --- Aplicaciones ---
   "apps.title": "Aplicaciones",

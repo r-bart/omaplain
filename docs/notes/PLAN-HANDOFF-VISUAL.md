@@ -1,6 +1,6 @@
 # Plan para portar el handoff de diseño
 
-- Estado: **aprobado**
+- Estado: **cumplido** (fases 0 a 9; la 10 quedó cortada por decisión)
 - Fecha: 3 de septiembre de 2026
 - Porta a QML el paquete de
   [`thoughts/design_handoff_omaplain/`](../../thoughts/design_handoff_omaplain/),
@@ -303,7 +303,7 @@ Las cinco son sólo de `TransformationIllustration.qml`, comprobado. Y las
 Los tres guardas que cambian: los bucles (fase 0), el ancho de un tramo que se
 retira (fase 2) y la variante del bypass (fase 8).
 
-### Fase 10 · Los tramos de la fila *(opcional, se corta primero)*
+### Fase 10 · Los tramos de la fila *(cortada)*
 
 El helper devuelve en `peek` los rangos retirados, y `ClipboardRow` estrena el
 disparador de §1: cae al llegar el texto **sólo si la fila está descubierta**,
@@ -332,6 +332,50 @@ dependencias:
 ```
 
 Las fases 2, 3, 4, 5 y 6 son independientes entre sí: se pueden repartir.
+
+---
+
+## Lo que cambió al implementarlo
+
+Seis cosas que el plan no podía saber sin ejecutar el código. Van aquí porque
+un plan que se cumple sin una sola sorpresa es un plan que no se contrastó.
+
+**La sombra del cristal necesita un molde opaco.** `MultiEffect` saca la sombra
+del alfa de lo que le das. Colgada de la superficie entera pasaban dos cosas:
+el relleno es un 15 % de alfa, así que la sombra salía al 15 % de lo pedido y
+no se veía; y el texto de dentro proyectaba la suya, un fantasma borroso
+legible a través del propio cristal. La proyecta ahora una silueta aparte, del
+color del fondo. Se paga con que esa silueta tapa lo que haya detrás, así que
+la sombra se puede apagar.
+
+**`TestRoot.qml` no dibujaba nada.** Colgaba de un `ShellRoot` sin ventana, y
+sin ventana no hay renderizador: valía para comprobar lógica y no vale para un
+lienzo, que sólo pinta si alguien lo pinta. El material vive ahora en una
+`PanelWindow` de verdad, en una segunda tanda.
+
+**El chip que se retira se nombra, y se queda.** El paquete lo comprime hasta
+cero; al acabar quedaría `text/plain → text/plain`, y ésta es la única pantalla
+donde las dos filas de texto salen idénticas. Mismo argumento que la decisión 2
+de arriba: la pantalla frecuente informa, y una animación no puede llevarse por
+delante la información que da.
+
+**La tarjeta de la demo no se recoge.** El paquete lo pide en `ESTADOS.md` y lo
+prohíbe en `ANIMACIONES.md` («la altura la sigue fijando `measure`, **no se
+toca**: los botones no se pueden mover»). Se hace caso al segundo, que además
+es lo que ya defendía un comentario del componente. El hueco que queda debajo
+del texto limpio es justo donde se apilan los añicos.
+
+**El grano se bajó dos veces.** El barrido fino al 42 % de acento cuenta con el
+modo `screen`, que aquí no hay: en mezcla normal convertía la tarjeta en una
+persiana. Y el tope del ruido, porque a plena intensidad cubre la tarjeta
+entera y era lo más brillante de la pantalla, por encima del texto del paso que
+acompaña. También hubo que cambiar el hash: el multiplicador de Knuth sobre el
+índice del ráster es lineal en `x` y salían diagonales regulares, no ruido.
+
+**El recorrido de la lista vuelve a cero.** El paquete lista las paradas
+`0 → −52 → −104 → −52` y se queda en la tercera; su propio texto dice «baja a
+donde estaba». Vuelve a cero, que además es donde descansa con el movimiento
+apagado: los dos estados finales coinciden.
 
 ---
 
