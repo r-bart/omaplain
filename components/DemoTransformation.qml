@@ -122,7 +122,32 @@ Column {
   // suelo: se apagan al asentarse, saltan a su sitio mientras nadie los ve
   // y aparecen ahí. Verlos volver por donde bajaron leería «deshacer», y
   // aquí lo que llega es otra copia.
-  readonly property real settledAt: root.lastSettle + 220 + 180
+  // Cuando el suelo queda limpio, lo que queda del enlace **baja al centro
+  // de la tarjeta**. Antes se quedaba pegado arriba con el hueco muerto
+  // debajo, que es donde acababan de caer los añicos: la caja parecía
+  // esperar algo que ya no iba a venir.
+  //
+  // Baja con un muelle de dos rebotes que se apagan. No es adorno: la
+  // caída fue física, y que el texto se asiente con la misma física es lo
+  // que ata las dos mitades del gesto. Un `OutCubic` lo dejaría caer como
+  // un panel, no como algo que pesa.
+  readonly property int dropAt: root.lastSettle + 120
+  readonly property int dropMs: 620
+
+  function spring(t) {
+    if (t <= 0) return 0
+    if (t >= 1) return 1
+    return 1 - Math.exp(-5.5 * t) * Math.cos(2 * Math.PI * 1.8 * t)
+  }
+
+  readonly property real dropped: root.animatable
+    ? spring(clamp((root.fallClock - root.dropAt) / root.dropMs)) * (1 - root.reopened)
+    : 0
+
+  // El asiento no es sólo el de la frase: es el más tardío de los dos, o
+  // sin movimiento la tarjeta se quedaría con el muelle a medio rebote.
+  readonly property real settledAt: Math.max(root.lastSettle + 220 + 180,
+                                             root.dropAt + root.dropMs)
   readonly property int holdMs: 2200
   readonly property int reopenMs: 200
   readonly property int refillMs: 200
@@ -366,7 +391,12 @@ Column {
     TextEdit {
       id: layout
       x: Style.space(12)
-      y: Style.space(11)
+      // Arriba mientras hay algo que soltar, y en el centro cuando ya no.
+      // Leer `card.height` desde aquí no cierra ningún ciclo: el alto de la
+      // tarjeta sale de `implicitHeight`, y `implicitHeight` no depende de
+      // dónde esté puesto el texto.
+      y: Style.space(11) + (card.height - Style.space(22) - layout.implicitHeight)
+         / 2 * root.dropped
       width: card.width - Style.space(24)
       padding: 0
       readOnly: true
