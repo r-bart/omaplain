@@ -1,3 +1,5 @@
+![OmaPlain: paste clean text by default, keep everything else untouched. An Omarchy shell plugin that keeps no history, makes no network requests and never touches secrets](docs/images/cover.png)
+
 # OmaPlain
 
 **Paste clean text by default. Keep everything else untouched.**

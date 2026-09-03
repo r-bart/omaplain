@@ -2,6 +2,11 @@
   <!-- La marca: un trazo que empieza ondulado y acaba recto, y un punto donde
        reposa. Dice lo que hace el producto sin dibujar un portapapeles.
 
+       Los colores son los del tema Terminus: fondo navy, trazo crema, punto en
+       el oro que ese tema usa como acento. Un `.desktop` apunta a un fichero,
+       no a un token, así que este icono no sigue al tema activo como sí hace
+       el panel. Con otro tema de Omarchy seguirá siendo navy y oro.
+
        La geometría vive en una caja de 24 x 24, la misma que usan los iconos
        de la barra, para que el icono de la barra y el de la aplicación sean el
        mismo dibujo a dos tamaños.
@@ -16,9 +21,9 @@
           misma a los dos lados de cada nodo: 1.61 contra 2.28 no es un número
           suelto, es la relación que iguala (2/3)·h/cx². Repartir el ancho a
           ojo deja la curvatura al doble en un lado y la cresta hace punta. -->
-  <rect width="512" height="512" rx="115" fill="#F6F2EA"/>
+  <rect width="512" height="512" rx="115" fill="#17243a"/>
   <g transform="translate(46.12 45.69) scale(17.526)" fill="none" stroke-linecap="round">
-    <path d="M2.65 12c1.61 0 2.42-2.5 4.03-2.5c2.28 0 3.42 5 5.7 5c1.61 0 2.42-2.5 4.03-2.5h1.4" stroke="#1B201E" stroke-width="1.8"/>
-    <circle cx="20.95" cy="12" r="1.25" fill="#3E8E79"/>
+    <path d="M2.65 12c1.61 0 2.42-2.5 4.03-2.5c2.28 0 3.42 5 5.7 5c1.61 0 2.42-2.5 4.03-2.5h1.4" stroke="#e5dac5" stroke-width="1.8"/>
+    <circle cx="20.95" cy="12" r="1.25" fill="#d9a862"/>
   </g>
 </svg>
