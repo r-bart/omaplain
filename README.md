@@ -1,4 +1,4 @@
-![OmaPlain: paste clean text by default, keep everything else untouched. An Omarchy shell plugin that keeps no history, makes no network requests and never touches secrets](docs/images/cover.png)
+![OmaPlain: paste clean text by default, keep everything else untouched. An Omarchy shell plugin that keeps no history, makes no network requests and never touches secrets. Coloured after the Terminus theme: deep navy ground, cream type, and the mark resting on a warm gold dot](docs/images/cover.png)
 
 # OmaPlain
 
