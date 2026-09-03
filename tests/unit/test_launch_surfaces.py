@@ -23,10 +23,21 @@ ICONO = REPO / "io.github.r-bart.omaplain.svg"
 MARCA = REPO / "components" / "Mark.qml"
 PANEL = REPO / "Panel.qml"
 
-# El logotipo, en minúscula y en un solo sitio. Los tres ficheros que lo
-# escriben están lejos unos de otros y ninguno importa al otro, así que la
-# única forma de que no se separen es un test que los lea a la vez.
+# El nombre se escribe de tres maneras, y cada una tiene su sitio:
+#
+#   omaplain   el logotipo — cabecera del panel y manifiesto, siempre con la
+#              marca delante, que es lo que lo hace un logotipo
+#   Omaplain   el lanzador — ahí el nombre se lista junto a «Aether»,
+#              «Basecamp» y «Document Viewer», y en esa columna una minúscula
+#              no se lee como una marca, se lee como una errata
+#   OmaPlain   la prosa — el nombre propio, en las cadenas de los dos idiomas
+#
+# Los ficheros que las escriben están lejos unos de otros y ninguno importa al
+# otro, así que la única forma de que no se separen es un test que los lea a
+# la vez.
 LOGOTIPO = "omaplain"
+LANZADOR = "Omaplain"
+PROSA = "OmaPlain"
 
 
 class ManifestTests(unittest.TestCase):
@@ -98,7 +109,7 @@ class DesktopEntryTests(unittest.TestCase):
     def test_the_entry_has_what_the_spec_requires(self) -> None:
         e = self._entry()
         self.assertEqual(e["Type"], "Application")
-        self.assertEqual(e["Name"], LOGOTIPO)
+        self.assertEqual(e["Name"], LANZADOR)
         self.assertTrue(e["Exec"])
 
     def test_the_exec_line_carries_no_reserved_character(self) -> None:
@@ -174,13 +185,36 @@ class BrandTests(unittest.TestCase):
         self.assertIn("hasVisualContent: true", widget)
         self.assertIn("fixedWidth:", widget)
 
-    def test_the_wordmark_reads_the_same_in_the_three_places(self) -> None:
-        self.assertEqual(self._entry_name(), LOGOTIPO)
+    def test_the_logotype_is_lowercase_where_the_mark_is_beside_it(self) -> None:
         m = json.loads(MANIFEST.read_text(encoding="utf-8"))
         self.assertEqual(m["name"], LOGOTIPO)
         self.assertEqual(m["barWidget"]["displayName"], LOGOTIPO)
         panel = PANEL.read_text(encoding="utf-8")
         self.assertIn(f'text: "{LOGOTIPO}"', panel)
+        # Y con la marca delante, que es lo que lo hace un logotipo y no un
+        # descuido: el `Row` de la cabecera monta la una y luego el otro.
+        cabecera = panel.split("id: brand", 1)[1].split(f'text: "{LOGOTIPO}"', 1)[0]
+        self.assertIn("Mark {", cabecera)
+
+    def test_the_launcher_capitalises_because_it_is_a_list_of_names(self) -> None:
+        """En el lanzador el nombre no es un logotipo: es una fila.
+
+        La marca está ahí, pero en la columna de iconos, igual que la de
+        todas las demás. El nombre se lee en una lista junto a «Aether» y
+        «Document Viewer», y una minúscula en esa columna no dice «marca»,
+        dice «errata».
+        """
+        self.assertEqual(self._entry_name(), LANZADOR)
+
+    def test_the_three_spellings_are_the_same_word(self) -> None:
+        # Tres maneras ya son las que caben. Una cuarta sería un descuido, no
+        # una decisión, y desde dentro de cualquiera de los tres ficheros no
+        # se ve.
+        formas = {LOGOTIPO, LANZADOR, PROSA}
+        self.assertEqual(len(formas), 3)
+        for forma in formas:
+            with self.subTest(forma=forma):
+                self.assertEqual(forma.lower(), LOGOTIPO)
 
     def test_the_wordmark_is_not_the_proper_noun(self) -> None:
         """En la prosa se sigue escribiendo «OmaPlain».
@@ -191,8 +225,9 @@ class BrandTests(unittest.TestCase):
         delante, que es lo que lo hace un logotipo y no un descuido.
         """
         catalogo = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
-        self.assertIn("OmaPlain", catalogo)
-        self.assertNotIn('"omaplain', catalogo)
+        self.assertIn(PROSA, catalogo)
+        self.assertNotIn(f'"{LOGOTIPO}', catalogo)
+        self.assertNotIn(LANZADOR, catalogo)
 
     def _entry_name(self) -> str:
         c = configparser.ConfigParser(interpolation=None)

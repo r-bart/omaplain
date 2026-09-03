@@ -140,9 +140,11 @@ Lo que salió de la revisión completa del 2 de septiembre.
   medidas en la decisión.
 - **El logotipo escribe el nombre en minúscula, y siempre con el dibujo
   delante.** «OmaPlain» en la cabecera era todo lo que había, y tenía que
-  gritar para identificar; con la marca delante, el texto baja la voz. Llega a
-  la entrada `.desktop` y al manifiesto. En la prosa se sigue escribiendo
-  `OmaPlain`: un logotipo y un nombre propio son dos cosas distintas.
+  gritar para identificar; con la marca delante, el texto baja la voz. Llega
+  también al manifiesto. En la prosa se sigue escribiendo `OmaPlain` —un
+  logotipo y un nombre propio son dos cosas distintas—, y en el lanzador,
+  `Omaplain`: ahí el nombre se lista junto a «Aether» y «Document Viewer», y
+  en esa columna una minúscula se lee como una errata y no como una marca.
 - **El dibujo de una imagen se lee como una imagen.** Era marco, sol y dos
   barras horizontales, y el conjunto se leía como una ficha de contacto — y
   se parecía demasiado a la hoja de texto, que es cuatro renglones. Ahora

@@ -94,8 +94,18 @@ enmienda de abajo.
 - La marca se recorta a su tinta —20,45 × 6,8 de las 24 × 24— y se pide por el
   ancho. Con la caja entera, las 17 unidades de aire de arriba y abajo
   convierten cualquier fila en una fila con un agujero.
-- El nombre en minúscula llega a la entrada `.desktop`, al manifiesto y a la
-  cabecera. Un test lee los tres a la vez, porque ninguno importa a los otros.
+- El nombre se escribe de tres maneras y cada una tiene su sitio: `omaplain`
+  donde va con la marca delante —cabecera del panel y manifiesto—, `Omaplain`
+  en el lanzador y `OmaPlain` en la prosa. Un test las lee a la vez y comprueba
+  que son la misma palabra, porque ningún fichero importa a los otros y desde
+  dentro de cualquiera de ellos una cuarta forma no se ve.
+
+  El lanzador se sale del logotipo por lo que es esa pantalla: **una lista de
+  nombres.** La marca está ahí, pero en la columna de iconos, igual que la de
+  todas las demás filas; no forma pareja con el texto. Y el nombre se lee junto
+  a «Aether», «Basecamp» y «Document Viewer», donde una minúscula no dice
+  «marca», dice «errata». Un logotipo necesita que el dibujo esté haciendo de
+  identificador, y ahí no lo está.
 
 
 ## Enmienda · el lanzador también, con un gancho y una ruta
