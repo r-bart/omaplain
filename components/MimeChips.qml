@@ -21,6 +21,45 @@ Flow {
   property var typesAfter: []
   readonly property bool comparing: typesAfter && typesAfter.length > 0
 
+  property bool motionEnabled: true
+
+  // El chip que se va **se nombra, y se queda**.
+  //
+  // El paquete de diseño lo comprime hasta cero, y ahí no se puede seguir:
+  // ésta es la única pantalla donde las dos filas de texto salen idénticas,
+  // así que los chips son lo único que cuenta qué ha cambiado. Un chip que
+  // se cierra deja `text/plain → text/plain`, y quien mire el panel un
+  // minuto después no tiene forma de saber que había un `text/html`.
+  //
+  // Es el mismo argumento por el que la fila del resultado conserva su
+  // sello: la pantalla frecuente informa, y una animación no puede
+  // llevarse por delante la información que da ([`0007`], [`0016`]).
+  //
+  // Del motor se queda la mitad que sí explica: nombrar. El chip llega en
+  // la tinta del panel y a los 300 ms pasa al acento con su tachado, que
+  // es lo que hace que el ojo vaya ahí en vez de a las dos filas iguales.
+  property real named: motionEnabled ? 0 : 1
+
+  function play() {
+    if (!motionEnabled) { named = 1; return }
+    named = 0
+    naming.restart()
+  }
+
+  Component.onCompleted: play()
+  onMotionEnabledChanged: play()
+  onTypesAfterChanged: play()
+  onVisibleChanged: if (visible) play()
+
+  SequentialAnimation {
+    id: naming
+    PauseAnimation { duration: 300 }
+    NumberAnimation {
+      target: root; property: "named"; from: 0; to: 1
+      duration: 340; easing.type: Easing.OutCubic
+    }
+  }
+
   spacing: Style.space(6)
 
   Accessible.role: Accessible.StaticText
@@ -33,9 +72,9 @@ Flow {
     delegate: Chip {
       required property string modelData
       label: modelData
-      // Al comparar, se tacha lo que no sobrevive.
+      // Al comparar, se nombra lo que no sobrevive.
       dropped: root.comparing && root.typesAfter.indexOf(modelData) === -1
-      kept: root.comparing && !dropped
+      named: root.named
     }
   }
 
@@ -53,7 +92,6 @@ Flow {
     delegate: Chip {
       required property string modelData
       label: modelData
-      kept: true
     }
   }
 }

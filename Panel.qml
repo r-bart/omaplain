@@ -904,6 +904,7 @@ Item {
               // Cuando sólo se retira el formato, las dos filas salen
               // idénticas: el cambio hay que enseñarlo aquí o no se ve.
               MimeChips {
+                motionEnabled: root.motionEnabled
                 lang: root.lang
                 width: parent.width
                 visible: root.peekFormatOnly
@@ -941,6 +942,7 @@ Item {
               // De un bypass no se enseña contenido, pero sí de qué está
               // hecho: es lo que permite entender por qué no se toca.
               MimeChips {
+                motionEnabled: root.motionEnabled
                 lang: root.lang
                 width: parent.width
                 visible: !root.peekReady && root.peekTypes.length > 0
