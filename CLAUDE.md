@@ -20,6 +20,16 @@ argumentado en [`SPEC.md`](SPEC.md) y en [`docs/decisions/`](docs/decisions).
   contrato leen el fuente; no ven un binding que no se evalúa. Los de
   `tests/qml/` sí lo ejecutan, pero sólo de los componentes: `Panel.qml` y
   `Service.qml` necesitan el shell entero y siguen siendo cosa de mirar.
+- **El panel real no corre este repositorio.** Omarchy carga otro clon en
+  `~/.config/omarchy/plugins/io.github.r-bart.omaplain`, así que mirar el
+  panel sin llevarle antes la rama —`git -C <esa ruta> fetch <este repo>
+  <rama> && git -C <esa ruta> merge --ff-only FETCH_HEAD`— es mirar la
+  versión anterior y creer que se ha comprobado algo.
+- **Lo que se ve en el arnés depende del compositor de prueba.** Ahí
+  `Style.cornerRadius` vale cero, así que ningún fallo de esquinas
+  redondeadas se manifiesta; y un `ShellRoot` sin ventana no dibuja nada,
+  así que un `Canvas` no pinta. Lo que haya que ver se monta dentro de la
+  `PanelWindow` de `TestRoot.qml`.
 
 ## Lo que este proyecto promete
 
@@ -48,6 +58,11 @@ Si un cambio roza cualquiera de las tres, va con su decisión numerada en
 
 - Un botón deshabilitado es para una condición que se puede resolver desde
   esa misma pantalla. Si no, no se enseña ([`0015`](docs/decisions/0015-la-pantalla-frecuente-no-ofrece-un-boton-muerto.md)).
+- **Todo lo que cicla se para al ocultarse.** Ya pasó con el vaho y el
+  carrusel corriendo dentro de una ventana cerrada, y volvió a pasar con la
+  cinta del tour detrás del paso 2. Un `visible` leído desde QML ya es la
+  visibilidad efectiva —incluye a los padres—, así que un `running:` colgado
+  de él basta; lo que arranca una función a mano hay que pararlo a mano.
 - Si un control puede desaparecer con el foco dentro, hay que decir a dónde
   va el foco después.
 - Las cadenas van en `components/Strings.js`, en los dos idiomas. Un test
