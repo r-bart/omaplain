@@ -20,7 +20,7 @@ Column {
 
   property int sampleIndex: 0
 
-  // El estado lógico. `combed` lo sigue, animado o de golpe.
+  // El estado lógico. El reloj de la caída lo sigue, animado o de golpe.
   property bool revealed: false
 
   signal focusEntered(Item item)
@@ -55,26 +55,15 @@ Column {
   // `test_demo_sample.py` comprueba las dos costuras —cabeza+sobra+cola es
   // el original, cabeza+cola es lo que el motor devuelve—, así que la
   // animación no puede enseñar un recorte distinto del que hace el producto.
+  //
+  // **El fuente sigue teniendo una sola cadena por tramo.** Que el QML lo
+  // pinte carácter a carácter no parte el catálogo en 54 trozos que traducir.
   readonly property string head: Strings.t(root.sample.key + ".head", root.lang)
   readonly property string spare: Strings.t(root.sample.key + ".spare", root.lang)
   readonly property string tail: Strings.t(root.sample.key + ".tail", root.lang)
 
   readonly property string originalText: Strings.t(root.sample.key + ".original", root.lang)
   readonly property string cleanedText: Strings.t(root.sample.key + ".cleaned", root.lang)
-
-  // 0 = original entero, 1 = peinado. Se come el tramo que sobra por la
-  // derecha, así que la cola se cierra hacia atrás y se ve *qué* se va, no
-  // sólo que algo cambió.
-  //
-  // Va sobre el texto y no sobre un `Item` con `clip`, que es como lo hace
-  // el carrusel del estado vacío: allí la muestra cabe en una línea y aquí
-  // no, y un `Row` de tres textos no envuelve. Comiendo caracteres, el
-  // `Text` envuelve solo y la cola sube de línea al cerrarse el hueco.
-  property real combed: root.revealed ? 1 : 0
-  Behavior on combed {
-    enabled: root.motionEnabled
-    NumberAnimation { duration: 620; easing.type: Easing.InOutCubic }
-  }
 
   // Sólo las muestras que pierden algo llevan tramos, y la comprobación es
   // la propia costura: si los tres no recomponen el original —porque no
@@ -83,13 +72,161 @@ Column {
   readonly property bool animatable:
     root.spare.length > 0 && (root.head + root.spare + root.tail) === root.originalText
 
-  readonly property string shownText: root.animatable
-    ? root.head
-      + root.spare.substring(0, Math.round(root.spare.length * (1 - root.combed)))
-      + root.tail
-    : (root.revealed ? root.cleanedText : root.originalText)
+  // ---------------------------------------------------------------
+  // El motor de caída (`ANIMACIONES.md` §1)
+  // ---------------------------------------------------------------
+  //
+  // Aquí la caída se gana el sitio: la cadena es real, los caracteres que
+  // se van son los que se irían, y el resultado se cuenta cuando ya ha
+  // pasado. En una ilustración no —ahí no hay 54 letras, hay una idea de
+  // que sobra algo—, y por eso el carrusel y la bienvenida comprimen.
+  //
+  // Cada carácter necesita su propia posición, así que el texto lo pinta un
+  // `TextEdit` y las posiciones salen de su `positionToRectangle()`. El
+  // tramo que sobra va dentro de un `<font color="transparent">`: ocupa su
+  // hueco exacto —el trazado es el del original, con sus mismos saltos de
+  // línea— y no pinta ni un píxel, así que los añicos son los únicos que lo
+  // dibujan. Sin eso habría dos copias del mismo glifo, y al soltarse la de
+  // arriba quedaría la de abajo.
+  //
+  // Las posiciones se miden **una vez** y se guardan: `positionToRectangle`
+  // es una función, no una propiedad, así que un binding sobre ella no se
+  // reevalúa cuando el trazado cambia y devuelve ceros para siempre.
+  readonly property int t0: 200
+  readonly property int releaseSpan: 420
+  readonly property int closeSpan: 160
+  // 1400 px/s², en las unidades del reloj.
+  readonly property real gravity: 0.0014
+
+  // El reloj del gesto, en milisegundos. Uno solo para los 54 añicos: cada
+  // uno saca su posición de una fórmula cerrada, sin integrar por cuadro.
+  property real fallClock: 0
+
+  property var shards: []
+  property real lastSettle: 0
+  readonly property real totalMs: root.lastSettle + 220 + 180 + 60
+
+  // Deterministas, no `Math.random()`: se ve irregular y es reproducible,
+  // que es lo que necesita una captura de test.
+  function hash2(i) { return ((i * 40503 + 17) % 997) / 997 }
+  function hash3(i) { return ((i * 69069 + 5) % 991) / 991 }
+  function signOf(i) { return (i * 2654435761) % 2 === 0 ? 1 : -1 }
+
+  function escapeMarkup(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  }
+
+  function outCubic(t) { var k = 1 - t; return 1 - k * k * k }
+  function clamp(t) { return Math.max(0, Math.min(1, t)) }
+
+  // El cierre llega **detrás** del frente, no a la vez: empieza cuando el
+  // último añico ya se ha soltado.
+  readonly property real closed: outCubic(clamp(
+    (root.fallClock - (root.t0 + root.releaseSpan)) / root.closeSpan))
+  readonly property int spareShown: root.animatable
+    ? Math.round(root.spare.length * (1 - root.closed)) : 0
+
+  // La frase de resultado **no cuelga del progreso de la limpieza**: cuelga
+  // del asiento. Colgada de la limpieza contaría el desenlace en mitad del
+  // vuelo, mientras todavía está ocurriendo.
+  readonly property real outcomeIn: root.animatable
+    ? clamp((root.fallClock - (root.lastSettle + 220)) / 180)
+    : (root.revealed ? 1 : 0)
+
+  function measureShards() {
+    if (!root.animatable || layout.width <= 0 || root.spare.length === 0) {
+      root.shards = []
+      root.lastSettle = 0
+      return
+    }
+
+    var base = root.head.length
+    var raw = []
+    for (var i = 0; i < root.spare.length; i++) {
+      var r = layout.positionToRectangle(base + i)
+      raw.push({
+        ch: root.spare.charAt(i),
+        x0: layout.x + r.x,
+        y0: layout.y + r.y,
+        line: r.height
+      })
+    }
+
+    // El frente de suelta va por **posición pintada**, no por orden en la
+    // cadena. Con varios renglones eso dibuja una diagonal, que es lo que
+    // hace un barrido; por orden de cadena bajaría renglón a renglón.
+    var order = raw.slice().sort(function (a, b) { return a.x0 - b.x0 })
+    var step = root.releaseSpan / order.length
+    var tope = 0
+
+    for (var k = 0; k < order.length; k++) {
+      var s = order[k]
+      s.release = root.t0 + k * step
+      // El suelo es el borde inferior de la tarjeta, fijado a mano. Sin
+      // eso los caracteres seguirían cayendo al hueco de debajo, sueltos
+      // sobre el panel: la pieza envuelve más que la tarjeta.
+      s.h = Math.max(1, root.floorY - s.line - s.y0)
+      s.t1 = Math.sqrt(2 * s.h / root.gravity)
+      // Restitución propia de cada añico: es lo que hace que el conjunto
+      // no se lea como una cortina bajando.
+      s.e = 0.10 + root.hash2(k) * 0.20
+      s.h1 = s.h * s.e
+      s.h2 = s.h1 * s.e
+      s.d1 = 2 * Math.sqrt(2 * s.h1 / root.gravity)
+      s.d2 = 2 * Math.sqrt(2 * s.h2 / root.gravity)
+      s.rest = s.t1 + s.d1 + s.d2
+      // Deriva y giro, sólo durante la caída libre: durante los rebotes el
+      // añico ya está en el suelo y girar ahí sería un baile.
+      s.drift = root.signOf(k) * (1 + root.hash3(k) * 6)
+      s.spin = root.signOf(k + 1) * (8 + root.hash3(k) * 26)
+      tope = Math.max(tope, s.release + s.rest)
+    }
+
+    root.shards = order
+    root.lastSettle = tope
+  }
+
+  // Dónde está un añico a los `tau` ms de su suelta. Forma cerrada: dos
+  // rebotes y para. Un tercero no se ve y cuesta lo mismo.
+  function dropOf(s, tau) {
+    if (tau <= 0) return 0
+    if (tau < s.t1) { var u = tau / s.t1; return s.h * u * u }
+    var t = tau - s.t1
+    if (t < s.d1) { var a = t / s.d1; return s.h - 4 * s.h1 * a * (1 - a) }
+    t -= s.d1
+    if (t < s.d2) { var b = t / s.d2; return s.h - 4 * s.h2 * b * (1 - b) }
+    return s.h
+  }
+
+  // El aplastado del primer impacto, con el área conservada. Va con un seno
+  // y no con un escalón plano de 70 ms: un escalón se ve como un salto de
+  // tamaño, y esto es un golpe.
+  function squashOf(s, tau) {
+    var t = tau - s.t1
+    if (t < 0 || t > 70) return 1
+    return 1 - 0.16 * Math.sin(Math.PI * (t / 70))
+  }
+
+  readonly property real floorY: card.height - Style.space(4)
 
   spacing: Style.space(8)
+
+  NumberAnimation {
+    id: fallRun
+    target: root
+    property: "fallClock"
+    from: 0
+    to: root.totalMs
+    duration: Math.max(1, root.totalMs)
+    easing.type: Easing.Linear
+  }
+
+  onRevealedChanged: {
+    if (!revealed) { fallRun.stop(); fallClock = 0; return }
+    measureShards()
+    if (!motionEnabled) { fallRun.stop(); fallClock = totalMs; return }
+    fallRun.restart()
+  }
 
   // Con movimiento, la transformación se enseña sola tras un respiro: se ve
   // primero qué hay y luego qué sobra, el mismo orden que el carrusel. Sin
@@ -104,10 +241,8 @@ Column {
 
   function reset() {
     autoPlay.stop()
-    // `combed` no se toca a mano: es un binding sobre `revealed`, y asignarle
-    // un valor aquí lo rompía para siempre. El síntoma era que el botón y la
-    // frase pasaban a «limpio» mientras el texto se quedaba entero con sus
-    // parámetros, prometiendo una limpieza que la pantalla no enseñaba.
+    fallRun.stop()
+    fallClock = 0
     revealed = false
     sampleIndex = 0
     if (motionEnabled && visible) autoPlay.restart()
@@ -128,22 +263,27 @@ Column {
     wrapMode: Text.WordWrap
   }
 
-  BorderSurface {
+  GlassSurface {
+    id: card
     width: parent.width
     // La altura la fija el original, que es el estado más alto. Atada al
-    // texto en curso, la caja encogía de dos líneas a una en mitad de la
-    // animación y empujaba hacia arriba todo lo que hay debajo, botones
+    // texto en curso, la caja encogía de tres renglones a dos en mitad de
+    // la animación y empujaba hacia arriba todo lo que hay debajo, botones
     // incluidos: un blanco móvil justo donde hay que pulsar.
-    implicitHeight: Math.max(measure.implicitHeight, sampleText.implicitHeight) + Style.space(22)
-    radius: Math.max(0, Style.cornerRadius - Style.space(2))
-    color: Style.normalFillFor(Color.popups.text, Color.accent)
-    borderSpec: Border.controlSpec("normal", Color.popups.text, Color.accent)
+    //
+    // El paquete de diseño pide en un sitio que la tarjeta se recoja de 88
+    // a 68 al terminar, y en otro que esto no se toque «porque los botones
+    // no se pueden mover». Se hace caso al segundo: el hueco que queda
+    // debajo del texto limpio es justo donde se apilan los añicos.
+    height: Math.max(measure.implicitHeight, layout.implicitHeight) + Style.space(22)
+    clip: true
+    onHeightChanged: if (root.fallClock === 0) root.measureShards()
 
     // Sólo mide: nunca se pinta ni se anuncia.
     Text {
       id: measure
       visible: false
-      width: sampleText.width
+      width: layout.width
       text: root.originalText
       font.family: Style.font.family
       font.pixelSize: Style.font.bodySmall
@@ -151,18 +291,37 @@ Column {
       Accessible.ignored: true
     }
 
-    Text {
-      id: sampleText
-      anchors.left: parent.left
-      anchors.right: parent.right
-      anchors.verticalCenter: parent.verticalCenter
-      anchors.leftMargin: Style.space(12)
-      anchors.rightMargin: Style.space(12)
-      text: root.shownText
+    // El texto, anclado arriba: al cerrarse el tramo la cola sube y el
+    // hueco queda abajo, que es donde caen los añicos. Centrado, el bloque
+    // entero se movería al perder un renglón.
+    TextEdit {
+      id: layout
+      x: Style.space(12)
+      y: Style.space(11)
+      width: card.width - Style.space(24)
+      padding: 0
+      readOnly: true
+      // Es un cartel, no un campo: ni se selecciona ni toma el foco. Un
+      // `TextEdit` de sólo lectura activa la selección por teclado él
+      // solo, y ahí no hay nada que copiar.
+      readonly property bool onlyForShow: true
+      selectByMouse: false
+      selectByKeyboard: false
+      activeFocusOnPress: false
+      activeFocusOnTab: false
+      textFormat: TextEdit.RichText
+      text: root.animatable
+        ? root.escapeMarkup(root.head)
+          + '<font color="transparent">'
+          + root.escapeMarkup(root.spare.substring(0, root.spareShown))
+          + '</font>'
+          + root.escapeMarkup(root.tail)
+        : root.escapeMarkup(root.revealed ? root.cleanedText : root.originalText)
       color: Color.popups.text
       font.family: Style.font.family
       font.pixelSize: Style.font.bodySmall
-      wrapMode: Text.WrapAnywhere
+      wrapMode: TextEdit.WrapAnywhere
+
       Accessible.role: Accessible.StaticText
       // Iba en español dentro del QML, así que en inglés un lector de
       // pantalla decía «Ejemplo original: https://…». Y se anuncia el
@@ -172,6 +331,84 @@ Column {
         root.revealed ? "demo.a11y.after" : "demo.a11y.before",
         root.lang,
         root.revealed ? root.cleanedText : root.originalText)
+
+      // Se vuelve a medir cada vez que la geometría se mueve y el gesto no
+      // está en marcha. Medir sólo al construirse daba posiciones de
+      // cuando la tarjeta aún no tenía su alto: los añicos salían con el
+      // suelo a media altura y se paraban en el aire.
+      onWidthChanged: if (root.fallClock === 0) root.measureShards()
+      onImplicitHeightChanged: if (root.fallClock === 0) root.measureShards()
+      onTextChanged: if (root.fallClock === 0) root.measureShards()
+      Component.onCompleted: root.measureShards()
+    }
+
+    // Los añicos, en su propia capa y con las coordenadas congeladas al
+    // soltar. **No roban el foco ni cambian el orden de tabulación**: son
+    // dibujo, y desaparecen.
+    //
+    // Cada uno hereda el color de donde salió. Sin eso, los caracteres que
+    // se van caerían del color del texto que se queda, y eso rompe el
+    // idioma entero: acento es lo que se va.
+    Item {
+      anchors.fill: parent
+      Accessible.ignored: true
+
+      Repeater {
+        model: root.shards
+
+        delegate: Item {
+          id: shard
+          required property var modelData
+
+          readonly property real tau: root.fallClock - modelData.release
+          // La deriva y el giro sólo cuentan durante la caída libre.
+          readonly property real flight: Math.max(0, Math.min(tau, modelData.t1))
+          readonly property real fade: root.clamp((tau - modelData.rest) / 200)
+
+          x: modelData.x0 + modelData.drift * shard.flight / 1000
+          y: modelData.y0 + root.dropOf(modelData, shard.tau)
+          width: glyph.implicitWidth > 0 ? glyph.implicitWidth : Style.space(9)
+          height: modelData.line
+          rotation: modelData.spin * shard.flight / 1000
+          transformOrigin: Item.Center
+          opacity: 1 - shard.fade
+          visible: opacity > 0.01
+
+          // El aplastado del primer impacto conserva el área: lo que se
+          // hunde de alto se gana de ancho.
+          readonly property real squash: root.squashOf(modelData, shard.tau)
+          transform: Scale {
+            origin.x: shard.width / 2
+            origin.y: shard.height
+            xScale: 2 - shard.squash
+            yScale: shard.squash
+          }
+
+          Text {
+            id: glyph
+            anchors.centerIn: parent
+            text: modelData.ch
+            color: Color.accent
+            font.family: Style.font.family
+            font.pixelSize: Style.font.bodySmall
+            visible: glyph.implicitWidth > 0
+          }
+
+          // El carácter que no tiene glifo no se ve caer, y es justo el que
+          // más importa que se vea irse: una caja vacía, como la que dibuja
+          // `CopySpecimen` para el mismo carácter.
+          Rectangle {
+            visible: glyph.implicitWidth <= 0
+            anchors.centerIn: parent
+            width: Style.space(9)
+            height: Style.space(11)
+            radius: Style.space(2)
+            color: "transparent"
+            border.color: Color.accent
+            border.width: Math.max(1, Style.space(1))
+          }
+        }
+      }
     }
   }
 
@@ -179,12 +416,7 @@ Column {
   // botones hacia abajo justo cuando el ojo iba hacia ellos.
   Text {
     width: parent.width
-    // Llega con el peinado, no antes. Atada a `revealed` aparecía en cuanto
-    // arrancaba la animación y contaba el desenlace mientras todavía estaba
-    // ocurriendo. Colgada de `combed` entra en el último tercio, y con el
-    // movimiento apagado sale entera y de golpe, que es lo que `combed` hace
-    // cuando no hay animación que seguir.
-    opacity: Math.max(0, Math.min(1, (root.combed - 0.55) / 0.35))
+    opacity: root.outcomeIn
     text: Strings.t(root.sample.outcome, root.lang)
     color: Util.alpha(Color.popups.text, 0.72)
     font.family: Style.font.family
@@ -197,15 +429,18 @@ Column {
 
   // Un solo mando. La `0004` pide una acción primaria por vista y aquí la
   // primaria es «Siguiente»; con dos botones más los suyos, este paso
-  // llegaba a cinco cosas pulsables. Con movimiento el botón es para
-  // volver a mirar; sin movimiento es el que hace la demostración, que es
-  // la única vía que le queda a quien apagó las animaciones.
+  // llegaba a cinco cosas pulsables.
+  //
+  // Con movimiento el botón es para volver a mirar; sin movimiento es el
+  // que hace la demostración, que es la única vía que le queda a quien
+  // apagó las animaciones. «Ver el original» se retira: la tarjeta que lo
+  // envolvía se fue con él, y con la caída el original ya se ha visto.
   PanelButton {
     id: revealButton
     width: parent.width
-    text: root.revealed
-      ? Strings.t("demo.original", root.lang)
-      : (root.motionEnabled ? Strings.t("demo.replay", root.lang) : Strings.t("demo.try", root.lang))
+    text: root.motionEnabled
+      ? Strings.t("demo.replay", root.lang)
+      : Strings.t("demo.try", root.lang)
     onFocusEntered: function(item) { root.focusEntered(item) }
     onClicked: root.toggle()
   }
@@ -215,6 +450,10 @@ Column {
   // pedir.
   function toggle() {
     autoPlay.stop()
-    revealed = !revealed
+    if (!motionEnabled) { revealed = !revealed; return }
+    // Rebobina y suelta otra vez, que es lo que «volver a mirar» quiere
+    // decir cuando lo que hay que ver es un recorrido.
+    revealed = false
+    revealed = true
   }
 }

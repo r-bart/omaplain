@@ -173,15 +173,21 @@ class DemoSampleTests(unittest.TestCase):
         # La copia se mudó al catálogo bilingüe, así que la promesa se
         # comprueba ahí y en los dos idiomas: rotularla sólo en uno la
         # dejaría a medias para la mitad de la gente.
+        #
+        # `demo.original` («Ver el original») ya no está: se fue con la
+        # tarjeta que lo envolvía, y con la caída el original se ve de
+        # todos modos —es lo primero que enseña la pantalla—. `demo.try`
+        # sí se queda: es el rótulo del botón para quien apagó las
+        # animaciones, y a ése hay que seguir ofreciéndole la demostración.
         catalogue = CATALOGUE.read_text(encoding="utf-8")
-        for key in ("demo.label", "demo.try", "demo.original"):
+        for key in ("demo.label", "demo.try"):
             with self.subTest(key=key):
                 self.assertEqual(catalogue.count(f'"{key}":'), 2, "falta en un idioma")
         self.assertIn("nunca tu portapapeles", catalogue)
         self.assertIn("never your clipboard", catalogue)
         # Y el componente sigue usándolas.
         source = COMPONENT.read_text(encoding="utf-8")
-        for key in ("demo.label", "demo.try", "demo.original"):
+        for key in ("demo.label", "demo.try"):
             self.assertIn(f'"{key}"', source)
 
     def test_no_sample_is_left_written_into_the_component(self) -> None:

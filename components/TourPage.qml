@@ -50,8 +50,16 @@ Item {
     Strings.t("tour.2.note", root.lang),
     Strings.t("tour.3.note", root.lang)
   ][Math.max(0, Math.min(stepCount - 1, step))]
-  readonly property string illustrationVariant: ["protect", "transform", "control"]
+  // El paso 2 no monta ilustración: la preside `DemoTransformation`, y
+  // ocupa el sitio que en los otros dos ocupa el dibujo.
+  //
+  // Hasta hoy montaba `transform` **además** de la demo, así que la
+  // pantalla tenía dos activos con caída y repetía la composición de la
+  // bienvenida en la pantalla siguiente. Con la ilustración fuera, cada
+  // paso del recorrido presenta una cosa distinta.
+  readonly property string illustrationVariant: ["protect", "", "control"]
     [Math.max(0, Math.min(stepCount - 1, step))]
+  readonly property bool hasIllustration: illustrationVariant !== ""
 
   function forceInitialFocus() {
     tourScroll.contentY = 0
@@ -143,6 +151,10 @@ Item {
         width: parent.width
         height: Style.space(220)
         variant: root.illustrationVariant
+        // Un positionador de QML salta a los hijos invisibles, así que el
+        // paso 2 no reserva su hueco ni su `spacing`: no hace falta poner
+        // el alto a cero a mano.
+        visible: root.hasIllustration
       }
 
       Text {
