@@ -24,7 +24,12 @@ argumentado en [`SPEC.md`](SPEC.md) y en [`docs/decisions/`](docs/decisions).
   `~/.config/omarchy/plugins/io.github.r-bart.omaplain`, así que mirar el
   panel sin llevarle antes la rama —`git -C <esa ruta> fetch <este repo>
   <rama> && git -C <esa ruta> merge --ff-only FETCH_HEAD`— es mirar la
-  versión anterior y creer que se ha comprobado algo.
+  versión anterior y creer que se ha comprobado algo. **Y el shell se para
+  antes de tocar ese directorio**, no después: reescribirlo en caliente
+  dispara recargas encadenadas del plugin. Parar, sincronizar, arrancar.
+- **`pkill -f` con un patrón que diga «quickshell» u «omarchy» se mata a sí
+  mismo**: la línea de órdenes del propio `bash -c` contiene el patrón. Se
+  mata por PID.
 - **Lo que se ve en el arnés depende del compositor de prueba.** Ahí
   `Style.cornerRadius` vale cero, así que ningún fallo de esquinas
   redondeadas se manifiesta; y un `ShellRoot` sin ventana no dibuja nada,
