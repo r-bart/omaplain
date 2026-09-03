@@ -90,3 +90,76 @@ class TransformTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CadaReglaObedeceSuInterruptorTests(unittest.TestCase):
+    """Apagar una regla la apaga. Encenderla la enciende.
+
+    Las ocho reglas del panel estaban probadas por su efecto —con la
+    configuración de serie, el motor quita el seguimiento, los invisibles y
+    los finales de línea de Windows—, pero **cuatro de ellas no tenían un
+    solo test que las apagara**: las cuatro que vienen puestas.
+
+    Y ése es justo el caso que le importa a quien toca Ajustes. Si una
+    regresión hiciera que `removeTracking` ignorara su interruptor, la
+    suite entera seguiría en verde: todos los tests la usan encendida.
+
+    La tabla va con un ejemplo por regla que sólo esa regla cambia, y
+    comprueba las dos direcciones sobre el mismo texto.
+    """
+
+    MIME = "text/plain;charset=utf-8"
+
+    # regla -> (texto de entrada, qué deja el motor con la regla puesta)
+    CASOS = {
+        "removeTracking": (
+            "https://example.com/a?utm_source=x&id=7",
+            "https://example.com/a?id=7",
+        ),
+        "removeInvisible": ("ho​la", "hola"),
+        "normalizeLineEndings": ("uno\r\ndos", "uno\ndos"),
+        "normalizeQuotes": ("“hola”", '"hola"'),
+        "normalizeLists": ("• uno", "- uno"),
+        "normalizeUnicodeNfc": ("café", "café"),
+        "trimTrailingWhitespace": ("uno   \ndos", "uno\ndos"),
+    }
+
+    def _config(self, encendida: str | None) -> dict:
+        """Todas las reglas de texto apagadas menos, si acaso, una."""
+        config = dict(DEFAULTS)
+        for clave, valor in DEFAULTS.items():
+            if isinstance(valor, bool) and clave not in ("automatic", "notifyOnError"):
+                config[clave] = False
+        if encendida:
+            config[encendida] = True
+        return config
+
+    def test_encendida_cada_regla_hace_lo_que_dice_su_rotulo(self) -> None:
+        for regla, (entrada, esperado) in self.CASOS.items():
+            with self.subTest(regla=regla):
+                salida = transform(entrada.encode("utf-8"), self.MIME,
+                                   self._config(regla)).output.decode("utf-8")
+                self.assertEqual(salida, esperado)
+
+    def test_apagada_cada_regla_deja_el_texto_intacto(self) -> None:
+        for regla, (entrada, _) in self.CASOS.items():
+            with self.subTest(regla=regla):
+                salida = transform(entrada.encode("utf-8"), self.MIME,
+                                   self._config(None)).output.decode("utf-8")
+                self.assertEqual(salida, entrada, f"{regla} sigue actuando apagada")
+
+    def test_ninguna_regla_pisa_el_ejemplo_de_otra(self) -> None:
+        """Y la tabla es honesta: cada ejemplo lo cambia **sólo** su regla.
+
+        Sin esto, un ejemplo que dos reglas tocan haría pasar la prueba de
+        la regla equivocada.
+        """
+        for regla, (entrada, _) in self.CASOS.items():
+            for otra in self.CASOS:
+                if otra == regla:
+                    continue
+                with self.subTest(ejemplo=regla, regla=otra):
+                    salida = transform(entrada.encode("utf-8"), self.MIME,
+                                       self._config(otra)).output.decode("utf-8")
+                    self.assertEqual(salida, entrada,
+                                     f"el ejemplo de {regla} lo cambia también {otra}")

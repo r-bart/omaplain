@@ -75,6 +75,26 @@ class DaemonTests(unittest.TestCase):
         self.assertEqual(result["result"], "cleaned")
         self.assertEqual(result["reason"], "rich_text")
 
+    def test_rich_text_is_left_alone_when_the_rule_is_off(self) -> None:
+        """Y apagando la regla, deja de reescribir.
+
+        `stripFormatting` es la única de las ocho que no vive en el motor de
+        texto: decide aquí, mirando si la oferta trae formato. Su encendido
+        estaba probado arriba; su apagado no lo estaba, y es el caso que le
+        importa a quien va a Ajustes y lo desactiva.
+
+        Con el texto plano ya limpio y la regla apagada no queda nada que
+        hacer, así que el portapapeles se queda como está: `unchanged`, y
+        ni una escritura.
+        """
+        self.daemon.config["stripFormatting"] = False
+        self.backend.types = ["text/plain", "text/html"]
+        self.backend.payload = b"hello"
+        result = self.daemon.clean_now()
+        self.assertEqual(result["result"], "unchanged")
+        self.assertEqual(result["reason"], "already_clean")
+        self.assertEqual(self.backend.writes, [])
+
     def test_an_empty_clipboard_is_a_state_and_not_an_error(self) -> None:
         # `wl-paste --list-types` sale con error cuando no hay nada copiado.
         # Tratarlo como fallo convertia el portapapeles vacio —el que tienes
