@@ -746,10 +746,16 @@ Item {
         y: Style.space(20)
         width: Style.space(320)
         // La tarjeta es más corta que su contenido a propósito: eso es lo
-        // que el velo dice. Pero nunca tanto como para enseñar menos de
-        // tres filas, o dejaría de leerse como una lista.
+        // que el velo dice, y de ahí salen las dos filas y media que se
+        // ven a escala normal.
+        //
+        // El mínimo es un suelo para una fuente grande —dos filas enteras,
+        // o deja de leerse como una lista— y **no** una medida que mande.
+        // Escrito con tres filas y sus tres huecos subía la tarjeta de 148
+        // a 174 a escala normal, y ahí el recorrido se quedaba corto: la
+        // lista apenas se movía porque casi no le sobraba contenido.
         height: Math.max(Style.space(148),
-                         3 * (rows.rowHeight + panelCard.rowGap) + 2 * panelCard.padY)
+                         2 * rows.rowHeight + panelCard.rowGap + 2 * panelCard.padY)
         clip: true
 
         Column {
