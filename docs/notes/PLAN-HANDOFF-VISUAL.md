@@ -1,6 +1,6 @@
 # Plan para portar el handoff de diseño
 
-- Estado: **borrador, pendiente de aprobación**
+- Estado: **aprobado**
 - Fecha: 3 de septiembre de 2026
 - Porta a QML el paquete de
   [`thoughts/design_handoff_omaplain/`](../../thoughts/design_handoff_omaplain/),
@@ -50,7 +50,11 @@ fase 1.
 
 Tres cambian tests con argumento escrito, y dos son elecciones técnicas que
 condicionan todo lo demás. Van aquí porque no se resuelven a mitad de una
-implementación.
+implementación, y porque conviene que quede escrito quién decidió.
+
+Las dos primeras se preguntaron y se respondieron el 3 de septiembre; las tres
+restantes se dan por buenas salvo objeción, porque son correcciones a lo que el
+paquete dice y no elecciones de producto.
 
 ### 1. Los bucles del tour
 
