@@ -45,7 +45,11 @@ BarWidget {
     Omaplain.Mark {
       id: marca
       anchors.centerIn: parent
-      markWidth: Style.spaceReal(21)
+      // Un cuarto más pequeña que la primera medida. A 21 la onda cruzaba
+      // casi todo el hueco y quedaba más ancha que cualquiera de sus
+      // vecinas: en una barra de glifos cuadrados, un dibujo 3:1 que abarca
+      // lo mismo de ancho pesa el doble. A 15,75 mide como ellas.
+      markWidth: Style.spaceReal(15.75)
       // La tinta de la barra, para que acompañe a los demás iconos y siga
       // sus animaciones de color. El punto no: ése va en el acento del
       // tema, y es lo único de la marca que el tema mueve.
