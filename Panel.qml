@@ -794,6 +794,7 @@ Item {
             visible: root.panelPage === "clipboard" && !statusLine.silent
             serviceState: !root.setting("automatic", true) && root.watcherState === "running" ? "paused" : root.watcherState
             detail: root.statusDetail()
+            motionEnabled: root.motionEnabled
           }
 
           Text {

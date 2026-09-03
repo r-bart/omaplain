@@ -197,6 +197,23 @@ ShellRoot {
 
     cabecera.serviceState = "paused"
     raiz.check("pausado se reconoce", cabecera.paused === true)
+
+    // El sónar es de arrancando y de nadie más: en la pantalla de cada
+    // día no hay nada girando.
+    raiz.check("pausado no es arrancando", cabecera.starting === false)
+    cabecera.serviceState = "running"
+    raiz.check("corriendo tampoco", cabecera.starting === false)
+    cabecera.serviceState = "starting"
+    raiz.check("arrancando sí", cabecera.starting === true)
+
+    // Y el sónar no engorda la insignia: la caja de 24 px desborda por
+    // arriba y por abajo, donde no hay nada que empujar. Si creciera, la
+    // cabecera daría un salto de alto al terminar de arrancar.
+    var altoArrancando = cabecera.implicitHeight
+    cabecera.serviceState = "paused"
+    raiz.check("la insignia mide lo mismo arrancando que pausada",
+               cabecera.implicitHeight === altoArrancando,
+               "arrancando=" + altoArrancando + " pausada=" + cabecera.implicitHeight)
   }
 
   function pruebaMaterial() {
