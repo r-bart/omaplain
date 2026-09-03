@@ -171,6 +171,11 @@ ShellRoot {
       intensity: 0
       motionEnabled: false
     }
+
+    // La marca, a dos tamaños. Es el mismo dibujo en la barra y en la
+    // cabecera del panel, y lo único que los separa es este número.
+    Omaplain.Mark { id: marcaBarra;    markWidth: 21 }
+    Omaplain.Mark { id: marcaCabecera; markWidth: 42 }
   }
 
   function pruebaVaho() {
@@ -451,6 +456,38 @@ ShellRoot {
     raiz.check("y sin motivo, también", arte.subjectGlyph === "text", arte.subjectGlyph)
   }
 
+  function pruebaMarca() {
+    // Recortada a su tinta. Con la caja de 24 x 24 entera, las 17 unidades
+    // de aire de arriba y abajo dejan la fila de la cabecera con un agujero
+    // del tamaño del nombre.
+    raiz.check("la marca mide lo que se le pide de ancho",
+               marcaBarra.implicitWidth === 21, String(marcaBarra.implicitWidth))
+    raiz.check("y saca su alto de la proporción, no de la caja",
+               Math.abs(marcaBarra.implicitHeight - 21 * 6.8 / 20.45) < 0.01,
+               String(marcaBarra.implicitHeight))
+
+    // Escalar sin deformar: el mismo dibujo a 21 y a 42.
+    raiz.check("el doble de ancha es el doble de alta",
+               Math.abs(marcaCabecera.implicitHeight - 2 * marcaBarra.implicitHeight) < 0.01,
+               marcaBarra.implicitHeight + " → " + marcaCabecera.implicitHeight)
+
+    // El punto es el final del trazo, así que cierra el dibujo por la
+    // derecha: su borde toca el ancho pedido. Es el invariante que se rompe
+    // si alguien mueve `inkWidth` y se olvida del punto, y ahí la marca se
+    // descuadra sin que nada falle.
+    var punto = marcaBarra.children[marcaBarra.children.length - 1]
+    raiz.check("el punto cierra la marca por la derecha",
+               Math.abs(punto.x + punto.width - marcaBarra.implicitWidth) < 0.01,
+               (punto.x + punto.width) + " de " + marcaBarra.implicitWidth)
+    raiz.check("y cabe dentro de su alto",
+               punto.y >= 0 && punto.y + punto.height <= marcaBarra.implicitHeight,
+               punto.y + "+" + punto.height + " en " + marcaBarra.implicitHeight)
+    raiz.check("el punto es un círculo", punto.radius * 2 === punto.width)
+
+    // Que la curva se dibuje bien no lo ve esto: `PathSvg` con una `d` rota
+    // avisa por consola y sigue. Eso se mira, como el panel entero.
+  }
+
   function remate() {
     console.log("")
     console.log("RESULTADO " + (raiz.pruebas - raiz.fallos) + "/" + raiz.pruebas +
@@ -468,6 +505,7 @@ ShellRoot {
       pruebaMaterial()
       pruebaCaida()
       pruebaBypass()
+      pruebaMarca()
       // Ésta remata sola: necesita esperar dos veces al reloj.
       pruebaCinta()
     }

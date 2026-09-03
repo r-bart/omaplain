@@ -487,10 +487,11 @@ Los plugins se ejecutan como código sin sandbox dentro del proceso permanente `
 omaplain/
 ├── manifest.json
 ├── io.github.r-bart.omaplain.desktop
+├── io.github.r-bart.omaplain.svg   el icono del lanzador
 ├── Service.qml            supervisa el helper y expone estado
 ├── Panel.qml              las dos páginas: portapapeles y ajustes
-├── BarWidget.qml          el icono de la barra
-├── components/            filas, botones, cubierta, tour, catálogo Strings.js
+├── BarWidget.qml          el icono de la barra: la marca
+├── components/            filas, botones, cubierta, tour, marca, catálogo Strings.js
 ├── helper/
 │   ├── omaplain           ejecutable
 │   └── omaplain_lib/

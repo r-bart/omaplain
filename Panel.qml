@@ -725,19 +725,42 @@ Item {
             width: parent.width
             height: optionsButton.height
 
-            Text {
-              id: brandText
+            // El logotipo: la marca y el nombre, en ese orden ([`0020`]).
+            //
+            // El nombre en minúscula y la marca delante no son dos gustos
+            // sueltos: son la misma decisión. Con «OmaPlain» en versalitas
+            // el nombre era todo lo que había, y tenía que gritar para
+            // serlo; con el dibujo delante, quien identifica es el dibujo y
+            // el texto puede bajar la voz. La cabecera es identidad, no
+            // contenido, y ya competía con el veredicto de abajo.
+            Row {
+              id: brand
               anchors.left: parent.left
               anchors.verticalCenter: parent.verticalCenter
-              text: "OmaPlain"
-              color: Color.popups.text
-              font.family: Style.font.family
-              // Un escalón por encima del subtítulo, pero sin llegar al del
-              // veredicto: la cabecera es identidad, no contenido, y si
-              // empatan compiten por la misma mirada.
-              font.pixelSize: Style.font.title
-              font.bold: true
-              font.letterSpacing: -Style.spaceReal(0.2)
+              spacing: Style.space(9)
+
+              Mark {
+                anchors.verticalCenter: parent.verticalCenter
+                // Atada al cuerpo del nombre y no a un número: si el tema
+                // sube la fuente, la marca sube con ella.
+                markWidth: brandText.font.pixelSize * 1.5
+                ink: Color.popups.text
+                dot: Color.accent
+              }
+
+              Text {
+                id: brandText
+                anchors.verticalCenter: parent.verticalCenter
+                text: "omaplain"
+                color: Color.popups.text
+                font.family: Style.font.family
+                // Un escalón por encima del subtítulo, pero sin llegar al del
+                // veredicto: la cabecera es identidad, no contenido, y si
+                // empatan compiten por la misma mirada.
+                font.pixelSize: Style.font.title
+                font.bold: true
+                font.letterSpacing: -Style.spaceReal(0.2)
+              }
             }
 
             PanelButton {

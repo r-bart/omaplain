@@ -19,6 +19,14 @@ REPO = Path(__file__).resolve().parents[2]
 MANIFEST = REPO / "manifest.json"
 WIDGET = REPO / "BarWidget.qml"
 DESKTOP = REPO / "io.github.r-bart.omaplain.desktop"
+ICONO = REPO / "io.github.r-bart.omaplain.svg"
+MARCA = REPO / "components" / "Mark.qml"
+PANEL = REPO / "Panel.qml"
+
+# El logotipo, en minúscula y en un solo sitio. Los tres ficheros que lo
+# escriben están lejos unos de otros y ninguno importa al otro, así que la
+# única forma de que no se separen es un test que los lea a la vez.
+LOGOTIPO = "omaplain"
 
 
 class ManifestTests(unittest.TestCase):
@@ -90,7 +98,7 @@ class DesktopEntryTests(unittest.TestCase):
     def test_the_entry_has_what_the_spec_requires(self) -> None:
         e = self._entry()
         self.assertEqual(e["Type"], "Application")
-        self.assertEqual(e["Name"], "OmaPlain")
+        self.assertEqual(e["Name"], LOGOTIPO)
         self.assertTrue(e["Exec"])
 
     def test_the_exec_line_carries_no_reserved_character(self) -> None:
@@ -115,6 +123,84 @@ class DesktopEntryTests(unittest.TestCase):
         self.assertIn(orden, widget)
 
 
+class BrandTests(unittest.TestCase):
+    """La marca: un dibujo, tres sitios y un solo nombre ([`0020`]).
+
+    El icono de la barra, el del lanzador y el de la cabecera del panel son
+    el mismo trazo. Nada del lenguaje lo impone —el lanzador lee un SVG y el
+    shell ejecuta QML—, así que lo impone esto.
+    """
+
+    def _svg_path(self) -> str:
+        svg = ICONO.read_text(encoding="utf-8")
+        m = re.search(r'<path d="([^"]+)"', svg)
+        assert m, "el icono del lanzador ya no lleva un trazo"
+        return m.group(1)
+
+    def _qml_path(self) -> str:
+        m = re.search(r'readonly property string path: "([^"]+)"',
+                      MARCA.read_text(encoding="utf-8"))
+        assert m, "la marca del panel ya no lleva un trazo"
+        return m.group(1)
+
+    def test_the_launcher_and_the_shell_draw_the_same_stroke(self) -> None:
+        # Carácter por carácter. Los puntos de control de esa curva están
+        # calculados para que la curvatura sea la misma a los dos lados de
+        # cada nodo, y «redondear un poco» uno de los dos ficheros deja dos
+        # marcas parecidas, que es peor que dos marcas distintas.
+        self.assertEqual(self._qml_path(), self._svg_path())
+
+    def test_the_shell_draws_the_mark_instead_of_importing_it(self) -> None:
+        # Un `Image` del SVG habría sido una línea, y habría traído sus
+        # colores dentro: trazo casi negro sobre un panel casi negro. El
+        # trazo se pinta en la tinta del sitio y el punto en el acento.
+        marca = "\n".join(l for l in MARCA.read_text(encoding="utf-8").splitlines()
+                          if not l.strip().startswith("//"))
+        self.assertNotIn("Image", marca)
+        self.assertNotIn("source:", marca)
+        self.assertIn("property color ink", marca)
+        self.assertIn("property color dot", marca)
+        self.assertIn("Color.accent", marca)
+
+    def test_the_bar_wears_the_mark_and_not_a_borrowed_glyph(self) -> None:
+        # El glifo de «pegar en claro» de Material Design Icons es correcto
+        # y no es nuestro: en una barra donde todo sale de esa familia dice
+        # lo que hace la aplicación y no dice cuál es.
+        widget = WIDGET.read_text(encoding="utf-8")
+        self.assertIn("Mark {", widget)
+        self.assertNotIn("\U000f014c", widget)
+        # Y sin rótulo el kit mide un texto vacío: el ancho lo pone el dibujo.
+        self.assertIn("labelVisible: false", widget)
+        self.assertIn("hasVisualContent: true", widget)
+        self.assertIn("fixedWidth:", widget)
+
+    def test_the_wordmark_reads_the_same_in_the_three_places(self) -> None:
+        self.assertEqual(self._entry_name(), LOGOTIPO)
+        m = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(m["name"], LOGOTIPO)
+        self.assertEqual(m["barWidget"]["displayName"], LOGOTIPO)
+        panel = PANEL.read_text(encoding="utf-8")
+        self.assertIn(f'text: "{LOGOTIPO}"', panel)
+
+    def test_the_wordmark_is_not_the_proper_noun(self) -> None:
+        """En la prosa se sigue escribiendo «OmaPlain».
+
+        Un logotipo y un nombre propio son dos cosas distintas: bajar la
+        inicial a mitad de frase se lee como una errata, y a principio de
+        frase también. El nombre en minúscula vale donde va con el dibujo
+        delante, que es lo que lo hace un logotipo y no un descuido.
+        """
+        catalogo = (REPO / "components" / "Strings.js").read_text(encoding="utf-8")
+        self.assertIn("OmaPlain", catalogo)
+        self.assertNotIn('"omaplain', catalogo)
+
+    def _entry_name(self) -> str:
+        c = configparser.ConfigParser(interpolation=None)
+        c.optionxform = str
+        c.read(DESKTOP, encoding="utf-8")
+        return c["Desktop Entry"]["Name"]
+
+
 class DecisionTests(unittest.TestCase):
     def test_the_decision_is_written_down(self) -> None:
         texto = (REPO / "docs" / "decisions"
@@ -122,3 +208,11 @@ class DecisionTests(unittest.TestCase):
         # Y dice lo que descartó, que es la mitad que se olvida.
         self.assertIn("Descartado", texto)
         self.assertIn("Hyprland", texto)
+
+    def test_the_mark_has_its_own_decision(self) -> None:
+        texto = (REPO / "docs" / "decisions"
+                 / "0020-la-marca-se-dibuja.md").read_text(encoding="utf-8")
+        self.assertIn("## Lo que se descartó", texto)
+        # Y responde a la pregunta que la abrió: el punto sigue al tema
+        # donde lo pintamos nosotros, y no en el lanzador.
+        self.assertIn("lanzador", texto)

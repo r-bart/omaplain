@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "components" as Omaplain
 import "components/Strings.js" as Strings
 
 // El icono de la barra: la única forma de abrir el panel sin escribir un
@@ -25,11 +26,32 @@ BarWidget {
     anchors.fill: parent
     bar: root.bar
 
-    // Pegar en claro, que es lo que el producto hace. Del rango de Material
-    // Design Icons de la Nerd Font, la misma familia que el panel usa para
-    // el engranaje y las flechas.
-    text: "󰅌"
+    // La marca, no un glifo prestado ([`0020`]). Antes iba el «pegar en
+    // claro» de Material Design Icons, que es correcto y no es nuestro:
+    // dice lo que hace la aplicación, y en una barra donde todo son iconos
+    // de esa misma familia no dice **cuál** es. La marca sí, y es la misma
+    // que el lanzador y la cabecera del panel.
+    text: ""
+    labelVisible: false
+    hasVisualContent: true
+
+    // Sin rótulo, el ancho que el kit calcula es el de un texto vacío: dos
+    // márgenes y nada en medio. Aquí lo pone el dibujo. En una barra
+    // vertical manda el kit, que ya sabe cuadrarla con las demás.
     horizontalMargin: 7.5
+    fixedWidth: button.vertical ? -1 : marca.implicitWidth + Style.spaceReal(button.horizontalMargin) * 2
+    fixedHeight: button.vertical ? marca.implicitHeight + Style.spaceReal(button.verticalPadding) * 2 : -1
+
+    Omaplain.Mark {
+      id: marca
+      anchors.centerIn: parent
+      markWidth: Style.spaceReal(21)
+      // La tinta de la barra, para que acompañe a los demás iconos y siga
+      // sus animaciones de color. El punto no: ése va en el acento del
+      // tema, y es lo único de la marca que el tema mueve.
+      ink: button.foreground
+      dot: Color.accent
+    }
 
     Accessible.role: Accessible.Button
     Accessible.name: Strings.t("bar.a11y", Strings.fromLocale(Qt.locale().name))

@@ -120,6 +120,19 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Cambiado
 
+- **La marca sale de un solo fichero y llega a los tres sitios**
+  ([`0020`](docs/decisions/0020-la-marca-se-dibuja.md)). El icono de la barra
+  era `󰅌`, el «pegar en claro» de una Nerd Font: correcto y prestado.
+  Ahora la barra, el lanzador y la cabecera del panel llevan el mismo trazo,
+  con la misma `d` —un test la compara carácter por carácter—. En el shell se
+  dibuja con `QtQuick.Shapes`, así que el trazo va en la tinta del sitio y el
+  punto en el acento del tema; en el lanzador sigue siendo el fichero SVG, que
+  es lo único que el sistema de iconos sabe leer.
+- **El logotipo escribe el nombre en minúscula, y siempre con el dibujo
+  delante.** «OmaPlain» en la cabecera era todo lo que había, y tenía que
+  gritar para identificar; con la marca delante, el texto baja la voz. Llega a
+  la entrada `.desktop` y al manifiesto. En la prosa se sigue escribiendo
+  `OmaPlain`: un logotipo y un nombre propio son dos cosas distintas.
 - **La pantalla de un bypass dice una cosa una vez.** El dibujo llevaba un pie
   —«Byte for byte, exactly as you copied it.»— veinte píxeles debajo del
   párrafo que ya lo decía, y el sello flotando al lado de la tarjeta. Ahora la
