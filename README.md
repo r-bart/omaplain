@@ -45,6 +45,11 @@ ln -sf ~/.config/omarchy/plugins/io.github.r-bart.omaplain/launcher/omaplain-lau
 ~/.config/omarchy/hooks/theme-set.d/omaplain-launcher-icon
 ```
 
+The themed one drops the tile: just the mark, its stroke in the theme's
+foreground and its dot in the accent — the same drawing the bar shows. The
+brand icon keeps its tile, because it knows nothing about your theme and has
+to work on any background.
+
 It writes the repainted icons under `~/.local/share/omaplain/icons/` and
 changes one line — `Icon=` — of the desktop entry you copied above. Remove the
 link and it stops; put back the entry to go back to the brand icon.

@@ -132,17 +132,35 @@ es nuestro; de la entrada del usuario se toca **una línea**, la del `Icon=`; y
 sin entrada instalada el hook no hace nada y no la crea. Un test cuenta qué
 ficheros aparecen tras una pasada y falla si sale alguno de más.
 
-Queda el motivo estético, que era el bueno de los tres: una baldosa que cambia
-de tono es más difícil de encontrar en una rejilla. Se sostiene menos de lo
-que parecía, porque en esa rejilla se busca por **forma** —la onda con su
-punto— y la forma no cambia. Y el reparto de color se eligió para que el
-contraste esté garantizado en los dos modos:
+Y el motivo estético, que era el bueno de los tres, se resuelve **quitando la
+baldosa**. La primera versión la teñía: baldosa en `foreground`, trazo en
+`background`. Funcionaba y no decía nada — `foreground` es el color del texto,
+o sea un casi-blanco en cualquier tema oscuro, así que el icono siempre salía
+como una baldosa clara y sólo le cambiaba el matiz. Puesto sobre el tema que
+lo estrenó era indistinguible del icono de marca, porque ese tema tiene el
+primer plano crema.
 
-- la baldosa va en `foreground` y el trazo en `background`, no al revés. El
-  menú de aplicaciones se pinta con `background`: una baldosa de ese color se
-  disuelve en la fila. Con este reparto, en un tema claro el icono se da la
-  vuelta solo y sigue contrastando.
-- el punto, en `accent`.
+Sin baldosa el problema desaparece en lugar de resolverse:
+
+- el trazo va en `foreground`, que es el negativo de aquello sobre lo que se
+  pinta. Contrasta en un tema claro por el mismo motivo que en uno oscuro, y
+  no hay que elegir un relleno que valga para los dos.
+- el punto, en `accent`. Es la única parte con color propio, igual que en la
+  barra y en la cabecera del panel.
+
+Es además el mismo dibujo que `components/Mark.qml` pone en la barra: sin
+baldosa, el icono del lanzador y el de la barra pasan a ser la misma cosa.
+
+**Y por eso son dos ficheros.** El icono de marca conserva la suya y tiene que
+conservarla: ése no sabe nada del tema, y su trazo casi negro sobre un menú
+casi negro no se ve. La baldosa es lo que le permite valer sobre cualquier
+fondo. El plano, `launcher/mark.svg`, sólo lo usa el hook, que sí sabe de qué
+color pintar. Comparten la `d`, y un test compara las tres — las dos y la del
+QML.
+
+Lo que se paga: la marca es tres veces más ancha que alta, así que sin baldosa
+pesa menos que sus vecinos en una rejilla de iconos cuadrados. Se gana ancho,
+no alto, y el 8 % de lienzo que sobra es el aire del punto.
 
 Instalarlo sigue siendo una decisión del usuario, como la propia entrada
 `.desktop` ([`0010`](./0010-como-se-abre-el-panel.md)): es un enlace en

@@ -12,15 +12,16 @@
 # el lanzador se actualiza al momento. Las dos cosas están medidas en la
 # [`0020`](../docs/decisions/0020-la-marca-se-dibuja.md).
 #
-# No inventa geometría: lee el SVG que este repositorio versiona y le
-# cambia los tres colores. El dibujo sigue viviendo en un solo sitio.
+# No inventa geometría: lee `mark.svg`, que está aquí al lado, y le cambia
+# los dos colores. El dibujo sigue viviendo en un solo sitio — un test compara
+# su trazo con el del icono de marca y con el de `components/Mark.qml`.
 set -uo pipefail
 
 # Cualquier motivo para no hacer nada sale con 0: `omarchy-hook` avisa por
 # consola de todo hook que falle, y «no está instalado el lanzador» no es
 # un fallo.
 propio=$(readlink -f "${BASH_SOURCE[0]}" 2> /dev/null) || exit 0
-plantilla=$(dirname "$(dirname "$propio")")/io.github.r-bart.omaplain.svg
+plantilla=$(dirname "$propio")/mark.svg
 
 datos="${XDG_DATA_HOME:-$HOME/.local/share}"
 entrada="$datos/applications/io.github.r-bart.omaplain.desktop"
@@ -30,22 +31,20 @@ destino="$datos/omaplain/icons"
 [ -f "$plantilla" ] || exit 0
 command -v omarchy-theme-color > /dev/null 2>&1 || exit 0
 
-# El reparto. La baldosa va en el primer plano del tema y el trazo en su
-# fondo, no al revés: el menú de aplicaciones se pinta con `background`, así
-# que una baldosa de ese color se disuelve en la fila y el icono desaparece.
-# Con este reparto el contraste está garantizado en los dos modos — en uno
-# claro se da la vuelta sola.
-fondo=$(omarchy-theme-color foreground 2> /dev/null)
-tinta=$(omarchy-theme-color background 2> /dev/null)
+# El reparto. El trazo va en el primer plano del tema —el negativo de
+# aquello sobre lo que se pinta— y el punto en su acento. Nada de baldosa:
+# sin fondo, el icono contrasta en un tema claro por el mismo motivo que en
+# uno oscuro, y no hay que elegir un color de relleno que valga para los dos.
+tinta=$(omarchy-theme-color foreground 2> /dev/null)
 punto=$(omarchy-theme-color accent 2> /dev/null)
 
-for color in "$fondo" "$tinta" "$punto"; do
+for color in "$tinta" "$punto"; do
   [[ $color =~ ^#[0-9A-Fa-f]{6}$ ]] || exit 0
 done
 
-# El nombre lleva la huella de los tres colores. Dos temas distintos son dos
+# El nombre lleva la huella de los colores. Dos temas distintos son dos
 # ficheros distintos, y volver a un tema ya visto no repinta nada.
-sello=$(printf '%s' "$fondo|$tinta|$punto" | sha256sum | cut -c1-12)
+sello=$(printf '%s' "$tinta|$punto" | sha256sum | cut -c1-12)
 icono="$destino/omaplain-$sello.svg"
 
 puesto=$(sed -n 's/^Icon=//p' "$entrada" | head -1)
@@ -53,7 +52,7 @@ puesto=$(sed -n 's/^Icon=//p' "$entrada" | head -1)
 
 mkdir -p "$destino" || exit 0
 temporal=$(mktemp "$destino/.omaplain-XXXXXX") || exit 0
-if ! sed -e "s/#F6F2EA/$fondo/" -e "s/#1B201E/$tinta/" -e "s/#3E8E79/$punto/" \
+if ! sed -e "s/#1B201E/$tinta/" -e "s/#3E8E79/$punto/" \
      "$plantilla" > "$temporal"; then
   rm -f "$temporal"
   exit 0

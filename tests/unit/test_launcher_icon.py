@@ -23,13 +23,13 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 HOOK = REPO / "launcher" / "omaplain-launcher-icon"
+PLANTILLA = REPO / "launcher" / "mark.svg"
 ICONO = REPO / "io.github.r-bart.omaplain.svg"
 DESKTOP = REPO / "io.github.r-bart.omaplain.desktop"
 
-# Los tres colores de marca del SVG versionado. El hook los sustituye por los
-# del tema, así que si alguien repinta el fichero y no toca el hook, el icono
-# se queda a medias: mitad tema, mitad marca.
-FONDO = "#F6F2EA"
+# Los dos colores que el hook sustituye en la plantilla. Si alguien la repinta
+# y no toca el hook, el icono sale a medias —una parte del tema y otra no— y
+# nada falla: el hook sigue saliendo con cero.
 TINTA = "#1B201E"
 PUNTO = "#3E8E79"
 
@@ -44,7 +44,7 @@ class HookTests(unittest.TestCase):
         self.bin.mkdir()
         self.entrada = self.datos / "applications" / DESKTOP.name
         self.entrada.write_text(DESKTOP.read_text(encoding="utf-8"), encoding="utf-8")
-        self.tema = {"foreground": "#d8cbb4", "background": "#0c1626", "accent": "#d9a862"}
+        self.tema = {"foreground": "#d8cbb4", "accent": "#d9a862"}
         self._escribir_tema()
 
     def _escribir_tema(self) -> None:
@@ -78,19 +78,37 @@ class HookTests(unittest.TestCase):
         self.assertTrue(HOOK.exists())
         self.assertTrue(os.access(HOOK, os.X_OK), "el hook tiene que llegar ejecutable")
 
-    def test_the_three_brand_colours_are_the_ones_the_icon_has(self) -> None:
-        """Que el hook y el icono no se separen.
-
-        El hook sustituye tres cadenas literales. Repintar el SVG sin tocarlas
-        deja un icono a medias —una parte del tema y otra de la marca— y nada
-        falla: el hook sigue saliendo con cero.
-        """
-        svg = ICONO.read_text(encoding="utf-8")
+    def test_the_hook_and_its_template_stay_together(self) -> None:
+        svg = PLANTILLA.read_text(encoding="utf-8")
         hook = HOOK.read_text(encoding="utf-8")
-        for color in (FONDO, TINTA, PUNTO):
+        for color in (TINTA, PUNTO):
             with self.subTest(color=color):
-                self.assertEqual(svg.count(color), 1, "el icono ya no lo usa una vez")
+                self.assertEqual(svg.count(color), 1, "la plantilla ya no lo usa una vez")
                 self.assertIn(f"s/{color}/", hook, "el hook ya no lo sustituye")
+
+    def test_the_template_carries_no_tile(self) -> None:
+        """Plano, y por eso es otro fichero.
+
+        El trazo va en el primer plano del tema, que es el negativo de aquello
+        sobre lo que se pinta: contrasta igual en un tema claro que en uno
+        oscuro, y no hace falta elegir un relleno que valga para los dos.
+
+        El icono de marca sí lleva baldosa, y tiene que llevarla: ése no sabe
+        nada del tema y su trazo casi negro sobre un menú casi negro no se ve.
+        """
+        self.assertNotIn("<rect", PLANTILLA.read_text(encoding="utf-8"))
+        self.assertIn("<rect", ICONO.read_text(encoding="utf-8"))
+
+    def test_the_mark_is_the_same_stroke_in_all_three_places(self) -> None:
+        def trazo(ruta) -> str:
+            # En los SVG llega como `d="..."`; en el QML, como el valor de
+            # `path`. Se busca el trazo, no su envoltorio.
+            m = re.search(r'"(M2\.65[^"]+)"', ruta.read_text(encoding="utf-8"))
+            assert m, ruta
+            return m.group(1)
+        marca = REPO / "components" / "Mark.qml"
+        self.assertEqual(trazo(PLANTILLA), trazo(ICONO))
+        self.assertEqual(trazo(PLANTILLA), trazo(marca))
 
     def test_it_repaints_the_icon_and_points_the_entry_at_it(self) -> None:
         self._correr()
@@ -102,7 +120,7 @@ class HookTests(unittest.TestCase):
         for color in self.tema.values():
             with self.subTest(color=color):
                 self.assertIn(color, pintado)
-        for color in (FONDO, TINTA, PUNTO):
+        for color in (TINTA, PUNTO):
             with self.subTest(marca=color):
                 self.assertNotIn(color, pintado)
 
@@ -115,7 +133,7 @@ class HookTests(unittest.TestCase):
             assert m
             return m.group(1)
         self.assertEqual(trazo(self._generados()[0].read_text(encoding="utf-8")),
-                         trazo(ICONO.read_text(encoding="utf-8")))
+                         trazo(PLANTILLA.read_text(encoding="utf-8")))
 
     def test_the_second_run_writes_nothing(self) -> None:
         # El hook corre en cada cambio de tema y volver a un tema ya visto es

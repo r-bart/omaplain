@@ -493,7 +493,8 @@ omaplain/
 ├── BarWidget.qml          el icono de la barra: la marca
 ├── components/            filas, botones, cubierta, tour, marca, catálogo Strings.js
 ├── launcher/
-│   └── omaplain-launcher-icon   hook de `theme-set`: repinta el icono
+│   ├── omaplain-launcher-icon   hook de `theme-set`: repinta el icono
+│   └── mark.svg                 la marca sin baldosa, lo que el hook repinta
 ├── helper/
 │   ├── omaplain           ejecutable
 │   └── omaplain_lib/

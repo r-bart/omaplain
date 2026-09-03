@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="omaplain">
+  <!-- La marca sin baldosa: el material que repinta `omaplain-launcher-icon`.
+
+       Es el mismo trazo que `io.github.r-bart.omaplain.svg` y que
+       `components/Mark.qml`, con la misma `d`; un test compara las tres
+       cadenas. Lo que cambia es el encuadre y quién pone el color.
+
+       Sin fondo, porque el color del trazo lo pone el tema: va en su primer
+       plano, que es el negativo de aquello sobre lo que se pinta, así que
+       contrasta en un tema claro igual que en uno oscuro. Una baldosa aquí
+       sobraría — y la baldosa es justo lo que el icono de marca necesita,
+       porque ése no sabe nada del tema y tiene que valer sobre cualquier
+       fondo. Por eso son dos ficheros y no uno.
+
+       El dibujo abarca el 92 % del lienzo. Ocupa 20,45 x 6,8 de la caja de
+       24, así que la escala es 0,92 x 512 / 20,45 = 23,034 y el desplazamiento
+       lo que deja la tinta centrada: x de 20,5 a 491,5, y de 177,7 a 334,3.
+       Al 100 % el punto queda pegado al borde; el 8 % que sobra es su aire.
+
+       Es tres veces más ancho que alto, así que en una rejilla de iconos
+       cuadrados pesa menos que sus vecinos. Es la forma de la marca: se gana
+       ancho, no alto. -->
+  <g transform="translate(-19.83 -20.40) scale(23.034)" fill="none" stroke-linecap="round">
+    <path d="M2.65 12c1.61 0 2.42-2.5 4.03-2.5c2.28 0 3.42 5 5.7 5c1.61 0 2.42-2.5 4.03-2.5h1.4" stroke="#1B201E" stroke-width="1.8"/>
+    <circle cx="20.95" cy="12" r="1.25" fill="#3E8E79"/>
+  </g>
+</svg>

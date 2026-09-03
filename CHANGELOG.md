@@ -130,8 +130,9 @@ Lo que salió de la revisión completa del 2 de septiembre.
   es lo único que el sistema de iconos sabe leer.
 - **El icono del lanzador puede seguir al tema**
   ([`0020`](docs/decisions/0020-la-marca-se-dibuja.md), enmienda). Un hook de
-  `theme-set` opcional lo repinta con `foreground`, `background` y `accent` del
-  tema que acabas de poner. Escribe en `~/.local/share/omaplain/icons/` y
+  `theme-set` opcional lo repinta con el `foreground` y el `accent` del tema
+  que acabas de poner, y sin baldosa: sólo la marca, que es el mismo dibujo
+  que la barra. Escribe en `~/.local/share/omaplain/icons/` y
   cambia una línea de la entrada `.desktop`; sin entrada instalada no hace
   nada. Cambia la **ruta** y no el contenido a propósito: el shell es un
   proceso largo y Qt cachea el pixmap por la URL, así que reescribir el fichero
