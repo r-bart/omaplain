@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#07101d; }
+  a { color:#d9a862; text-decoration:none; border-bottom:1px solid rgba(217,168,98,.35); }
+  a:hover { color:#eec48a; }
+  input[type=range] { accent-color:#d9a862; }
+  [data-pane]::-webkit-scrollbar { width:8px; }
+  [data-pane]::-webkit-scrollbar-thumb { background:rgba(216,203,180,.22); border-radius:4px; }
+  [data-pane]::-webkit-scrollbar-track { background:transparent; }
+</style>
+</helmet>
+
+<div data-root="1" style="--bg:#0c1626; --pbg:#151d2c; --pt:#d8cbb4; --accent:#d9a862; --muted:#5d6673; --line:rgba(216,203,180,.12); font-family:'JetBrains Mono',ui-monospace,monospace; color:#d8cbb4; background:#07101d; padding:52px 60px 120px; display:flex; flex-direction:column; gap:64px; min-width:1760px">
+
+<!-- ============ CABECERA + TRANSPORTE ============ -->
+<section data-screen-label="00 Prototipo" style="display:flex; flex-direction:column; gap:22px">
+  <div style="display:flex; flex-direction:column; gap:10px; max-width:1000px">
+    <div style="font-size:11px; letter-spacing:2.2px; text-transform:uppercase; color:var(--muted)">Prototipo del panel · activos finales montados</div>
+    <div style="font-size:30px; font-weight:700; color:var(--accent); line-height:1.2">Las once pantallas de OmaPlain, con las animaciones puestas</div>
+    <div style="font-size:14px; line-height:1.75; color:rgba(216,203,180,.72); text-wrap:pretty">Cada tarjeta es el panel real: 520 px de ancho, los márgenes del QML, la copia de <code>Strings.js</code> sin tocar y los activos finales en su sitio. Todo corre con un solo reloj: compás de 2 600 ms —el del carrusel— y vuelta completa de 15 600. Cada caída se repite en cada compás, el carrusel da sus dos rondas de tres ejemplos, y la cinta del control de seguridad cruza la pantalla una sola vez por vuelta.</div>
+  </div>
+
+  <div style="display:flex; gap:26px; align-items:center; flex-wrap:wrap; border:1px solid var(--line); border-radius:10px; background:var(--pbg); padding:16px 20px; position:sticky; top:14px; z-index:40; box-shadow:0 10px 30px rgba(4,10,20,.55)">
+    <div data-play="1" style="cursor:pointer; user-select:none; flex:none; width:96px; font-size:12px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--bg); background:var(--accent); padding:9px 0; border-radius:6px; text-align:center">Pausa</div>
+    <input data-scrub="1" type="range" min="0" max="15600" step="1" value="0" style="flex:1; min-width:520px; height:4px">
+    <div style="flex:none; width:112px; font-size:13px; font-variant-numeric:tabular-nums; color:var(--accent)"><span data-clock="1">0</span> ms</div>
+    <div style="display:flex; gap:14px; align-items:center; flex:none; font-size:11px; color:rgba(216,203,180,.6)">
+      <div data-key="1" data-at="350" style="cursor:pointer">350 suelta</div>
+      <div data-key="1" data-at="790" style="cursor:pointer">790 cierre</div>
+      <div data-key="1" data-at="1450" style="cursor:pointer">1450 suelo</div>
+      <div data-key="1" data-at="1700" style="cursor:pointer">1700 sello</div>
+      <div data-key="1" data-at="2600" style="cursor:pointer; color:rgba(216,203,180,.4)">2600 párrafo</div>
+      <div data-key="1" data-at="5200" style="cursor:pointer; color:rgba(216,203,180,.4)">5200 formato</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REVISIÓN · TARJETAS DE CRISTAL ============ -->
+<section data-screen-label="01 Acto I - Primera vez" style="display:flex; flex-direction:column; gap:26px">
+  <div style="display:flex; align-items:baseline; gap:14px; border-bottom:1px solid rgba(217,168,98,.3); padding-bottom:12px">
+    <div style="font-size:13px; font-weight:700; color:var(--accent)">I</div>
+    <div style="font-size:21px; font-weight:700">La primera vez</div>
+    <div style="font-size:13px; color:rgba(216,203,180,.55)">cinco pantallas seguidas · se ven una sola vez en la vida del usuario</div>
+  </div>
+
+  <div style="font-size:14px; line-height:1.75; color:rgba(216,203,180,.72); max-width:1000px; text-wrap:pretty">El recorrido está hecho de tarjetas de cristal: traslúcidas, con el filo iluminado y su sombra, para que se lean como cosas apiladas sobre el panel y no como dibujos impresos en él. Cuatro pantallas y cuatro activos distintos del mismo material —un navegador, una cinta de control, una tarjeta con tu texto, una tarjeta de ajustes—, y la quinta sin ningún activo porque es una lista de ajustes. La retícula de renglones sueltos se queda para las piezas pequeñas del carrusel, donde hay 100 × 96 px y un segundo y medio de atención; aquí hay cuatro veces más superficie y lo que se pide es reconocer <em>qué</em> se está copiando.</div>
+
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start">
+
+    <!-- A' · Bienvenida -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">A′ · WelcomePage · transform</div>
+      <div style="width:520px; border:1px solid rgba(217,168,98,.3); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:26px 28px 30px; display:flex; flex-direction:column; gap:14px">
+
+          <div data-rig="1" data-mode="wipe" data-t0="250" style="width:464px; height:190px; position:relative; overflow:hidden; flex:none">
+            <div style="position:absolute; left:132px; top:-5px; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.15), rgba(217,168,98,0) 66%)"></div>
+
+            <div style="position:absolute; left:80px; top:14px; width:304px; display:flex; flex-direction:column; gap:9px">
+              <div style="height:42px; background:linear-gradient(150deg, rgba(216,203,180,.17), rgba(216,203,180,.06)); border:1px solid rgba(216,203,180,.3); border-radius:21px; box-shadow:0 12px 26px rgba(4,10,20,.55), inset 0 1px 0 rgba(255,255,255,.09); box-sizing:border-box; padding:0 16px; display:flex; align-items:center; gap:7px; position:relative; overflow:hidden">
+                <div style="position:absolute; left:0; right:0; top:0; height:50%; background:linear-gradient(rgba(255,255,255,.06), rgba(255,255,255,0)); pointer-events:none"></div>
+                <div style="width:10px; height:10px; border-radius:50%; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; flex:none"></div>
+                <div style="width:60px; height:6px; border-radius:3px; background:rgba(216,203,180,.62); flex:none"></div>
+                <div data-close="1" data-w="84" style="height:12px; overflow:hidden; flex:none"><div data-squeeze="1" style="display:flex; gap:3px; transform-origin:left center"><div data-mark="1" style="width:16px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:22px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:17px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:20px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div></div></div>
+                <div style="width:26px; height:6px; border-radius:3px; background:rgba(216,203,180,.62); flex:none"></div>
+              </div>
+              <div style="height:104px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:15px; display:flex; flex-direction:column; gap:11px; position:relative; overflow:hidden">
+                <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+                <div style="width:130px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.6)"></div>
+                <div style="display:flex; align-items:center; height:11px"><div style="width:72px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.45); flex:none"></div><div data-close="1" data-w="50" style="height:11px; overflow:hidden; flex:none; margin-left:5px"><div data-squeeze="1" style="display:flex; gap:3px; transform-origin:left center"><div data-mark="1" style="width:14px; height:11px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:18px; height:11px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:12px; height:11px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div></div></div></div>
+                <div style="display:flex; align-items:center; height:18px"><div style="width:92px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.45); flex:none"></div><div data-close="1" data-w="23" style="height:18px; overflow:hidden; flex:none"><div data-squeeze="1" style="display:flex; align-items:center; height:18px; transform-origin:left center"><div data-mark="edge" style="width:15px; height:15px; border:1.5px dashed rgba(216,203,180,.45); border-radius:3px; box-sizing:border-box; margin:0 4px; flex:none"></div></div></div></div>
+                <div style="width:158px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.32)"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent); text-align:center">First visit</div>
+          <div style="font-size:28px; font-weight:700; line-height:1.06; letter-spacing:-.5px; color:var(--pt); text-align:center">Clean text,<br>no surprises.</div>
+          <div style="width:420px; margin:0 auto; font-size:13.5px; line-height:1.5; color:rgba(216,203,180,.72); text-align:center; text-wrap:pretty">OmaPlain turns eligible copies into plain text and keeps intact everything it cannot clean safely.</div>
+
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px">
+            <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px; display:flex; flex-direction:column; gap:4px"><div style="font-size:12.5px; font-weight:700; color:var(--pt); height:33px">Removes what you don't need</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.72)">Formatting, tracking and non-semantic invisibles.</div></div>
+            <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px; display:flex; flex-direction:column; gap:4px"><div style="font-size:12.5px; font-weight:700; color:var(--pt); height:33px">Protects what matters</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.72)">Images, files and secrets pass untouched.</div></div>
+            <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px; display:flex; flex-direction:column; gap:4px"><div style="font-size:12.5px; font-weight:700; color:var(--pt); height:33px">Everything stays home</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.72)">No cloud, no telemetry, no history of its own.</div></div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+            <div style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg)">See how it works</div>
+            <div style="height:44px; border-radius:8px; border:1px solid rgba(216,203,180,.2); background:rgba(216,203,180,.04); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--pt)">Open the panel</div>
+          </div>
+          <div style="font-size:11px; color:rgba(216,203,180,.68); text-align:center">You can come back to this guide from settings.</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Dos tarjetas rectas y alineadas —la barra de dirección encima, la página debajo— así que se leen como un objeto y no como dos dibujos cerca. Y ninguna letra por el suelo: tres tiempos en su lugar. Primero lo que sobra <em>se nombra</em>, pasando de la tinta normal al acento sin moverse (340 ms). Y después se comprime contra su borde izquierdo mientras el resto cierra el hueco (520 ms). Nombrar antes de retirar es lo que convierte el gesto en una explicación: se ve qué se va, y luego se va. Sin sello: la prueba es el hueco cerrado, y un ✓ encima sólo repetía en un glifo lo que la propia línea acaba de demostrar. Los tramos que sobran van además más gruesos que el texto que se queda, para que se sepa qué mirar antes de que empiecen a irse.</div>
+    </div>
+
+    <!-- B' · Tour 1 -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">B′ · TourPage · paso 1 · protect</div>
+      <div style="width:520px; border:1px solid rgba(217,168,98,.3); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:28px 30px 30px; display:flex; flex-direction:column; gap:14px">
+          <div style="display:flex; align-items:baseline"><div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">How it works</div><div style="flex:1"></div><div style="font-size:11px; font-weight:700; letter-spacing:.7px; color:rgba(216,203,180,.68)">1 of 3</div></div>
+          <div style="display:flex; gap:6px"><div style="flex:1; height:4px; border-radius:2px; background:var(--accent)"></div><div style="flex:1; height:4px; border-radius:2px; background:rgba(216,203,180,.16)"></div><div style="flex:1; height:4px; border-radius:2px; background:rgba(216,203,180,.16)"></div></div>
+
+          <div data-rig="1" data-mode="pass" data-gate="230" style="width:460px; height:220px; position:relative; overflow:hidden; flex:none">
+            <div style="position:absolute; left:128px; top:-4px; width:204px; height:204px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.13), rgba(217,168,98,0) 66%)"></div>
+
+            <div data-pass="1" data-phase="0" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; border-radius:6px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; position:relative; overflow:hidden">
+                <div style="position:absolute; left:11px; top:10px; width:15px; height:15px; border-radius:50%; background:rgba(216,203,180,.5)"></div>
+                <div style="position:absolute; left:0; right:0; bottom:0; height:44px; background:rgba(216,203,180,.4); clip-path:polygon(0 100%, 34% 26%, 58% 62%, 100% 12%, 100% 100%)"></div>
+              </div>
+              <div style="font-size:12.5px; color:var(--pt)">Images</div>
+            </div>
+
+            <div data-pass="1" data-phase="0.25" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; position:relative">
+                <div style="position:absolute; left:0; top:8px; width:62px; height:66px; border-radius:5px; border:1.5px solid rgba(216,203,180,.34); box-sizing:border-box"></div>
+                <div style="position:absolute; left:16px; top:0; width:62px; height:66px; border-radius:5px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; background:rgba(21,29,44,.55); padding:11px; display:flex; flex-direction:column; gap:7px"><div style="width:32px; height:4px; border-radius:2px; background:rgba(216,203,180,.42)"></div><div style="width:24px; height:4px; border-radius:2px; background:rgba(216,203,180,.3)"></div><div style="width:28px; height:4px; border-radius:2px; background:rgba(216,203,180,.3)"></div></div>
+              </div>
+              <div style="font-size:12.5px; color:var(--pt)">Files</div>
+            </div>
+
+            <div data-pass="1" data-phase="0.5" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; position:relative">
+                <div style="position:absolute; left:24px; top:4px; width:32px; height:28px; border:1.5px solid rgba(216,203,180,.5); border-bottom:none; border-radius:16px 16px 0 0; box-sizing:border-box"></div>
+                <div style="position:absolute; left:14px; top:30px; width:52px; height:40px; border-radius:5px; background:rgba(216,203,180,.45)"></div>
+                <div style="position:absolute; left:37px; top:46px; width:6px; height:12px; border-radius:3px; background:rgba(21,29,44,.75)"></div>
+              </div>
+              <div style="font-size:12.5px; color:var(--pt)">Secrets</div>
+            </div>
+
+            <div data-pass="1" data-phase="0.75" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; border-radius:6px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; position:relative; overflow:hidden">
+                <div style="position:absolute; left:14px; top:12px; width:13px; height:13px; border-radius:50%; background:rgba(216,203,180,.5)"></div>
+                <div style="position:absolute; left:0; right:0; bottom:0; height:40px; background:rgba(216,203,180,.4); clip-path:polygon(0 100%, 28% 34%, 52% 66%, 100% 18%, 100% 100%)"></div>
+              </div>
+              <div style="font-size:12.5px; color:var(--pt)">Images</div>
+            </div>
+
+            <div data-glow="1" style="position:absolute; left:152px; top:6px; width:156px; height:184px; opacity:.06; background:linear-gradient(rgba(217,168,98,.55), rgba(217,168,98,.14) 58%, rgba(217,168,98,0)); z-index:0"></div>
+
+            <div data-gate="1" style="position:absolute; left:149px; top:6px; width:162px; height:184px; opacity:.5; z-index:0">
+              <div style="position:absolute; left:0; top:0; width:3px; height:184px; border-radius:2px; background:var(--accent)"></div>
+              <div style="position:absolute; right:0; top:0; width:3px; height:184px; border-radius:2px; background:var(--accent)"></div>
+              <div style="position:absolute; left:0; right:0; top:0; height:3px; border-radius:2px; background:var(--accent)"></div>
+            </div>
+
+            <div style="position:absolute; left:0; right:0; top:183px; height:2px; background:rgba(216,203,180,.14); z-index:0"></div>
+            <div style="position:absolute; left:149px; top:182px; width:162px; height:4px; border-radius:2px; background:rgba(217,168,98,.32); z-index:0"></div>
+
+            <div style="position:absolute; left:0; right:0; bottom:4px; display:flex; justify-content:center; z-index:3"><div style="display:flex; align-items:center; gap:9px"><div style="width:20px; height:20px; border-radius:50%; border:1.5px solid var(--accent); box-sizing:border-box; display:flex; align-items:center; justify-content:center"><div style="width:8px; height:8px; border-radius:50%; background:var(--accent)"></div></div><div style="font-size:12.5px; color:var(--accent); letter-spacing:.4px">Untouched</div></div></div>
+          </div>
+
+          <div style="font-size:23px; font-weight:700; line-height:1.08; letter-spacing:-.4px; color:var(--pt); text-align:center; min-height:54px; display:flex; align-items:center; justify-content:center">Copy as you always do</div>
+          <div style="width:420px; margin:0 auto; min-height:64px; font-size:13.5px; line-height:1.5; color:rgba(216,203,180,.72); text-align:center; text-wrap:pretty">OmaPlain watches new text copies and cleans them automatically when it is safe. You do not need a new shortcut.</div>
+
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:11px 12px; display:flex; align-items:center; gap:8px"><div style="width:8px; height:8px; border-radius:4px; background:var(--accent); flex:none"></div><div style="font-size:12.5px; font-weight:700; color:var(--pt)">Images and files pass untouched.</div></div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+            <div style="height:44px; border-radius:8px; border:1px solid rgba(216,203,180,.2); background:rgba(216,203,180,.04); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--pt)">Back</div>
+            <div style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg)">Next</div>
+          </div>
+          <div style="height:38px; display:flex; align-items:center; justify-content:center; font-size:13.5px; color:rgba(216,203,180,.68)">Skip the tour</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)"><strong style="color:rgba(216,203,180,.72)">B′1 · El control de seguridad.</strong> Un arco y una cinta, no una línea. El arco mide 156 px de hueco para tarjetas de 130: hay 13 px de aire a cada lado, así que <em>nada</em> llega a tocar nunca a nada. Y el arco va por detrás: en una cinta continua hay siempre dos tarjetas encima de los montantes, así que la oclusión es la que tiene que resolverlo — la tarjeta tapa el montante, nunca al revés, porque un filo de acento cruzando una tarjeta se lee como un corte. Lo único que reacciona es la luz del arco, que se enciende cuando algo está dentro: reacciona a la presencia, no al contenido. Cuatro tarjetas en cinta continua, 22 px entre una y la siguiente, 15 600 ms de extremo a extremo — cinco veces más lento que antes. El rótulo cuelga del arco.<br><br><strong style="color:rgba(216,203,180,.72)">Y el grano.</strong> Dentro del arco el dibujo de la tarjeta se apaga casi del todo y queda ruido: grano grueso y gris, líneas de barrido finas en acento y una trama ancha por debajo, las tres rodando a velocidades distintas —con una sola se lee como una textura puesta encima, no como una señal—. No es que la tarjeta cambie —sale por el otro lado exactamente como entró—, es que el control <em>no la lee</em>. Que es literalmente lo que hace el helper con una imagen: mira el tipo de la oferta y se planta. El temblor es de medio píxel y sale de un seno del reloj: señal inestable, no tarjeta rota.</div>
+
+    </div>
+
+    <!-- C' · Tour 2 -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">C′ · TourPage · paso 2 · preside la demo</div>
+      <div style="width:520px; border:1px solid rgba(217,168,98,.3); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:28px 30px 30px; display:flex; flex-direction:column; gap:14px">
+          <div style="display:flex; align-items:baseline"><div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">How it works</div><div style="flex:1"></div><div style="font-size:11px; font-weight:700; letter-spacing:.7px; color:rgba(216,203,180,.68)">2 of 3</div></div>
+          <div style="display:flex; gap:6px"><div style="flex:1; height:4px; border-radius:2px; background:var(--accent)"></div><div style="flex:1; height:4px; border-radius:2px; background:var(--accent)"></div><div style="flex:1; height:4px; border-radius:2px; background:rgba(216,203,180,.16)"></div></div>
+
+          <div data-rig="1" data-mode="new" data-t0="200" data-floor="82" style="position:relative; display:flex; flex-direction:column; gap:11px">
+            <div data-box="1" data-h0="88" data-h1="68" style="height:88px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); padding:13px 14px; box-sizing:border-box; overflow:hidden; position:relative; display:flex; align-items:flex-start">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100%; position:relative; font-size:13px; line-height:1.55; color:var(--pt); word-break:break-all"><span>https://example.com/sourdough-bread?</span><span data-close="1" data-shatter="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">utm_source=newsletter&amp;utm_medium=email&amp;fbclid=IwAR9x&amp;&#8203;</span><span>servings=8#baking</span></div>
+            </div>
+            <div data-outcome="1" style="font-size:11px; line-height:1.6; color:rgba(216,203,180,.72)">Three tracking parameters gone, and an invisible character you could not see. The page, the servings and the spot it points to are still there.</div>
+          </div>
+
+          <div style="font-size:23px; font-weight:700; line-height:1.08; letter-spacing:-.4px; color:var(--pt); text-align:center; min-height:54px; display:flex; align-items:center; justify-content:center">Only what you don't need</div>
+          <div style="width:420px; margin:0 auto; min-height:64px; font-size:13.5px; line-height:1.5; color:rgba(216,203,180,.72); text-align:center; text-wrap:pretty">It removes rich formatting, tracking parameters from whole URLs and non-semantic invisible characters.</div>
+
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:11px 12px; display:flex; align-items:center; gap:8px"><div style="width:8px; height:8px; border-radius:4px; background:var(--accent); flex:none"></div><div style="font-size:12.5px; font-weight:700; color:var(--pt)">When in doubt, it keeps the original.</div></div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+            <div style="height:44px; border-radius:8px; border:1px solid rgba(216,203,180,.2); background:rgba(216,203,180,.04); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--pt)">Back</div>
+            <div style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg)">Next</div>
+          </div>
+          <div style="height:38px; display:flex; align-items:center; justify-content:center; font-size:13.5px; color:rgba(216,203,180,.68)">Skip the tour</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Fuera la ilustración: aquí preside la demo, y ocupa el sitio que tenía el dibujo. Repetir la composición de la bienvenida en el paso siguiente la gastaba dos veces, y encima competía con lo único de esta pantalla que enseña una cadena real. Fuera el «Try it», que prometía una acción: aquí no hay nada que probar, está ocurriendo. Y fuera la tarjeta que envolvía y el «See the original», que metían tres bordes concéntricos para enseñar una cadena. Queda una sola tarjeta de cristal con el texto y la frase del resultado fuera de ella, entrando cuando el suelo ya está limpio. Y la tarjeta se recoge: tres renglones pasan a dos, así que baja de 88 a 68 px en 380 ms con curva de entrada y salida, empezando <em>después</em> de que caiga el último carácter. Primero se ve que está limpio; luego la caja se ajusta a ese hecho. Al revés se leería como que la tarjeta empuja al texto. El choque de las dos caídas desaparece por sí solo.</div>
+    </div>
+
+    <!-- D' · Tour 3 -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">D′ · TourPage · paso 3 · control</div>
+      <div style="width:520px; border:1px solid rgba(217,168,98,.3); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:28px 30px 30px; display:flex; flex-direction:column; gap:14px">
+          <div style="display:flex; align-items:baseline"><div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">How it works</div><div style="flex:1"></div><div style="font-size:11px; font-weight:700; letter-spacing:.7px; color:rgba(216,203,180,.68)">3 of 3</div></div>
+          <div style="display:flex; gap:6px"><div style="flex:1; height:4px; border-radius:2px; background:var(--accent)"></div><div style="flex:1; height:4px; border-radius:2px; background:var(--accent)"></div><div style="flex:1; height:4px; border-radius:2px; background:var(--accent)"></div></div>
+
+          <div style="width:460px; height:220px; position:relative; overflow:hidden; flex:none">
+            <div style="position:absolute; left:130px; top:2px; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.13), rgba(217,168,98,0) 66%)"></div>
+
+            <div style="position:absolute; left:70px; top:20px; width:320px; height:148px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+                <div style="display:flex; align-items:center; gap:12px"><div style="font-size:13.5px; color:var(--pt); flex:1">Clean automatically</div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+                <div style="display:flex; align-items:center; gap:12px"><div style="font-size:13.5px; color:var(--pt); flex:1">Cleaning rules</div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+                <div style="display:flex; align-items:center; gap:12px"><div style="font-size:13.5px; color:rgba(216,203,180,.5); flex:1">App rules</div><div style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+            </div>
+
+            <div style="position:absolute; left:0; right:0; bottom:14px; display:flex; justify-content:center"><div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">You decide</div></div>
+          </div>
+
+          <div style="font-size:23px; font-weight:700; line-height:1.08; letter-spacing:-.4px; color:var(--pt); text-align:center; min-height:54px; display:flex; align-items:center; justify-content:center">You keep control</div>
+          <div style="width:420px; margin:0 auto; min-height:64px; font-size:13.5px; line-height:1.5; color:rgba(216,203,180,.72); text-align:center; text-wrap:pretty">Clean by hand, turn the automatic mode off, or give an application its own rules. The history is still Omarchy's.</div>
+
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:11px 12px; display:flex; align-items:center; gap:8px"><div style="width:8px; height:8px; border-radius:4px; background:var(--accent); flex:none"></div><div style="font-size:12.5px; font-weight:700; color:var(--pt)">Everything happens on this machine.</div></div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+            <div style="height:44px; border-radius:8px; border:1px solid rgba(216,203,180,.2); background:rgba(216,203,180,.04); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--pt)">Back</div>
+            <div style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg)">See the settings</div>
+          </div>
+          <div style="height:38px; display:flex; align-items:center; justify-content:center; font-size:13.5px; color:rgba(216,203,180,.68)">Skip the tour</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Los interruptores entran en una tarjeta, que es lo contrario de lo que decidimos en el banco — y con la familia puesta, lo correcto: ahora la caja no es un recuadro de más, es el mismo objeto que en los dos pasos anteriores. Tres pasos, tres cosas distintas hechas del mismo material: una cinta de tarjetas que pasan, una tarjeta con tu texto, y una tarjeta de ajustes.<br><br>Y quieta, cerrando el recorrido. Dos pasos con movimiento y el último sin nada: es lo que hace que el tour termine en vez de simplemente pararse. El tercer interruptor apagado es todo el argumento de la pantalla — no viene nada impuesto.</div>
+    </div>
+
+
+
+    <!-- E · Ajustes, último paso -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">E · Ajustes · último paso del recorrido</div>
+      <div style="width:520px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px">
+          <div style="height:44px; display:flex; align-items:center"><div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div><div style="flex:1"></div><div style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; gap:7px; font-size:13.5px; color:rgba(216,203,180,.68)">Skip  ›</div></div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+        </div>
+        <div style="padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; flex-direction:column; gap:4px">
+            <div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">Last step</div>
+            <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.78)">This is what you can adjust. It already comes safely configured, so you can leave it as it is.</div>
+          </div>
+
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt)">Language</div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px">
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(217,168,98,.4); background:rgba(217,168,98,.08); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--accent)">System</div>
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:rgba(216,203,180,.68)">English</div>
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:rgba(216,203,180,.68)">Spanish</div>
+          </div>
+
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt)">Motion</div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Reduce motion</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Stops the animations, including the examples that cycle on the empty screen.</div></div><div style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt)">Mode</div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Clean automatically</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Turns every copy that is safe into plain text.</div></div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+          <div style="font-size:11px; line-height:1.5; color:rgba(216,203,180,.72)">Omarchy's history may keep the original as well when characters change.</div>
+          <div style="height:40px; display:flex; align-items:center; font-size:13px; color:rgba(216,203,180,.68)">▸  Why can the original still show up?</div>
+
+          <div style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg); margin-top:4px">Start using it</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Ni un activo animado, y es correcto: es una lista de ajustes, y además la última pantalla del recorrido. Aquí el techo de 720 no aplica —el onboarding se mide contra la pantalla— así que la salida del final se ve sin arrastrar. Recortada por abajo para no repetir el Acto III.</div>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:26px; flex-wrap:wrap; border-top:1px solid rgba(216,203,180,.09); padding-top:20px">
+    <div style="flex:1; min-width:440px; font-size:13px; line-height:1.75; color:rgba(216,203,180,.68); text-wrap:pretty">El cristal es tres declaraciones y ninguna sombra de verdad: un degradado a 150° del 15 % al 5 %, un borde al 26 %, y un filo iluminado por dentro —<code>inset 0 1px 0</code> al 8 % de blanco—. En QML es una <code>BorderSurface</code> con un <code>Gradient</code> y un <code>Rectangle</code> de un píxel arriba; no hace falta <code>ShaderEffect</code> ni desenfoque de fondo, y sobre un panel de color plano no se distinguiría de tenerlo.</div>
+    <div style="flex:1; min-width:440px; font-size:13px; line-height:1.75; color:rgba(216,203,180,.68); text-wrap:pretty">Y las tarjetas van rectas: rotarlas se probó y se cayó — rectas y alineadas se leen como objetos, en abanico como una baraja. El motor mide los añicos por el rectángulo pintado y no por <code>offsetLeft</code>, así que las rotaciones siguen disponibles si algún día hacen falta. El grano cuenta la misma idea dos veces: en el arco del tour, y quieto en el bypass de todos los días.</div>
+  </div>
+
+</section>
+
+
+<!-- ============ ACTO II ============ -->
+<section data-screen-label="02 Acto II - Cada dia" style="display:flex; flex-direction:column; gap:26px">
+  <div style="display:flex; align-items:baseline; gap:14px; border-bottom:1px solid rgba(216,203,180,.14); padding-bottom:12px">
+    <div style="font-size:13px; font-weight:700; color:var(--accent)">II</div>
+    <div style="font-size:21px; font-weight:700">Cada día</div>
+    <div style="font-size:13px; color:rgba(216,203,180,.55)">los cinco estados de la pantalla frecuente · muchas aperturas al día</div>
+  </div>
+
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start">
+
+    <!-- F · Se puede limpiar -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">F · Se puede limpiar · filas descubiertas</div>
+      <div style="width:520px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px">
+          <div style="height:44px; display:flex; align-items:center"><div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div><div style="flex:1"></div><div style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; gap:7px; font-size:13.5px; color:rgba(216,203,180,.68)"><span style="font-size:15px">⚙</span>Options</div></div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+          <div style="font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--pt)">This can be cleaned</div>
+          <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">This is how it stands and how it would end up.</div>
+        </div>
+        <div style="padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+
+          <div style="height:104px; border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); position:relative; overflow:hidden">
+            <div style="position:absolute; left:0; right:0; top:0; height:32px; border-bottom:1px solid rgba(216,203,180,.14); display:flex; align-items:center; padding:0 10px; box-sizing:border-box"><div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">Now</div><div style="flex:1"></div><div style="font-size:14px; color:var(--accent)">◉</div></div>
+            <div style="position:absolute; left:10px; right:10px; top:44px; font-size:13px; line-height:1.55; color:var(--pt); word-break:break-all">https://example.com/sourdough-bread?<span style="color:rgba(217,168,98,.85)">utm_source=newsletter&amp;utm_medium=email&amp;</span>servings=8#baking</div>
+          </div>
+
+          <div data-rig="1" data-mode="new" data-t0="250" style="height:104px; border:1px solid rgba(217,168,98,.3); border-radius:10px; background:rgba(216,203,180,.05); position:relative; overflow:hidden">
+            <div style="position:absolute; left:0; right:0; top:0; height:32px; border-bottom:1px solid rgba(216,203,180,.14); display:flex; align-items:center; padding:0 10px; box-sizing:border-box; z-index:3"><div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">Would be</div><div style="flex:1"></div><div style="font-size:14px; color:var(--accent)">◉</div></div>
+            <div style="position:absolute; left:10px; right:10px; top:44px; font-size:13px; line-height:1.55; color:var(--pt); word-break:break-all"><span>https://example.com/sourdough-bread?</span><span data-close="1" data-shatter="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">utm_source=newsletter&amp;utm_medium=email&amp;</span><span>servings=8#baking</span></div>
+            <div data-stamp="1" style="position:absolute; right:10px; bottom:8px; width:28px; height:28px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--bg); z-index:4">✓</div>
+          </div>
+
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); overflow:hidden">
+            <div style="height:38px; display:flex; align-items:center; padding:0 11px"><div style="flex:1; font-size:12.5px; color:rgba(216,203,180,.72)">✕  Tracking parameters</div><div style="font-size:10.5px; color:rgba(216,203,180,.72); border:1px solid rgba(216,203,180,.22); border-radius:10px; padding:3px 8px">Tracking</div></div>
+            <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+            <div style="height:38px; display:flex; align-items:center; padding:0 11px"><div style="flex:1; font-size:12.5px; color:rgba(216,203,180,.72)">✕  Invisible characters</div><div style="font-size:10.5px; color:rgba(216,203,180,.72); border:1px solid rgba(216,203,180,.22); border-radius:10px; padding:3px 8px">Invisibles</div></div>
+          </div>
+
+          <div style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px; font-weight:700; color:var(--bg)">Apply to the clipboard</div>
+          <div style="font-size:11px; color:rgba(216,203,180,.68)">The original stays intact if cleaning is not safe.</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">La caída se la queda <em>Would be</em>, no <em>Now</em>: la fila del resultado nace con el texto tal cual está y suelta lo que sobra hasta quedarse en lo que promete. <em>Now</em> se queda quieta, con el tramo en acento a 0,85 marcando qué se irá. Así se lee de arriba abajo como una frase.</div>
+    </div>
+
+    <!-- G · Ya está limpio -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">G · Ya está limpio · una sola fila, cubierta</div>
+      <div style="width:520px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px">
+          <div style="height:44px; display:flex; align-items:center"><div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div><div style="flex:1"></div><div style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; gap:7px; font-size:13.5px; color:rgba(216,203,180,.68)"><span style="font-size:15px">⚙</span>Options</div></div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+          <div style="font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--pt)">Already clean</div>
+          <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">OmaPlain has looked at it and there is nothing to remove.</div>
+        </div>
+        <div style="padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+          <div style="height:104px; border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); position:relative; overflow:hidden">
+            <div style="position:absolute; left:0; right:0; top:0; height:32px; border-bottom:1px solid rgba(216,203,180,.14); display:flex; align-items:center; padding:0 10px; box-sizing:border-box; z-index:5"><div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">On the clipboard</div><div style="flex:1"></div><div style="font-size:13px; color:rgba(216,203,180,.45)">◎</div></div>
+            <div style="position:absolute; left:10px; right:10px; top:44px; font-size:13px; line-height:1.55; color:rgba(216,203,180,.5); word-break:break-all">The dough needs twelve hours at room temperature before it goes in the fridge.</div>
+            <div style="position:absolute; left:1px; right:1px; top:33px; bottom:1px; backdrop-filter:blur(5px); background:rgba(21,29,44,.62); display:flex; align-items:center; justify-content:center; z-index:4"><div style="font-size:11.5px; letter-spacing:.6px; color:rgba(216,203,180,.62)">Drag to clear</div></div>
+          </div>
+          <div style="font-size:11px; color:rgba(216,203,180,.68)">The original stays intact if cleaning is not safe.</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Nada se mueve, y no por ahorro: no hay nada que retirar, así que una animación mentiría. Sin botón primario —0015— la pantalla se queda en tres líneas y una fila. Es el estado más frecuente con el automático puesto. <code>FogCover</code> queda fuera de alcance: aquí va en su estado quieto.</div>
+    </div>
+
+    <!-- H · Vacío -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">H · Portapapeles vacío · sónar + carrusel</div>
+      <div style="width:520px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px">
+          <div style="height:44px; display:flex; align-items:center"><div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div><div style="flex:1"></div><div style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; gap:7px; font-size:13.5px; color:rgba(216,203,180,.68)"><span style="font-size:15px">⚙</span>Options</div></div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <div style="display:flex; align-items:center; gap:4px; margin-left:-4px"><div style="width:24px; height:24px; flex:none; position:relative; display:flex; align-items:center; justify-content:center"><div data-pulse="1" data-phase="0" style="position:absolute; width:6px; height:6px; border-radius:50%; border:1px solid var(--muted)"></div><div data-pulse="1" data-phase="0.34" style="position:absolute; width:6px; height:6px; border-radius:50%; border:1px solid var(--muted)"></div><div data-pulse="1" data-phase="0.68" style="position:absolute; width:6px; height:6px; border-radius:50%; border:1px solid var(--muted)"></div><div data-blip="1" style="position:absolute; width:2.5px; height:2.5px; border-radius:50%; background:var(--accent); opacity:0"></div><div style="width:4px; height:4px; border-radius:50%; background:var(--muted); position:relative"></div></div><div style="font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--muted)">Starting</div></div>
+            <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">Watching the clipboard again…</div>
+          </div>
+          <div style="font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--pt)">Waiting for your next copy</div>
+          <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">Copy anything and this screen shows what OmaPlain would do with it — before it does it.</div>
+        </div>
+        <div style="padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+
+          <div data-carousel="1" style="display:flex; flex-direction:column; gap:6px">
+            <div style="height:114px; border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); position:relative; overflow:hidden">
+
+              <div data-sample="1" style="position:absolute; inset:0">
+                <div data-art="1" style="position:absolute; left:10px; top:9px; width:100px; height:96px">
+                  <div data-halo="1" style="position:absolute; left:9px; top:5px; width:86px; height:86px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.16), rgba(217,168,98,0) 68%)"></div>
+                  <div style="position:absolute; left:16px; top:4px; width:80px; height:48px; background:linear-gradient(150deg, rgba(216,203,180,.07), rgba(216,203,180,.03)); border:1px solid rgba(216,203,180,.13); border-radius:8px; box-sizing:border-box"></div>
+                  <div style="position:absolute; left:0; top:44px; width:98px; height:30px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); box-shadow:0 6px 14px rgba(4,10,20,.45), inset 0 1px 0 rgba(255,255,255,.07); box-sizing:border-box; border-radius:15px; padding:0 10px; display:flex; align-items:center; gap:5px; overflow:hidden">
+                    <div style="position:absolute; left:0; right:0; top:0; height:44%; background:linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,0)); pointer-events:none"></div>
+                    <div style="width:8px; height:8px; border-radius:50%; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; flex:none; position:relative"></div>
+                    <div style="width:26px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.62); flex:none; position:relative"></div>
+                    <div data-ccl="1" style="height:6px; overflow:hidden; flex:none; position:relative"><div style="display:flex; gap:2px"><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div></div></div>
+                  </div>
+                </div>
+                <div data-copy="1" style="position:absolute; left:120px; right:14px; top:35px; display:flex; flex-direction:column; gap:8px">
+                  <div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">A link from a newsletter</div>
+                  <div style="font-size:12.5px; white-space:nowrap; color:var(--pt)"><span>example.com/offer?</span><span data-ccl="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">utm_source=newsletter&amp;</span><span>size=42</span></div>
+                </div>
+              </div>
+
+              <div data-sample="1" style="position:absolute; inset:0; opacity:0">
+                <div data-art="1" style="position:absolute; left:10px; top:9px; width:100px; height:96px">
+                  <div data-halo="1" style="position:absolute; left:9px; top:5px; width:86px; height:86px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.16), rgba(217,168,98,0) 68%)"></div>
+                  <div style="position:absolute; left:9px; top:4px; width:82px; height:88px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:8px; box-shadow:0 6px 14px rgba(4,10,20,.45), inset 0 1px 0 rgba(255,255,255,.07); box-sizing:border-box; padding:11px; display:flex; flex-direction:column; gap:7px; overflow:hidden">
+                    <div style="position:absolute; left:0; right:0; top:0; height:44%; background:linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,0)); pointer-events:none"></div>
+                    <div style="width:56px; height:3px; border-radius:1.5px; background:rgba(216,203,180,0.55)"></div>
+                    <div style="width:44px; height:3px; border-radius:1.5px; background:rgba(216,203,180,0.42)"></div>
+                    <div data-ccl="1" data-axis="h" style="height:13px; overflow:hidden"><div style="width:13px; height:13px; border:1.5px dashed var(--accent); border-radius:3px; box-sizing:border-box"></div></div>
+                    <div style="width:50px; height:3px; border-radius:1.5px; background:rgba(216,203,180,0.42)"></div>
+                    <div style="width:36px; height:3px; border-radius:1.5px; background:rgba(216,203,180,0.42)"></div>
+                  </div>
+                </div>
+                <div data-copy="1" style="position:absolute; left:120px; right:14px; top:35px; display:flex; flex-direction:column; gap:8px">
+                  <div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">A paragraph copied from a page</div>
+                  <div style="font-size:12.5px; white-space:nowrap; color:var(--pt)"><span>Sourdough bread</span><span data-ccl="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">·invisible·</span><span> needs 12 hours.</span></div>
+                </div>
+              </div>
+
+              <div data-sample="1" style="position:absolute; inset:0; opacity:0">
+                <div data-art="1" style="position:absolute; left:10px; top:9px; width:100px; height:96px">
+                  <div data-halo="1" style="position:absolute; left:9px; top:5px; width:86px; height:86px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.16), rgba(217,168,98,0) 68%)"></div>
+                  <div style="position:absolute; left:20px; top:2px; width:76px; height:78px; background:linear-gradient(150deg, rgba(216,203,180,.07), rgba(216,203,180,.03)); border:1px solid rgba(216,203,180,.13); border-radius:8px; box-sizing:border-box"></div>
+                  <div style="position:absolute; left:4px; top:14px; width:80px; height:78px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:8px; box-shadow:0 6px 14px rgba(4,10,20,.45), inset 0 1px 0 rgba(255,255,255,.07); box-sizing:border-box; padding:11px; display:flex; flex-direction:column; gap:7px; overflow:hidden">
+                    <div style="position:absolute; left:0; right:0; top:0; height:44%; background:linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,0)); pointer-events:none"></div>
+                    <div data-ccl="1" data-axis="h" style="height:9px; overflow:hidden"><div style="width:42px; height:9px; border-radius:2px; background:var(--accent)"></div></div>
+                    <div style="width:54px; height:3px; border-radius:1.5px; background:rgba(216,203,180,0.55)"></div>
+                    <div style="display:flex; gap:5px; align-items:flex-start"><div data-ccl="1" style="overflow:hidden; height:17px"><div style="width:4px; height:17px; border-radius:2px; background:var(--accent)"></div></div><div style="display:flex; flex-direction:column; gap:6px"><div style="width:42px; height:3px; border-radius:1.5px; background:rgba(216,203,180,0.42)"></div><div style="width:32px; height:3px; border-radius:1.5px; background:rgba(216,203,180,0.42)"></div></div></div>
+                  </div>
+                </div>
+                <div data-copy="1" style="position:absolute; left:120px; right:14px; top:35px; display:flex; flex-direction:column; gap:8px">
+                  <div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">Text with formatting from an editor</div>
+                  <div style="font-size:12.5px; white-space:nowrap; color:var(--pt)"><span>Executive summary</span><span data-ccl="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">, in bold and in colour</span><span>.</span></div>
+                </div>
+              </div>
+
+            </div>
+            <div style="display:flex; gap:5px; align-items:center; justify-content:center; height:14px">
+              <div data-dot="1" style="width:20px; height:5px; border-radius:2.5px; background:rgba(217,168,98,.28); overflow:hidden"><div data-fill="1" style="height:5px; background:var(--accent); width:0"></div></div>
+              <div data-dot="1" style="width:5px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.2); overflow:hidden"><div data-fill="1" style="height:5px; background:var(--accent); width:0"></div></div>
+              <div data-dot="1" style="width:5px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.2); overflow:hidden"><div data-fill="1" style="height:5px; background:var(--accent); width:0"></div></div>
+            </div>
+          </div>
+
+          <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--accent)">See how it works</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Los tres ejemplares bajan a cristal, que es lo que faltaba para que el panel tenga un idioma y no dos: el enlace es una barra de dirección sobre su página —la misma pieza de la bienvenida, a un tercio de tamaño—, el párrafo es una hoja, y el formato son dos hojas apiladas. Lo que sobra sigue cerrándose sobre la línea con el mismo <code>combed</code> de siempre; la coreografía del ciclo no se toca ni un milisegundo.<br><br>Y sigue siendo el peor caso del panel: dos cosas en bucle a la vez. Aguanta porque van a velocidades muy distintas y ninguna pide atención — y porque aquí no cae nada.</div>
+    </div>
+
+    <!-- I · Bypass -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">I · Bypass · una imagen</div>
+      <div style="width:520px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px">
+          <div style="height:44px; display:flex; align-items:center"><div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div><div style="flex:1"></div><div style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; gap:7px; font-size:13.5px; color:rgba(216,203,180,.68)"><span style="font-size:15px">⚙</span>Options</div></div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+          <div style="font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--pt)">An image on your clipboard</div>
+          <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">OmaPlain does not read images. This one reaches its destination byte for byte.</div>
+        </div>
+        <div style="padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+
+          <div style="width:480px; height:170px; position:relative; display:flex; align-items:center; gap:20px">
+            <div style="position:absolute; left:26px; top:-8px; width:186px; height:186px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.12), rgba(217,168,98,0) 66%)"></div>
+
+            <div data-grainstill="0.34" style="width:206px; height:146px; flex:none; position:relative; overflow:hidden; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:16px">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:174px; height:114px; border-radius:7px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; position:relative; overflow:hidden">
+                <div style="position:absolute; left:20px; top:18px; width:22px; height:22px; border-radius:50%; background:rgba(216,203,180,.5)"></div>
+                <div style="position:absolute; left:0; right:0; bottom:0; height:64px; background:rgba(216,203,180,.4); clip-path:polygon(0 100%, 32% 22%, 56% 60%, 100% 8%, 100% 100%)"></div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px; position:relative">
+              <div style="display:flex; align-items:center; gap:10px"><div style="width:24px; height:24px; border-radius:50%; border:1.5px solid var(--accent); box-sizing:border-box; display:flex; align-items:center; justify-content:center; flex:none"><div style="width:9px; height:9px; border-radius:50%; background:var(--accent)"></div></div><div style="font-size:13.5px; color:var(--accent); letter-spacing:.4px">Untouched</div></div>
+              <div style="width:184px; height:1px; background:rgba(216,203,180,.14)"></div>
+              <div style="font-size:11.5px; line-height:1.5; color:rgba(216,203,180,.55); width:184px">Byte for byte, exactly as you copied it.</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap">
+            <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">image/png</div>
+            <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">image/webp</div>
+          </div>
+          <div style="font-size:11px; color:rgba(216,203,180,.68)">Revealing is not available for content marked as sensitive.</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Fuera el inventario de tres filas: era del tour, y aquí sobraba dos tercios. Esta pantalla habla de <em>una</em> cosa concreta —la que tienes en el portapapeles ahora—, así que enseña una: la tarjeta de cristal con la imagen, y el grano quieto encima al 34 %, que es lo único que OmaPlain llega a ver de ella. Es el mismo grano del arco del tour, sin movimiento. Y «Untouched» sale de la lista, donde se leía como una cuarta fila del inventario, y pasa a ser lo que rotula la tarjeta. Sigue quieta siempre: <code>motionEnabled: false</code> desde el propio Panel. Un bypass se ve muchas veces al día —cada captura de pantalla es uno— y una animación de entrada en cada apertura es justo lo que no se le hace a un gesto frecuente.<br><br>La frase de la derecha necesita una clave nueva, <code>art.byteForByte</code>. Si prefieres no añadirla, se cae sin más: la tarjeta y el rótulo ya lo dicen.</div>
+    </div>
+
+    <!-- J · Sólo formato -->
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">J · Sólo se retira el formato</div>
+      <div style="width:520px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px">
+          <div style="height:44px; display:flex; align-items:center"><div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div><div style="flex:1"></div><div style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; gap:7px; font-size:13.5px; color:rgba(216,203,180,.68)"><span style="font-size:15px">⚙</span>Options</div></div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+          <div style="font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--pt)">This can be cleaned</div>
+          <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">This is how it stands and how it would end up.</div>
+        </div>
+        <div style="padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+          <div style="height:82px; border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); position:relative; overflow:hidden">
+            <div style="position:absolute; left:0; right:0; top:0; height:32px; border-bottom:1px solid rgba(216,203,180,.14); display:flex; align-items:center; padding:0 10px; box-sizing:border-box"><div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">Now</div><div style="flex:1"></div><div style="font-size:14px; color:var(--accent)">◉</div></div>
+            <div style="position:absolute; left:10px; right:10px; top:44px; font-size:13px; line-height:1.55; color:var(--pt)">Executive summary, second quarter</div>
+          </div>
+          <div style="height:82px; border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); position:relative; overflow:hidden">
+            <div style="position:absolute; left:0; right:0; top:0; height:32px; border-bottom:1px solid rgba(216,203,180,.14); display:flex; align-items:center; padding:0 10px; box-sizing:border-box"><div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">Would be</div><div style="flex:1"></div><div style="font-size:14px; color:var(--accent)">◉</div></div>
+            <div style="position:absolute; left:10px; right:10px; top:44px; font-size:13px; line-height:1.55; color:var(--pt)">Executive summary, second quarter</div>
+          </div>
+
+          <div data-rig="1" data-mode="wipe" data-t0="300" style="position:relative; display:flex; gap:6px; align-items:center; flex-wrap:wrap; min-height:34px">
+            <div data-close="1" style="overflow:hidden; flex:none"><div data-squeeze="1" style="transform-origin:left center"><div style="font-size:11px; color:rgba(217,168,98,.75); border:1px solid rgba(217,168,98,.32); border-radius:11px; padding:4px 8px; display:inline-block; white-space:nowrap; text-decoration:line-through; text-decoration-thickness:1px">text/html</div></div></div>
+            <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">text/plain</div>
+            <div style="font-size:13px; color:rgba(216,203,180,.45); margin:0 4px">→</div>
+            <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">text/plain</div>
+          </div>
+
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); overflow:hidden">
+            <div style="height:38px; display:flex; align-items:center; padding:0 11px"><div style="flex:1; font-size:12.5px; color:rgba(216,203,180,.72)">✕  Rich formatting</div><div style="font-size:10.5px; color:rgba(216,203,180,.72); border:1px solid rgba(216,203,180,.22); border-radius:10px; padding:3px 8px">Formatting</div></div>
+          </div>
+          <div style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg)">Apply to the clipboard</div>
+          <div style="font-size:11px; color:rgba(216,203,180,.68)">The original stays intact if cleaning is not safe.</div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">El único estado donde las dos filas salen idénticas: no cambia ni un carácter, sólo se retira la versión con formato. Así que el cambio lo cuentan los chips: el <code>text/html</code> tachado se comprime hacia su izquierda y los dos siguientes cierran el hueco. Antes lo tenía cayendo, y era el gesto equivocado — un chip no es un carácter, es una pieza entera, y las piezas se cierran. Cae lo que es texto real; se comprime lo que es una pieza.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ ACTO III ============ -->
+<section data-screen-label="03 Acto III - Ajustes" style="display:flex; flex-direction:column; gap:26px">
+  <div style="display:flex; align-items:baseline; gap:14px; border-bottom:1px solid rgba(216,203,180,.14); padding-bottom:12px">
+    <div style="font-size:13px; font-weight:700; color:var(--accent)">III</div>
+    <div style="font-size:21px; font-weight:700">Los ajustes</div>
+    <div style="font-size:13px; color:rgba(216,203,180,.55)">detrás del engranaje · techo real de 720 px, con desplazamiento</div>
+  </div>
+
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start">
+
+    <div style="display:flex; flex-direction:column; gap:11px; width:520px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent)">K · Ajustes · la página entera</div>
+      <div style="width:520px; height:720px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 18px 40px rgba(4,10,20,.5); overflow:hidden; display:flex; flex-direction:column">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px; flex:none">
+          <div style="height:44px; display:flex; align-items:center"><div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div><div style="flex:1"></div><div style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(217,168,98,.4); display:flex; align-items:center; gap:7px; font-size:13.5px; color:var(--accent)">‹  Back</div></div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+        </div>
+        <div data-pane="1" style="flex:1; overflow-y:auto; padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt)">Language</div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px">
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(217,168,98,.4); background:rgba(217,168,98,.08); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--accent)">System</div>
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:rgba(216,203,180,.68)">English</div>
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:rgba(216,203,180,.68)">Spanish</div>
+          </div>
+
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Motion</div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Reduce motion</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Stops the animations, including the examples that cycle on the empty screen.</div></div><div style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Mode</div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Clean automatically</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Turns every copy that is safe into plain text.</div></div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+          <div style="font-size:11px; line-height:1.5; color:rgba(216,203,180,.72)">Omarchy's history may keep the original as well when characters change.</div>
+          <div style="height:40px; display:flex; align-items:center; font-size:13px; color:rgba(216,203,180,.68)">▸  Why can the original still show up?</div>
+
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Cleaning</div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Remove rich formatting</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Pastes using only the plain-text representation.</div></div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Remove link tracking</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Only when the clipboard is one whole link. Signed links are left alone.</div></div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Remove invisible characters</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Keeps emoji, right-to-left writing and language marks.</div></div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Normalise line endings</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Turns CRLF and CR into LF without dropping the final break.</div></div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+          <div style="height:40px; display:flex; align-items:center; font-size:13px; color:rgba(216,203,180,.68)">▸  Optional</div>
+
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Applications</div>
+          <div style="font-size:12.5px; line-height:1.5; color:rgba(216,203,180,.72)">Some applications deserve different treatment. Pick one and choose which of the four rules apply to it.</div>
+          <div style="font-size:11px; line-height:1.5; color:rgba(216,203,180,.72)">OmaPlain recognises the window you copied from whenever Wayland lets it. It is a good filter, not a guarantee.</div>
+          <div style="font-size:13.5px; color:rgba(216,203,180,.68)">Windows open right now</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <div style="height:38px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; font-size:13px; color:var(--pt)">org.keepassxc.KeePassXC</div>
+            <div style="height:38px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; font-size:13px; color:var(--pt)">firefox</div>
+            <div style="height:38px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; font-size:13px; color:var(--pt)">Alacritty</div>
+          </div>
+          <div style="font-size:13.5px; color:rgba(216,203,180,.68); margin-top:4px">Or type its class</div>
+          <div style="height:44px; border-radius:8px; border:1px solid rgba(216,203,180,.2); background:rgba(216,203,180,.04); display:flex; align-items:center; padding:0 12px; font-size:16px; color:rgba(216,203,180,.68)">org.example.Application</div>
+          <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--pt)">Add</div>
+          <div style="font-size:11px; color:rgba(216,203,180,.68)">The exact Hyprland class. Capital letters matter.</div>
+
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); padding:14px; display:flex; flex-direction:column; gap:12px; margin-top:4px">
+            <div style="display:flex; align-items:center"><div style="flex:1; font-size:13px; font-weight:700; color:var(--pt)">org.keepassxc.KeePassXC</div><div style="font-size:12px; color:rgba(216,203,180,.6)">Remove</div></div>
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(216,203,180,.5)">When reading</div>
+            <div style="display:flex; align-items:center; gap:12px"><div style="flex:1; font-size:12.5px; color:var(--pt)">Never uncover</div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+            <div style="display:flex; align-items:center; gap:12px"><div style="flex:1; font-size:12.5px; color:var(--pt)">Never read</div><div style="width:34px; height:18px; border-radius:9px; background:var(--accent); position:relative; flex:none"><div style="position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--bg)"></div></div></div>
+            <div style="font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(216,203,180,.5)">When cleaning</div>
+            <div style="display:flex; align-items:center; gap:12px"><div style="flex:1; font-size:12.5px; color:rgba(216,203,180,.6)">Don't clean its copies</div><div style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+            <div style="display:flex; align-items:center; gap:12px"><div style="flex:1; font-size:12.5px; color:rgba(216,203,180,.6)">Don't paste clean here</div><div style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+          </div>
+
+          <div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.72); margin-top:4px">Everything happens on this machine. OmaPlain makes no network requests and stores none of the text you copy. The history belongs to Omarchy.</div>
+          <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Help and learning</div>
+          <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.68)">Go back to the first explanation or repeat the walkthrough without changing your settings.</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--pt)">Review the welcome</div>
+            <div style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--pt)">Repeat the mini tour</div>
+          </div>
+        </div>
+      </div>
+      <div data-note="1" style="font-size:11.5px; line-height:1.65; color:rgba(216,203,180,.5)">Cero animación en toda la página, y es la única pantalla del panel donde eso no hay que justificarlo. La tarjeta se desplaza de verdad: arrástrala para ver la sección de aplicaciones y las dos salidas del final.</div>
+    </div>
+
+    <div style="flex:1; min-width:520px; display:flex; flex-direction:column; gap:16px">
+      <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted)">Lo que sale de montarlo todo</div>
+      <div style="font-size:14px; line-height:1.75; color:rgba(216,203,180,.72); text-wrap:pretty">Once pantallas y cinco animaciones. Es la proporción que hay que defender: seis pantallas no mueven nada, y las que se mueven lo hacen por un motivo distinto cada una — la bienvenida capta, la cinta afirma que no toca, la demo demuestra, la fila del resultado prueba, el carrusel espera.</div>
+      <div style="display:flex; flex-direction:column; gap:9px; font-size:12.5px; line-height:1.6; color:rgba(216,203,180,.6); border-left:2px solid rgba(217,168,98,.4); padding:12px 0 12px 16px">
+        <div><span style="color:var(--accent)">Tres claves nuevas</span> <code>art.untouched</code> y <code>art.decide</code> para los rótulos de <code>protect</code> y <code>control</code>, y <code>art.byteForByte</code> para el pie del bypass. Entran las tres y salen <code>art.copied</code> y <code>art.clean</code>, que se van con los naipes.</div>
+        <div><span style="color:var(--accent)">El grano</span> es textura de ruido de 120 × 120 en repetición más dos tramas de líneas, no un <code>ShaderEffect</code>. Se pinta una vez; sólo se le animan opacidad y desplazamiento. En el tour cuelga de la posición de cada tarjeta; en el bypass va fijo al 34 % y no cuesta nada.</div>
+        <div><span style="color:var(--accent)">Una regla para los dos gestos</span> cae lo que es texto real —la demo del tour y la fila del resultado, donde los caracteres son los que se van de verdad— y se comprime lo que es una pieza: los tramos de la bienvenida, lo que sobra en el carrusel, el chip de «sólo formato». Ninguna pantalla mezcla los dos.</div>
+        <div><span style="color:var(--accent)">Reducir movimiento</span> pinta las once pantallas exactamente como se ven al final de cada ciclo. Ninguna pierde información: el sello, la frase de resultado y el texto limpio son estados finales, no fotogramas.</div>
+      </div>
+      <div style="font-size:12.5px; line-height:1.7; color:rgba(216,203,180,.45); text-wrap:pretty">Los tokens de tipografía siguen siendo estimaciones: <code>Style.font.displayLarge</code> a 28, <code>display</code> a 23, <code>heading</code> a 18, <code>title</code> a 16, <code>body</code> a 13,5, <code>bodySmall</code> a 12,5 y <code>caption</code> a 11. Con la carpeta <code>qs.Ui</code> delante se ajustan en una pasada y todo lo demás vale igual. El engranaje y la flecha de «Skip» van con glifos de texto porque los del tema son de Nerd Font.</div>
+    </div>
+
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;motion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Movimiento&quot;},&quot;notes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Movimiento&quot;},&quot;gravity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1400,&quot;min&quot;:900,&quot;max&quot;:3200,&quot;step&quot;:50,&quot;unit&quot;:&quot;px/s²&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Motor de caída&quot;},&quot;restitution&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.18,&quot;min&quot;:0.04,&quot;max&quot;:0.45,&quot;step&quot;:0.01,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Motor de caída&quot;},&quot;releaseSpan&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:420,&quot;min&quot;:120,&quot;max&quot;:900,&quot;step&quot;:10,&quot;unit&quot;:&quot;ms&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Motor de caída&quot;}}">
+class Component extends DCLogic {
+  // Campos de clase y no asignaciones en `componentDidMount`: la clase se
+  // recarga en caliente sin volver a montar, así que lo que se defina en el
+  // ciclo de vida puede no existir nunca en la instancia viva. Sin `beat`,
+  // cada cuenta salía `NaN`, el navegador descartaba el estilo, y la pieza
+  // se quedaba en su estado de reposo sin un solo error en consola.
+  //
+  // Un solo compás para todo: 2 600 ms, el del carrusel. Seis compases de
+  // reloj, así que el carrusel da dos vueltas completas y la cinta del
+  // control de seguridad cabe entera en una, sin costura al reiniciar.
+  beat = 2600;
+  total = 2600 * 6;
+  t = 0;
+  playing = true;
+  lastFrame = 0;
+
+  componentDidMount() { this.arm(); }
+
+  // El reloj no puede depender del ciclo de vida. Un desmontaje durante el
+  // streaming —o un cambio de clase en caliente— dejaba la cadena de
+  // `requestAnimationFrame` muerta y sin nadie que la rearmara, y la página
+  // entera se quedaba en su estado de reposo sin un error en consola.
+  //
+  // Así que se rearma desde dos sitios que sí ocurren siempre: cada render
+  // del componente vivo, y un vigilante que comprueba cada 300 ms que
+  // llegaron fotogramas. Rearmar es idempotente: si el bucle está corriendo,
+  // no hace nada.
+  // El render es la única autoridad sobre si esto está vivo: si el
+  // componente se está pintando, existe. Un desmontaje espurio durante el
+  // streaming dejaba puesta una bandera que nadie volvía a bajar, y con ella
+  // el bucle no se rearmaba nunca — que es exactamente el fallo que esta
+  // bandera pretendía evitar.
+  renderVals() {
+    this.destroyed = false;
+    this.arm();
+    return {};
+  }
+
+  arm() {
+    const now = performance.now();
+    // El vigilante se crea antes de cualquier salida temprana: es lo único
+    // que puede resucitar la cadena si nadie vuelve a renderizar.
+    if (!this.watch) this.watch = setInterval(() => { if (!this.destroyed) this.arm(); }, 300);
+    if (this.armed && now - this.lastFrame < 400) return;
+    this.armed = true;
+    this.gen = (this.gen || 0) + 1;
+    this.last = now;
+    this.lastFrame = now;
+    this.loop(this.gen);
+  }
+
+  // Cancelar es subir la generación, no poner una bandera: la cadena vieja
+  // se muere sola en su siguiente fotograma y cualquier `arm()` posterior
+  // arranca una nueva sin tener que deshacer nada.
+  componentWillUnmount() {
+    this.destroyed = true;
+    this.armed = false;
+    this.gen = (this.gen || 0) + 1;
+    clearInterval(this.watch);
+    this.watch = null;
+  }
+
+  ensureBuilt() {
+    const root = this.rootEl();
+    if (!root) return null;
+    if (root !== this.root) {
+      this.root = root;
+      this.rigs = [];
+      this.carousels = [];
+      this.pulses = [];
+      this.blips = [];
+      this.wire(root);
+    }
+    // Nada se mide antes de que el navegador haya maquetado: en el primer
+    // fotograma todos los offset son 0, y una medida de 0 se queda pegada.
+    if (!root.offsetHeight) return null;
+    if (root.querySelector('[data-rig]:not([data-built])') ||
+        root.querySelector('[data-carousel]:not([data-built])')) {
+      try { this.build(root); }
+      catch (err) { console.error('build()', err); }
+    }
+    return root;
+  }
+
+  rootEl() { return document.querySelector('[data-root]'); }
+
+  cfg() {
+    const p = this.props || {};
+    return {
+      g: p.gravity ?? 1400,
+      e: p.restitution ?? 0.18,
+      span: p.releaseSpan ?? 420,
+      fade: 200,
+      motion: p.motion ?? true,
+      notes: p.notes ?? true
+    };
+  }
+
+  wire(root) {
+    const scrub = root.querySelector('[data-scrub]');
+    const play = root.querySelector('[data-play]');
+    if (scrub) scrub.addEventListener('input', () => {
+      this.playing = false;
+      if (play) play.textContent = 'Reproducir';
+      this.t = +scrub.value;
+      this.apply();
+    });
+    if (play) play.addEventListener('click', () => {
+      this.playing = !this.playing;
+      if (this.playing && this.t >= this.total - 1) this.t = 0;
+      play.textContent = this.playing ? 'Pausa' : 'Reproducir';
+      this.last = performance.now();
+    });
+    root.querySelectorAll('[data-key]').forEach(k => k.addEventListener('click', () => {
+      this.playing = false;
+      if (play) play.textContent = 'Reproducir';
+      this.t = +k.dataset.at;
+      this.apply();
+    }));
+  }
+
+  measure(el) {
+    if (!+el.dataset.w0) { el.dataset.w0 = el.offsetWidth; el.dataset.h0 = el.offsetHeight; }
+    return { el, w: +el.dataset.w0, h: +el.dataset.h0, axis: el.dataset.axis === 'h' ? 'h' : 'w' };
+  }
+
+  build(root) {
+    // Una vez por tramo, no una por pasada de `build`: sin la marca, una
+    // segunda pasada rehacía los `span` y dejaba a la primera escribiendo
+    // estilos sobre nodos ya desconectados.
+    root.querySelectorAll('[data-shatter]:not([data-split])').forEach(el => {
+      el.dataset.split = '1';
+      const txt = el.textContent;
+      el.textContent = '';
+      for (const ch of txt) {
+        const s = document.createElement('span');
+        s.setAttribute('data-shard', '1');
+        s.style.display = 'inline-block';
+        s.style.whiteSpace = 'pre';
+        if (ch === '\u200b') {
+          // Sin glifo que soltar: cae la caja vacía, igual que en CopySpecimen.
+          s.style.cssText += ';width:9px; height:11px; border:1.5px dashed currentColor; border-radius:2px; box-sizing:border-box; vertical-align:-1px; margin:0 1px';
+        } else {
+          s.textContent = ch;
+        }
+        el.appendChild(s);
+      }
+    });
+
+    // Cada pieza se marca en la primera pasada, pase lo que pase con su
+    // medida. Dejando sin marcar a la que mide 0, el selector de
+    // `ensureBuilt` seguía encontrando trabajo y `build` se volvía una
+    // operación por fotograma.
+    this.rigs = (this.rigs || []).concat([...root.querySelectorAll('[data-rig]:not([data-built])')].map(rig => {
+      rig.dataset.built = '1';
+      const mode = rig.dataset.mode;
+      const t0 = +(rig.dataset.t0 || 0);
+      const layer = document.createElement('div');
+      layer.style.cssText = 'position:absolute; inset:0; pointer-events:none; z-index:2';
+      rig.appendChild(layer);
+
+      // Las coordenadas salen del rectángulo pintado y no de `offsetLeft`:
+      // un añico dentro de una tarjeta rotada vive donde se ve, no donde lo
+      // colocó la maquetación. Se normaliza por la escala del lienzo para
+      // que medir con zoom puesto dé el mismo número.
+      const box = rig.getBoundingClientRect();
+      const scale = box.width / Math.max(1, rig.offsetWidth);
+      const at = el => {
+        const a = el.getBoundingClientRect();
+        return { x: (a.left - box.left) / scale, y: (a.top - box.top) / scale, w: a.width / scale, h: a.height / scale };
+      };
+
+      const nodes = [...rig.querySelectorAll('[data-shard]')];
+      // El frente de suelta va por posición, no por orden en el árbol: con
+      // varios renglones eso es una diagonal, que es lo que hace un barrido.
+      const order = [...nodes].sort((a, b) => at(a).x - at(b).x);
+      const shards = nodes.map((el, i) => {
+        const r0 = at(el);
+        const w = r0.w, h = r0.h, x = r0.x, y = r0.y;
+        const ghost = el.cloneNode(true);
+        // El añico de la capa deja de ser un añico buscable: si no, una
+        // segunda pasada clonaría los clones.
+        ghost.removeAttribute('data-shard');
+        // El añico hereda el color de donde salió, no el de la capa: los
+        // caracteres que se van son de acento, y la capa vive fuera del
+        // tramo, así que sin esto caían del color del texto que se queda.
+        ghost.style.color = getComputedStyle(el).color;
+        ghost.style.cssText += ';position:absolute; left:' + x + 'px; top:' + y + 'px; margin:0; opacity:0; transform-origin:50% 100%';
+        layer.appendChild(ghost);
+        const r = ((i * 2654435761) % 1000) / 1000;
+        const r2 = ((i * 40503 + 17) % 997) / 997;
+        const r3 = ((i * 69069 + 5) % 991) / 991;
+        return {
+          flow: el, ghost, x, y, w, h, rank: order.indexOf(el),
+          e: 0.10 + r2 * 0.20,
+          drift: (r < 0.5 ? -1 : 1) * (1 + r3 * 6),
+          spin: (r < 0.5 ? -1 : 1) * (8 + r3 * 26)
+        };
+      });
+
+      return {
+        // El suelo se mide aquí y no en cada fotograma: leer `clientHeight`
+        // dentro del bucle, después de haber escrito estilos, fuerza un
+        // reflujo sincrónico por pieza y por cuadro.
+        // `data-floor` cuando el suelo no es el borde de la pieza: en la
+        // demo la pieza envuelve tarjeta y frase, y sin esto los caracteres
+        // caían al hueco de debajo, sueltos sobre el panel.
+        rig, mode, t0, shards,
+        H: Math.max(8, +rig.dataset.floor || rig.clientHeight - 4),
+        box: rig.querySelector('[data-box]'),
+        W: rig.clientWidth,
+        marks: [...rig.querySelectorAll('[data-mark]')],
+        squeezes: [...rig.querySelectorAll('[data-squeeze]')],
+        // El grano se inyecta aquí y no en la plantilla: es una capa de
+        // ruido por tarjeta, idéntica en las cuatro, y escribirla cuatro
+        // veces a mano sólo daba cuatro sitios donde equivocarse. El velo
+        // es el dibujo de la tarjeta —su segundo hijo, detrás del brillo—,
+        // que es lo que el arco no llega a leer.
+        passers: [...rig.querySelectorAll('[data-pass]')].map(el => ({
+          el,
+          veil: el.querySelector('[data-veil]') || el.children[1],
+          grain: this.grainLayer(el)
+        })),
+        gate: rig.querySelector('[data-gate]'),
+        glow: rig.querySelector('[data-glow]'),
+        gateX: +(rig.dataset.gate || 0),
+        closes: [...rig.querySelectorAll('[data-close]')].map(el => this.measure(el)),
+        stamp: rig.querySelector('[data-stamp]'),
+        outcome: rig.querySelector('[data-outcome]')
+      };
+    }));
+
+    this.carousels = (this.carousels || []).concat([...root.querySelectorAll('[data-carousel]:not([data-built])')].map(el => {
+      el.dataset.built = '1';
+      return ({
+      el,
+      samples: [...el.querySelectorAll('[data-sample]')].map(s => ({
+        el: s,
+        art: s.querySelector('[data-art]'),
+        copy: s.querySelector('[data-copy]'),
+        halo: s.querySelector('[data-halo]'),
+        closes: [...s.querySelectorAll('[data-ccl]')].map(c => this.measure(c))
+      })),
+      dots: [...el.querySelectorAll('[data-dot]')],
+      fills: [...el.querySelectorAll('[data-fill]')]
+      });
+    }));
+
+    // Grano quieto: la misma capa, puesta a una opacidad fija. Es para las
+    // pantallas que no pueden animarse y sí tienen que decir «esto no se
+    // lee», como el bypass de todos los días.
+    root.querySelectorAll('[data-grainstill]').forEach(el => {
+      this.grainLayer(el).style.opacity = el.dataset.grainstill;
+    });
+    this.pulses = [...root.querySelectorAll('[data-pulse]')];
+    this.blips = [...root.querySelectorAll('[data-blip]')];
+    this.notes = [...root.querySelectorAll('[data-note]')];
+    this.clock = root.querySelector('[data-clock]');
+    this.scrub = root.querySelector('[data-scrub]');
+  }
+
+  // Ruido de dos capas: una trama de turbulencia fractal —un SVG en línea,
+  // sin descarga ni lienzo— y unas líneas de barrido finas encima. En QML
+  // esto es una textura de ruido de 80 × 80 en repetición y un
+  // `repeating-linear-gradient` equivalente, no un `ShaderEffect`: se pinta
+  // una vez y sólo se le anima la opacidad y el desplazamiento.
+  grainLayer(el) {
+    let g = el.querySelector('[data-grain]');
+    if (!g) {
+      g = document.createElement('div');
+      g.setAttribute('data-grain', '1');
+      g.style.cssText = 'position:absolute; inset:0; opacity:0; pointer-events:none; z-index:2;'
+        + 'mix-blend-mode:screen;'
+        // Grano grueso y sin color: interferencia, no confeti. La matriz de
+        // saturación 0 es lo que lo pasa a gris; la turbulencia sale en RGB.
+        + "background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>\"),"
+        + 'repeating-linear-gradient(0deg, rgba(217,168,98,.42) 0 1px, rgba(0,0,0,0) 1px 3px),'
+        + 'repeating-linear-gradient(0deg, rgba(216,203,180,.16) 0 2px, rgba(0,0,0,0) 2px 9px);'
+        + 'background-size:120px 120px, 100% 3px, 100% 9px';
+      el.appendChild(g);
+    }
+    return g;
+  }
+
+  offsetIn(el, root, vertical) {
+    let v = 0, n = el;
+    while (n && n !== root) { v += vertical ? n.offsetTop : n.offsetLeft; n = n.offsetParent; }
+    return v;
+  }
+
+  loop(gen) {
+    if (gen !== this.gen) return;
+    // La marca va antes de cualquier salida: es lo que le dice al vigilante
+    // que el bucle sigue vivo aunque todavía no haya nada que medir.
+    this.lastFrame = performance.now();
+    if (!this.ensureBuilt()) { requestAnimationFrame(() => this.loop(gen)); return; }
+    const now = performance.now();
+    const dt = Math.min(60, now - this.last);
+    this.last = now;
+    if (this.playing) {
+      this.t += dt;
+      if (this.t >= this.total) this.t = 0;
+    }
+    this.apply();
+    requestAnimationFrame(() => this.loop(gen));
+  }
+
+  // ---- balística en forma cerrada ----
+  fall(t, h, g, e) {
+    if (t <= 0) return { y: 0, air: true, sq: 1, hit: false };
+    const t1 = Math.sqrt(2 * h / g);
+    if (t < t1) { const s = t / t1; return { y: h * s * s, air: true, sq: 1, hit: false }; }
+    let tc = t1;
+    for (let k = 1; k <= 2; k++) {
+      const hk = h * Math.pow(e, k);
+      const dk = 2 * Math.sqrt(2 * hk / g);
+      if (t < tc + dk) {
+        const u = (t - tc) / dk;
+        const sq = k === 1 ? 1 - 0.16 * Math.max(0, 1 - (t - tc) / 0.07) : 1;
+        return { y: h - 4 * hk * u * (1 - u), air: false, sq, hit: true, t1 };
+      }
+      tc += dk;
+    }
+    return { y: h, air: false, sq: 1, hit: true, rest: t - tc, t1 };
+  }
+
+  settleTime(h, g, e) {
+    const t1 = Math.sqrt(2 * h / g);
+    return t1 * (1 + 2 * Math.sqrt(e) + 2 * e);
+  }
+
+  clamp(x) { return Math.max(0, Math.min(1, x)); }
+  ease(x, k) { x = this.clamp(x); return k === 'out' ? 1 - Math.pow(1 - x, 3) : (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2); }
+  // La Bézier [.32,.72,0,1] del carrusel: arranca fuerte y frena largo.
+  entry(x) { return 1 - Math.pow(1 - this.clamp(x), 3.2); }
+  inCubic(x) { x = this.clamp(x); return x * x * x; }
+
+  apply() {
+    const T = this.t, c = this.cfg();
+    if (this.clock) this.clock.textContent = Math.round(T);
+    if (this.scrub && this.playing) this.scrub.value = T;
+    (this.notes || []).forEach(n => { n.style.display = c.notes ? '' : 'none'; });
+
+    // Sónar: cada anillo sale del punto, se frena al alejarse y se apaga.
+    const period = 2600;
+    (this.pulses || []).forEach(p => {
+      const u = (((T % period) / period) + (+p.dataset.phase || 0)) % 1;
+      const k = this.ease(u, 'out');
+      p.style.transform = 'scale(' + (1 + 2.2 * k) + ')';
+      p.style.opacity = String(Math.max(0, 0.85 * (1 - k) * Math.min(1, u * 9)));
+    });
+    // Un eco ocasional, de un hash del número de barrido: se ve irregular
+    // y es reproducible, que es lo que necesita una captura de test.
+    (this.blips || []).forEach(b => {
+      const sweep = Math.floor(T / period);
+      const u = (T % period) / period;
+      const h = (sweep * 2654435761 + 1013904223) >>> 0;
+      if (h % 3 !== 0) { b.style.opacity = '0'; return; }
+      const at = 0.30 + ((h >> 8) % 100) / 100 * 0.45;
+      const ang = ((h >> 16) % 360) * Math.PI / 180;
+      const rad = 3 + this.ease(at, 'out') * 6.6;
+      b.style.transform = 'translate(' + (Math.cos(ang) * rad) + 'px,' + (Math.sin(ang) * rad) + 'px)';
+      const age = (u - at) / 0.34;
+      b.style.opacity = String(age < 0 || age > 1 ? 0 : Math.min(1, age * 12) * (1 - age) * 0.9);
+    });
+
+    (this.carousels || []).forEach(cr => this.applyCarousel(cr, T, c));
+
+    (this.rigs || []).forEach(r => {
+      if (r.mode === 'pass') return this.applyPass(r, T, c);
+      if (r.mode === 'wipe') return this.applyWipe(r, (T % this.beat) - r.t0, c);
+      if (!c.motion || r.mode === 'static') return this.applyStatic(r);
+      this.applyFall(r, (T % this.beat) - r.t0, c);
+    });
+  }
+
+  // El paso por el filtro. Las tarjetas cruzan la línea y salen enteras: lo
+  // que afirma que no se tocan no es la falta de acento, es haberlas visto
+  // pasar. Una vuelta completa por tarjeta cada 7 800 ms —lento a propósito,
+  // esto no compite con el texto— y la línea se enciende al ser alcanzada.
+  applyPass(r, T, c) {
+    // Un solo recorrido por vuelta de reloj: 15 600 ms de extremo a extremo.
+    const cycle = this.total;
+    const card = 132;
+    const span = r.W + card + 20;
+    let near = 0;
+    r.passers.forEach(p => {
+      const el = p.el;
+      const ph = +el.dataset.phase || 0;
+      const rot = +el.dataset.rot || 0;
+      const u = c.motion ? (((T / cycle) + ph) % 1) : ph;
+      const x = -card - 10 + u * span;
+      el.style.transform = 'translateX(' + x + 'px) rotate(' + rot + 'deg)';
+      // Se desvanece por la fracción que está dentro del marco, no por una
+      // banda fija: con una banda, una tarjeta a medio entrar seguía a plena
+      // luz y el borde la cortaba en seco.
+      const inside = (Math.min(x + card, r.W) - Math.max(x, 0)) / card;
+      el.style.opacity = String(Math.max(0, Math.min(1, inside)));
+      // Dentro del arco, el dibujo se va y queda el grano: no es que la
+      // tarjeta cambie, es que el control no la lee. Sale por el otro lado
+      // exactamente como entró, que es lo que la pantalla afirma.
+      const arch = Math.max(0, 1 - Math.abs(x + card / 2 - r.gateX) / 108);
+      const scan = Math.min(1, arch * 1.35);
+      if (p.grain) {
+        p.grain.style.opacity = String(scan);
+        // Tres capas a velocidades distintas: el grano salta, las líneas
+        // finas ruedan, la trama ancha se arrastra. Con una sola velocidad
+        // se lee como una textura puesta encima, no como una señal.
+        p.grain.style.backgroundPosition = '0 ' + Math.round((T / 9) % 120) + 'px, 0 '
+          + ((T / 5) % 3).toFixed(1) + 'px, 0 ' + ((-T / 24) % 9).toFixed(1) + 'px';
+      }
+      if (p.veil) {
+        p.veil.style.opacity = String(1 - 0.9 * scan);
+        // Temblor de un píxel y medio, de un seno del reloj: señal
+        // inestable, no tarjeta rota.
+        p.veil.style.transform = 'translateX(' + (Math.sin(T / 38) * 1.5 * scan).toFixed(2) + 'px)';
+      }
+      near = Math.max(near, arch);
+    });
+    // El arco no se mueve: se enciende cuando algo está dentro. Es lo único
+    // que reacciona, y reacciona a la presencia, no al contenido.
+    if (r.gate) r.gate.style.opacity = String(0.5 + 0.5 * near);
+    if (r.glow) r.glow.style.opacity = String(0.06 + 0.34 * near);
+  }
+
+  // Tres tiempos y ninguna letra por el suelo: lo que sobra primero se
+  // nombra —pasa a acento, sin moverse—, después se comprime hacia su borde
+  // izquierdo mientras el resto cierra el hueco, y sólo entonces se sella.
+  // Nombrar antes de retirar es lo que convierte el gesto en una explicación.
+  applyWipe(r, local, c) {
+    const still = !c.motion;
+    const hi = still ? 1 : this.ease(local / 340, 'out');
+    const k = still ? 1 : this.ease((local - 420) / 520, 'inout');
+    const mix = (a, b) => a + (b - a) * hi;
+    const col = 'rgba(' + Math.round(mix(216, 217)) + ',' + Math.round(mix(203, 168)) + ','
+      + Math.round(mix(180, 98)) + ',' + (mix(0.45, 1)).toFixed(3) + ')';
+    r.marks.forEach(m => {
+      if (m.dataset.mark === 'edge') m.style.borderColor = col;
+      else m.style.background = col;
+    });
+    // La compresión va en el contenido, no en la caja: la caja se estrecha
+    // para que el resto se cierre, y el contenido se aplasta contra su
+    // izquierda en vez de recortarse por la derecha.
+    r.squeezes.forEach(s => {
+      s.style.transform = 'scaleX(' + Math.max(0, 1 - k) + ')';
+      s.style.opacity = String(1 - k * 0.35);
+    });
+    r.closes.forEach(cl => {
+      if (cl.axis === 'h') cl.el.style.height = (cl.h * (1 - k)) + 'px';
+      else cl.el.style.width = (cl.w * (1 - k)) + 'px';
+    });
+    if (r.stamp) {
+      const s = still ? 1 : this.ease((local - 1000) / 200, 'out');
+      r.stamp.style.opacity = String(s);
+      r.stamp.style.transform = 'scale(' + (0.74 + 0.26 * s) + ')';
+    }
+  }
+
+  applyStatic(r) {
+    r.shards.forEach(s => { s.flow.style.visibility = 'hidden'; s.ghost.style.opacity = '0'; });
+    r.closes.forEach(cl => { if (cl.axis === 'h') cl.el.style.height = '0px'; else cl.el.style.width = '0px'; });
+    if (r.stamp) { r.stamp.style.opacity = '1'; r.stamp.style.transform = 'scale(1)'; }
+    if (r.outcome) r.outcome.style.opacity = '1';
+  }
+
+  applyFall(r, local, c) {
+    const n = Math.max(1, r.shards.length);
+    const step = c.span / n;
+    let lastSettle = 0;
+    const H = r.H;
+    r.shards.forEach((s) => {
+      s.drop = Math.max(6, H - s.y - s.h);
+      const rel = s.rank * step;
+      const t = (local - rel) / 1000;
+      const settle = this.settleTime(s.drop, c.g, s.e * (c.e / 0.18));
+      lastSettle = Math.max(lastSettle, rel + settle * 1000);
+      if (t <= 0) { s.flow.style.visibility = 'visible'; s.ghost.style.opacity = '0'; return; }
+      s.flow.style.visibility = 'hidden';
+      const f = this.fall(t, s.drop, c.g, s.e * (c.e / 0.18));
+      const done = t - settle;
+      const op = done > 0 ? Math.max(0, 1 - (done * 1000) / c.fade) : 1;
+      const ang = s.spin * Math.min(t, f.t1 || t);
+      const dx = s.drift * Math.min(t, f.t1 || t);
+      s.ghost.style.opacity = String(op);
+      s.ghost.style.transform = 'translate(' + dx + 'px,' + f.y + 'px) rotate(' + ang + 'deg) scaleY(' + f.sq + ') scaleX(' + (2 - f.sq) + ')';
+    });
+
+    // El cierre llega detrás del frente de suelta, no a la vez.
+    r.closes.forEach(cl => {
+      const mine = r.shards.filter(s => cl.el.contains(s.flow));
+      const relEnd = mine.length ? (Math.max(...mine.map(s => s.rank)) + 1) * step : 0;
+      const k = this.ease((local - relEnd) / 160, 'out');
+      if (cl.axis === 'h') cl.el.style.height = (cl.h * (1 - k)) + 'px';
+      else cl.el.style.width = (cl.w * (1 - k)) + 'px';
+    });
+
+    const clear = (lastSettle + c.fade) - 20;
+    if (r.stamp) {
+      const k = this.ease((local - clear) / 180, 'out');
+      r.stamp.style.opacity = String(k);
+      r.stamp.style.transform = 'scale(' + (0.74 + 0.26 * k) + ')';
+    }
+    if (r.outcome) r.outcome.style.opacity = String(this.ease((local - clear + 40) / 180, 'out'));
+    // La tarjeta se recoge cuando ya no hay nada cayendo: el texto ocupa un
+    // renglón menos, así que la caja lo acompaña en vez de dejar un hueco.
+    // Empieza con la frase del resultado, no antes: primero se ve que está
+    // limpio, y la tarjeta se ajusta a ese hecho.
+    if (r.box) {
+      const h0 = +r.box.dataset.h0, h1 = +r.box.dataset.h1;
+      const k = this.ease((local - clear - 40) / 380, 'inout');
+      r.box.style.height = (h0 + (h1 - h0) * k) + 'px';
+    }
+  }
+
+  // La coreografía del carrusel, con los números del QML sin tocar:
+  // 2 600 de turno, 300 de entrada, 70 de retardo del texto, 80 de asiento,
+  // 620 de peinado, 190 de salida. El relevo ocurre con la tarjeta ya
+  // invisible, así que sólo se ve llegar al siguiente.
+  applyCarousel(cr, T, c) {
+    const beat = this.beat;
+    const total = cr.samples.length || 1;
+    const idx = Math.floor(T / beat) % total;
+    const ph = T % beat;
+    const leaveAt = beat - 190;
+    const still = !c.motion;
+
+    const slide = still ? 0
+      : (ph < 300 ? 1 - this.entry(ph / 300)
+        : (ph < leaveAt ? 0 : -this.inCubic((ph - leaveAt) / 190)));
+    const slideT = still ? 0
+      : (ph < 70 ? 1
+        : (ph < 370 ? 1 - this.entry((ph - 70) / 300)
+          : (ph < leaveAt ? 0 : -this.inCubic((ph - leaveAt) / 190))));
+    const combed = still ? 1 : this.ease((ph - 450) / 620, 'inout');
+    const fade = v => Math.max(0, 1 - Math.abs(v) * 1.3);
+
+    cr.samples.forEach((s, i) => {
+      const on = i === idx;
+      s.el.style.opacity = on ? '1' : '0';
+      if (!on) return;
+      if (s.art) {
+        s.art.style.opacity = String(fade(slide));
+        s.art.style.transform = 'translateY(' + (slide * 14) + 'px)';
+      }
+      if (s.copy) {
+        s.copy.style.opacity = String(fade(slideT));
+        s.copy.style.transform = 'translateY(' + (slideT * 14) + 'px)';
+      }
+      // Dibujo y frase pierden lo suyo con el mismo `combed`.
+      s.closes.forEach(cl => {
+        if (cl.axis === 'h') cl.el.style.height = (cl.h * (1 - combed)) + 'px';
+        else cl.el.style.width = (cl.w * (1 - combed)) + 'px';
+      });
+      if (s.halo) s.halo.style.transform = 'scale(' + (1 + 0.11 * Math.sin(Math.PI * this.clamp(combed / 0.86))) + ')';
+    });
+
+    // La marca de posición es además el reloj del turno: el relevo se ve venir.
+    cr.dots.forEach((d, i) => {
+      const on = i === idx;
+      d.style.width = (on ? 20 : 5) + 'px';
+      d.style.background = on ? 'rgba(217,168,98,.28)' : 'rgba(216,203,180,.2)';
+    });
+    cr.fills.forEach((f, i) => { f.style.width = (i === idx && !still ? (ph / beat) * 100 : 0) + '%'; });
+  }
+}
+</script>
+</body>
+</html>

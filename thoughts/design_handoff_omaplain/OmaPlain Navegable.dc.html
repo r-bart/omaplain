@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#07101d; }
+  a { color:#d9a862; text-decoration:none; border-bottom:1px solid rgba(217,168,98,.35); }
+  a:hover { color:#eec48a; }
+  [data-pane]::-webkit-scrollbar { width:8px; }
+  [data-pane]::-webkit-scrollbar-thumb { background:rgba(216,203,180,.22); border-radius:4px; }
+  [data-pane]::-webkit-scrollbar-track { background:transparent; }
+</style>
+</helmet>
+
+<div data-root="1" style="--bg:#0c1626; --pbg:#151d2c; --pt:#d8cbb4; --accent:#d9a862; --muted:#5d6673; --line:rgba(216,203,180,.12); font-family:'JetBrains Mono',ui-monospace,monospace; color:#d8cbb4; background:radial-gradient(ellipse at 50% 0%, #101c2e, #07101d 70%); min-height:100vh; box-sizing:border-box; padding:40px 32px 48px; display:flex; flex-direction:column; align-items:center; gap:26px">
+
+  <div style="display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center">
+    <div style="font-size:10.5px; letter-spacing:2.2px; text-transform:uppercase; color:var(--muted)">OmaPlain · prototipo navegable</div>
+    <div style="font-size:12.5px; line-height:1.6; color:rgba(216,203,180,.45); max-width:560px; text-wrap:pretty">El panel a tamaño real, con sus animaciones. Los botones llevan a donde llevarían. Abajo, el mando de escritorio: elige qué hay en el portapapeles.</div>
+  </div>
+
+  <!-- ============ EL PANEL ============ -->
+  <div style="width:520px; border:1px solid rgba(216,203,180,.14); border-radius:12px; background:var(--pbg); box-shadow:0 26px 60px rgba(4,10,20,.62); overflow:hidden">
+
+    <!-- ---------- BIENVENIDA ---------- -->
+    <sc-if value="{{ isWelcome }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:26px 28px 30px; display:flex; flex-direction:column; gap:14px">
+
+        <div data-rig="1" data-mode="wipe" data-t0="250" style="width:464px; height:190px; position:relative; overflow:hidden; flex:none">
+          <div style="position:absolute; left:132px; top:-5px; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.15), rgba(217,168,98,0) 66%)"></div>
+          <div style="position:absolute; left:80px; top:14px; width:304px; display:flex; flex-direction:column; gap:9px">
+            <div style="height:42px; background:linear-gradient(150deg, rgba(216,203,180,.17), rgba(216,203,180,.06)); border:1px solid rgba(216,203,180,.3); border-radius:21px; box-shadow:0 12px 26px rgba(4,10,20,.55), inset 0 1px 0 rgba(255,255,255,.09); box-sizing:border-box; padding:0 16px; display:flex; align-items:center; gap:7px; position:relative; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:50%; background:linear-gradient(rgba(255,255,255,.06), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:10px; height:10px; border-radius:50%; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; flex:none; position:relative"></div>
+              <div style="width:60px; height:6px; border-radius:3px; background:rgba(216,203,180,.62); flex:none; position:relative"></div>
+              <div data-close="1" style="height:12px; overflow:hidden; flex:none; position:relative"><div data-squeeze="1" style="display:flex; gap:3px; transform-origin:left center"><div data-mark="1" style="width:16px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:22px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:17px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:20px; height:12px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div></div></div>
+              <div style="width:26px; height:6px; border-radius:3px; background:rgba(216,203,180,.62); flex:none; position:relative"></div>
+            </div>
+            <div style="height:104px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:15px; display:flex; flex-direction:column; gap:11px; position:relative; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:130px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.6)"></div>
+              <div style="display:flex; align-items:center; height:11px"><div style="width:72px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.45); flex:none"></div><div data-close="1" style="height:11px; overflow:hidden; flex:none; margin-left:5px"><div data-squeeze="1" style="display:flex; gap:3px; transform-origin:left center"><div data-mark="1" style="width:14px; height:11px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:18px; height:11px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div><div data-mark="1" style="width:12px; height:11px; border-radius:3px; background:rgba(216,203,180,.45); flex:none"></div></div></div></div>
+              <div style="display:flex; align-items:center; height:18px"><div style="width:92px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.45); flex:none"></div><div data-close="1" style="height:18px; overflow:hidden; flex:none"><div data-squeeze="1" style="display:flex; align-items:center; height:18px; transform-origin:left center"><div data-mark="edge" style="width:15px; height:15px; border:1.5px dashed rgba(216,203,180,.45); border-radius:3px; box-sizing:border-box; margin:0 4px; flex:none"></div></div></div></div>
+              <div style="width:158px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.32)"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent); text-align:center">First visit</div>
+        <div style="font-size:28px; font-weight:700; line-height:1.06; letter-spacing:-.5px; color:var(--pt); text-align:center">Clean text,<br>no surprises.</div>
+        <div style="width:420px; margin:0 auto; font-size:13.5px; line-height:1.5; color:rgba(216,203,180,.72); text-align:center; text-wrap:pretty">OmaPlain turns eligible copies into plain text and keeps intact everything it cannot clean safely.</div>
+
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px">
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px; display:flex; flex-direction:column; gap:4px"><div style="font-size:12.5px; font-weight:700; color:var(--pt); height:33px">Removes what you don't need</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.72)">Formatting, tracking and non-semantic invisibles.</div></div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px; display:flex; flex-direction:column; gap:4px"><div style="font-size:12.5px; font-weight:700; color:var(--pt); height:33px">Protects what matters</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.72)">Images, files and secrets pass untouched.</div></div>
+          <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px; display:flex; flex-direction:column; gap:4px"><div style="font-size:12.5px; font-weight:700; color:var(--pt); height:33px">Everything stays home</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.72)">No cloud, no telemetry, no history of its own.</div></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+          <div onClick="{{ startTour }}" style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg); cursor:pointer" style-hover="filter:brightness(1.08)">See how it works</div>
+          <div onClick="{{ toMain }}" style="height:44px; border-radius:8px; border:1px solid rgba(216,203,180,.2); background:rgba(216,203,180,.04); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--pt); cursor:pointer" style-hover="background:rgba(216,203,180,.09)">Open the panel</div>
+        </div>
+        <div style="font-size:11px; color:rgba(216,203,180,.68); text-align:center">You can come back to this guide from settings.</div>
+      </div>
+    </sc-if>
+
+    <!-- ---------- TOUR ---------- -->
+    <sc-if value="{{ isTour }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:28px 30px 30px; display:flex; flex-direction:column; gap:14px">
+        <div style="display:flex; align-items:baseline"><div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">How it works</div><div style="flex:1"></div><div style="font-size:11px; font-weight:700; letter-spacing:.7px; color:rgba(216,203,180,.68)">{{ stepLabel }}</div></div>
+        <div style="display:flex; gap:6px"><div style="flex:1; height:4px; border-radius:2px; background:var(--accent)"></div><div style="flex:1; height:4px; border-radius:2px; background:{{ bar2 }}"></div><div style="flex:1; height:4px; border-radius:2px; background:{{ bar3 }}"></div></div>
+
+        <!-- paso 1 · el control de seguridad -->
+        <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+          <div data-rig="1" data-mode="pass" data-gate="230" style="width:460px; height:220px; position:relative; overflow:hidden; flex:none">
+            <div style="position:absolute; left:128px; top:-4px; width:204px; height:204px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.13), rgba(217,168,98,0) 66%)"></div>
+            <div data-glow="1" style="position:absolute; left:152px; top:6px; width:156px; height:184px; opacity:.06; background:linear-gradient(rgba(217,168,98,.55), rgba(217,168,98,.14) 58%, rgba(217,168,98,0)); z-index:0"></div>
+            <div data-gate="1" style="position:absolute; left:149px; top:6px; width:162px; height:184px; opacity:.5; z-index:0">
+              <div style="position:absolute; left:0; top:0; width:3px; height:184px; border-radius:2px; background:var(--accent)"></div>
+              <div style="position:absolute; right:0; top:0; width:3px; height:184px; border-radius:2px; background:var(--accent)"></div>
+              <div style="position:absolute; left:0; right:0; top:0; height:3px; border-radius:2px; background:var(--accent)"></div>
+            </div>
+            <div style="position:absolute; left:0; right:0; top:183px; height:2px; background:rgba(216,203,180,.14); z-index:0"></div>
+            <div style="position:absolute; left:149px; top:182px; width:162px; height:4px; border-radius:2px; background:rgba(217,168,98,.32); z-index:0"></div>
+
+            <div data-pass="1" data-phase="0" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; border-radius:6px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; position:relative; overflow:hidden"><div style="position:absolute; left:11px; top:10px; width:15px; height:15px; border-radius:50%; background:rgba(216,203,180,.5)"></div><div style="position:absolute; left:0; right:0; bottom:0; height:44px; background:rgba(216,203,180,.4); clip-path:polygon(0 100%, 34% 26%, 58% 62%, 100% 12%, 100% 100%)"></div></div>
+              <div style="font-size:12.5px; color:var(--pt)">Images</div>
+            </div>
+            <div data-pass="1" data-phase="0.25" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; position:relative"><div style="position:absolute; left:0; top:8px; width:62px; height:66px; border-radius:5px; border:1.5px solid rgba(216,203,180,.34); box-sizing:border-box"></div><div style="position:absolute; left:16px; top:0; width:62px; height:66px; border-radius:5px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; background:rgba(21,29,44,.55); padding:11px; display:flex; flex-direction:column; gap:7px"><div style="width:32px; height:4px; border-radius:2px; background:rgba(216,203,180,.42)"></div><div style="width:24px; height:4px; border-radius:2px; background:rgba(216,203,180,.3)"></div><div style="width:28px; height:4px; border-radius:2px; background:rgba(216,203,180,.3)"></div></div></div>
+              <div style="font-size:12.5px; color:var(--pt)">Files</div>
+            </div>
+            <div data-pass="1" data-phase="0.5" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; position:relative"><div style="position:absolute; left:24px; top:4px; width:32px; height:28px; border:1.5px solid rgba(216,203,180,.5); border-bottom:none; border-radius:16px 16px 0 0; box-sizing:border-box"></div><div style="position:absolute; left:14px; top:30px; width:52px; height:40px; border-radius:5px; background:rgba(216,203,180,.45)"></div><div style="position:absolute; left:37px; top:46px; width:6px; height:12px; border-radius:3px; background:rgba(21,29,44,.75)"></div></div>
+              <div style="font-size:12.5px; color:var(--pt)">Secrets</div>
+            </div>
+            <div data-pass="1" data-phase="0.75" data-rot="0" style="position:absolute; left:0; top:22px; width:130px; height:152px; z-index:1; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:14px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100px; height:74px; border-radius:6px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; position:relative; overflow:hidden"><div style="position:absolute; left:14px; top:12px; width:13px; height:13px; border-radius:50%; background:rgba(216,203,180,.5)"></div><div style="position:absolute; left:0; right:0; bottom:0; height:40px; background:rgba(216,203,180,.4); clip-path:polygon(0 100%, 28% 34%, 52% 66%, 100% 18%, 100% 100%)"></div></div>
+              <div style="font-size:12.5px; color:var(--pt)">Images</div>
+            </div>
+
+            <div style="position:absolute; left:0; right:0; bottom:4px; display:flex; justify-content:center; z-index:3"><div style="display:flex; align-items:center; gap:9px"><div style="width:20px; height:20px; border-radius:50%; border:1.5px solid var(--accent); box-sizing:border-box; display:flex; align-items:center; justify-content:center"><div style="width:8px; height:8px; border-radius:50%; background:var(--accent)"></div></div><div style="font-size:12.5px; color:var(--accent); letter-spacing:.4px">Untouched</div></div></div>
+          </div>
+        </sc-if>
+
+        <!-- paso 2 · preside la demo -->
+        <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ true }}">
+          <div data-rig="1" data-mode="new" data-t0="200" data-floor="82" style="position:relative; display:flex; flex-direction:column; gap:11px">
+            <div data-box="1" data-h0="88" data-h1="68" style="height:88px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); padding:13px 14px; box-sizing:border-box; overflow:hidden; position:relative; display:flex; align-items:flex-start">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+              <div style="width:100%; position:relative; font-size:13px; line-height:1.55; color:var(--pt); word-break:break-all"><span>https://example.com/sourdough-bread?</span><span data-close="1" data-shatter="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">utm_source=newsletter&amp;utm_medium=email&amp;fbclid=IwAR9x&amp;&#8203;</span><span>servings=8#baking</span></div>
+            </div>
+            <div data-outcome="1" style="font-size:11px; line-height:1.6; color:rgba(216,203,180,.72)">Three tracking parameters gone, and an invisible character you could not see. The page, the servings and the spot it points to are still there.</div>
+          </div>
+        </sc-if>
+
+        <!-- paso 3 · control -->
+        <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ true }}">
+          <div data-rig="1" data-mode="panel" data-steps="0,-52,-104,-52" style="width:460px; height:220px; position:relative; overflow:hidden; flex:none">
+            <div style="position:absolute; left:130px; top:2px; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.13), rgba(217,168,98,0) 66%)"></div>
+            <div style="position:absolute; left:70px; top:20px; width:320px; height:148px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:18px 20px; overflow:hidden">
+              <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none; z-index:2"></div>
+              <div data-scrollcol="1" style="display:flex; flex-direction:column; gap:22px">
+                <div style="display:flex; align-items:center; gap:12px; height:24px; flex:none"><div style="font-size:12.5px; color:var(--pt); flex:1">Clean automatically</div><div data-toggle="1" data-on="1" data-at="420" style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div data-knob="1" style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+                <div style="display:flex; align-items:center; gap:12px; height:24px; flex:none"><div style="font-size:12.5px; color:var(--pt); flex:1">Remove rich formatting</div><div data-toggle="1" data-on="1" data-at="600" style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div data-knob="1" style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+                <div style="display:flex; align-items:center; gap:12px; height:24px; flex:none"><div style="font-size:12.5px; color:var(--pt); flex:1">Remove link tracking</div><div data-toggle="1" data-on="1" data-at="780" style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div data-knob="1" style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+                <div style="display:flex; align-items:center; gap:12px; height:24px; flex:none"><div style="font-size:12.5px; color:var(--pt); flex:1">Remove invisible characters</div><div data-toggle="1" data-on="1" data-at="960" style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div data-knob="1" style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+                <div style="display:flex; align-items:center; gap:12px; height:24px; flex:none"><div style="font-size:12.5px; color:rgba(216,203,180,.5); flex:1">Normalise quotes</div><div data-toggle="1" data-on="0" style="width:34px; height:18px; border-radius:9px; background:rgba(216,203,180,.16); position:relative; flex:none"><div data-knob="1" style="position:absolute; left:2px; top:2px; width:14px; height:14px; border-radius:50%; background:rgba(216,203,180,.55)"></div></div></div>
+              </div>
+              <div style="position:absolute; left:1px; right:1px; bottom:1px; height:22px; border-radius:0 0 9px 9px; background:linear-gradient(rgba(21,29,44,0), rgba(21,29,44,.78)); pointer-events:none; z-index:2"></div>
+            </div>
+            <div style="position:absolute; left:0; right:0; bottom:14px; display:flex; justify-content:center"><div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">You decide</div></div>
+          </div>
+        </sc-if>
+
+        <div style="font-size:23px; font-weight:700; line-height:1.08; letter-spacing:-.4px; color:var(--pt); text-align:center; min-height:54px; display:flex; align-items:center; justify-content:center">{{ tourTitle }}</div>
+        <div style="width:420px; margin:0 auto; min-height:64px; font-size:13.5px; line-height:1.5; color:rgba(216,203,180,.72); text-align:center; text-wrap:pretty">{{ tourBody }}</div>
+        <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:11px 12px; display:flex; align-items:center; gap:8px"><div style="width:8px; height:8px; border-radius:4px; background:var(--accent); flex:none"></div><div style="font-size:12.5px; font-weight:700; color:var(--pt)">{{ tourNote }}</div></div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+          <div onClick="{{ tourBack }}" style="height:44px; border-radius:8px; border:1px solid rgba(216,203,180,.2); background:rgba(216,203,180,.04); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--pt); cursor:pointer" style-hover="background:rgba(216,203,180,.09)">Back</div>
+          <div onClick="{{ tourNext }}" style="height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg); cursor:pointer" style-hover="filter:brightness(1.08)">{{ tourNextLabel }}</div>
+        </div>
+        <div onClick="{{ toMain }}" style="height:38px; display:flex; align-items:center; justify-content:center; font-size:13.5px; color:rgba(216,203,180,.68); cursor:pointer" style-hover="color:var(--pt)">{{ tourSkipLabel }}</div>
+      </div>
+    </sc-if>
+
+    <!-- ---------- PANTALLA PRINCIPAL ---------- -->
+    <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; flex-direction:column; max-height:720px">
+        <div style="padding:20px 20px 0; display:flex; flex-direction:column; gap:12px; flex:none">
+          <div style="height:44px; display:flex; align-items:center">
+            <div style="font-size:16px; font-weight:700; letter-spacing:-.2px; color:var(--pt)">OmaPlain</div>
+            <div style="flex:1"></div>
+            <div onClick="{{ togglePage }}" style="height:44px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; gap:7px; font-size:13.5px; color:rgba(216,203,180,.68); cursor:pointer" style-hover="background:rgba(216,203,180,.07)">{{ gearLabel }}</div>
+          </div>
+          <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+
+          <sc-if value="{{ isClipboard }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ showSonar }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; flex-direction:column; gap:4px">
+                <div style="display:flex; align-items:center; gap:4px; margin-left:-4px"><div style="width:24px; height:24px; flex:none; position:relative; display:flex; align-items:center; justify-content:center"><div data-pulse="1" data-phase="0" style="position:absolute; width:6px; height:6px; border-radius:50%; border:1px solid var(--muted)"></div><div data-pulse="1" data-phase="0.34" style="position:absolute; width:6px; height:6px; border-radius:50%; border:1px solid var(--muted)"></div><div data-pulse="1" data-phase="0.68" style="position:absolute; width:6px; height:6px; border-radius:50%; border:1px solid var(--muted)"></div><div data-blip="1" style="position:absolute; width:2.5px; height:2.5px; border-radius:50%; background:var(--accent); opacity:0"></div><div style="width:4px; height:4px; border-radius:50%; background:var(--muted); position:relative"></div></div><div style="font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--muted)">Starting</div></div>
+                <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">Watching the clipboard again…</div>
+              </div>
+            </sc-if>
+            <div style="font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--pt)">{{ verdict }}</div>
+            <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.72)">{{ detail }}</div>
+          </sc-if>
+        </div>
+
+        <div data-pane="1" style="flex:1; overflow-y:auto; padding:12px 20px 20px; display:flex; flex-direction:column; gap:12px">
+
+          <!-- ===== PORTAPAPELES ===== -->
+          <sc-if value="{{ isClipboard }}" hint-placeholder-val="{{ true }}">
+
+            <!-- fila: lo que hay ahora -->
+            <sc-if value="{{ hasNowRow }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none; height:104px; border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); position:relative; overflow:hidden">
+                <div style="position:absolute; left:0; right:0; top:0; height:32px; border-bottom:1px solid rgba(216,203,180,.14); display:flex; align-items:center; padding:0 10px; box-sizing:border-box; z-index:5"><div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">{{ nowLabel }}</div><div style="flex:1"></div><div onClick="{{ toggleBefore }}" style="font-size:14px; color:var(--accent); cursor:pointer; padding:0 2px">{{ eyeBefore }}</div></div>
+                <div style="position:absolute; left:10px; right:10px; top:44px; font-size:13px; line-height:1.55; color:var(--pt); word-break:break-all">{{ nowText }}</div>
+                <sc-if value="{{ nowCovered }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ toggleBefore }}" style="position:absolute; left:1px; right:1px; top:33px; bottom:1px; backdrop-filter:blur(5px); background:rgba(21,29,44,.62); display:flex; align-items:center; justify-content:center; z-index:4; cursor:pointer"><div style="font-size:11.5px; letter-spacing:.6px; color:rgba(216,203,180,.62)">Drag to clear</div></div>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <!-- fila: quedaría -->
+            <sc-if value="{{ hasWouldRow }}" hint-placeholder-val="{{ true }}">
+              <div data-rig="1" data-mode="new" data-t0="250" style="flex:none; height:104px; border:1px solid rgba(217,168,98,.3); border-radius:10px; background:rgba(216,203,180,.05); position:relative; overflow:hidden">
+                <div style="position:absolute; left:0; right:0; top:0; height:32px; border-bottom:1px solid rgba(216,203,180,.14); display:flex; align-items:center; padding:0 10px; box-sizing:border-box; z-index:5"><div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">Would be</div><div style="flex:1"></div><div onClick="{{ toggleAfter }}" style="font-size:14px; color:var(--accent); cursor:pointer; padding:0 2px">{{ eyeAfter }}</div></div>
+                <div style="position:absolute; left:10px; right:10px; top:44px; font-size:13px; line-height:1.55; color:var(--pt); word-break:break-all"><span>https://example.com/sourdough-bread?</span><span data-close="1" data-shatter="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">utm_source=newsletter&amp;utm_medium=email&amp;</span><span>servings=8#baking</span></div>
+                <sc-if value="{{ afterCovered }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ toggleAfter }}" style="position:absolute; left:1px; right:1px; top:33px; bottom:1px; backdrop-filter:blur(5px); background:rgba(21,29,44,.62); display:flex; align-items:center; justify-content:center; z-index:4; cursor:pointer"><div style="font-size:11.5px; letter-spacing:.6px; color:rgba(216,203,180,.62)">Drag to clear</div></div>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <!-- el carrusel del vacío -->
+            <sc-if value="{{ clipEmpty }}" hint-placeholder-val="{{ true }}">
+              <div data-carousel="1" style="flex:none; display:flex; flex-direction:column; gap:6px">
+                <div style="height:114px; border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); position:relative; overflow:hidden">
+                  <div data-sample="1" style="position:absolute; inset:0">
+                    <div data-art="1" style="position:absolute; left:10px; top:9px; width:100px; height:96px">
+                      <div data-halo="1" style="position:absolute; left:9px; top:5px; width:86px; height:86px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.16), rgba(217,168,98,0) 68%)"></div>
+                      <div style="position:absolute; left:16px; top:4px; width:80px; height:48px; background:linear-gradient(150deg, rgba(216,203,180,.07), rgba(216,203,180,.03)); border:1px solid rgba(216,203,180,.13); border-radius:8px; box-sizing:border-box"></div>
+                      <div style="position:absolute; left:0; top:44px; width:98px; height:30px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); box-shadow:0 6px 14px rgba(4,10,20,.45), inset 0 1px 0 rgba(255,255,255,.07); box-sizing:border-box; border-radius:15px; padding:0 10px; display:flex; align-items:center; gap:5px; overflow:hidden">
+                        <div style="position:absolute; left:0; right:0; top:0; height:44%; background:linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,0)); pointer-events:none"></div>
+                        <div style="width:8px; height:8px; border-radius:50%; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; flex:none; position:relative"></div>
+                        <div style="width:26px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.62); flex:none; position:relative"></div>
+                        <div data-ccl="1" style="height:6px; overflow:hidden; flex:none; position:relative"><div style="display:flex; gap:2px"><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div><div style="width:6px; height:6px; border-radius:2px; background:var(--accent); flex:none"></div></div></div>
+                      </div>
+                    </div>
+                    <div data-copy="1" style="position:absolute; left:120px; right:14px; top:35px; display:flex; flex-direction:column; gap:8px">
+                      <div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">A link from a newsletter</div>
+                      <div style="font-size:12.5px; white-space:nowrap; color:var(--pt)"><span>example.com/offer?</span><span data-ccl="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">utm_source=newsletter&amp;</span><span>size=42</span></div>
+                    </div>
+                  </div>
+                  <div data-sample="1" style="position:absolute; inset:0; opacity:0">
+                    <div data-art="1" style="position:absolute; left:10px; top:9px; width:100px; height:96px">
+                      <div data-halo="1" style="position:absolute; left:9px; top:5px; width:86px; height:86px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.16), rgba(217,168,98,0) 68%)"></div>
+                      <div style="position:absolute; left:9px; top:4px; width:82px; height:88px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:8px; box-shadow:0 6px 14px rgba(4,10,20,.45), inset 0 1px 0 rgba(255,255,255,.07); box-sizing:border-box; padding:11px; display:flex; flex-direction:column; gap:7px; overflow:hidden">
+                        <div style="position:absolute; left:0; right:0; top:0; height:44%; background:linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,0)); pointer-events:none"></div>
+                        <div style="width:56px; height:3px; border-radius:1.5px; background:rgba(216,203,180,.55)"></div>
+                        <div style="width:44px; height:3px; border-radius:1.5px; background:rgba(216,203,180,.42)"></div>
+                        <div data-ccl="1" data-axis="h" style="height:13px; overflow:hidden"><div style="width:13px; height:13px; border:1.5px dashed var(--accent); border-radius:3px; box-sizing:border-box"></div></div>
+                        <div style="width:50px; height:3px; border-radius:1.5px; background:rgba(216,203,180,.42)"></div>
+                        <div style="width:36px; height:3px; border-radius:1.5px; background:rgba(216,203,180,.42)"></div>
+                      </div>
+                    </div>
+                    <div data-copy="1" style="position:absolute; left:120px; right:14px; top:35px; display:flex; flex-direction:column; gap:8px">
+                      <div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">A paragraph copied from a page</div>
+                      <div style="font-size:12.5px; white-space:nowrap; color:var(--pt)"><span>Sourdough bread</span><span data-ccl="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">·invisible·</span><span> needs 12 hours.</span></div>
+                    </div>
+                  </div>
+                  <div data-sample="1" style="position:absolute; inset:0; opacity:0">
+                    <div data-art="1" style="position:absolute; left:10px; top:9px; width:100px; height:96px">
+                      <div data-halo="1" style="position:absolute; left:9px; top:5px; width:86px; height:86px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.16), rgba(217,168,98,0) 68%)"></div>
+                      <div style="position:absolute; left:20px; top:2px; width:76px; height:78px; background:linear-gradient(150deg, rgba(216,203,180,.07), rgba(216,203,180,.03)); border:1px solid rgba(216,203,180,.13); border-radius:8px; box-sizing:border-box"></div>
+                      <div style="position:absolute; left:4px; top:14px; width:80px; height:78px; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:8px; box-shadow:0 6px 14px rgba(4,10,20,.45), inset 0 1px 0 rgba(255,255,255,.07); box-sizing:border-box; padding:11px; display:flex; flex-direction:column; gap:7px; overflow:hidden">
+                        <div style="position:absolute; left:0; right:0; top:0; height:44%; background:linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,0)); pointer-events:none"></div>
+                        <div data-ccl="1" data-axis="h" style="height:9px; overflow:hidden"><div style="width:42px; height:9px; border-radius:2px; background:var(--accent)"></div></div>
+                        <div style="width:54px; height:3px; border-radius:1.5px; background:rgba(216,203,180,.55)"></div>
+                        <div style="display:flex; gap:5px; align-items:flex-start"><div data-ccl="1" style="overflow:hidden; height:17px"><div style="width:4px; height:17px; border-radius:2px; background:var(--accent)"></div></div><div style="display:flex; flex-direction:column; gap:6px"><div style="width:42px; height:3px; border-radius:1.5px; background:rgba(216,203,180,.42)"></div><div style="width:32px; height:3px; border-radius:1.5px; background:rgba(216,203,180,.42)"></div></div></div>
+                      </div>
+                    </div>
+                    <div data-copy="1" style="position:absolute; left:120px; right:14px; top:35px; display:flex; flex-direction:column; gap:8px">
+                      <div style="font-size:11px; letter-spacing:1.7px; text-transform:uppercase; color:rgba(216,203,180,.68)">Text with formatting from an editor</div>
+                      <div style="font-size:12.5px; white-space:nowrap; color:var(--pt)"><span>Executive summary</span><span data-ccl="1" style="display:inline-block; overflow:hidden; white-space:nowrap; vertical-align:bottom; color:var(--accent)">, in bold and in colour</span><span>.</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex; gap:5px; align-items:center; justify-content:center; height:14px">
+                  <div data-dot="1" style="width:20px; height:5px; border-radius:2.5px; background:rgba(217,168,98,.28); overflow:hidden"><div data-fill="1" style="height:5px; background:var(--accent); width:0"></div></div>
+                  <div data-dot="1" style="width:5px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.2); overflow:hidden"><div data-fill="1" style="height:5px; background:var(--accent); width:0"></div></div>
+                  <div data-dot="1" style="width:5px; height:5px; border-radius:2.5px; background:rgba(216,203,180,.2); overflow:hidden"><div data-fill="1" style="height:5px; background:var(--accent); width:0"></div></div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- el bypass -->
+            <sc-if value="{{ clipImage }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none; width:480px; height:170px; position:relative; display:flex; align-items:center; gap:20px">
+                <div style="position:absolute; left:26px; top:-8px; width:186px; height:186px; border-radius:50%; background:radial-gradient(circle, rgba(217,168,98,.12), rgba(217,168,98,0) 66%)"></div>
+                <div data-grainstill="0.34" style="width:206px; height:146px; flex:none; position:relative; overflow:hidden; background:linear-gradient(150deg, rgba(216,203,180,.15), rgba(216,203,180,.05)); border:1px solid rgba(216,203,180,.26); border-radius:10px; box-shadow:0 12px 26px rgba(4,10,20,.5), inset 0 1px 0 rgba(255,255,255,.08); box-sizing:border-box; padding:16px">
+                  <div style="position:absolute; left:0; right:0; top:0; height:46%; background:linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,0)); pointer-events:none"></div>
+                  <div style="width:174px; height:114px; border-radius:7px; border:1.5px solid rgba(216,203,180,.5); box-sizing:border-box; position:relative; overflow:hidden">
+                    <div style="position:absolute; left:20px; top:18px; width:22px; height:22px; border-radius:50%; background:rgba(216,203,180,.5)"></div>
+                    <div style="position:absolute; left:0; right:0; bottom:0; height:64px; background:rgba(216,203,180,.4); clip-path:polygon(0 100%, 32% 22%, 56% 60%, 100% 8%, 100% 100%)"></div>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:14px; position:relative">
+                  <div style="display:flex; align-items:center; gap:10px"><div style="width:24px; height:24px; border-radius:50%; border:1.5px solid var(--accent); box-sizing:border-box; display:flex; align-items:center; justify-content:center; flex:none"><div style="width:9px; height:9px; border-radius:50%; background:var(--accent)"></div></div><div style="font-size:13.5px; color:var(--accent); letter-spacing:.4px">Untouched</div></div>
+                  <div style="width:184px; height:1px; background:rgba(216,203,180,.14)"></div>
+                  <div style="font-size:11.5px; line-height:1.5; color:rgba(216,203,180,.55); width:184px">Byte for byte, exactly as you copied it.</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap">
+                <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">image/png</div>
+                <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">image/webp</div>
+              </div>
+            </sc-if>
+
+            <!-- sólo formato: los chips cuentan el cambio -->
+            <sc-if value="{{ clipFormat }}" hint-placeholder-val="{{ true }}">
+              <div data-rig="1" data-mode="wipe" data-t0="300" style="flex:none; position:relative; display:flex; gap:6px; align-items:center; flex-wrap:wrap; min-height:34px">
+                <div data-close="1" style="overflow:hidden; flex:none"><div data-squeeze="1" style="transform-origin:left center"><div style="font-size:11px; color:rgba(217,168,98,.75); border:1px solid rgba(217,168,98,.32); border-radius:11px; padding:4px 8px; display:inline-block; white-space:nowrap; text-decoration:line-through; text-decoration-thickness:1px">text/html</div></div></div>
+                <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">text/plain</div>
+                <div style="font-size:13px; color:rgba(216,203,180,.45); margin:0 4px">→</div>
+                <div style="font-size:11px; color:var(--pt); border:1px solid rgba(216,203,180,.3); border-radius:11px; padding:4px 8px">text/plain</div>
+              </div>
+            </sc-if>
+
+            <!-- el desglose -->
+            <sc-if value="{{ clipChanges }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1px solid rgba(216,203,180,.16); border-radius:10px; background:rgba(216,203,180,.04); overflow:hidden">
+                <div style="height:38px; display:flex; align-items:center; padding:0 11px"><div style="flex:1; font-size:12.5px; color:rgba(216,203,180,.72)">✕  {{ ruleOne }}</div><div style="font-size:10.5px; color:rgba(216,203,180,.72); border:1px solid rgba(216,203,180,.22); border-radius:10px; padding:3px 8px">{{ settingOne }}</div></div>
+                <sc-if value="{{ clipCleanable }}" hint-placeholder-val="{{ true }}">
+                  <div style="height:1px; background:rgba(216,203,180,.14)"></div>
+                  <div style="height:38px; display:flex; align-items:center; padding:0 11px"><div style="flex:1; font-size:12.5px; color:rgba(216,203,180,.72)">✕  Invisible characters</div><div style="font-size:10.5px; color:rgba(216,203,180,.72); border:1px solid rgba(216,203,180,.22); border-radius:10px; padding:3px 8px">Invisibles</div></div>
+                </sc-if>
+              </div>
+              <div onClick="{{ applyClean }}" style="flex:none; height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg); cursor:pointer" style-hover="filter:brightness(1.08)">Apply to the clipboard</div>
+            </sc-if>
+
+            <sc-if value="{{ clipEmpty }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ startTourFromMain }}" style="flex:none; height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--accent); cursor:pointer" style-hover="background:rgba(217,168,98,.08)">See how it works</div>
+            </sc-if>
+
+            <div style="font-size:11px; line-height:1.5; color:{{ footnoteColor }}">{{ footnote }}</div>
+          </sc-if>
+
+          <!-- ===== AJUSTES ===== -->
+          <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ true }}">
+
+            <sc-if value="{{ onb }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; flex-direction:column; gap:4px">
+                <div style="font-size:11px; font-weight:700; letter-spacing:1.9px; text-transform:uppercase; color:var(--accent)">Last step</div>
+                <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.78)">This is what you can adjust. It already comes safely configured, so you can leave it as it is.</div>
+              </div>
+            </sc-if>
+
+            <div style="font-size:13.5px; font-weight:700; color:var(--pt)">Language</div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px">
+              <div onClick="{{ langAuto }}" style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; color:{{ langAutoColor }}; border-color:{{ langAutoBorder }}">System</div>
+              <div onClick="{{ langEn }}" style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; color:{{ langEnColor }}; border-color:{{ langEnBorder }}">English</div>
+              <div onClick="{{ langEs }}" style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; color:{{ langEsColor }}; border-color:{{ langEsBorder }}">Spanish</div>
+            </div>
+
+            <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Motion</div>
+            <div onClick="{{ toggleMotion }}" style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px; cursor:pointer" style-hover="background:rgba(216,203,180,.08)"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Reduce motion</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Stops the animations, including the examples that cycle on the empty screen.</div></div><div style="width:34px; height:18px; border-radius:9px; position:relative; flex:none; transition:background .22s ease; background:{{ motionTrack }}"><div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; transition:left .24s cubic-bezier(.3,.7,0,1), background .24s ease; background:{{ motionKnob }}; left:{{ motionKnobX }}"></div></div></div>
+
+            <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Mode</div>
+            <div onClick="{{ toggleAutomatic }}" style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px; cursor:pointer" style-hover="background:rgba(216,203,180,.08)"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Clean automatically</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Turns every copy that is safe into plain text.</div></div><div style="width:34px; height:18px; border-radius:9px; position:relative; flex:none; transition:background .22s ease; background:{{ autoTrack }}"><div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; transition:left .24s cubic-bezier(.3,.7,0,1), background .24s ease; background:{{ autoKnob }}; left:{{ autoKnobX }}"></div></div></div>
+            <div style="font-size:11px; line-height:1.5; color:rgba(216,203,180,.72)">{{ historyDetail }}</div>
+            <div onClick="{{ toggleHistory }}" style="flex:none; height:40px; display:flex; align-items:center; font-size:13px; color:rgba(216,203,180,.68); cursor:pointer" style-hover="color:var(--pt)">{{ historyCaret }}  Why can the original still show up?</div>
+            <sc-if value="{{ historyOpen }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:12.5px; line-height:1.4; color:rgba(216,203,180,.72)">Cleaning replaces what is on the clipboard, but Omarchy's own history keeps every entry it saw. If a rule changed characters, the history may hold both versions until you clear it.</div>
+            </sc-if>
+
+            <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Cleaning</div>
+            <div onClick="{{ toggleFormatting }}" style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px; cursor:pointer" style-hover="background:rgba(216,203,180,.08)"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Remove rich formatting</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Pastes using only the plain-text representation.</div></div><div style="width:34px; height:18px; border-radius:9px; position:relative; flex:none; transition:background .22s ease; background:{{ fmtTrack }}"><div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; transition:left .24s cubic-bezier(.3,.7,0,1), background .24s ease; background:{{ fmtKnob }}; left:{{ fmtKnobX }}"></div></div></div>
+            <div onClick="{{ toggleTracking }}" style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px; cursor:pointer" style-hover="background:rgba(216,203,180,.08)"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Remove link tracking</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Only when the clipboard is one whole link. Signed links are left alone.</div></div><div style="width:34px; height:18px; border-radius:9px; position:relative; flex:none; transition:background .22s ease; background:{{ trkTrack }}"><div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; transition:left .24s cubic-bezier(.3,.7,0,1), background .24s ease; background:{{ trkKnob }}; left:{{ trkKnobX }}"></div></div></div>
+            <div onClick="{{ toggleInvisible }}" style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px; cursor:pointer" style-hover="background:rgba(216,203,180,.08)"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Remove invisible characters</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Keeps emoji, right-to-left writing and language marks.</div></div><div style="width:34px; height:18px; border-radius:9px; position:relative; flex:none; transition:background .22s ease; background:{{ invTrack }}"><div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; transition:left .24s cubic-bezier(.3,.7,0,1), background .24s ease; background:{{ invKnob }}; left:{{ invKnobX }}"></div></div></div>
+            <div onClick="{{ toggleOptional }}" style="flex:none; height:40px; display:flex; align-items:center; font-size:13px; color:rgba(216,203,180,.68); cursor:pointer" style-hover="color:var(--pt)">{{ optionalCaret }}  Optional</div>
+            <sc-if value="{{ optionalOpen }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ toggleQuotes }}" style="border:1px solid rgba(216,203,180,.16); border-radius:8px; background:rgba(216,203,180,.04); padding:12px 14px; display:flex; align-items:center; gap:14px; cursor:pointer" style-hover="background:rgba(216,203,180,.08)"><div style="flex:1; display:flex; flex-direction:column; gap:3px"><div style="font-size:13px; color:var(--pt)">Normalise quotes</div><div style="font-size:11px; line-height:1.4; color:rgba(216,203,180,.6)">Turns typographic quotes into straight ones.</div></div><div style="width:34px; height:18px; border-radius:9px; position:relative; flex:none; transition:background .22s ease; background:{{ quoTrack }}"><div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; transition:left .24s cubic-bezier(.3,.7,0,1), background .24s ease; background:{{ quoKnob }}; left:{{ quoKnobX }}"></div></div></div>
+            </sc-if>
+
+            <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Applications</div>
+            <div style="font-size:12.5px; line-height:1.5; color:rgba(216,203,180,.72)">Some applications deserve different treatment. Pick one and choose which of the four rules apply to it.</div>
+            <div style="font-size:13.5px; color:rgba(216,203,180,.68)">Windows open right now</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap">
+              <div style="height:38px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; font-size:13px; color:var(--pt); cursor:pointer" style-hover="background:rgba(216,203,180,.07)">org.keepassxc.KeePassXC</div>
+              <div style="height:38px; padding:0 12px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; font-size:13px; color:var(--pt); cursor:pointer" style-hover="background:rgba(216,203,180,.07)">firefox</div>
+            </div>
+            <div style="font-size:11px; line-height:1.5; color:rgba(216,203,180,.72)">Everything happens on this machine. OmaPlain makes no network requests and stores none of the text you copy. The history belongs to Omarchy.</div>
+
+            <div style="font-size:13.5px; font-weight:700; color:var(--pt); margin-top:4px">Help and learning</div>
+            <div style="font-size:12.5px; line-height:1.45; color:rgba(216,203,180,.68)">Go back to the first explanation or repeat the walkthrough without changing your settings.</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+              <div onClick="{{ replayWelcome }}" style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--pt); cursor:pointer" style-hover="background:rgba(216,203,180,.07)">Review the welcome</div>
+              <div onClick="{{ replayTour }}" style="height:40px; border-radius:8px; border:1px solid rgba(216,203,180,.2); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--pt); cursor:pointer" style-hover="background:rgba(216,203,180,.07)">Repeat the mini tour</div>
+            </div>
+
+            <sc-if value="{{ onb }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ finishOnboarding }}" style="flex:none; height:44px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:700; color:var(--bg); cursor:pointer" style-hover="filter:brightness(1.08)">Start using it</div>
+            </sc-if>
+          </sc-if>
+
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- ============ MANDO DE ESCRITORIO ============ -->
+  <div style="display:flex; justify-content:center; width:100%">
+    <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap; justify-content:center; border:1px solid rgba(216,203,180,.14); border-radius:10px; background:rgba(12,22,38,.94); box-shadow:0 12px 30px rgba(4,10,20,.6); padding:11px 16px">
+      <div style="font-size:9.5px; letter-spacing:1.8px; text-transform:uppercase; color:var(--muted)">Portapapeles</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap">
+        <div onClick="{{ setCleanable }}" style="font-size:11.5px; padding:6px 10px; border-radius:6px; border:1px solid rgba(216,203,180,.18); cursor:pointer; white-space:nowrap; color:{{ tabCleanable }}">Un enlace sucio</div>
+        <div onClick="{{ setClean }}" style="font-size:11.5px; padding:6px 10px; border-radius:6px; border:1px solid rgba(216,203,180,.18); cursor:pointer; white-space:nowrap; color:{{ tabClean }}">Texto ya limpio</div>
+        <div onClick="{{ setFormat }}" style="font-size:11.5px; padding:6px 10px; border-radius:6px; border:1px solid rgba(216,203,180,.18); cursor:pointer; white-space:nowrap; color:{{ tabFormat }}">Con formato</div>
+        <div onClick="{{ setImage }}" style="font-size:11.5px; padding:6px 10px; border-radius:6px; border:1px solid rgba(216,203,180,.18); cursor:pointer; white-space:nowrap; color:{{ tabImage }}">Una imagen</div>
+        <div onClick="{{ setEmpty }}" style="font-size:11.5px; padding:6px 10px; border-radius:6px; border:1px solid rgba(216,203,180,.18); cursor:pointer; white-space:nowrap; color:{{ tabEmpty }}">Vacío</div>
+      </div>
+      <div style="width:1px; height:24px; background:rgba(216,203,180,.14)"></div>
+      <div onClick="{{ restart }}" style="font-size:11.5px; padding:6px 10px; border-radius:6px; border:1px solid rgba(217,168,98,.35); color:var(--accent); cursor:pointer; white-space:nowrap">Empezar de cero</div>
+      <div onClick="{{ replay }}" style="font-size:11.5px; padding:6px 10px; border-radius:6px; border:1px solid rgba(216,203,180,.18); color:rgba(216,203,180,.68); cursor:pointer; white-space:nowrap">Repetir animación</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:720,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  // Un solo compás, como en el banco de activos. Aquí el reloj no da vueltas
+  // sobre sí mismo: arranca en cero cada vez que se entra a una pantalla, así
+  // que cada animación ocurre UNA vez, que es lo que hace el producto. Sólo
+  // lo que es de bucle —sónar, carrusel, la cinta del control— sigue el
+  // compás con módulo.
+  beat = 2600;
+  t = 0;
+  lastFrame = 0;
+
+  state = {
+    view: 'welcome', step: 0, page: 'clipboard', onb: false,
+    clip: 'cleanable', showBefore: false, showAfter: false,
+    historyOpen: false, optionalOpen: false, feedback: '',
+    s: {
+      language: 'auto', reduceMotion: false, automatic: true,
+      stripFormatting: true, removeTracking: true, removeInvisible: true,
+      normalizeLineEndings: true, normalizeQuotes: false
+    }
+  };
+
+  componentDidMount() { this.arm(); }
+
+  componentWillUnmount() {
+    this.destroyed = true;
+    this.armed = false;
+    this.gen = (this.gen || 0) + 1;
+    clearInterval(this.watch);
+    this.watch = null;
+    clearTimeout(this.fbTimer);
+  }
+
+  // El bucle se rearma desde el render y desde un vigilante, nunca desde una
+  // bandera que alguien tenga que bajar: un desmontaje durante el streaming
+  // dejaba la cadena muerta y la pantalla entera quieta sin un solo error.
+  arm() {
+    const now = performance.now();
+    if (!this.watch) this.watch = setInterval(() => { if (!this.destroyed) this.arm(); }, 300);
+    if (this.armed && now - this.lastFrame < 400) return;
+    this.armed = true;
+    this.gen = (this.gen || 0) + 1;
+    this.last = now;
+    this.lastFrame = now;
+    this.loop(this.gen);
+  }
+
+  // Navegar reinicia el reloj y obliga a medir de nuevo: la pantalla que
+  // entra trae nodos nuevos, y nada se puede medir antes de que exista.
+  go(patch) {
+    this.t = 0;
+    this.setState(patch);
+  }
+
+  set(name, value) {
+    this.setState(s => ({ s: Object.assign({}, s.s, { [name]: value }) }));
+  }
+
+  flash(text) {
+    this.setState({ feedback: text });
+    clearTimeout(this.fbTimer);
+    this.fbTimer = setTimeout(() => this.setState({ feedback: '' }), 2500);
+  }
+
+  renderVals() {
+    this.destroyed = false;
+    this.arm();
+
+    const st = this.state, s = st.s;
+    const clip = st.clip;
+    const cleanable = clip === 'cleanable';
+    const format = clip === 'format';
+    const changes = cleanable || format;
+    const empty = clip === 'empty';
+    const image = clip === 'image';
+    const clean = clip === 'clean';
+
+    const verdicts = {
+      cleanable: 'This can be cleaned',
+      format: 'This can be cleaned',
+      clean: 'Already clean',
+      empty: 'Waiting for your next copy',
+      image: 'An image on your clipboard'
+    };
+    const details = {
+      cleanable: 'This is how it stands and how it would end up.',
+      format: 'This is how it stands and how it would end up.',
+      clean: 'OmaPlain has looked at it and there is nothing to remove.',
+      empty: 'Copy anything and this screen shows what OmaPlain would do with it — before it does it.',
+      image: 'OmaPlain does not read images. This one reaches its destination byte for byte.'
+    };
+    const nowTexts = {
+      cleanable: 'https://example.com/sourdough-bread?utm_source=newsletter&utm_medium=email&servings=8#baking',
+      format: 'Executive summary, second quarter',
+      clean: 'The dough needs twelve hours at room temperature before it goes in the fridge.'
+    };
+
+    const titles = ['Copy as you always do', "Only what you don't need", 'You keep control'];
+    const bodies = [
+      'OmaPlain watches new text copies and cleans them automatically when it is safe. You do not need a new shortcut.',
+      'It removes rich formatting, tracking parameters from whole URLs and non-semantic invisible characters.',
+      "Clean by hand, turn the automatic mode off, or give an application its own rules. The history is still Omarchy's."
+    ];
+    const notes = [
+      'Images and files pass untouched.',
+      'When in doubt, it keeps the original.',
+      'Everything happens on this machine.'
+    ];
+
+    const swatch = on => (on ? 'var(--accent)' : 'rgba(216,203,180,.16)');
+    const knob = on => (on ? 'var(--bg)' : 'rgba(216,203,180,.55)');
+    const knobX = on => (on ? '18px' : '2px');
+    const tab = on => (on ? 'var(--accent)' : 'rgba(216,203,180,.6)');
+    const lang = v => (s.language === v ? 'var(--accent)' : 'rgba(216,203,180,.68)');
+    const langB = v => (s.language === v ? 'rgba(217,168,98,.4)' : 'rgba(216,203,180,.2)');
+
+    const chars = s.removeTracking || s.removeInvisible || s.normalizeLineEndings || s.normalizeQuotes;
+
+    return {
+      isWelcome: st.view === 'welcome',
+      isTour: st.view === 'tour',
+      isMain: st.view === 'main',
+      isStep1: st.step === 0, isStep2: st.step === 1, isStep3: st.step === 2,
+      stepLabel: (st.step + 1) + ' of 3',
+      tourTitle: titles[st.step], tourBody: bodies[st.step], tourNote: notes[st.step],
+      tourNextLabel: st.step < 2 ? 'Next' : (st.onb || st.page === 'settings' ? 'See the settings' : 'Finish'),
+      bar2: st.step >= 1 ? 'var(--accent)' : 'rgba(216,203,180,.16)',
+      bar3: st.step >= 2 ? 'var(--accent)' : 'rgba(216,203,180,.16)',
+      tourSkipLabel: st.onb ? 'Skip the tour' : 'Leave the recap',
+
+      isClipboard: st.page === 'clipboard',
+      isSettings: st.page === 'settings',
+      onb: st.onb,
+      gearLabel: st.onb ? 'Skip  ›' : (st.page === 'settings' ? '‹  Back' : '⚙ Options'),
+
+      verdict: verdicts[clip], detail: details[clip],
+      showSonar: empty,
+      clipEmpty: empty, clipImage: image, clipFormat: format,
+      clipCleanable: cleanable, clipChanges: changes,
+      hasNowRow: cleanable || format || clean,
+      hasWouldRow: cleanable,
+      nowLabel: changes ? 'Now' : 'On the clipboard',
+      nowText: nowTexts[clip] || '',
+      nowCovered: !st.showBefore,
+      afterCovered: !st.showAfter,
+      eyeBefore: st.showBefore ? '◉' : '◎',
+      eyeAfter: st.showAfter ? '◉' : '◎',
+      ruleOne: format ? 'Rich formatting' : 'Tracking parameters',
+      settingOne: format ? 'Formatting' : 'Tracking',
+      footnote: st.feedback !== '' ? st.feedback
+        : (changes || clean ? 'The original stays intact if cleaning is not safe.'
+          : 'Revealing is not available for content marked as sensitive.'),
+      footnoteColor: st.feedback !== '' ? 'var(--pt)' : 'rgba(216,203,180,.68)',
+
+      historyOpen: st.historyOpen, optionalOpen: st.optionalOpen,
+      historyCaret: st.historyOpen ? '▾' : '▸',
+      optionalCaret: st.optionalOpen ? '▾' : '▸',
+      historyDetail: !s.automatic
+        ? 'Manual cleaning and Paste clean are still available.'
+        : (chars ? "Omarchy's history may keep the original as well when characters change."
+          : 'No active rule changes characters, so the history keeps one version.'),
+
+      motionTrack: swatch(s.reduceMotion), motionKnob: knob(s.reduceMotion), motionKnobX: knobX(s.reduceMotion),
+      autoTrack: swatch(s.automatic), autoKnob: knob(s.automatic), autoKnobX: knobX(s.automatic),
+      fmtTrack: swatch(s.stripFormatting), fmtKnob: knob(s.stripFormatting), fmtKnobX: knobX(s.stripFormatting),
+      trkTrack: swatch(s.removeTracking), trkKnob: knob(s.removeTracking), trkKnobX: knobX(s.removeTracking),
+      invTrack: swatch(s.removeInvisible), invKnob: knob(s.removeInvisible), invKnobX: knobX(s.removeInvisible),
+      quoTrack: swatch(s.normalizeQuotes), quoKnob: knob(s.normalizeQuotes), quoKnobX: knobX(s.normalizeQuotes),
+
+      langAutoColor: lang('auto'), langAutoBorder: langB('auto'),
+      langEnColor: lang('en'), langEnBorder: langB('en'),
+      langEsColor: lang('es'), langEsBorder: langB('es'),
+
+      tabCleanable: tab(cleanable), tabClean: tab(clean), tabFormat: tab(format),
+      tabImage: tab(image), tabEmpty: tab(empty),
+
+      startTour: () => this.go({ view: 'tour', step: 0, onb: true }),
+      startTourFromMain: () => this.go({ view: 'tour', step: 0, onb: false }),
+      toMain: () => this.go({ view: 'main', page: 'clipboard', onb: false }),
+      tourNext: () => {
+        if (st.step < 2) return this.go({ step: st.step + 1 });
+        if (st.onb) return this.go({ view: 'main', page: 'settings' });
+        this.go({ view: 'main', page: st.page });
+      },
+      tourBack: () => {
+        if (st.step > 0) return this.go({ step: st.step - 1 });
+        this.go({ view: st.onb ? 'welcome' : 'main' });
+      },
+      togglePage: () => {
+        if (st.onb) return this.go({ onb: false, page: 'clipboard' });
+        this.go({ page: st.page === 'settings' ? 'clipboard' : 'settings' });
+      },
+      finishOnboarding: () => this.go({ onb: false, page: 'clipboard' }),
+      replayWelcome: () => this.go({ view: 'welcome' }),
+      replayTour: () => this.go({ view: 'tour', step: 0, onb: false }),
+
+      // La fila cae sólo si está descubierta al llegar el texto: destapar
+      // reinicia el reloj, así que la caída ocurre delante de quien la abrió.
+      toggleBefore: () => this.go({ showBefore: !st.showBefore }),
+      toggleAfter: () => this.go({ showAfter: !st.showAfter }),
+      applyClean: () => { this.go({ clip: 'clean', showBefore: false, showAfter: false }); this.flash('Clipboard cleaned'); },
+
+      setCleanable: () => this.go({ clip: 'cleanable', showBefore: false, showAfter: false, feedback: '' }),
+      setClean: () => this.go({ clip: 'clean', showBefore: false, feedback: '' }),
+      setFormat: () => this.go({ clip: 'format', showBefore: false, feedback: '' }),
+      setImage: () => this.go({ clip: 'image', feedback: '' }),
+      setEmpty: () => this.go({ clip: 'empty', feedback: '' }),
+      restart: () => this.go({ view: 'welcome', step: 0, page: 'clipboard', onb: false, clip: 'cleanable', showBefore: false, showAfter: false, feedback: '' }),
+      replay: () => { this.t = 0; this.forceUpdate(); },
+
+      toggleMotion: () => { this.t = 0; this.set('reduceMotion', !s.reduceMotion); },
+      toggleAutomatic: () => this.set('automatic', !s.automatic),
+      toggleFormatting: () => this.set('stripFormatting', !s.stripFormatting),
+      toggleTracking: () => this.set('removeTracking', !s.removeTracking),
+      toggleInvisible: () => this.set('removeInvisible', !s.removeInvisible),
+      toggleQuotes: () => this.set('normalizeQuotes', !s.normalizeQuotes),
+      toggleHistory: () => this.setState({ historyOpen: !st.historyOpen }),
+      toggleOptional: () => this.setState({ optionalOpen: !st.optionalOpen }),
+      langAuto: () => this.set('language', 'auto'),
+      langEn: () => this.set('language', 'en'),
+      langEs: () => this.set('language', 'es')
+    };
+  }
+
+  // ---------------- motor ----------------
+
+  rootEl() { return document.querySelector('[data-root]'); }
+
+  ensureBuilt() {
+    const root = this.rootEl();
+    if (!root) return null;
+    if (root !== this.root) {
+      this.root = root;
+      this.rigs = [];
+      this.carousels = [];
+      this.pulses = [];
+      this.blips = [];
+      this.needsBuild = true;
+    }
+    if (!root.offsetHeight) return null;
+    // Sin banderas de un solo uso: `renderVals` corre ANTES de que React
+    // confirme el DOM, así que un fotograma que caiga entremedias gastaba la
+    // bandera midiendo la pantalla vieja y la nueva no se medía nunca.
+    // `build` es idempotente y barato: en reposo son dos `querySelectorAll`
+    // que no encuentran nada.
+    try { this.build(root); }
+    catch (err) { console.error('build()', err); }
+    return root;
+  }
+
+  cfg() {
+    return {
+      g: 1400, e: 0.18, span: 420, fade: 200,
+      motion: !this.state.s.reduceMotion
+    };
+  }
+
+  measure(el) {
+    if (!+el.dataset.w0) { el.dataset.w0 = el.offsetWidth; el.dataset.h0 = el.offsetHeight; }
+    return { el, w: +el.dataset.w0, h: +el.dataset.h0, axis: el.dataset.axis === 'h' ? 'h' : 'w' };
+  }
+
+  grainLayer(el) {
+    let g = el.querySelector('[data-grain]');
+    if (!g) {
+      g = document.createElement('div');
+      g.setAttribute('data-grain', '1');
+      g.style.cssText = 'position:absolute; inset:0; opacity:0; pointer-events:none; z-index:2; mix-blend-mode:screen;'
+        + "background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>\"),"
+        + 'repeating-linear-gradient(0deg, rgba(217,168,98,.42) 0 1px, rgba(0,0,0,0) 1px 3px),'
+        + 'repeating-linear-gradient(0deg, rgba(216,203,180,.16) 0 2px, rgba(0,0,0,0) 2px 9px);'
+        + 'background-size:120px 120px, 100% 3px, 100% 9px';
+      el.appendChild(g);
+    }
+    return g;
+  }
+
+  build(root) {
+    const newRigs = [...root.querySelectorAll('[data-rig]:not([data-built])')].filter(el => el.offsetHeight > 0);
+    const newCars = [...root.querySelectorAll('[data-carousel]:not([data-built])')].filter(el => el.offsetHeight > 0);
+    const newGrain = [...root.querySelectorAll('[data-grainstill]:not([data-grained])')];
+    const newPulse = root.querySelector('[data-pulse]:not([data-wired])');
+    const stale = (this.rigs || []).some(r => !r.rig.isConnected)
+      || (this.carousels || []).some(c => !c.el.isConnected);
+    if (!newRigs.length && !newCars.length && !newGrain.length && !newPulse && !stale) return;
+
+    newGrain.forEach(el => {
+      el.dataset.grained = '1';
+      this.grainLayer(el).style.opacity = el.dataset.grainstill;
+    });
+
+    root.querySelectorAll('[data-shatter]:not([data-split])').forEach(el => {
+      el.dataset.split = '1';
+      const txt = el.textContent;
+      el.textContent = '';
+      for (const ch of txt) {
+        const sp = document.createElement('span');
+        sp.setAttribute('data-shard', '1');
+        sp.style.display = 'inline-block';
+        sp.style.whiteSpace = 'pre';
+        if (ch === '\u200b') sp.style.cssText += ';width:9px; height:11px; border:1.5px dashed currentColor; border-radius:2px; box-sizing:border-box; vertical-align:-1px; margin:0 1px';
+        else sp.textContent = ch;
+        el.appendChild(sp);
+      }
+    });
+
+    // Sólo se construye lo que ya tiene caja: una pantalla que no está
+    // montada mide 0, y una medida de 0 se queda pegada para siempre.
+    this.rigs = (this.rigs || []).filter(r => r.rig.isConnected).concat(
+      newRigs.map(rig => {
+        rig.dataset.built = '1';
+        const layer = document.createElement('div');
+        layer.style.cssText = 'position:absolute; inset:0; pointer-events:none; z-index:2';
+        rig.appendChild(layer);
+
+        const box = rig.getBoundingClientRect();
+        const scale = box.width / Math.max(1, rig.offsetWidth);
+        const at = el => {
+          const a = el.getBoundingClientRect();
+          return { x: (a.left - box.left) / scale, y: (a.top - box.top) / scale, w: a.width / scale, h: a.height / scale };
+        };
+
+        const nodes = [...rig.querySelectorAll('[data-shard]')];
+        const order = [...nodes].sort((a, b) => at(a).x - at(b).x);
+        const shards = nodes.map((el, i) => {
+          const r0 = at(el);
+          const ghost = el.cloneNode(true);
+          ghost.removeAttribute('data-shard');
+          ghost.style.color = getComputedStyle(el).color;
+          ghost.style.cssText += ';position:absolute; left:' + r0.x + 'px; top:' + r0.y + 'px; margin:0; opacity:0; transform-origin:50% 100%';
+          layer.appendChild(ghost);
+          const r = ((i * 2654435761) % 1000) / 1000;
+          const r2 = ((i * 40503 + 17) % 997) / 997;
+          const r3 = ((i * 69069 + 5) % 991) / 991;
+          return {
+            flow: el, ghost, x: r0.x, y: r0.y, w: r0.w, h: r0.h, rank: order.indexOf(el),
+            e: 0.10 + r2 * 0.20,
+            drift: (r < 0.5 ? -1 : 1) * (1 + r3 * 6),
+            spin: (r < 0.5 ? -1 : 1) * (8 + r3 * 26)
+          };
+        });
+
+        return {
+          rig, mode: rig.dataset.mode, t0: +(rig.dataset.t0 || 0), shards,
+          H: Math.max(8, +rig.dataset.floor || rig.clientHeight - 4),
+          W: rig.clientWidth,
+          box: rig.querySelector('[data-box]'),
+          marks: [...rig.querySelectorAll('[data-mark]')],
+          squeezes: [...rig.querySelectorAll('[data-squeeze]')],
+          passers: [...rig.querySelectorAll('[data-pass]')].map(el => ({
+            el, veil: el.children[1], grain: this.grainLayer(el)
+          })),
+          toggles: [...rig.querySelectorAll('[data-toggle]')].map(el => ({
+            el, knob: el.querySelector('[data-knob]'),
+            on: el.dataset.on === '1', at: +(el.dataset.at || 0)
+          })),
+          scroll: rig.querySelector('[data-scrollcol]'),
+          steps: String(rig.dataset.steps || '0').split(',').map(Number),
+          gate: rig.querySelector('[data-gate]'),
+          glow: rig.querySelector('[data-glow]'),
+          gateX: +(rig.dataset.gate || 0),
+          closes: [...rig.querySelectorAll('[data-close]')].map(el => this.measure(el)),
+          stamp: rig.querySelector('[data-stamp]'),
+          outcome: rig.querySelector('[data-outcome]')
+        };
+      })
+    );
+
+    this.carousels = (this.carousels || []).filter(c => c.el.isConnected).concat(
+      newCars.map(el => {
+        el.dataset.built = '1';
+        return {
+          el,
+          samples: [...el.querySelectorAll('[data-sample]')].map(s => ({
+            el: s,
+            art: s.querySelector('[data-art]'),
+            copy: s.querySelector('[data-copy]'),
+            halo: s.querySelector('[data-halo]'),
+            closes: [...s.querySelectorAll('[data-ccl]')].map(c => this.measure(c))
+          })),
+          dots: [...el.querySelectorAll('[data-dot]')],
+          fills: [...el.querySelectorAll('[data-fill]')]
+        };
+      })
+    );
+
+    root.querySelectorAll('[data-pulse]').forEach(el => { el.dataset.wired = '1'; });
+    this.pulses = [...root.querySelectorAll('[data-pulse]')];
+    this.blips = [...root.querySelectorAll('[data-blip]')];
+  }
+
+  loop(gen) {
+    if (gen !== this.gen) return;
+    this.lastFrame = performance.now();
+    if (!this.ensureBuilt()) { requestAnimationFrame(() => this.loop(gen)); return; }
+    const now = performance.now();
+    const dt = Math.min(60, now - this.last);
+    this.last = now;
+    this.t += dt;
+    this.apply();
+    requestAnimationFrame(() => this.loop(gen));
+  }
+
+  fall(t, h, g, e) {
+    if (t <= 0) return { y: 0, sq: 1 };
+    const t1 = Math.sqrt(2 * h / g);
+    if (t < t1) { const s = t / t1; return { y: h * s * s, sq: 1, t1 }; }
+    let tc = t1;
+    for (let k = 1; k <= 2; k++) {
+      const hk = h * Math.pow(e, k);
+      const dk = 2 * Math.sqrt(2 * hk / g);
+      if (t < tc + dk) {
+        const u = (t - tc) / dk;
+        const sq = k === 1 ? 1 - 0.16 * Math.max(0, 1 - (t - tc) / 0.07) : 1;
+        return { y: h - 4 * hk * u * (1 - u), sq, t1 };
+      }
+      tc += dk;
+    }
+    return { y: h, sq: 1, t1 };
+  }
+
+  settleTime(h, g, e) {
+    const t1 = Math.sqrt(2 * h / g);
+    return t1 * (1 + 2 * Math.sqrt(e) + 2 * e);
+  }
+
+  clamp(x) { return Math.max(0, Math.min(1, x)); }
+  ease(x, k) { x = this.clamp(x); return k === 'out' ? 1 - Math.pow(1 - x, 3) : (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2); }
+  entry(x) { return 1 - Math.pow(1 - this.clamp(x), 3.2); }
+  inCubic(x) { x = this.clamp(x); return x * x * x; }
+
+  apply() {
+    const T = this.t, c = this.cfg();
+    const period = 2600;
+
+    (this.pulses || []).forEach(p => {
+      const u = (((T % period) / period) + (+p.dataset.phase || 0)) % 1;
+      const k = this.ease(u, 'out');
+      p.style.transform = 'scale(' + (1 + 2.2 * k) + ')';
+      p.style.opacity = String(c.motion ? Math.max(0, 0.85 * (1 - k) * Math.min(1, u * 9)) : 0.4);
+    });
+    (this.blips || []).forEach(b => {
+      if (!c.motion) { b.style.opacity = '0'; return; }
+      const sweep = Math.floor(T / period);
+      const u = (T % period) / period;
+      const h = (sweep * 2654435761 + 1013904223) >>> 0;
+      if (h % 3 !== 0) { b.style.opacity = '0'; return; }
+      const at = 0.30 + ((h >> 8) % 100) / 100 * 0.45;
+      const ang = ((h >> 16) % 360) * Math.PI / 180;
+      const rad = 3 + this.ease(at, 'out') * 6.6;
+      b.style.transform = 'translate(' + (Math.cos(ang) * rad) + 'px,' + (Math.sin(ang) * rad) + 'px)';
+      const age = (u - at) / 0.34;
+      b.style.opacity = String(age < 0 || age > 1 ? 0 : Math.min(1, age * 12) * (1 - age) * 0.9);
+    });
+
+    (this.carousels || []).forEach(cr => this.applyCarousel(cr, T, c));
+
+    (this.rigs || []).forEach(r => {
+      if (r.mode === 'pass') return this.applyPass(r, T, c);
+      if (r.mode === 'panel') return this.applyPanel(r, T, c);
+      if (r.mode === 'wipe') return this.applyWipe(r, T - r.t0, c);
+      if (!c.motion) return this.applyStatic(r);
+      this.applyFall(r, T - r.t0, c);
+    });
+  }
+
+  applyStatic(r) {
+    r.shards.forEach(s => { s.flow.style.visibility = 'hidden'; s.ghost.style.opacity = '0'; });
+    r.closes.forEach(cl => { if (cl.axis === 'h') cl.el.style.height = '0px'; else cl.el.style.width = '0px'; });
+    r.squeezes.forEach(s => { s.style.transform = 'scaleX(0)'; });
+    if (r.mode === 'panel') return this.applyPanel(r, 0, { motion: false });
+    if (r.box) r.box.style.height = r.box.dataset.h1 + 'px';
+    if (r.stamp) { r.stamp.style.opacity = '1'; r.stamp.style.transform = 'scale(1)'; }
+    if (r.outcome) r.outcome.style.opacity = '1';
+  }
+
+  // Nombrar, comprimir, y ya está. Ninguna letra por el suelo.
+  applyWipe(r, local, c) {
+    const still = !c.motion;
+    const hi = still ? 1 : this.ease(local / 340, 'out');
+    const k = still ? 1 : this.ease((local - 420) / 520, 'inout');
+    const mix = (a, b) => a + (b - a) * hi;
+    const col = 'rgba(' + Math.round(mix(216, 217)) + ',' + Math.round(mix(203, 168)) + ','
+      + Math.round(mix(180, 98)) + ',' + (mix(0.45, 1)).toFixed(3) + ')';
+    r.marks.forEach(m => {
+      if (m.dataset.mark === 'edge') m.style.borderColor = col;
+      else m.style.background = col;
+    });
+    r.squeezes.forEach(s => {
+      s.style.transform = 'scaleX(' + Math.max(0, 1 - k) + ')';
+      s.style.opacity = String(1 - k * 0.35);
+    });
+    r.closes.forEach(cl => {
+      if (cl.axis === 'h') cl.el.style.height = (cl.h * (1 - k)) + 'px';
+      else cl.el.style.width = (cl.w * (1 - k)) + 'px';
+    });
+  }
+
+  applyFall(r, local, c) {
+    const n = Math.max(1, r.shards.length);
+    const step = c.span / n;
+    let lastSettle = 0;
+    r.shards.forEach(s => {
+      s.drop = Math.max(6, r.H - s.y - s.h);
+      const rel = s.rank * step;
+      const t = (local - rel) / 1000;
+      const settle = this.settleTime(s.drop, c.g, s.e * (c.e / 0.18));
+      lastSettle = Math.max(lastSettle, rel + settle * 1000);
+      if (t <= 0) { s.flow.style.visibility = 'visible'; s.ghost.style.opacity = '0'; return; }
+      s.flow.style.visibility = 'hidden';
+      const f = this.fall(t, s.drop, c.g, s.e * (c.e / 0.18));
+      const done = t - settle;
+      const op = done > 0 ? Math.max(0, 1 - (done * 1000) / c.fade) : 1;
+      const ang = s.spin * Math.min(t, f.t1 || t);
+      const dx = s.drift * Math.min(t, f.t1 || t);
+      s.ghost.style.opacity = String(op);
+      s.ghost.style.transform = 'translate(' + dx + 'px,' + f.y + 'px) rotate(' + ang + 'deg) scaleY(' + f.sq + ') scaleX(' + (2 - f.sq) + ')';
+    });
+
+    r.closes.forEach(cl => {
+      const mine = r.shards.filter(s => cl.el.contains(s.flow));
+      const relEnd = mine.length ? (Math.max(...mine.map(s => s.rank)) + 1) * step : 0;
+      const k = this.ease((local - relEnd) / 160, 'out');
+      if (cl.axis === 'h') cl.el.style.height = (cl.h * (1 - k)) + 'px';
+      else cl.el.style.width = (cl.w * (1 - k)) + 'px';
+    });
+
+    const clear = (lastSettle + c.fade) - 20;
+    if (r.stamp) {
+      const k = this.ease((local - clear) / 180, 'out');
+      r.stamp.style.opacity = String(k);
+      r.stamp.style.transform = 'scale(' + (0.74 + 0.26 * k) + ')';
+    }
+    if (r.outcome) r.outcome.style.opacity = String(this.ease((local - clear + 40) / 180, 'out'));
+    if (r.box) {
+      const h0 = +r.box.dataset.h0, h1 = +r.box.dataset.h1;
+      const k = this.ease((local - clear - 40) / 380, 'inout');
+      r.box.style.height = (h0 + (h1 - h0) * k) + 'px';
+    }
+  }
+
+  // Los ajustes se asientan solos y la tarjeta recorre la lista.
+  //
+  // Los interruptores caen uno detrás de otro, 180 ms de separación y 300 de
+  // recorrido: es la frase «ya viene configurado» dicha con el pulgar, no un
+  // interruptor por decisión del usuario. El que se queda apagado nunca se
+  // mueve — es el argumento de la pantalla, y animarlo diría lo contrario.
+  //
+  // Y el recorrido va y vuelve, no se reinicia de un salto: la lista sube a
+  // enseñar lo que hay debajo y baja a donde estaba. El velo de abajo es lo
+  // que dice que hay más.
+  applyPanel(r, T, c) {
+    const still = !c.motion;
+    r.toggles.forEach(t => {
+      const k = still ? (t.on ? 1 : 0)
+        : (t.on ? this.ease((T - t.at) / 300, 'out') : 0);
+      const mix = (a, b) => a + (b - a) * k;
+      t.el.style.background = 'rgba(' + Math.round(mix(216, 217)) + ',' + Math.round(mix(203, 168)) + ','
+        + Math.round(mix(180, 98)) + ',' + mix(0.16, 1).toFixed(3) + ')';
+      if (t.knob) {
+        t.knob.style.left = (2 + 16 * k) + 'px';
+        t.knob.style.background = 'rgba(' + Math.round(mix(216, 12)) + ',' + Math.round(mix(203, 22)) + ','
+          + Math.round(mix(180, 38)) + ',' + mix(0.55, 1).toFixed(3) + ')';
+      }
+    });
+
+    if (r.scroll) {
+      const steps = r.steps;
+      const dwell = 2000, travel = 620, leg = dwell + travel;
+      const u = still ? 0 : Math.max(0, T - 1400) % (steps.length * leg);
+      const i = Math.floor(u / leg);
+      const k = this.ease((u % leg - dwell) / travel, 'inout');
+      const from = steps[i], to = steps[(i + 1) % steps.length];
+      r.scroll.style.transform = 'translateY(' + (from + (to - from) * k) + 'px)';
+    }
+  }
+
+  // La cinta del control de seguridad: de bucle, así que va con módulo.
+  applyPass(r, T, c) {
+    const cycle = this.beat * 6;
+    const card = 132;
+    const span = r.W + card + 20;
+    let near = 0;
+    r.passers.forEach(p => {
+      const el = p.el;
+      const ph = +el.dataset.phase || 0;
+      const u = c.motion ? (((T / cycle) + ph) % 1) : ph;
+      const x = -card - 10 + u * span;
+      el.style.transform = 'translateX(' + x + 'px)';
+      const inside = (Math.min(x + card, r.W) - Math.max(x, 0)) / card;
+      el.style.opacity = String(this.clamp(inside));
+      const arch = c.motion ? Math.max(0, 1 - Math.abs(x + card / 2 - r.gateX) / 108) : 0;
+      const scan = Math.min(1, arch * 1.35);
+      if (p.grain) {
+        p.grain.style.opacity = String(scan);
+        p.grain.style.backgroundPosition = '0 ' + Math.round((T / 9) % 120) + 'px, 0 '
+          + ((T / 5) % 3).toFixed(1) + 'px, 0 ' + ((-T / 24) % 9).toFixed(1) + 'px';
+      }
+      if (p.veil) {
+        p.veil.style.opacity = String(1 - 0.9 * scan);
+        p.veil.style.transform = 'translateX(' + (Math.sin(T / 38) * 1.5 * scan).toFixed(2) + 'px)';
+      }
+      near = Math.max(near, arch);
+    });
+    if (r.gate) r.gate.style.opacity = String(0.5 + 0.5 * near);
+    if (r.glow) r.glow.style.opacity = String(0.06 + 0.34 * near);
+  }
+
+  applyCarousel(cr, T, c) {
+    const beat = this.beat;
+    const total = cr.samples.length || 1;
+    const idx = c.motion ? Math.floor(T / beat) % total : 0;
+    const ph = T % beat;
+    const leaveAt = beat - 190;
+    const still = !c.motion;
+
+    const slide = still ? 0
+      : (ph < 300 ? 1 - this.entry(ph / 300)
+        : (ph < leaveAt ? 0 : -this.inCubic((ph - leaveAt) / 190)));
+    const slideT = still ? 0
+      : (ph < 70 ? 1
+        : (ph < 370 ? 1 - this.entry((ph - 70) / 300)
+          : (ph < leaveAt ? 0 : -this.inCubic((ph - leaveAt) / 190))));
+    const combed = still ? 1 : this.ease((ph - 450) / 620, 'inout');
+    const fade = v => Math.max(0, 1 - Math.abs(v) * 1.3);
+
+    cr.samples.forEach((s, i) => {
+      const on = i === idx;
+      s.el.style.opacity = on ? '1' : '0';
+      if (!on) return;
+      if (s.art) {
+        s.art.style.opacity = String(fade(slide));
+        s.art.style.transform = 'translateY(' + (slide * 14) + 'px)';
+      }
+      if (s.copy) {
+        s.copy.style.opacity = String(fade(slideT));
+        s.copy.style.transform = 'translateY(' + (slideT * 14) + 'px)';
+      }
+      s.closes.forEach(cl => {
+        if (cl.axis === 'h') cl.el.style.height = (cl.h * (1 - combed)) + 'px';
+        else cl.el.style.width = (cl.w * (1 - combed)) + 'px';
+      });
+      if (s.halo) s.halo.style.transform = 'scale(' + (1 + 0.11 * Math.sin(Math.PI * this.clamp(combed / 0.86))) + ')';
+    });
+
+    cr.dots.forEach((d, i) => {
+      const on = i === idx;
+      d.style.width = (on ? 20 : 5) + 'px';
+      d.style.background = on ? 'rgba(217,168,98,.28)' : 'rgba(216,203,180,.2)';
+    });
+    cr.fills.forEach((f, i) => { f.style.width = (i === idx && !still ? (ph / beat) * 100 : 0) + '%'; });
+  }
+}
+</script>
+</body>
+</html>
