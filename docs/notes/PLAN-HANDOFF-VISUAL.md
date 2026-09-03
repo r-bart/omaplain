@@ -385,6 +385,14 @@ del panel pintaba ahí un rectángulo más oscuro que su alrededor. Se gana que 
 cristal vuelva a ser translúcido de verdad y el halo se vea a través de las
 hojas.
 
+**Con el movimiento reducido, la demo enseña el original y no el
+resultado.** El paquete manda pintar el estado final de la caída —tramo
+cerrado, frase puesta—, y eso deja a quien apagó las animaciones sin ver
+nunca lo que se retira. Se queda como estaba: el original con el tramo
+marcado en acento y el botón `demo.try` para verlo ocurrir. Es lo que hacía
+el componente desde siempre y es más informativo; es además la razón por la
+que esa clave no se retiró.
+
 **El recorrido de la lista vuelve a cero.** El paquete lista las paradas
 `0 → −52 → −104 → −52` y se queda en la tercera; su propio texto dice «baja a
 donde estaba». Vuelve a cero, que además es donde descansa con el movimiento
