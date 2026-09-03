@@ -84,9 +84,12 @@ Item {
   // plano detrás, que es el supuesto del que parte toda la receta—, y a
   // cambio la sombra sale a su fuerza y sólo de la caja.
   //
-  // Donde sí se nota es encima del halo, porque el molde lo tapa. Ahí se
-  // apaga la sombra con `shadowEnabled: false` y el cristal vuelve a
-  // dejar pasar lo de detrás.
+  // Donde sí se nota es encima del halo, porque el molde lo tapa, y
+  // **dentro de otra superficie**, porque ahí el suelo ya no es el fondo
+  // del panel: es el fondo más el relleno de la superficie que la
+  // contiene, y eso no es un color plano que un molde pueda copiar. En los
+  // dos casos se apaga la sombra con `shadowEnabled: false` y el cristal
+  // vuelve a ser translúcido de verdad.
   Rectangle {
     id: molde
     anchors.fill: parent

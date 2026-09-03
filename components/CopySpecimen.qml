@@ -39,6 +39,16 @@ Item {
   implicitHeight: Style.space(96)
   Accessible.ignored: true
 
+  // Estos tres viven **dentro** de la tarjeta del carrusel, así que no
+  // proyectan sombra. El molde que la proyecta tiene que ser de un color
+  // plano, y aquí el suelo es el fondo del panel más el relleno de esa
+  // tarjeta: un molde del color del panel pintaría un rectángulo más
+  // oscuro que su alrededor, con el canto marcado.
+  //
+  // Se gana algo a cambio: sin molde el cristal es translúcido de verdad,
+  // y el halo se ve **a través** de las hojas en vez de sólo asomar por
+  // los bordes.
+
   // El peine pasa una vez y a mitad de recorrido: termina antes que el
   // encogido, para que se lea como causa y no como acompañamiento.
   readonly property real sweep: Math.max(0, Math.min(1, root.combed / 0.86))
@@ -95,6 +105,7 @@ Item {
 
     // La página de la que se copia, detrás y a media luz.
     GlassSurface {
+      shadowEnabled: false
       x: Style.space(14)
       y: Style.space(2) + Style.space(4) * root.settle
       width: Style.space(80)
@@ -124,6 +135,7 @@ Item {
     // misma pieza de la bienvenida a un tercio de tamaño, y por eso se
     // reconoce sin rótulo.
     GlassSurface {
+      shadowEnabled: false
       x: Style.space(1)
       y: Style.space(52) - Style.space(3) * root.settle
       width: Style.space(98)
@@ -167,7 +179,6 @@ Item {
           Repeater {
             model: 4
             delegate: Item {
-              required property int index
               // La caja se estrecha, y eso es lo que hace que el resto
               // del renglón cierre el hueco. Sólo con el contenido
               // aplastado quedaría un agujero.
@@ -200,6 +211,7 @@ Item {
     visible: root.kind === "text"
 
     GlassSurface {
+      shadowEnabled: false
       x: Style.space(9)
       y: Style.space(4) + Style.space(4) * root.settle
       width: Style.space(82)
@@ -254,6 +266,7 @@ Item {
 
     // Debajo, la de texto plano: la que se queda.
     GlassSurface {
+      shadowEnabled: false
       x: Style.space(20)
       y: Style.space(6) + Style.space(4) * root.settle
       width: Style.space(76)
@@ -285,6 +298,7 @@ Item {
     // hoja entera yéndose decía que se pierde el texto, que es lo
     // contrario de lo que hace el producto.
     GlassSurface {
+      shadowEnabled: false
       x: Style.space(4)
       y: Style.space(18) - Style.space(3) * root.settle
       width: Style.space(76)

@@ -11,7 +11,7 @@ import qs.Commons
 // Son tres capas a tres velocidades distintas, y las tres velocidades son
 // el truco: con una sola se lee como una textura puesta encima, no como
 // una señal. Las proporciones entre ellas son las del paquete de diseño
-// (1/5, 1/9 y −1/24); la base se eligió para que el barrido fino crucera
+// (1/5, 1/9 y −1/24); la base se eligió para que el barrido fino cruce
 // como un rastreo y no como un parpadeo.
 //
 // **No hay modo `screen`.** Qt Quick no tiene modos de fusión sin
@@ -62,7 +62,9 @@ Item {
     id: mould
     anchors.fill: parent
     radius: root.radius
-    color: "black"
+    // Neutro puro y no un color: aquí no se elige tinta, se dibuja la
+    // plantilla alfa que recorta las capas.
+    color: Qt.rgba(0, 0, 0, 1)
     visible: false
     layer.enabled: root.radius > 0
   }

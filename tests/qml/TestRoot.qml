@@ -119,6 +119,46 @@ ShellRoot {
       intensity: 0.6
       motionEnabled: false
     }
+
+    // El caso de la cinta del tour: el grano nace a intensidad cero —la
+    // tarjeta todavía está lejos del control— y no se enciende hasta que
+    // llega. Si un lienzo invisible no pintase, la textura no existiría
+    // nunca y la tarjeta cruzaría el arco con las rayas y sin ruido.
+    // La demostración del tour, para comprobar dónde caen sus añicos.
+    Omaplain.DemoTransformation {
+      id: demo
+      width: 400
+      lang: "en"
+      motionEnabled: true
+    }
+
+    // Y la ilustración del bypass, para el motivo que no reconoce.
+    Omaplain.TransformationIllustration {
+      id: arte
+      width: 460
+      height: 160
+      lang: "en"
+      variant: "unread"
+      motionEnabled: false
+    }
+
+    // La cinta, para comprobar que su bucle se para al ocultarse.
+    Omaplain.TransformationIllustration {
+      id: cinta
+      width: 460
+      height: 220
+      lang: "en"
+      variant: "protect"
+      motionEnabled: true
+    }
+
+    Omaplain.Grain {
+      id: granoDormido
+      x: 10; y: 150
+      width: 180; height: 140
+      intensity: 0
+      motionEnabled: false
+    }
   }
 
   function pruebaVaho() {
@@ -250,6 +290,112 @@ ShellRoot {
     raiz.check("y vuelve con la señal", grano.visible === true)
     raiz.check("el ruido no se repinta al ir y venir", grano.paintCount === 1,
                "paintCount=" + grano.paintCount)
+
+    // Y el que nace apagado también tiene su textura lista para cuando le
+    // toque. Es el caso de las cuatro tarjetas de la cinta.
+    raiz.check("el grano que nace apagado también se pinta",
+               granoDormido.paintCount === 1, "paintCount=" + granoDormido.paintCount)
+    raiz.check("y llega con su textura hecha", granoDormido.noiseUrl.length > 200,
+               "url de " + granoDormido.noiseUrl.length + " caracteres")
+    raiz.check("nace fuera de la vista", granoDormido.visible === false)
+  }
+
+  function pruebaCaida() {
+    console.log("La caída de la demo")
+
+    demo.revealed = false
+    demo.revealed = true
+
+    raiz.check("hay un añico por carácter del tramo",
+               demo.shards.length === demo.spare.length,
+               demo.shards.length + " de " + demo.spare.length)
+
+    // El fallo que de verdad ocurrió: medir antes de que hubiera trazado
+    // devolvía ceros y los 54 caracteres salían apilados en la esquina de
+    // arriba a la izquierda, cayendo todos desde el mismo sitio. Se
+    // reconoce porque el tramo deja de ocupar ancho.
+    var x0 = demo.shards[0].x0, x1 = demo.shards[0].x0
+    var renglones = {}
+    for (var i = 0; i < demo.shards.length; i++) {
+      x0 = Math.min(x0, demo.shards[i].x0)
+      x1 = Math.max(x1, demo.shards[i].x0)
+      renglones[demo.shards[i].y0.toFixed(0)] = true
+    }
+    raiz.check("el tramo ocupa ancho de verdad", x1 - x0 > 100,
+               "de " + x0.toFixed(0) + " a " + x1.toFixed(0))
+    raiz.check("y más de un renglón", Object.keys(renglones).length >= 2,
+               Object.keys(renglones).length + " renglones")
+
+    // Ninguno cae fuera de la tarjeta: el suelo se fija a su borde.
+    var fuera = 0
+    for (var k = 0; k < demo.shards.length; k++) {
+      var s = demo.shards[k]
+      if (s.y0 + s.h + s.line > demo.floorY + 1) fuera += 1
+    }
+    raiz.check("ninguno cae por debajo del suelo", fuera === 0, fuera + " se pasan")
+
+    // La suelta va por posición pintada, no por orden de cadena: con dos
+    // renglones eso dibuja una diagonal.
+    var porCadena = true
+    for (var j = 1; j < demo.shards.length; j++) {
+      if (demo.shards[j].x0 < demo.shards[j - 1].x0) porCadena = false
+    }
+    raiz.check("se sueltan ordenados por su x", porCadena)
+
+    demo.revealed = false
+  }
+
+  // El bucle de la cinta es infinito, y el único del componente. Tiene que
+  // pararse cuando la ilustración deja de estar a la vista: el paso 2 del
+  // tour, la página de ajustes y el panel cerrado la ocultan, y detrás de
+  // cada una seguía evaluando los bindings de las cuatro tarjetas por
+  // cuadro para nadie. Es el mismo fallo que el vaho y el carrusel
+  // corriendo dentro de una ventana cerrada.
+  Timer {
+    id: relojCinta
+    interval: 220
+    property real antes: 0
+    property int paso: 0
+    onTriggered: {
+      if (paso === 0) {
+        raiz.check("la cinta avanza a la vista", cinta.progress > antes,
+                   "antes=" + antes.toFixed(4) + " ahora=" + cinta.progress.toFixed(4))
+        cinta.visible = false
+        antes = cinta.progress
+        paso = 1
+        relojCinta.restart()
+      } else {
+        raiz.check("y se para al ocultarse", cinta.progress === antes,
+                   "antes=" + antes.toFixed(4) + " ahora=" + cinta.progress.toFixed(4))
+        raiz.remate()
+      }
+    }
+  }
+
+  function pruebaCinta() {
+    console.log("La cinta")
+    cinta.visible = true
+    relojCinta.antes = cinta.progress
+    relojCinta.paso = 0
+    relojCinta.restart()
+  }
+
+  function pruebaBypass() {
+    console.log("El dibujo del bypass")
+    arte.subject = "image"
+    raiz.check("una imagen se dibuja como imagen", arte.subjectGlyph === "image")
+    arte.subject = "sensitive"
+    raiz.check("un secreto, como un secreto", arte.subjectGlyph === "secret")
+    arte.subject = "files"
+    raiz.check("unos archivos, como archivos", arte.subjectGlyph === "files")
+
+    // Y lo que no reconoce no afirma nada: puede ser un texto grande, unos
+    // bytes que no se descodifican o una aplicación de la lista.
+    arte.subject = "too_large"
+    raiz.check("un motivo cualquiera cae en la hoja de texto",
+               arte.subjectGlyph === "text", arte.subjectGlyph)
+    arte.subject = ""
+    raiz.check("y sin motivo, también", arte.subjectGlyph === "text", arte.subjectGlyph)
   }
 
   function remate() {
@@ -267,7 +413,10 @@ ShellRoot {
     interval: 400
     onTriggered: {
       pruebaMaterial()
-      raiz.remate()
+      pruebaCaida()
+      pruebaBypass()
+      // Ésta remata sola: necesita esperar dos veces al reloj.
+      pruebaCinta()
     }
   }
 

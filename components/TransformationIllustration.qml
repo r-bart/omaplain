@@ -162,7 +162,6 @@ Item {
       Repeater {
         model: 5
         delegate: Rectangle {
-          required property int index
           width: Style.space(9); height: width; radius: width / 2
           color: glyph.ink
         }
@@ -197,7 +196,15 @@ Item {
 
   Component.onCompleted: play()
   onMotionEnabledChanged: play()
-  onVisibleChanged: if (visible) play()
+  // **Y al ocultarse, se para.** El recorrido de la cinta es infinito: sin
+  // esto seguía corriendo detrás del paso 2 del tour, de la página de
+  // ajustes y del panel cerrado, evaluando los bindings de las cuatro
+  // tarjetas en cada cuadro para nadie. Es el mismo fallo que el vaho y el
+  // carrusel corriendo dentro de una ventana cerrada, y se arregla igual.
+  onVisibleChanged: {
+    if (visible) play()
+    else sequence.stop()
+  }
   // El tour cambia la variante con la ilustración ya visible: sin esto la
   // transformación corría en el paso 0, con su capa oculta, y el paso que
   // de verdad la enseña llegaba con el recorrido ya consumido.
@@ -313,7 +320,6 @@ Item {
             Repeater {
               model: 4
               delegate: Item {
-                required property int index
                 // La caja se estrecha, y eso es lo que hace que el renglón
                 // cierre el hueco. Sólo con el contenido aplastado
                 // quedaría un agujero; sólo con la caja, el tramo se
@@ -377,7 +383,6 @@ Item {
               Repeater {
                 model: 3
                 delegate: Item {
-                  required property int index
                   width: Style.space(34) * (1 - root.squeeze)
                   height: Style.space(11)
                   clip: true

@@ -30,6 +30,12 @@ Column {
   // espacio. Prosa con un enlace dentro se queda intacta, y una demo hecha
   // de prosa afirmaría lo contrario.
   //
+  // Eso sostiene además el trazado: el texto se pinta con formato, y el
+  // motor de texto con formato colapsa las series de espacios. Sin
+  // espacios no hay nada que colapsar, y `test_demo_sample.py` lo sujeta
+  // sin saberlo — una muestra con un espacio dejaría de limpiarse y el
+  // test caería antes de que el trazado se enterase.
+  //
   // Las muestras salen del catálogo, no de aquí. Escritas en el QML se
   // quedaron en un solo idioma: la interfaz en inglés enseñaba
   // `pan-de-masa-madre` y la frase de resultado hablaba de «the servings»
@@ -108,9 +114,9 @@ Column {
 
   // Deterministas, no `Math.random()`: se ve irregular y es reproducible,
   // que es lo que necesita una captura de test.
+  function hash(i) { return ((i * 2654435761) % 1000) / 1000 }
   function hash2(i) { return ((i * 40503 + 17) % 997) / 997 }
   function hash3(i) { return ((i * 69069 + 5) % 991) / 991 }
-  function signOf(i) { return (i * 2654435761) % 2 === 0 ? 1 : -1 }
 
   function escapeMarkup(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -177,8 +183,16 @@ Column {
       s.rest = s.t1 + s.d1 + s.d2
       // Deriva y giro, sólo durante la caída libre: durante los rebotes el
       // añico ya está en el suelo y girar ahí sería un baile.
-      s.drift = root.signOf(k) * (1 + root.hash3(k) * 6)
-      s.spin = root.signOf(k + 1) * (8 + root.hash3(k) * 26)
+      //
+      // Los dos signos salen de **hashes distintos**. Sacarlos del mismo
+      // multiplicador de Knuth sobre `k` no era un hash: 2654435761 es
+      // impar, así que el resto entre dos es la paridad de `k` y los
+      // signos alternaban uno sí y uno no. Peor todavía, el del giro salía
+      // de `k + 1`, con lo que cada añico giraba siempre al revés de como
+      // derivaba. Se veía regular, que es justo lo contrario de lo que la
+      // irregularidad determinista viene a conseguir.
+      s.drift = (root.hash(k) < 0.5 ? 1 : -1) * (1 + root.hash3(k) * 6)
+      s.spin = (root.hash2(k) < 0.5 ? 1 : -1) * (8 + root.hash3(k) * 26)
       tope = Math.max(tope, s.release + s.rest)
     }
 
@@ -248,8 +262,21 @@ Column {
     if (motionEnabled && visible) autoPlay.restart()
   }
 
-  onVisibleChanged: if (visible) reset(); else autoPlay.stop()
+  onVisibleChanged: {
+    if (visible) {
+      reset()
+    } else {
+      // El reloj de la caída también. Es finito, pero no hay razón para
+      // que siga contando detrás de una pantalla que ya no está.
+      autoPlay.stop()
+      fallRun.stop()
+    }
+  }
   onMotionEnabledChanged: reset()
+  // Las posiciones de los añicos se congelan al soltar, así que un cambio
+  // de idioma a media caída dejaría cayendo los caracteres de la muestra
+  // anterior sobre el texto de la nueva. Se rebobina.
+  onLangChanged: reset()
 
   Text {
     width: parent.width
@@ -304,7 +331,6 @@ Column {
       // Es un cartel, no un campo: ni se selecciona ni toma el foco. Un
       // `TextEdit` de sólo lectura activa la selección por teclado él
       // solo, y ahí no hay nada que copiar.
-      readonly property bool onlyForShow: true
       selectByMouse: false
       selectByKeyboard: false
       activeFocusOnPress: false

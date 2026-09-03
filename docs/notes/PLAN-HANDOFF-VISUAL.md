@@ -372,6 +372,19 @@ entera y era lo más brillante de la pantalla, por encima del texto del paso que
 acompaña. También hubo que cambiar el hash: el multiplicador de Knuth sobre el
 índice del ráster es lineal en `x` y salían diagonales regulares, no ruido.
 
+**El bucle de la cinta no se paraba al ocultarse.** Lo encontró la revisión
+posterior, y es el mismo fallo que este repositorio ya arregló una vez —el vaho
+y el carrusel corriendo dentro de una ventana cerrada—. Detrás del paso 2 del
+tour, de la página de ajustes y del panel cerrado, el recorrido seguía
+evaluando los bindings de las cuatro tarjetas por cuadro. Va con su test, y el
+test se comprobó quitando el arreglo.
+
+**Y la sombra de los ejemplares del carrusel se apaga.** Viven dentro de otra
+tarjeta, y el molde que proyecta la sombra sólo puede ser de un color plano: el
+del panel pintaba ahí un rectángulo más oscuro que su alrededor. Se gana que el
+cristal vuelva a ser translúcido de verdad y el halo se vea a través de las
+hojas.
+
 **El recorrido de la lista vuelve a cero.** El paquete lista las paradas
 `0 → −52 → −104 → −52` y se queda en la tercera; su propio texto dice «baja a
 donde estaba». Vuelve a cero, que además es donde descansa con el movimiento

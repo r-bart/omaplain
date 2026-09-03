@@ -133,8 +133,8 @@ Lo que salió de la revisión completa del 2 de septiembre.
     tarjeta con ruido quieto encima: es todo lo que OmaPlain llega a ver de
     ella. En vez del inventario de tres filas, que hablaba de las tres cosas
     cuando en el portapapeles hay una.
-  - Los **ejemplares del carrusel** y la superficie de todas las tarjetas
-    bajan a un mismo material de cristal, con su sombra y su halo
+  - Los **ejemplares del carrusel** y todas las tarjetas del panel bajan a un
+    mismo material de cristal, con su halo
     ([`0018`](docs/decisions/0018-el-material-del-panel.md)).
   - Con **«Reducir movimiento»** puesto, las seis se pintan en su estado final
     y ninguna pierde información.
