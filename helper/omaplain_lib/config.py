@@ -29,7 +29,6 @@ DEFAULTS: dict[str, Any] = {
     "alwaysCovered": [],
     "blockedApps": [],
     "maxBytes": 1_048_576,
-    "notifyOnError": True,
 }
 
 _BOOL_KEYS = {
@@ -42,7 +41,6 @@ _BOOL_KEYS = {
     "normalizeLists",
     "normalizeUnicodeNfc",
     "trimTrailingWhitespace",
-    "notifyOnError",
 }
 _LIST_KEYS = {"sourceExclusions", "targetExclusions", "alwaysCovered", "blockedApps"}
 

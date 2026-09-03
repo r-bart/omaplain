@@ -80,7 +80,6 @@ Item {
       alwaysCovered: [],
       blockedApps: [],
       maxBytes: 1048576,
-      notifyOnError: true,
       onboardingVersion: 0,
       // Sólo de interfaz: el helper no los necesita y los ignora al leer la
       // configuración. «auto» toma el idioma del locale del sistema.
@@ -193,8 +192,10 @@ Item {
 
   function maybeNotifyWatcher(nextStatus) {
     if (!nextStatus || nextStatus.watcher !== "degraded") return
-    var settings = entrySettings()
-    if (settings.notifyOnError === false) return
+    // Sin condición ([`0019`]): es el único aviso que este producto manda
+    // en toda su vida, y dice que ha dejado de hacer lo que promete. Un
+    // interruptor para callarlo sería un interruptor para fallar en
+    // silencio, y lo pulsaría quien más confía en que sigue funcionando.
     var now = Date.now()
     if (now - lastErrorNotificationMs < 600000) return
     lastErrorNotificationMs = now
@@ -272,7 +273,7 @@ Item {
       "automatic", "stripFormatting", "removeTracking", "removeInvisible",
       "normalizeLineEndings", "normalizeQuotes", "normalizeLists",
       "normalizeUnicodeNfc", "trimTrailingWhitespace", "sourceExclusions",
-      "targetExclusions", "maxBytes", "notifyOnError", "onboardingVersion",
+      "targetExclusions", "maxBytes", "onboardingVersion",
       "language", "alwaysCovered", "blockedApps", "reduceMotion"
     ]
     if (allowed.indexOf(String(name)) === -1 || !shell || typeof shell.updateEntryInline !== "function")

@@ -714,6 +714,30 @@ class BypassScreenTests(unittest.TestCase):
         self.assertIn("visible: root.peekEmpty", bloque)
         self.assertNotIn("peekBypass", bloque)
 
+    def test_the_only_notification_cannot_be_silenced(self) -> None:
+        """El aviso de que ha dejado de vigilar no lleva interruptor.
+
+        `notifyOnError` existía, funcionaba y no se podía cambiar: sin
+        control en Ajustes y sin un solo test. Al mirar **qué** apagaba
+        —la única notificación que este producto manda en toda su vida, la
+        que dice que el vigilante del portapapeles se ha caído— la
+        respuesta dejó de ser «hay que exponerla» y pasó a ser «no debería
+        existir» ([`0019`]).
+
+        Este producto trabaja donde no lo miras. Un interruptor para callar
+        ese aviso es un interruptor para fallar en silencio, y lo pulsaría
+        quien más confía en que sigue funcionando.
+        """
+        for ruta in (REPO / "Service.qml", REPO / "Panel.qml",
+                     REPO / "helper" / "omaplain_lib" / "config.py"):
+            with self.subTest(fichero=ruta.name):
+                self.assertNotIn("notifyOnError", ruta.read_text(encoding="utf-8"))
+
+        # Y el aviso sigue ahí, con su único freno: uno cada diez minutos.
+        servicio = _sin_comentarios(REPO / "Service.qml")
+        self.assertIn("function maybeNotifyWatcher", servicio)
+        self.assertIn("lastErrorNotificationMs < 600000", servicio)
+
     def test_the_generic_note_is_gone_for_good(self) -> None:
         # «Aquí no hay acción que ofrecer» es una frase sobre el panel, no
         # sobre tu portapapeles. Nunca era el momento de decirla: en el vacío

@@ -128,7 +128,7 @@ class CadaReglaObedeceSuInterruptorTests(unittest.TestCase):
         """Todas las reglas de texto apagadas menos, si acaso, una."""
         config = dict(DEFAULTS)
         for clave, valor in DEFAULTS.items():
-            if isinstance(valor, bool) and clave not in ("automatic", "notifyOnError"):
+            if isinstance(valor, bool) and clave != "automatic":
                 config[clave] = False
         if encendida:
             config[encendida] = True

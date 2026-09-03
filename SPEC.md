@@ -585,7 +585,6 @@ Las preferencias viven inline en `~/.config/omarchy/shell.json`, según el contr
   "alwaysCovered": [],
   "blockedApps": [],
   "maxBytes": 1048576,
-  "notifyOnError": true,
   "language": "auto",
   "reduceMotion": false,
   "onboardingVersion": 0

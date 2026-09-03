@@ -94,6 +94,15 @@ Lo que salió de la revisión completa del 2 de septiembre.
 
 ### Retirado
 
+- **El aviso de que OmaPlain ha dejado de vigilar ya no se puede silenciar.**
+  `notifyOnError` existía en la configuración, funcionaba y no había forma de
+  cambiarla: sin control en Ajustes y sin un solo test. Al mirar qué apagaba
+  —la única notificación que este producto manda en toda su vida, la que dice
+  que el vigilante del portapapeles se ha caído— dejó de tener sentido
+  exponerla. Este producto trabaja donde no lo miras, y un interruptor para
+  callar ese aviso es un interruptor para que falle en silencio. Quien no lo
+  quiera, apaga el servicio, que es explícito y se ve
+  ([`0019`](docs/decisions/0019-el-aviso-de-que-ha-dejado-de-vigilar-no-se-apaga.md)).
 - **«Ver el original» sale de la demostración del tour.** Se fue con la
   tarjeta que lo envolvía —tres bordes concéntricos para enseñar una cadena—,
   y con la caída el original ya es lo primero que se ve. El botón que queda
