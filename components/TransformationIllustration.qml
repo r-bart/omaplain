@@ -85,7 +85,7 @@ Item {
   // `test_the_entrance_animates_nothing_that_costs_a_layout` vigila qué se
   // anima aquí, y meter un reloj por variante lo dejaría sin sentido.
   readonly property int runMs: variant === "protect" ? 10800
-    : variant === "control" ? 10200 : variant === "transform" ? 4200 : 940
+    : variant === "control" ? 7480 : variant === "transform" ? 4200 : 940
   readonly property int leadMs: variant === "transform" ? 250 : 0
 
   // **Ciclan las tres del onboarding, y ninguna del panel de cada día.**
@@ -807,12 +807,21 @@ Item {
       // alturas de fila o de tarjeta, recalcula esto o la última fila se
       // queda debajo del velo para siempre». No se puede recalcular a mano
       // lo que el usuario cambia en tiempo de ejecución, así que se deriva.
+      // Los reposos son de 1 200 ms y no de los 2 000 del paquete de
+      // diseño. Con 2 000 la vuelta entera se iba a 10,2 s, y a esa
+      // velocidad el recorrido no se lee como algo que cicla: se lee como
+      // una lista quieta que de vez en cuando se mueve sola. Mil
+      // doscientos siguen dando tiempo de sobra a leer las tres filas que
+      // hay a la vista, que es para lo que existía el reposo.
+      //
+      // El primero es más largo porque no es un reposo: es la espera a que
+      // los cuatro interruptores terminen de encenderse, a los 1 260 ms.
       readonly property var stops: [
         { at: 0, to: 0.0 },
         { at: 1400, to: 0.5 },
-        { at: 4020, to: 1.0 },
-        { at: 6640, to: 0.5 },
-        { at: 9260, to: 0.0 }
+        { at: 3220, to: 1.0 },
+        { at: 5040, to: 0.5 },
+        { at: 6860, to: 0.0 }
       ]
 
       // Lo profundo que llega el recorrido: lo justo para que el fondo de

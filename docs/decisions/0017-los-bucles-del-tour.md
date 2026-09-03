@@ -139,10 +139,17 @@ día.**
   360 ms contra los 520 del cierre. No se lee como que la limpieza se
   rebobina, sino como que llega otra copia.
 - `protect` (la cinta) cicla, como ya decía el punto 1.
-- `control` cicla **sólo el recorrido de la lista**. Los cuatro
+- `control` cicla **sólo el recorrido de la lista**, y con reposos de
+  1 200 ms en vez de los 2 000 del paquete: a esa velocidad el recorrido no
+  se leía como algo que cicla, sino como una lista quieta que de vez en
+  cuando se mueve sola. Los cuatro
   interruptores se encienden en la primera vuelta y se quedan: «ya viene
   configurado» es una frase que se dice una vez, y apagarlos para volver a
   encenderlos diría que alguien los está tocando.
+- `DemoTransformation`, el paso 2, cicla también: la caída, la frase de
+  resultado, dos segundos quietos con la copia limpia, y la copia siguiente.
+  No es una ilustración, pero le aplica el mismo argumento — se reproducía
+  una vez y se quedaba muerta el resto del tiempo que el paso está delante.
 - `unread` (el bypass) no cicla, y sigue siendo lo que de verdad protegía
   esta decisión: la pantalla más vista informa, no actúa
   ([`0007`](./0007-la-pantalla-frecuente-informa.md)).
@@ -156,6 +163,6 @@ sigue amparado por su propia sección, y el carrusel por la
 
 El motivo original —un bucle ambiente compite con el texto que acompaña— no
 era falso, era incompleto: lo que compite es un bucle **rápido o
-llamativo**. Los tres van despacio (4,2 s, 15,6 s y 10,2 s por vuelta),
-ninguno pide atención, y ninguno se mueve mientras el ojo está en la línea
-de abajo. El día que uno de ellos parpadee, esta decisión no lo ampara.
+llamativo**. Los cuatro van despacio —4,2 s la bienvenida, 5,0 s la demostración, 10,8 s
+la cinta y 7,5 s la lista—, ninguno pide atención, y ninguno se mueve
+mientras el ojo está en la línea de abajo. El día que uno de ellos parpadee, esta decisión no lo ampara.
