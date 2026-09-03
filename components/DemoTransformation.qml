@@ -302,7 +302,16 @@ Column {
     // a 68 al terminar, y en otro que esto no se toque «porque los botones
     // no se pueden mover». Se hace caso al segundo: el hueco que queda
     // debajo del texto limpio es justo donde se apilan los añicos.
-    height: Math.max(measure.implicitHeight, layout.implicitHeight) + Style.space(22)
+    //
+    // **Y tres renglones como mínimo**, que son los 88 px del paquete. En
+    // un panel ancho la muestra entera cabe en dos, y entonces los añicos
+    // se soltaban con un renglón de caída: se posaban pegados al borde de
+    // abajo y la caja del carácter invisible lo rozaba. El suelo tiene que
+    // estar lo bastante lejos para que la caída se vea caer.
+    readonly property real lineHeight: measure.lineCount > 0
+      ? measure.implicitHeight / measure.lineCount : measure.implicitHeight
+    height: Math.max(measure.implicitHeight, layout.implicitHeight,
+                     3 * card.lineHeight) + Style.space(22)
     clip: true
     onHeightChanged: if (root.fallClock === 0) root.measureShards()
 
