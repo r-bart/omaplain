@@ -318,14 +318,28 @@ Item {
         y: Style.space(14)
         width: Style.space(304)
         // Mínimo, no fijo: el contenido manda si crece con la escala.
-        height: Math.max(Style.space(42), barContent.implicitHeight + Style.space(16))
+        //
+        // **El mínimo vive en el contenido, no en la caja**, y eso no es
+        // una preferencia de estilo: es lo que rompe un ciclo de trazado.
+        // Escrito como `Math.max(space(42), barContent.implicitHeight + …)`
+        // con el contenido centrado contra este mismo alto, el alto sale
+        // del hijo y el hijo se coloca contra el alto. Qt no converge y se
+        // queda girando en el hilo de interfaz — con la compresión de una
+        // sola pasada duraba 940 ms y no se notaba; ciclando, cuelga el
+        // shell entero sin dar un solo error.
+        //
+        // Así la caja sale del contenido y el contenido no mira hacia
+        // arriba para colocarse.
+        height: barContent.height + Style.space(16)
         material: "small"
         radius: height / 2
         clip: true
 
         Row {
           id: barContent
-          anchors.verticalCenter: parent.verticalCenter
+          height: Math.max(Style.space(26), implicitHeight)
+          anchors.top: parent.top
+          anchors.topMargin: Style.space(8)
           anchors.left: parent.left
           anchors.leftMargin: Style.space(18)
           spacing: Style.space(10)

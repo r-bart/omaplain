@@ -58,6 +58,17 @@ Si un cambio roza cualquiera de las tres, va con su decisión numerada en
 
 - Un botón deshabilitado es para una condición que se puede resolver desde
   esa misma pantalla. Si no, no se enseña ([`0015`](docs/decisions/0015-la-pantalla-frecuente-no-ofrece-un-boton-muerto.md)).
+- **Una caja no saca su alto de un hijo que se centra contra ella.** Es un
+  ciclo de trazado: Qt no converge y se queda girando en el hilo de
+  interfaz, sin un solo error en el log y con el shell entero sin
+  responder. Aguanta escondido mientras el contenido sólo se mueve un
+  momento —una animación de una pasada dura lo que dura— y sale a la luz en
+  cuanto algo cicla. El mínimo va en el contenido, no en la caja.
+- **Un bucle nuevo se mide en el proceso, no sólo se mira.** Cuatro
+  aperturas y cierres del panel y `awk '{print ($14+$15)}' /proc/<pid>/stat`
+  antes y después: en reposo tiene que quedarse por debajo del 1 %. El
+  arnés no lo ve —su cadena de trazado es más corta que la del panel— y a
+  ojo un hilo atascado se parece a un shell lento.
 - **Todo lo que cicla se para al ocultarse.** Ya pasó con el vaho y el
   carrusel corriendo dentro de una ventana cerrada, y volvió a pasar con la
   cinta del tour detrás del paso 2. Un `visible` leído desde QML ya es la

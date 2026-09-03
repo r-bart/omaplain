@@ -112,6 +112,18 @@ ShellRoot {
       width: 180; height: 140
     }
 
+    // La bienvenida, **dentro de la ventana y a la vista**: el ciclo de
+    // trazado que esto vigila sólo ocurre si algo la coloca de verdad.
+    Omaplain.TransformationIllustration {
+      id: bienvenida
+      x: 10; y: 300
+      width: 464
+      height: 190
+      lang: "en"
+      variant: "transform"
+      motionEnabled: true
+    }
+
     Omaplain.Grain {
       id: grano
       x: 210; y: 150
@@ -367,7 +379,9 @@ ShellRoot {
       } else {
         raiz.check("y se para al ocultarse", cinta.progress === antes,
                    "antes=" + antes.toFixed(4) + " ahora=" + cinta.progress.toFixed(4))
-        raiz.remate()
+        console.log("La bienvenida en bucle")
+        relojBienvenida.latidos = 0
+        relojBienvenida.restart()
       }
     }
   }
@@ -378,6 +392,45 @@ ShellRoot {
     relojCinta.antes = cinta.progress
     relojCinta.paso = 0
     relojCinta.restart()
+  }
+
+  // La bienvenida en bucle: que dé vueltas, y que el reloj siga latiendo
+  // mientras las da.
+  //
+  // **Este test no caza el fallo que motivó escribirlo, y conviene decirlo
+  // aquí.** Ciclar la bienvenida convirtió un ciclo de trazado latente en
+  // un bloqueo permanente —el alto de la barra de dirección salía del
+  // contenido y el contenido se centraba contra ese alto—, y el shell se
+  // quedaba girando al 100 % sin un solo error en el log. Se probó a
+  // reponer el ciclo con esto puesto: pasa igual. La cadena de trazado del
+  // panel real es más profunda —la ilustración va en una columna, dentro
+  // de un `Flickable`, dentro de una tarjeta cuyo alto sigue al
+  // contenido— y aquí no se reproduce.
+  //
+  // Lo que sí lo caza es medir el proceso con el panel de verdad delante:
+  // cuatro aperturas y cierres, y `cat /proc/<pid>/stat`. Está en el
+  // `CLAUDE.md`, porque es lo único que lo vio.
+  Timer {
+    id: relojBienvenida
+    interval: 500
+    repeat: true
+    property int latidos: 0
+    property real antes: 0
+    onTriggered: {
+      latidos += 1
+      // Cruza la vuelta entera: nombrado, cierre, descanso, y el regreso
+      // de los tramos a los 2 900 ms.
+      if (latidos < 10) return
+      relojBienvenida.stop()
+      raiz.check("el reloj late mientras la bienvenida cicla",
+                 latidos === 10, "latidos=" + latidos)
+      raiz.check("y la bienvenida ha dado más de una vuelta",
+                 bienvenida.laps >= 1, "vueltas=" + bienvenida.laps)
+      raiz.check("los tramos vuelven en la tinta de reposo, no en acento",
+                 bienvenida.phaseIn >= 0 && bienvenida.phaseIn <= 1,
+                 "phaseIn=" + bienvenida.phaseIn)
+      raiz.remate()
+    }
   }
 
   function pruebaBypass() {
