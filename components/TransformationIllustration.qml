@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Shapes
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
@@ -133,7 +134,17 @@ Item {
     implicitHeight: Style.space(54)
     Accessible.ignored: true
 
-    // Una imagen: marco, sol y horizonte.
+    // Una imagen: marco, sol y montañas.
+    //
+    // Las montañas llegaron tarde. Antes eran dos barras horizontales
+    // debajo del sol, y el conjunto —marco, círculo arriba a la izquierda,
+    // dos renglones— no se leía como una foto: se leía como una ficha de
+    // contacto. Y a dos dedos de aquí está la hoja de texto, que **es**
+    // cuatro renglones, así que los dos dibujos que más lejos están de
+    // significar lo mismo eran los dos que más se parecían.
+    //
+    // El perfil se apoya en el borde de dentro del marco, no flotando: una
+    // silueta que no toca el suelo se lee como un rayo, no como un monte.
     Item {
       anchors.fill: parent
       visible: glyph.kind === "image"
@@ -147,18 +158,26 @@ Item {
       }
       Rectangle {
         width: Style.space(12); height: width; radius: width / 2
-        x: Style.space(12); y: Style.space(10)
+        x: Style.space(12); y: Style.space(9)
         color: glyph.ink
       }
-      Rectangle {
-        width: Style.space(46); height: Style.space(3); radius: height / 2
-        x: Style.space(12); y: Style.space(36)
-        color: glyph.ink
-      }
-      Rectangle {
-        width: Style.space(28); height: Style.space(3); radius: height / 2
-        x: Style.space(12); y: Style.space(43)
-        color: glyph.ink
+
+      Shape {
+        anchors.fill: parent
+        preferredRendererType: Shape.CurveRenderer
+
+        ShapePath {
+          fillColor: glyph.ink
+          strokeWidth: 0
+          strokeColor: "transparent"
+          // El borde mide 2 y Qt lo pinta hacia dentro: el suelo está en
+          // 52, no en 54.
+          startX: Style.space(7); startY: Style.space(52)
+          PathLine { x: Style.space(23); y: Style.space(29) }
+          PathLine { x: Style.space(33); y: Style.space(40) }
+          PathLine { x: Style.space(45); y: Style.space(24) }
+          PathLine { x: Style.space(63); y: Style.space(52) }
+        }
       }
     }
 

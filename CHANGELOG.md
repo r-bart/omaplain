@@ -133,6 +133,10 @@ Lo que salió de la revisión completa del 2 de septiembre.
   gritar para identificar; con la marca delante, el texto baja la voz. Llega a
   la entrada `.desktop` y al manifiesto. En la prosa se sigue escribiendo
   `OmaPlain`: un logotipo y un nombre propio son dos cosas distintas.
+- **El dibujo de una imagen se lee como una imagen.** Era marco, sol y dos
+  barras horizontales, y el conjunto se leía como una ficha de contacto — y
+  se parecía demasiado a la hoja de texto, que es cuatro renglones. Ahora
+  lleva un perfil de montañas apoyado en el borde de dentro del marco.
 - **La pantalla de un bypass dice una cosa una vez.** El dibujo llevaba un pie
   —«Byte for byte, exactly as you copied it.»— veinte píxeles debajo del
   párrafo que ya lo decía, y el sello flotando al lado de la tarjeta. Ahora la
