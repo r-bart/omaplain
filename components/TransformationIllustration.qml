@@ -1001,10 +1001,25 @@ Item {
         height: Style.space(146)
         clip: true
 
+        // El dibujo pesa más aquí que en la cinta, y va más grande.
+        //
+        // A la tinta de relleno del tour —0,32— quedaba justo al mismo peso
+        // que el grano que lo cubre, así que no se leía: la tarjeta era un
+        // rectángulo de ruido con un icono perdido dentro. Y esta pantalla
+        // existe precisamente para decir **qué** tienes en el portapapeles,
+        // así que el dibujo tiene que ganarle al ruido, no empatar.
+        //
+        // Grande porque la tarjeta es de 206 × 146 y el dibujo de la cinta
+        // mide 70 × 54: ahí dentro sobraba media tarjeta de ruido.
         CopyGlyph {
           anchors.centerIn: parent
           kind: root.subjectGlyph
-          ink: root.fillerInk
+          // Los tres pesos se compararon puestos uno al lado del otro. A
+          // 0,32 el dibujo no se lee; a 0,55 gana tanto que la tarjeta deja
+          // de decir «no la hemos leído» y pasa a decir «mira lo que
+          // tienes». Aquí se leen las dos cosas, que es lo que hace falta.
+          ink: Util.alpha(Color.popups.text, 0.45)
+          scale: 1.35
         }
 
         // Al 34%: lo justo para que se vea que hay algo debajo y que nadie
