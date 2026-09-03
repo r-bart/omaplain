@@ -629,6 +629,7 @@ Item {
             // Y el grano: lo único que el control llega a ver de ella.
             Grain {
               anchors.fill: parent
+              radius: parcelCard.radius
               intensity: parcel.signal
               motionEnabled: root.motionEnabled
             }
@@ -889,6 +890,7 @@ Item {
         // `motionEnabled: false` y la 0007 es la razón.
         Grain {
           anchors.fill: parent
+          radius: unreadCard.radius
           intensity: 0.34
           motionEnabled: root.motionEnabled
         }
