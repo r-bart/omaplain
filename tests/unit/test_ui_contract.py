@@ -347,14 +347,36 @@ class UiContractTests(unittest.TestCase):
         self.assertNotIn("running: true", code)
 
     def test_the_entrance_animates_nothing_that_costs_a_layout(self) -> None:
-        # transform y opacity van en la GPU; animar x, y o anchors obliga a
-        # recomponer en cada fotograma.
+        """transform y opacity van en la GPU; animar x, y o anchors obliga a
+        recomponer en cada fotograma.
+
+        El motor de compresión abre **una** excepción, y es deliberada: el
+        tramo que se retira estrecha su propia caja hasta cero para que el
+        resto del renglón cierre el hueco. Ese relayout no es un descuido,
+        es lo que la pantalla cuenta — con sólo el contenido aplastado
+        quedaría un agujero, y con sólo la caja el tramo se leería
+        recortado por la derecha.
+
+        La excepción se paga barata y se acota aquí: va por binding sobre
+        `progress`, sobre cajas sin una sola letra dentro, y **nunca** como
+        un `NumberAnimation` con `property: "width"`. Lo segundo pondría un
+        reloj propio en el hilo de la interfaz por cada tramo; lo primero
+        es una multiplicación en el mismo cuadro que ya se está pintando.
+        """
         art = (REPO / "components" / "TransformationIllustration.qml").read_text(encoding="utf-8")
         animated = re.findall(r'property:\s*"(?P<name>[^"]+)"', art)
         allowed = {"enterFactor", "progress"}
         for name in animated:
             with self.subTest(property=name):
                 self.assertIn(name, allowed)
+
+        # Y la excepción está donde se dijo: la caja que se cierra lleva su
+        # `clip`, sin el cual el tramo se vería recortado en vez de
+        # comprimido, y el contenido se aplasta contra el borde izquierdo.
+        codigo = "\n".join(line.split("//", 1)[0] for line in art.splitlines())
+        self.assertIn("1 - root.squeeze", codigo)
+        self.assertIn("transformOrigin: Item.Left", codigo)
+        self.assertIn("clip: true", codigo)
 
     def test_welcome_cards_line_up_their_bodies(self) -> None:
         # Centrando el contenido, cada tarjeta lo colocaba según lo que

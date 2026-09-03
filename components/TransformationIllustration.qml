@@ -11,29 +11,52 @@ Item {
 
   property string variant: "transform"
 
-  // Un solo momento orquestado, no cinco efectos sueltos: las líneas de
-  // ruido de la hoja copiada se encogen hasta desaparecer y el visto
-  // aterriza al final. Es la promesa del producto contada en movimiento,
-  // y ocurre una vez — un bucle ambiente aquí sería decoración.
+  // Un solo momento orquestado, no cinco efectos sueltos. Es la promesa
+  // del producto contada en movimiento.
   //
-  // La fase F conducirá `motionEnabled`; con él en falso todo se pinta ya
-  // en su estado final, sin recorrido.
+  // Con `motionEnabled` en falso todo se pinta ya en su estado final, sin
+  // recorrido, y ninguna variante pierde información al pararse.
   property bool motionEnabled: true
 
   // 0 = recién llegado, 1 = transformación consumada.
   property real progress: motionEnabled ? 0 : 1
 
-  // Los dos naipes son la misma copia, antes y después, así que miden lo
-  // mismo. Estaban escritos por separado —122 el de «COPIED» y 126 el de
-  // «CLEAN»— y el de la derecha salía un 3% más alto sin que nada lo
-  // pidiera. La rotación disimulaba la diferencia en el recuadro externo,
-  // pero el relleno del limpio va a opacidad plena contra el 0,72 del
-  // sucio, y una forma más clara sobre fondo oscuro ya se lee más grande
-  // de por sí: los 4 puntos extra empujaban en la misma dirección.
-  readonly property real cardWidth: Style.space(116)
-  readonly property real cardHeight: Style.space(122)
   readonly property real entered: motionEnabled ? enterFactor : 1
   property real enterFactor: 0
+
+  // El motor de compresión (`ANIMACIONES.md` §2), con sus dos tiempos
+  // dentro de un solo recorrido lineal de 940 ms.
+  //
+  // Va así y no con dos animaciones porque las curvas son distintas
+  // —`OutCubic` para nombrar, `InOutCubic` para cerrar— y encadenarlas
+  // como propiedades separadas metería dos nombres más en el guarda que
+  // vigila qué se anima aquí. Un solo `progress` lineal, y las curvas
+  // aplicadas donde se leen.
+  function outCubic(t) { var k = 1 - t; return 1 - k * k * k }
+  function inOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+  }
+  function clamp(t) { return Math.max(0, Math.min(1, t)) }
+
+  // Nombrar: 0 → 340 ms de los 940. El tramo pasa de la tinta de reposo al
+  // acento **sin moverse**. Es lo que convierte el gesto en explicación: se
+  // ve *qué* se va, y luego se va.
+  readonly property real naming: outCubic(clamp(progress / 0.362))
+  // Comprimir: 420 → 940 ms. Empieza después de que el nombrado termine.
+  readonly property real squeeze: inOutCubic(clamp((progress - 0.447) / 0.553))
+
+  readonly property color restInk: Util.alpha(Color.popups.text, 0.45)
+  readonly property color markInk: Qt.rgba(
+    restInk.r + (Color.accent.r - restInk.r) * naming,
+    restInk.g + (Color.accent.g - restInk.g) * naming,
+    restInk.b + (Color.accent.b - restInk.b) * naming,
+    restInk.a + (1 - restInk.a) * naming)
+  readonly property color fillerInk: Util.alpha(Color.popups.text, 0.32)
+
+  // Cada variante ocupa el marco que le da su pantalla. La bienvenida
+  // reparte 464 × 190; el tour, 460 × 220.
+  readonly property real sceneWidth: variant === "transform" ? Style.space(464) : Style.space(248)
+  readonly property real sceneHeight: variant === "transform" ? Style.space(190) : Style.space(168)
 
   function play() {
     if (!motionEnabled) { progress = 1; enterFactor = 1; return }
@@ -50,180 +73,247 @@ Item {
   // de verdad la enseña llegaba con el recorrido ya consumido.
   onVariantChanged: play()
 
-  SequentialAnimation {
+  ParallelAnimation {
     id: sequence
     // Entrada: nunca desde scale(0); la escena siempre tiene forma.
     NumberAnimation {
       target: root; property: "enterFactor"; from: 0; to: 1
       duration: 260; easing.type: Easing.OutCubic
     }
-    PauseAnimation { duration: 90 }
-    // Y la transformación, que es lo único que de verdad cuenta algo.
-    NumberAnimation {
-      target: root; property: "progress"; from: 0; to: 1
-      duration: 620; easing.type: Easing.InOutCubic
+    // Y la transformación, que es lo único que de verdad cuenta algo. Su
+    // t₀ son los 250 ms del paquete, contados desde que entra la pantalla
+    // y no desde que la entrada termina: se solapan a propósito, para que
+    // el nombrado ya esté ocurriendo cuando el ojo llega.
+    SequentialAnimation {
+      PauseAnimation { duration: 250 }
+      NumberAnimation {
+        target: root; property: "progress"; from: 0; to: 1
+        duration: 940; easing.type: Easing.Linear
+      }
     }
   }
 
-  implicitWidth: Style.space(248)
-  implicitHeight: Style.space(168)
+  implicitWidth: root.sceneWidth
+  implicitHeight: root.sceneHeight
   Accessible.ignored: true
 
   Item {
     id: scene
-    width: Style.space(248)
-    height: Style.space(168)
+    width: root.sceneWidth
+    height: root.sceneHeight
     anchors.centerIn: parent
     scale: Math.min(1, root.width / width, root.height / height) * (0.965 + 0.035 * root.entered)
     opacity: root.entered
     transformOrigin: Item.Center
 
-    Rectangle {
-      width: Style.space(132)
+    // El halo de la familia, centrado en el dibujo y no en el recuadro:
+    // cada variante ocupa un trozo distinto del marco, y uno centrado
+    // «bien» asoma por una esquina como una sombra mal puesta.
+    Halo {
+      width: root.variant === "transform" ? Style.space(460) : Style.space(200)
       height: width
-      radius: width / 2
-      x: Style.space(58)
-      y: Style.space(18)
-      color: Util.alpha(Color.accent, 0.11)
+      x: (root.variant === "transform" ? Style.space(232) : Style.space(124)) - width / 2
+      y: (root.variant === "transform" ? Style.space(92) : Style.space(84)) - height / 2
+      intensity: 0.15
     }
 
+    // ---------- La bienvenida: una copia de verdad, perdiendo lo que sobra ----------
+    //
+    // Dos tarjetas rectas y alineadas: una barra de dirección encima y su
+    // página debajo. Se leen como **un objeto** —un navegador—, no como
+    // dos dibujos cerca.
+    //
+    // Fuera los dos naipes rotados y la flecha del medio. Eran la manera
+    // de contar «antes → después» en un dibujo quieto; con movimiento
+    // sobran, porque la transformación *ocurre*. Y dos naipes de 116 × 122
+    // en 248 px de ancho no dejaban respirar nada.
+    //
+    // Fuera también el sello ✓: la prueba es el hueco cerrado, y un visto
+    // encima repetía en un glifo lo que la propia línea acaba de
+    // demostrar.
     Item {
       anchors.fill: parent
       visible: root.variant === "transform"
 
-      BorderSurface {
-        x: Style.space(20)
-        y: Style.space(23)
-        width: root.cardWidth
-        height: root.cardHeight
-        rotation: -6
-        radius: Math.max(2, Style.cornerRadius - Style.space(2))
-        color: Util.alpha(Color.popups.text, 0.72)
-        borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
+      // La barra de dirección. Los tramos que sobran van **más gruesos**
+      // que el texto que se queda —12 contra 5— para que se sepa qué mirar
+      // antes de que empiecen a irse.
+      GlassSurface {
+        id: addressBar
+        x: Style.space(80)
+        y: Style.space(14)
+        width: Style.space(304)
+        // Mínimo, no fijo: el contenido manda si crece con la escala.
+        height: Math.max(Style.space(42), barContent.implicitHeight + Style.space(16))
+        material: "small"
+        radius: height / 2
+        clip: true
 
-        Column {
-          anchors.fill: parent
-          anchors.margins: Style.space(14)
-          spacing: Style.space(8)
+        Row {
+          id: barContent
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.left: parent.left
+          anchors.leftMargin: Style.space(18)
+          spacing: Style.space(10)
 
-          Text {
-            // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
-            Accessible.ignored: true
-            text: Strings.t("art.copied", root.lang)
-            color: Color.popups.background
-            font.family: Style.font.family
-            font.pixelSize: Style.font.caption
-            font.bold: true
-            font.capitalization: Font.AllUppercase
-            font.letterSpacing: Style.spaceReal(0.8)
-          }
-
-          // Las de acento son el ruido: encogen hasta nada. Las neutras se
-          // quedan, que es exactamente lo que hace el producto.
-          Rectangle { width: parent.width * 0.84; height: Style.space(6); radius: height / 2; color: Color.popups.background }
           Rectangle {
-            width: parent.width * 0.58 * (1 - root.progress)
-            height: Style.space(6); radius: height / 2; color: Color.accent
-            opacity: 1 - root.progress * 0.6
+            width: Style.space(10)
+            height: width
+            radius: width / 2
+            color: Util.alpha(Color.popups.text, 0.45)
+            anchors.verticalCenter: parent.verticalCenter
           }
-          Rectangle { width: parent.width * 0.76; height: Style.space(6); radius: height / 2; color: Util.alpha(Color.popups.background, 0.74) }
+
+          // El dominio: lo que se queda.
           Rectangle {
-            width: parent.width * 0.46 * (1 - root.progress)
-            height: Style.space(6); radius: height / 2; color: Color.accent
-            opacity: 1 - root.progress * 0.6
-          }
-        }
-      }
-
-      BorderSurface {
-        x: Style.space(112)
-        y: Style.space(20)
-        width: root.cardWidth
-        height: root.cardHeight
-        // Se endereza un grado al consumarse: la copia limpia se asienta.
-        rotation: 5 - root.progress
-        scale: 0.98 + 0.02 * root.progress
-        transformOrigin: Item.Center
-        radius: Math.max(2, Style.cornerRadius - Style.space(2))
-        color: Color.popups.text
-        borderSpec: Border.controlSpec("normal", Color.popups.background, Color.accent)
-
-        Column {
-          anchors.fill: parent
-          anchors.margins: Style.space(14)
-          spacing: Style.space(8)
-
-          Text {
-            // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
-            Accessible.ignored: true
-            text: Strings.t("art.clean", root.lang)
-            color: Color.popups.background
-            font.family: Style.font.family
-            font.pixelSize: Style.font.caption
-            font.bold: true
-            font.capitalization: Font.AllUppercase
-            font.letterSpacing: Style.spaceReal(0.8)
+            width: Style.space(96)
+            height: Style.space(5)
+            radius: height / 2
+            color: Util.alpha(Color.popups.text, 0.72)
+            anchors.verticalCenter: parent.verticalCenter
           }
 
-          Repeater {
-            model: [0.86, 0.72, 0.80, 0.58]
-            delegate: Rectangle {
-              required property real modelData
-              width: parent.width * modelData
-              height: Style.space(6)
-              radius: height / 2
-              color: Color.popups.background
+          // Y la cola de seguimiento: cuatro parámetros pegados detrás.
+          Row {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: Style.space(4) * (1 - root.squeeze)
+
+            Repeater {
+              model: 4
+              delegate: Item {
+                required property int index
+                // La caja se estrecha, y eso es lo que hace que el renglón
+                // cierre el hueco. Sólo con el contenido aplastado
+                // quedaría un agujero; sólo con la caja, el tramo se
+                // leería recortado por la derecha.
+                width: Style.space(14) * (1 - root.squeeze)
+                height: Style.space(12)
+                clip: true
+
+                Rectangle {
+                  width: Style.space(14)
+                  height: parent.height
+                  radius: Style.space(2)
+                  color: root.markInk
+                  transformOrigin: Item.Left
+                  scale: 1 - root.squeeze
+                  opacity: 1 - 0.35 * root.squeeze
+                }
+              }
             }
           }
         }
-
-        Rectangle {
-          width: Style.space(28)
-          height: width
-          radius: width / 2
-          anchors.right: parent.right
-          anchors.bottom: parent.bottom
-          anchors.margins: Style.space(10)
-          color: Color.accent
-          // Entra en el último tercio, con un punto de rebote. Nunca desde
-          // cero: aparece pequeño, no de la nada.
-          readonly property real landing: Math.max(0, (root.progress - 0.62) / 0.38)
-          opacity: landing
-          scale: 0.72 + 0.28 * landing
-          transformOrigin: Item.Center
-
-          Text {
-            // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
-            Accessible.ignored: true
-            anchors.centerIn: parent
-            text: "✓"
-            color: Color.background
-            font.family: Style.font.family
-            font.pixelSize: Style.font.title
-            font.bold: true
-          }
-        }
       }
 
-      Rectangle {
-        width: Style.space(34)
-        height: width
-        radius: width / 2
-        anchors.centerIn: parent
-        color: Color.accent
-        // Un único empujón a mitad de recorrido, cuando el ruido se va.
-        scale: 1 + 0.14 * Math.sin(Math.PI * Math.min(1, root.progress / 0.7))
-        transformOrigin: Item.Center
+      // La página. Nueve píxeles de hueco contra la barra: lo justo para
+      // que sean dos piezas del mismo objeto y no dos objetos.
+      GlassSurface {
+        id: page
+        x: addressBar.x
+        y: addressBar.y + addressBar.height + Style.space(9)
+        width: addressBar.width
+        height: Math.max(Style.space(104), pageContent.implicitHeight + Style.space(36))
+        clip: true
 
-        Text {
-          // Decorativo: la raíz ya se ignora, pero el `ignored` no baja a los hijos.
-          Accessible.ignored: true
-          anchors.centerIn: parent
-          text: "→"
-          color: Color.background
-          font.family: Style.font.family
-          font.pixelSize: Style.font.heading
-          font.bold: true
+        Column {
+          id: pageContent
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.top: parent.top
+          anchors.margins: Style.space(18)
+          spacing: Style.space(10)
+
+          Rectangle {
+            width: Style.space(240); height: Style.space(5)
+            radius: height / 2; color: root.fillerInk
+          }
+
+          // El renglón con tres tramos que sobran.
+          Row {
+            spacing: Style.space(8)
+
+            Rectangle {
+              width: Style.space(60); height: Style.space(5)
+              radius: height / 2; color: root.fillerInk
+              anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Row {
+              anchors.verticalCenter: parent.verticalCenter
+              spacing: Style.space(5) * (1 - root.squeeze)
+
+              Repeater {
+                model: 3
+                delegate: Item {
+                  required property int index
+                  width: Style.space(34) * (1 - root.squeeze)
+                  height: Style.space(11)
+                  clip: true
+
+                  Rectangle {
+                    width: Style.space(34)
+                    height: parent.height
+                    radius: Style.space(2)
+                    color: root.markInk
+                    transformOrigin: Item.Left
+                    scale: 1 - root.squeeze
+                    opacity: 1 - 0.35 * root.squeeze
+                  }
+                }
+              }
+            }
+
+            Rectangle {
+              width: Style.space(46); height: Style.space(5)
+              radius: height / 2; color: root.fillerInk
+              anchors.verticalCenter: parent.verticalCenter
+            }
+          }
+
+          // Y el renglón con el carácter que no se ve, dibujado como lo
+          // que es: una caja vacía, sin glifo dentro. Es la única forma de
+          // que se vea irse algo que por definición no se ve.
+          Row {
+            spacing: Style.space(8)
+
+            Rectangle {
+              width: Style.space(84); height: Style.space(5)
+              radius: height / 2; color: root.fillerInk
+              anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Item {
+              width: Style.space(13) * (1 - root.squeeze)
+              height: Style.space(13)
+              anchors.verticalCenter: parent.verticalCenter
+              clip: true
+
+              Rectangle {
+                width: Style.space(13)
+                height: parent.height
+                radius: Style.space(3)
+                color: "transparent"
+                // Si el tramo es una caja vacía, el nombrado va en el
+                // borde y no en el relleno: no hay relleno que teñir.
+                border.color: root.markInk
+                border.width: Math.max(1, Style.space(2))
+                transformOrigin: Item.Left
+                scale: 1 - root.squeeze
+                opacity: 1 - 0.3 * root.squeeze
+              }
+            }
+
+            Rectangle {
+              width: Style.space(52); height: Style.space(5)
+              radius: height / 2; color: root.fillerInk
+              anchors.verticalCenter: parent.verticalCenter
+            }
+          }
+
+          Rectangle {
+            width: Style.space(180); height: Style.space(5)
+            radius: height / 2; color: root.fillerInk
+          }
         }
       }
     }
