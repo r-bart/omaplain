@@ -84,7 +84,7 @@ Item {
   // Va todo colgado de una sola propiedad animada a propósito: el guarda
   // `test_the_entrance_animates_nothing_that_costs_a_layout` vigila qué se
   // anima aquí, y meter un reloj por variante lo dejaría sin sentido.
-  readonly property int runMs: variant === "protect" ? 15600
+  readonly property int runMs: variant === "protect" ? 10800
     : variant === "control" ? 10200 : variant === "transform" ? 4200 : 940
   readonly property int leadMs: variant === "transform" ? 250 : 0
 
@@ -306,6 +306,7 @@ Item {
     // encima repetía en un glifo lo que la propia línea acaba de
     // demostrar.
     Item {
+      id: welcome
       anchors.fill: parent
       visible: root.variant === "transform"
 
@@ -392,6 +393,17 @@ Item {
         }
       }
 
+      // Los dos renglones que llevan tramos son **más altos** que los de
+      // texto corrido, y su alto va escrito y no medido.
+      //
+      // Medido —dejándoselo al positionador— el renglón encoge en cuanto el
+      // tramo llega a ancho cero: un positionador de QML no cuenta a un
+      // hijo sin ancho, así que su alto deja de mandar y las cuatro líneas
+      // se juntan verticalmente al limpiarse. La limpieza retira lo que
+      // sobra; no recoloca lo que se queda.
+      readonly property real spareRowHeight: Style.space(11)
+      readonly property real voidRowHeight: Style.space(13)
+
       // La página. Nueve píxeles de hueco contra la barra: lo justo para
       // que sean dos piezas del mismo objeto y no dos objetos.
       GlassSurface {
@@ -418,6 +430,7 @@ Item {
           // El renglón con tres tramos que sobran.
           Row {
             spacing: Style.space(8)
+            height: welcome.spareRowHeight
 
             Rectangle {
               width: Style.space(60); height: Style.space(5)
@@ -433,7 +446,7 @@ Item {
                 model: 3
                 delegate: Item {
                   width: Style.space(34) * (1 - root.squeeze)
-                  height: Style.space(11)
+                  height: welcome.spareRowHeight
                   clip: true
 
                   Rectangle {
@@ -461,6 +474,7 @@ Item {
           // que se vea irse algo que por definición no se ve.
           Row {
             spacing: Style.space(8)
+            height: welcome.voidRowHeight
 
             Rectangle {
               width: Style.space(84); height: Style.space(5)
@@ -470,7 +484,7 @@ Item {
 
             Item {
               width: Style.space(13) * (1 - root.squeeze)
-              height: Style.space(13)
+              height: welcome.voidRowHeight
               anchors.verticalCenter: parent.verticalCenter
               clip: true
 
@@ -540,9 +554,39 @@ Item {
       // El recorrido: de fuera del marco por la izquierda a fuera por la
       // derecha, y el paso entre una tarjeta y la siguiente sale de
       // repartir ese recorrido entre cuatro. `4 × 0.25 = 1` es lo que hace
-      // que la cinta sea continua y sin huecos muertos.
+      // que la cinta no tenga huecos muertos.
       readonly property real travel: root.sceneWidth + Style.space(152)
       function laneX(u) { return -Style.space(142) + u * travel }
+
+      // **La cinta avanza a tirones, no de corrido.** Arranca, frena, y se
+      // queda quieta con una tarjeta centrada bajo el arco mientras la
+      // miran; entonces arranca otra vez con la siguiente.
+      //
+      // Es la diferencia entre contar un tránsito y contar una decisión.
+      // De corrido, las tarjetas sólo pasaban; parándose bajo el arco se
+      // ve que a cada una **se la mira y se la deja pasar**, que es
+      // exactamente lo que hace el helper con la oferta del portapapeles.
+      // Y es además lo que hace un escáner de verdad.
+      readonly property int stops: 4
+      // Dos tercios quieta, un tercio moviéndose. Al revés se lee como una
+      // cinta que titubea en vez de como una que se para a mirar.
+      readonly property real moveShare: 0.34
+
+      // Dónde tiene que quedarse parada. **Se deriva**: es la posición en
+      // la que el centro de una tarjeta cae en el centro del hueco. Escrita
+      // a mano dejaría la tarjeta descentrada en cuanto cambiara el ancho
+      // del arco, de la tarjeta o de la escala.
+      readonly property real restU:
+        (belt.gateX - belt.cardWidth / 2 + Style.space(142)) / belt.travel
+
+      readonly property real pos: {
+        var s = root.progress * belt.stops
+        var k = Math.floor(s)
+        var f = s - k
+        var dwell = 1 - belt.moveShare
+        var e = f < dwell ? 0 : root.inOutCubic((f - dwell) / belt.moveShare)
+        return (belt.restU + (k + e) / belt.stops) % 1
+      }
 
       // Lo único que reacciona es la luz del arco, y reacciona **a la
       // presencia, no al contenido**.
@@ -550,7 +594,7 @@ Item {
         if (!root.motionEnabled) return 0
         var best = 0
         for (var i = 0; i < 4; i++) {
-          var u = (root.progress + i * 0.25) % 1
+          var u = (belt.pos + i * 0.25) % 1
           var centre = belt.laneX(u) + belt.cardWidth / 2
           best = Math.max(best, Math.max(0, 1 - Math.abs(centre - belt.gateX) / belt.reach))
         }
@@ -619,7 +663,7 @@ Item {
           id: parcel
           required property var modelData
 
-          readonly property real u: (root.progress + modelData.phase) % 1
+          readonly property real u: (belt.pos + modelData.phase) % 1
           readonly property real centre: belt.laneX(parcel.u) + belt.cardWidth / 2
           readonly property real proximity: root.motionEnabled
             ? Math.max(0, 1 - Math.abs(parcel.centre - belt.gateX) / belt.reach) : 0
