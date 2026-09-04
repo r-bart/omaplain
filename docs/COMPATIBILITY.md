@@ -46,6 +46,33 @@ dependen del MIME sino de la aplicación de origen:
 Ese último dejó de estar pendiente: cómo se monta la oferta doble sin
 navegador está en [TEST-REPORT-0.2.0.md](notes/TEST-REPORT-0.2.0.md).
 
+## Revisión para la 1.0
+
+Esta matriz tiene dos mitades, y sólo una se puede repetir sin una persona
+delante copiando desde cada aplicación.
+
+**Las ofertas** —qué tipos anuncia cada aplicación— se recogieron copiando de
+verdad. Repetirlas pide sesión gráfica y manos. Lo que sí se comprobó el 4 de
+septiembre de 2026 es que **las cuatro aplicaciones siguen en las versiones que
+esta matriz cita**, así que las ofertas de arriba no se han quedado atrás:
+
+| | En la matriz | Instalado hoy |
+|---|---|---|
+| Chromium | 151 | `151.0.7922.173-1` |
+| Foot | 1.27 | `1.27.0-2` |
+| Nautilus | 50 | `50.2.2-1` |
+| LibreOffice Writer | 26.2 | `26.2.5-3` (`libreoffice-fresh`) |
+| `wl-clipboard` | — | `1:2.3.0-1` |
+
+**Las decisiones** —qué hace OmaPlain con cada oferta— sí se repiten, y ahora
+en cada pasada de la suite. `tests/unit/test_compatibility_matrix.py` lee los
+bloques de tipos de este documento, los pasa por el clasificador y comprueba
+que sale lo que la tabla dice. Las siete filas salen como están escritas.
+
+Es lo que faltaba: un documento que enumera decisiones y no las comprueba
+envejece igual que envejeció el README, y aquí el coste de envejecer es que la
+matriz llame «bypass» a algo que dejó de serlo.
+
 ## MIME observados
 
 ### Chromium
@@ -100,5 +127,4 @@ application/x-libreoffice-internal-id-*
 
 Firefox y un gestor de contraseñas gráfico no están instalados en el host de desarrollo. La compatibilidad de Firefox queda cubierta por el mismo contrato observable `text/plain` + `text/html` usado por Chromium y por fixtures sintéticos del clasificador. El caso de password manager usa la marca interoperable que `wl-clipboard` documenta y que también consume el historial nativo de Omarchy.
 
-Antes de la `1.0.0` se repetirá la matriz en más aplicaciones y versiones. La ausencia de una app opcional no relaja la clasificación: cualquier MIME estructural o sensible conocido sigue provocando bypass.
-
+La ausencia de una app opcional no relaja la clasificación: cualquier MIME estructural o sensible conocido sigue provocando bypass.

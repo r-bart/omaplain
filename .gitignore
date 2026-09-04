@@ -35,3 +35,11 @@ status.json
 
 # Las capturas del README viven en `docs/images/` y **sí** se versionan: no
 # añadas una regla por extensión aquí sin excluirlas.
+
+# Capturas de trabajo: las que se hacen para mirar una pantalla y no acaban
+# en la documentación. Anclado a la raíz a propósito, para que `docs/images/`
+# —que sí se versiona, ver arriba— quede fuera de la regla.
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
