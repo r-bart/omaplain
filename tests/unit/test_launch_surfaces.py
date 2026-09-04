@@ -88,9 +88,27 @@ class BarWidgetTests(unittest.TestCase):
                 self.assertNotIn(prohibido, code)
 
     def test_the_right_button_stays_free(self) -> None:
-        # `pasteClean` escribe en el portapapeles. Un gesto que se dispara sin
-        # querer merece su propia decisión.
-        self.assertIn("Qt.RightButton", self._code())
+        # La 0021: el derecho no hace nada, y así se queda. `pasteClean`
+        # reescribe el portapapeles y al reescribirlo el original deja de
+        # existir, porque OmaPlain no guarda historial.
+        #
+        # Mirar sólo que `Qt.RightButton` aparece —que es lo que este test
+        # hacía— pasaría en verde con la acción escrita dos líneas más abajo.
+        # Lo que hay que comprobar es que la rama del derecho **sale**, y que
+        # el widget no tiene más que una cosa que ejecutar.
+        code = self._code()
+        rama = [l for l in code.splitlines() if "Qt.RightButton" in l]
+        self.assertEqual(len(rama), 1, "el derecho se decide en un solo sitio")
+        self.assertIn("return", rama[0], "la rama del derecho no sale")
+        self.assertEqual(code.count(".run("), 1,
+                         "el widget ejecuta más de una cosa")
+
+    def test_the_right_button_is_a_promise_and_not_a_gap(self) -> None:
+        # Un gesto que hoy está muerto y mañana escribe en el portapapeles es
+        # justo el cambio que la promesa de la 1.0 existe para impedir. Así
+        # que está dicho hacia fuera, en el README, y no sólo en el código.
+        readme = " ".join((REPO / "README.md").read_text(encoding="utf-8").split())
+        self.assertIn("Right click deliberately does nothing", readme)
 
     def test_the_widget_is_named_for_a_screen_reader(self) -> None:
         code = self._code()
@@ -243,6 +261,15 @@ class DecisionTests(unittest.TestCase):
         # Y dice lo que descartó, que es la mitad que se olvida.
         self.assertIn("Descartado", texto)
         self.assertIn("Hyprland", texto)
+
+    def test_the_free_right_button_has_its_own_decision(self) -> None:
+        # La 0010 lo dejó abierto con nombre y apellidos; la 0021 lo cierra.
+        texto = (REPO / "docs" / "decisions"
+                 / "0021-el-clic-derecho-de-la-barra-queda-libre.md").read_text(encoding="utf-8")
+        self.assertIn("## Lo que se descartó", texto)
+        # Y dice por qué no es «todavía no lo hemos decidido»: la acción que
+        # se le colgaría no se deshace.
+        self.assertIn("pasteClean", texto)
 
     def test_the_mark_has_its_own_decision(self) -> None:
         texto = (REPO / "docs" / "decisions"

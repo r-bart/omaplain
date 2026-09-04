@@ -60,9 +60,12 @@ BarWidget {
     Accessible.role: Accessible.Button
     Accessible.name: Strings.t("bar.a11y", Strings.fromLocale(Qt.locale().name))
 
-    // Sólo el izquierdo. El derecho queda libre a propósito: `pasteClean`
-    // escribe en el portapapeles, y darle un gesto que se dispara sin querer
-    // merece su propia decisión.
+    // Sólo el izquierdo. El derecho no hace nada, y así se queda ([`0021`]):
+    // `pasteClean` reescribe el portapapeles, y al reescribirlo el original
+    // deja de existir —OmaPlain no guarda historial—, así que un gesto que se
+    // dispara sin querer no puede llevarlo colgado. La acción ya tiene tres
+    // vías con la mano puesta encima: el botón del panel, el CLI y el
+    // automático.
     onPressed: function(mouseButton) {
       if (!root.bar || mouseButton === Qt.RightButton) return
       root.bar.run("omarchy-shell shell toggle io.github.r-bart.omaplain")
