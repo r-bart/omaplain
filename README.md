@@ -61,11 +61,9 @@ suggestion. Once you have an entry it is yours: enabling again never moves it,
 and taking it out of `bar.layout` leaves the plugin running with no icon, which
 is a supported way to use it.
 
-**You need** Omarchy with `omarchy-shell` (developed against the **4.0.1-1**
-package, whose shell reports itself as `4.0.0.alpha`),
-`wl-copy` and `wl-paste`, `hyprctl`, Python **3.10+** (standard library only)
-and `setpriv`. The plugin checks all of them at startup, and never installs
-anything.
+**You need** Omarchy with `omarchy-shell`, `wl-copy` and `wl-paste`,
+`hyprctl`, Python **3.10+** (standard library only) and `setpriv`. The plugin
+checks all of them at startup, and never installs anything.
 
 ## Opening it
 
@@ -242,6 +240,31 @@ of them.
 
 The [compatibility matrix](docs/COMPATIBILITY.md) has the per-application
 detail.
+
+## Which Omarchy
+
+This release is built and tested against **Omarchy 4.x** — specifically the
+`4.0.1-1` package, whose shell reports itself as `4.0.0.alpha`. That line moves
+when a newer Omarchy has actually been tested, not when one is released.
+
+Outside 4.x nothing is promised, and nothing is blocked either. There is no
+version gate: the plugin manifest has no field for a minimum Omarchy version,
+and adding a check of our own would turn every Omarchy release into a certain
+failure for you rather than an uncertain one. So OmaPlain will start, and if the
+shell has moved underneath it you may see it misbehave before we do.
+
+What stands between you and that is a set of tests that read the installed
+shell rather than trusting our memory of it — the settings-writing path, the
+config-mutation entry point, and the theme's focus alphas. They have already
+earned it once: a change to where the shell stores a plugin's settings made
+every setting in this panel silently fail to save, and reported no error at all
+([`0012`](docs/decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md),
+[`0023`](docs/decisions/0023-a-que-omarchy-se-ata-la-1.0.md)).
+
+Omarchy is itself alpha. A `1.0` here is a promise about *this* plugin's
+behaviour — what it touches, what it never touches, and that your settings
+survive an update — not a claim that the platform underneath has stopped
+moving.
 
 ## Privacy
 

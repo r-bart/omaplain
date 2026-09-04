@@ -162,6 +162,40 @@ class ElReadmeNoMienteTests(unittest.TestCase):
         self.assertIn(seccion, {"left", "center", "right"})
         self.assertIn(f"the {seccion}-hand one", plano)
 
+    def test_declara_contra_que_omarchy_se_probo(self) -> None:
+        # La 0023: fuera de 4.x no se promete nada, y eso se dice donde lo lee
+        # quien instala. La versión va en dos formas porque el paquete y el
+        # shell no dicen lo mismo, y quien compara mira una o la otra.
+        plano = " ".join(self.readme.split())
+        self.assertIn("Omarchy 4.x", plano)
+        self.assertIn("4.0.1-1", plano)
+        self.assertIn("4.0.0.alpha", plano)
+
+    def test_no_promete_una_puerta_de_version(self) -> None:
+        # No la hay y no se va a construir: el manifiesto no tiene campo, y un
+        # candado convertiría cada versión nueva de Omarchy en una avería
+        # segura. El README no puede sugerir lo contrario.
+        plano = " ".join(self.readme.split())
+        self.assertIn("no version gate", plano)
+        # Y el manifiesto sigue sin declarar ninguna, que es de donde sale el
+        # argumento: si el esquema estrena el campo, esto se vuelve a discutir.
+        import json
+        manifiesto = json.loads((REPO / "manifest.json").read_text(encoding="utf-8"))
+        for campo in ("omarchyVersion", "minimumOmarchy", "requires", "engines"):
+            with self.subTest(field=campo):
+                self.assertNotIn(campo, manifiesto)
+
+    def test_los_tres_centinelas_del_kit_siguen_existiendo(self) -> None:
+        # La 0023 los nombra como el mecanismo de verdad, y el README se apoya
+        # en ellos delante del usuario. Si alguien los borra, esa sección del
+        # README pasa a decir algo que no es cierto.
+        vigilancia = (REPO / "tests" / "unit" / "test_apps_section.py").read_text(encoding="utf-8")
+        for nombre in ("test_el_shell_sigue_buscando_en_la_barra_primero",
+                       "test_el_shell_sigue_ofreciendo_mutate",
+                       "test_el_kit_sigue_apagando_el_foco"):
+            with self.subTest(centinela=nombre):
+                self.assertIn(f"def {nombre}(", vigilancia)
+
     def test_no_promete_un_atajo_global(self) -> None:
         # La promesa que la `0010` protege. Se comprueba sobre el texto sin
         # saltos de línea, o el README no puede envolver donde le conviene.
