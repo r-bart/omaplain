@@ -2,6 +2,7 @@ import QtQuick
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 // Los tipos que ofrece el portapapeles, en pastillas.
 //
@@ -81,7 +82,7 @@ Flow {
   Text {
     visible: root.comparing
     text: "→"
-    color: Util.alpha(Color.popups.text, 0.68)
+    color: Ink.secondary(Color.popups.text, Color.popups.background)
     font.family: Style.font.family
     font.pixelSize: Style.font.bodySmall
     Accessible.ignored: true

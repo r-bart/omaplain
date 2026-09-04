@@ -2,6 +2,7 @@ import QtQuick
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 // A demonstration that never reads the clipboard. Both samples and both
 // results come from the bilingual catalogue, and
@@ -533,7 +534,7 @@ Column {
     width: parent.width
     opacity: root.outcomeIn
     text: Strings.t(root.sample.outcome, root.lang)
-    color: Util.alpha(Color.popups.text, 0.72)
+    color: Ink.prose(Color.popups.text, Color.popups.background)
     font.family: Style.font.family
     font.pixelSize: Style.font.caption
     wrapMode: Text.WordWrap

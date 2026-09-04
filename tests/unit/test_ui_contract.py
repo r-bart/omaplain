@@ -631,7 +631,7 @@ class SettingsHarmonyTests(unittest.TestCase):
             bloque = panel.split(f"id: {ident}", 1)[1].split("}", 1)[0]
             with self.subTest(label=ident):
                 self.assertNotIn("font.bold: true", bloque)
-                self.assertIn("Util.alpha(Color.popups.text, 0.68)", bloque)
+                self.assertIn("Ink.secondary(Color.popups.text, Color.popups.background)", bloque)
 
     def test_the_disclosures_share_the_left_edge(self) -> None:
         panel = self._panel()
@@ -639,6 +639,28 @@ class SettingsHarmonyTests(unittest.TestCase):
             bloque = panel.split(f"id: {ident}", 1)[1].split("onClicked:", 1)[0]
             with self.subTest(button=ident):
                 self.assertIn("leftAlign: true", bloque)
+
+    def test_no_readable_text_carries_a_bare_alpha(self) -> None:
+        # Un alfa fijo mezcla el texto hacia el fondo sin mirar cuál es el
+        # fondo, así que no puede prometer ninguna ratio de contraste. Medido
+        # sobre los treinta temas instalados, el 0,68 del panel se quedaba por
+        # debajo del 4,5:1 de la AA en cuatro y el 0,72 en dos.
+        #
+        # `components/Ink.js` los sirve con suelo. Este guarda impide que
+        # vuelva a colarse uno pelado: los alfas por encima de 0,5 sobre el
+        # color del texto son siempre texto legible —los de debajo son
+        # separadores, rellenos y las rayas que dibujan las ilustraciones—,
+        # así que la frontera se puede comprobar sin leer qué elemento es.
+        patron = re.compile(r"Util\.alpha\(Color\.popups\.text,\s*0\.([5-9]\d*)\)")
+        culpables = []
+        for ruta in sorted(REPO.glob("*.qml")) + sorted((REPO / "components").glob("*.qml")):
+            for n, linea in enumerate(ruta.read_text(encoding="utf-8").splitlines(), 1):
+                if linea.strip().startswith("//"):
+                    continue
+                if patron.search(linea):
+                    culpables.append(f"{ruta.name}:{n}  {linea.strip()}")
+        self.assertEqual(culpables, [],
+                         "texto con alfa fijo, sin suelo de contraste:\n" + "\n".join(culpables))
 
     def test_the_placeholder_is_not_left_to_the_kit(self) -> None:
         # El del kit mide 4,19:1 contra el relleno del campo, por debajo del
@@ -650,12 +672,15 @@ class SettingsHarmonyTests(unittest.TestCase):
 
     def test_wrapping_prose_uses_the_prose_alpha(self) -> None:
         # 0,68 es para rótulos y foregrounds de control; la prosa que
-        # envuelve va a 0,72.
+        # envuelve va a 0,72. Los dos viven ahora en `Ink.js`, que los sirve
+        # con el suelo de contraste debajo: la distinción entre los dos sigue
+        # siendo la que se comprueba aquí, y el número está allí una vez.
         panel = self._panel()
         for clave in ("root.historyDetail()", 'Strings.t("apps.note", root.lang)'):
             bloque = panel.split(clave, 1)[1].split("}", 1)[0]
             with self.subTest(text=clave):
-                self.assertIn("0.72", bloque)
+                self.assertIn("Ink.prose(", bloque)
+                self.assertNotIn("Ink.secondary(", bloque)
 
 
 class BypassScreenTests(unittest.TestCase):

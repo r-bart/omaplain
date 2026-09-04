@@ -235,7 +235,11 @@ class AnilloDeFocoTests(unittest.TestCase):
                 if "border.width" in b and "activeFocus" in b
             )
             with self.subTest(control=nombre):
-                self.assertIn("Util.alpha(Color.popups.text, 0.68)", anillo)
+                # `Ink.ring` es el 0,68 de siempre con un suelo de 3:1 debajo,
+                # que hoy no levanta el alfa en ninguno de los treinta temas.
+                # Lo que este test protege es que la tinta sea la del texto y
+                # no la de marca; el suelo lo prueba `tests/qml/`, ejecutado.
+                self.assertIn("Ink.ring(Color.popups.text, Color.popups.background)", anillo)
                 self.assertNotIn("Color.accent", anillo)
 
     def test_el_anillo_llega_al_minimo_de_la_sc_1411(self) -> None:

@@ -3,6 +3,7 @@ import QtQuick.Controls
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 // Una aplicación y sus cuatro reglas.
 //
@@ -92,7 +93,7 @@ Column {
         width: parent.width
         visible: root.pending
         text: Strings.t("apps.pending", root.lang)
-        color: Util.alpha(Color.popups.text, 0.72)
+        color: Ink.prose(Color.popups.text, Color.popups.background)
         font.family: Style.font.family
         font.pixelSize: Style.font.caption
         wrapMode: Text.WordWrap
@@ -114,7 +115,7 @@ Column {
   // y ahora se ve que no se mezclan.
   Text {
     text: Strings.t("rules.reading", root.lang)
-    color: Util.alpha(Color.popups.text, 0.68)
+    color: Ink.secondary(Color.popups.text, Color.popups.background)
     font.family: Style.font.family
     font.pixelSize: Style.font.caption
     font.capitalization: Font.AllUppercase
@@ -141,7 +142,7 @@ Column {
 
   Text {
     text: Strings.t("rules.cleaning", root.lang)
-    color: Util.alpha(Color.popups.text, 0.68)
+    color: Ink.secondary(Color.popups.text, Color.popups.background)
     font.family: Style.font.family
     font.pixelSize: Style.font.caption
     font.capitalization: Font.AllUppercase

@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Ink.js" as Ink
 
 // A quiet placeholder for a list that has nothing in it yet. It says what the
 // list would hold, so an untouched section reads as a deliberate default
@@ -42,7 +43,7 @@ BorderSurface {
     Text {
       width: parent.width
       text: root.body
-      color: Util.alpha(Color.popups.text, 0.68)
+      color: Ink.secondary(Color.popups.text, Color.popups.background)
       font.family: Style.font.family
       font.pixelSize: Style.font.caption
       wrapMode: Text.WordWrap

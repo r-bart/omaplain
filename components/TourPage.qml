@@ -3,6 +3,7 @@ import QtQuick.Controls as QQC
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 Item {
   id: root
@@ -117,7 +118,7 @@ Item {
           id: stepCounter
           anchors.right: parent.right
           text: Strings.f("tour.step", root.lang, root.step + 1, root.stepCount)
-          color: Util.alpha(Color.popups.text, 0.68)
+          color: Ink.secondary(Color.popups.text, Color.popups.background)
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
           font.bold: true
@@ -178,7 +179,7 @@ Item {
         height: Math.max(implicitHeight, Style.space(64))
         anchors.horizontalCenter: parent.horizontalCenter
         text: root.stepBody
-        color: Util.alpha(Color.popups.text, 0.72)
+        color: Ink.prose(Color.popups.text, Color.popups.background)
         font.family: Style.font.family
         font.pixelSize: Style.font.body
         lineHeightMode: Text.ProportionalHeight
@@ -281,7 +282,7 @@ Item {
         // acción. El anillo de foco sí, o desaparecería del recorrido por
         // teclado justo como desaparecía antes de la `0012`.
         bordered: false
-        foreground: Util.alpha(Color.popups.text, 0.68)
+        foreground: Ink.secondary(Color.popups.text, Color.popups.background)
         onFocusEntered: function(item) { root.reveal(item) }
         onClicked: root.dismissRequested()
       }

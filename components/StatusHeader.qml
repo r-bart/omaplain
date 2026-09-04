@@ -2,6 +2,7 @@ import QtQuick
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 // El estado del servicio en la pantalla frecuente. Nada más.
 //
@@ -226,7 +227,7 @@ Item {
       width: parent.width
       visible: root.detail !== ""
       text: root.detail
-      color: Util.alpha(Color.popups.text, 0.72)
+      color: Ink.prose(Color.popups.text, Color.popups.background)
       font.family: Style.font.family
       font.pixelSize: Style.font.bodySmall
       lineHeightMode: Text.ProportionalHeight

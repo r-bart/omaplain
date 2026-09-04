@@ -2,6 +2,7 @@ import QtQuick
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 // Una de las dos tarjetas del antes y el después. Rótulo a la izquierda,
 // ojo al final, y el contenido cubierto hasta que alguien pide verlo.
@@ -64,7 +65,7 @@ Item {
         anchors.leftMargin: Style.space(10)
         anchors.verticalCenter: parent.verticalCenter
         text: root.label
-        color: Util.alpha(Color.popups.text, 0.68)
+        color: Ink.secondary(Color.popups.text, Color.popups.background)
         font.family: Style.font.family
         font.pixelSize: Style.font.caption
         font.capitalization: Font.AllUppercase
@@ -84,7 +85,7 @@ Item {
         // El ojo va sin borde: vive dentro de la fila, que ya es su marco.
         bordered: false
         enabled: !root.locked
-        foreground: root.revealed ? Color.accent : Util.alpha(Color.popups.text, 0.68)
+        foreground: root.revealed ? Color.accent : Ink.secondary(Color.popups.text, Color.popups.background)
         Accessible.name: root.locked
           ? Strings.t("row.locked", root.lang)
           : Strings.f(root.revealed ? "row.hide" : "row.show", root.lang, root.name)

@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Ink.js" as Ink
 
 Toggle {
   id: root
@@ -36,7 +37,7 @@ Toggle {
     anchors.margins: Style.space(3)
     radius: Math.max(0, root.radius - Style.space(3))
     color: "transparent"
-    border.color: Util.alpha(Color.popups.text, 0.68)
+    border.color: Ink.ring(Color.popups.text, Color.popups.background)
     border.width: Math.max(2, Style.space(2))
     visible: root.activeFocus
   }

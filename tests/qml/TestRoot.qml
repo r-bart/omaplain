@@ -2,6 +2,7 @@ import Quickshell
 import QtQuick
 import qs.Commons
 import "../../components" as Omaplain
+import "../../components/Ink.js" as Ink
 
 // El QML, ejecutado. No leído: ejecutado.
 //
@@ -456,6 +457,83 @@ ShellRoot {
     raiz.check("y sin motivo, también", arte.subjectGlyph === "text", arte.subjectGlyph)
   }
 
+  // Los cinco pares son los de temas reales de Omarchy, leídos de sus
+  // `colors.toml`. Cuatro son los que el 0,68 pelado no aprueba.
+  readonly property var paresDeTema: [
+    { nombre: "terminus",         fg: "#d8cbb4", bg: "#0c1626", sube: false },
+    { nombre: "tokyo-night",      fg: "#a9b1d6", bg: "#1a1b26", sube: true },
+    { nombre: "everforest",       fg: "#d3c6aa", bg: "#2d353b", sube: true },
+    { nombre: "catppuccin-latte", fg: "#4c4f69", bg: "#eff1f5", sube: true },
+    { nombre: "rose-pine",        fg: "#575279", bg: "#faf4ed", sube: true }
+  ]
+
+  function contrasteDe(color, fondo) {
+    function lineal(c) { return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4) }
+    function lum(c) { return 0.2126 * lineal(c.r) + 0.7152 * lineal(c.g) + 0.0722 * lineal(c.b) }
+    // El color llega con alfa: se mezcla contra el fondo, que es lo que hace
+    // el compositor.
+    var m = Qt.rgba(color.r * color.a + fondo.r * (1 - color.a),
+                    color.g * color.a + fondo.g * (1 - color.a),
+                    color.b * color.a + fondo.b * (1 - color.a), 1)
+    var a = lum(m), b = lum(fondo)
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+  }
+
+  function pruebaTinta() {
+    console.log("La tinta con suelo de contraste")
+
+    // Lo primero que hay que demostrar es que el módulo corre: `Qt.rgba`
+    // dentro de un `.pragma library` es la pieza de la que cuelga todo, y
+    // leyendo el fichero no se sabe si existe.
+    var t = Ink.secondary(Qt.color("#d8cbb4"), Qt.color("#0c1626"))
+    raiz.check("el módulo devuelve un color", t !== undefined && t.a > 0, String(t))
+
+    var todosPasan = true
+    var conservan = 0
+    for (var i = 0; i < paresDeTema.length; i++) {
+      var caso = paresDeTema[i]
+      var fg = Qt.color(caso.fg)
+      var bg = Qt.color(caso.bg)
+      var tinta = Ink.secondary(fg, bg)
+      var razon = contrasteDe(tinta, bg)
+      if (razon < 4.5 - 0.001) {
+        todosPasan = false
+        console.log("       " + caso.nombre + " se queda en " + razon.toFixed(2))
+      }
+      if (Math.abs(tinta.a - 0.68) < 0.001) conservan += 1
+
+      // Y el que no necesita subir no sube: atenuar es lo que se pedía.
+      if (!caso.sube) {
+        raiz.check("en " + caso.nombre + " el atenuado se queda como estaba",
+                   Math.abs(tinta.a - 0.68) < 0.001, String(tinta.a))
+      } else {
+        raiz.check("en " + caso.nombre + " sube lo justo para llegar al suelo",
+                   tinta.a > 0.68 && razon >= 4.5 - 0.001,
+                   "alfa " + tinta.a.toFixed(3) + ", " + razon.toFixed(2) + ":1")
+      }
+    }
+    raiz.check("ningún tema baja del 4,5:1 que pide la AA", todosPasan)
+    raiz.check("y el que no lo necesita conserva el 0,68", conservan === 1, String(conservan))
+
+    // El anillo va contra un suelo más bajo porque no es texto. Hoy ningún
+    // tema lo necesita, así que devuelve lo mismo que devolvía antes: es la
+    // comprobación de que este módulo no ha cambiado el aspecto del panel
+    // por donde no debía.
+    var anilloIgual = true
+    for (var j = 0; j < paresDeTema.length; j++) {
+      var a = Ink.ring(Qt.color(paresDeTema[j].fg), Qt.color(paresDeTema[j].bg))
+      if (Math.abs(a.a - 0.68) > 0.001) anilloIgual = false
+    }
+    raiz.check("el anillo de foco no se mueve en ninguno de los cinco", anilloIgual)
+
+    // Un tema imposible —texto y fondo casi iguales— no puede alcanzar el
+    // suelo ni con el texto entero. Ahí devuelve el texto entero: es lo más
+    // legible que ese tema tiene, y atenuarlo sería peor por partida doble.
+    var imposible = Ink.secondary(Qt.color("#808080"), Qt.color("#777777"))
+    raiz.check("un tema sin contraste suficiente recibe el texto entero",
+               Math.abs(imposible.a - 1.0) < 0.001, String(imposible.a))
+  }
+
   function pruebaMarca() {
     // Recortada a su tinta. Con la caja de 24 x 24 entera, las 17 unidades
     // de aire de arriba y abajo dejan la fila de la cabecera con un agujero
@@ -506,6 +584,7 @@ ShellRoot {
       pruebaCaida()
       pruebaBypass()
       pruebaMarca()
+      pruebaTinta()
       // Ésta remata sola: necesita esperar dos veces al reloj.
       pruebaCinta()
     }

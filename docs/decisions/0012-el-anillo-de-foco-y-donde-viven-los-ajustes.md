@@ -99,5 +99,21 @@ ponen el anillo**.
 
 El **borde en reposo de 2,79:1** se queda como está. Sale de
 `normal-border-alpha = 0,4`, que es el valor por defecto de Omarchy: subirlo a
-0,44 daría 3,15:1, pero es el tema del usuario y no el nuestro. Queda anotado
+0,44 daría 3,11:1, pero es el tema del usuario y no el nuestro. Queda anotado
 como defecto de plataforma, igual que el `placeholderTextColor` del kit.
+
+## Enmienda · los dos contrastes de arriba son de un tema, no del 0,68
+
+Los 6,17:1 y 5,31:1 que esta decisión da por el anillo, y el 2,79:1 del borde,
+están medidos sobre `terminus`, que era el tema puesto. Un alfa mezcla hacia el
+fondo sin mirar cuál es el fondo, así que ninguno de los tres es una propiedad
+del número: son lo que ese número dio contra ese fondo.
+
+Medido después en los treinta temas instalados, el 0,68 no llega al 4,5:1 de la
+AA para **texto** en cuatro de ellos. El anillo aguanta —le basta el 3:1 de la
+SC 1.4.11 y el peor da 3,21:1—, así que el argumento de esta decisión se
+mantiene entero; lo que no se sostiene es leer 6,17:1 como una garantía.
+
+La [`0022`](./0022-la-tinta-atenuada-lleva-suelo.md) le pone suelo, y los dos
+defectos de plataforma de arriba están medidos y escritos para upstream en
+[`UPSTREAM-2026-09-04.md`](../notes/UPSTREAM-2026-09-04.md).

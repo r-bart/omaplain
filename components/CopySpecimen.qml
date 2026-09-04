@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Ink.js" as Ink
 
 // La pieza gráfica de cada ejemplo del carrusel.
 //
@@ -163,7 +164,7 @@ Item {
           width: Style.space(30)
           height: Style.space(6)
           radius: height / 2
-          color: Util.alpha(Color.popups.text, 0.72)
+          color: Ink.prose(Color.popups.text, Color.popups.background)
           anchors.verticalCenter: parent.verticalCenter
         }
 

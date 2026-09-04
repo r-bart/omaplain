@@ -3,6 +3,7 @@ import QtQuick.Shapes
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 Item {
   id: root
@@ -377,7 +378,7 @@ Item {
             width: Style.space(96)
             height: Style.space(5)
             radius: height / 2
-            color: Util.alpha(Color.popups.text, 0.72)
+            color: Ink.prose(Color.popups.text, Color.popups.background)
             anchors.verticalCenter: parent.verticalCenter
           }
 
@@ -742,7 +743,7 @@ Item {
                   Accessible.ignored: true
                   anchors.horizontalCenter: parent.horizontalCenter
                   text: Strings.t(parcel.modelData.label, root.lang)
-                  color: Util.alpha(Color.popups.text, 0.6)
+                  color: Ink.dim(Color.popups.text, Color.popups.background, 0.6)
                   font.family: Style.font.family
                   font.pixelSize: Style.font.caption
                   font.capitalization: Font.AllUppercase
@@ -930,7 +931,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.width - track.width - Style.space(12)
                 text: Strings.t(settingRow.modelData.key, root.lang)
-                color: Util.alpha(Color.popups.text, 0.68)
+                color: Ink.secondary(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall
                 elide: Text.ElideRight

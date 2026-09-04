@@ -6,6 +6,7 @@ import qs.Commons
 import qs.Ui
 import "components/Strings.js" as Strings
 import "components"
+import "components/Ink.js" as Ink
 
 Item {
   id: root
@@ -790,7 +791,7 @@ Item {
               tooltipText: root.onboardingSettings
                 ? Strings.t("nav.skip.a11y", root.lang)
                 : (root.panelPage === "settings" ? Strings.t("nav.back.a11y", root.lang) : Strings.t("nav.options.a11y", root.lang))
-              foreground: root.panelPage === "settings" ? Color.accent : Util.alpha(Color.popups.text, 0.68)
+              foreground: root.panelPage === "settings" ? Color.accent : Ink.secondary(Color.popups.text, Color.popups.background)
               Accessible.name: root.onboardingSettings
                 ? Strings.t("nav.skip.a11y", root.lang)
                 : (root.panelPage === "settings" ? Strings.t("nav.back.a11y", root.lang) : Strings.t("nav.options.a11y", root.lang))
@@ -838,7 +839,7 @@ Item {
             width: parent.width
             visible: root.panelPage === "clipboard"
             text: root.peekDetail
-            color: Util.alpha(Color.popups.text, 0.72)
+            color: Ink.prose(Color.popups.text, Color.popups.background)
             font.family: Style.font.family
             font.pixelSize: Style.font.bodySmall
             lineHeightMode: Text.ProportionalHeight
@@ -1023,7 +1024,7 @@ Item {
                         anchors.rightMargin: Style.space(8)
                         anchors.verticalCenter: parent.verticalCenter
                         text: "✕  " + root.ruleLabel(modelData)
-                        color: Util.alpha(Color.popups.text, 0.72)
+                        color: Ink.prose(Color.popups.text, Color.popups.background)
                         font.family: Style.font.family
                         font.pixelSize: Style.font.bodySmall
                         wrapMode: Text.WordWrap
@@ -1111,7 +1112,7 @@ Item {
                       : Strings.t("footnote.sensitive", root.lang)))
                 color: root.feedback !== ""
                   ? (root.feedbackError ? Color.urgent : Color.popups.text)
-                  : Util.alpha(Color.popups.text, 0.68)
+                  : Ink.secondary(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
@@ -1160,7 +1161,7 @@ Item {
                   Text {
                     width: parent.width
                     text: Strings.t("onboarding.last.body", root.lang)
-                    color: Util.alpha(Color.popups.text, 0.78)
+                    color: Ink.dim(Color.popups.text, Color.popups.background, 0.78)
                     font.family: Style.font.family
                     font.pixelSize: Style.font.bodySmall
                     lineHeightMode: Text.ProportionalHeight
@@ -1194,7 +1195,7 @@ Item {
                     readonly property bool chosen: String(root.setting("language", "auto")) === modelData.value
                     width: (languageChoices.width - (languageChoices.columns - 1) * languageChoices.columnSpacing) / languageChoices.columns
                     text: Strings.t(modelData.key, root.lang)
-                    foreground: chosen ? Color.accent : Util.alpha(Color.popups.text, 0.68)
+                    foreground: chosen ? Color.accent : Ink.secondary(Color.popups.text, Color.popups.background)
                     Accessible.role: Accessible.RadioButton
                     Accessible.checked: chosen
                     onFocusEntered: function(item) { root.reveal(item) }
@@ -1241,7 +1242,7 @@ Item {
                 // Prosa que envuelve: 0,72, como el resto de la prosa del
                 // panel. 0,68 es el valor de los rótulos y los foregrounds
                 // de control.
-                color: Util.alpha(Color.popups.text, 0.72)
+                color: Ink.prose(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
@@ -1258,7 +1259,7 @@ Item {
                 // kit centra por defecto, y era el único bloque centrado de
                 // una página alineada a la izquierda.
                 leftAlign: true
-                foreground: Util.alpha(Color.popups.text, 0.68)
+                foreground: Ink.secondary(Color.popups.text, Color.popups.background)
                 Accessible.name: Strings.t("history.why", root.lang)
                 Accessible.description: Strings.t("history.why.body", root.lang)
                 onFocusEntered: function(item) { root.reveal(item) }
@@ -1269,7 +1270,7 @@ Item {
                 width: parent.width
                 visible: root.historyOpen
                 text: Strings.t("history.why.body", root.lang)
-                color: Util.alpha(Color.popups.text, 0.72)
+                color: Ink.prose(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall
                 wrapMode: Text.WordWrap
@@ -1384,7 +1385,7 @@ Item {
               Text {
                 width: parent.width
                 text: Strings.t("apps.body", root.lang)
-                color: Util.alpha(Color.popups.text, 0.72)
+                color: Ink.prose(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall
                 wrapMode: Text.WordWrap
@@ -1395,7 +1396,7 @@ Item {
               Text {
                 width: parent.width
                 text: Strings.t("apps.note", root.lang)
-                color: Util.alpha(Color.popups.text, 0.72)
+                color: Ink.prose(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
@@ -1409,7 +1410,7 @@ Item {
               // nombres que generan reglas que nunca disparan.
               Text {
                 text: Strings.t("apps.open", root.lang)
-                color: Util.alpha(Color.popups.text, 0.68)
+                color: Ink.secondary(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
               }
@@ -1435,7 +1436,7 @@ Item {
                 width: parent.width
                 visible: !service || !service.openWindows || service.openWindows.length === 0
                 text: Strings.t("apps.open.none", root.lang)
-                color: Util.alpha(Color.popups.text, 0.72)
+                color: Ink.prose(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
@@ -1449,7 +1450,7 @@ Item {
                 // «Privacidad» o «Limpieza», y a un solo escalón de tamaño—
                 // así que en pantalla eran indistinguibles y este rótulo abría
                 // una sección que no existe.
-                color: Util.alpha(Color.popups.text, 0.68)
+                color: Ink.secondary(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.body
 
@@ -1471,7 +1472,7 @@ Item {
                 // que pide la AA para texto. Aquí no es decoración: es la
                 // única pista de qué hay que teclear. 0,68 —el alfa de
                 // rótulo que el panel ya usa— da 5,55:1.
-                placeholderTextColor: Util.alpha(Color.popups.text, 0.68)
+                placeholderTextColor: Ink.secondary(Color.popups.text, Color.popups.background)
                 selectByMouse: true
                 maximumLength: 256
                 Accessible.name: Strings.t("apps.class", root.lang)
@@ -1503,7 +1504,7 @@ Item {
                   : Strings.t("apps.class.hint", root.lang)
                 color: root.appsUrgent && root.appsError !== ""
                   ? Color.urgent
-                  : Util.alpha(Color.popups.text, 0.68)
+                  : Ink.secondary(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 wrapMode: Text.WordWrap
@@ -1562,7 +1563,7 @@ Item {
               Text {
                 width: parent.width
                 text: Strings.t("settings.privacy", root.lang)
-                color: Util.alpha(Color.popups.text, 0.72)
+                color: Ink.prose(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 lineHeightMode: Text.ProportionalHeight
@@ -1577,7 +1578,7 @@ Item {
               Text {
                 width: parent.width
                 text: Strings.t("help.body", root.lang)
-                color: Util.alpha(Color.popups.text, 0.68)
+                color: Ink.secondary(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.bodySmall
                 lineHeightMode: Text.ProportionalHeight

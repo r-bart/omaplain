@@ -2,6 +2,7 @@ import QtQuick
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 // Lo que ve alguien con el portapapeles vacío: una cosa copiable cada vez,
 // con lo que sobra encogiéndose hasta desaparecer en su sitio. Decisión 0008.
@@ -199,7 +200,7 @@ Item {
         id: kind
         Accessible.ignored: true
         text: Strings.t(root.sample.kind, root.lang)
-        color: Util.alpha(Color.popups.text, 0.68)
+        color: Ink.secondary(Color.popups.text, Color.popups.background)
         font.family: Style.font.family
         font.pixelSize: Style.font.caption
         font.capitalization: Font.AllUppercase

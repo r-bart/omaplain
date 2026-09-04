@@ -3,6 +3,7 @@ import QtQuick.Controls as QQC
 import qs.Commons
 import qs.Ui
 import "Strings.js" as Strings
+import "Ink.js" as Ink
 
 Item {
   id: root
@@ -92,7 +93,7 @@ Item {
         width: Math.min(parent.width, Style.space(420))
         anchors.horizontalCenter: parent.horizontalCenter
         text: Strings.t("welcome.body", root.lang)
-        color: Util.alpha(Color.popups.text, 0.72)
+        color: Ink.prose(Color.popups.text, Color.popups.background)
         font.family: Style.font.family
         font.pixelSize: Style.font.body
         lineHeightMode: Text.ProportionalHeight
@@ -161,7 +162,7 @@ Item {
               Text {
                 width: parent.width
                 text: modelData.body
-                color: Util.alpha(Color.popups.text, 0.72)
+                color: Ink.prose(Color.popups.text, Color.popups.background)
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
                 lineHeightMode: Text.ProportionalHeight
@@ -200,7 +201,7 @@ Item {
       Text {
         width: parent.width
         text: Strings.t("welcome.again", root.lang)
-        color: Util.alpha(Color.popups.text, 0.68)
+        color: Ink.secondary(Color.popups.text, Color.popups.background)
         font.family: Style.font.family
         font.pixelSize: Style.font.caption
         horizontalAlignment: Text.AlignHCenter

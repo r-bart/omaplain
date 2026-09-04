@@ -41,7 +41,11 @@ for modulo in "$shell_dir"/*/; do
   ln -s "$modulo" "$raiz/$(basename "$modulo")"
 done
 ln -s "$OMAPLAIN_REPO_DIR/components" "$raiz/components"
-sed 's|"\.\./\.\./components"|"components"|' "$OMAPLAIN_REPO_DIR/tests/qml/TestRoot.qml" > "$raiz/TestRoot.qml"
+# Sin la comilla de cierre en el patrón, para que valga igual el directorio
+# —`"../../components"`— que un fichero de dentro —`"../../components/Ink.js"`—.
+# Con ella, un import de fichero se quedaba sin reescribir y Quickshell lo
+# daba por irresoluble sin decir cuál era la ruta buena.
+sed 's|"\.\./\.\./components|"components|' "$OMAPLAIN_REPO_DIR/tests/qml/TestRoot.qml" > "$raiz/TestRoot.qml"
 
 hyprland_pid=""
 quickshell_pid=""
