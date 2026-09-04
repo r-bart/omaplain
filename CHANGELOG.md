@@ -2,239 +2,263 @@
 
 Todos los cambios relevantes de OmaPlain se documentan aquí.
 
-## Sin publicar
+## 1.0.0 — 2026-09-04
 
-Lo que salió de la revisión completa del 2 de septiembre.
+The first release that makes a promise: **what OmaPlain does not touch today, it
+will not touch tomorrow, and your settings survive an update**. It does not
+promise there will be no new features — it promises the ones here will not
+change underneath you.
 
-### Arreglado
+It is also the first changelog entry written in English
+([`0014`](docs/decisions/0014-el-idioma-del-repositorio.md)). The entries below
+`1.0.0` stay in Spanish; rewriting history does not improve it.
 
-- **La previsualización sigue al portapapeles.** Sólo se pedía al abrir el
-  panel: tras «Aplicar», tras omitir o tras copiar otra cosa, las filas
-  seguían diciendo «quedaría así» con el botón habilitado. Ahora el helper
-  apunta cada evento en `status.json` —también con el automático apagado— y
-  el panel abierto vuelve a mirar en cuanto cambia.
-- **El contenido muere con el panel.** `Service.forgetPeek` lo prometía y
-  nadie lo llamaba: el texto seguía en memoria, volvía a las filas al reabrir
-  hasta que llegaba el vistazo nuevo, y el vaho a 30 fps y el carrusel seguían
-  corriendo dentro de una ventana cerrada.
-- **La lectura del portapapeles tiene plazo.** Una aplicación de origen que no
-  sirviera su oferta dejaba el demonio colgado para siempre con el cerrojo
-  cogido: ni eventos, ni limpieza manual, ni vistazo. Dos segundos para la
-  lectura, uno para las órdenes cortas.
-- `hyprctl activewindow` devolviendo algo que no es un objeto tumbaba el hilo
-  del evento. Una petición JSON al socket que no es un objeto, también.
-- Reescribir sólo por codificación —un BOM, un texto en UTF-16— se llamaba
-  «formato enriquecido» en el desglose; ahora se llama codificación. Y un
-  texto en Latin-1 con acentos dejaba de limpiarse como «crecería demasiado»:
-  el tope se mide ahora contra el original ya en UTF-8.
-- Un portapapeles de más de dos mil setecientos emoji no cabía en la
-  respuesta del vistazo y el panel daba error.
-- `status.json` se escribe bajo cerrojo: dos hilos podían dejar en disco la
-  instantánea vieja. La escalera de reintentos del watcher vuelve al principio
-  tras un minuto sano. La atribución de origen sigue a la copia más nueva
-  aunque dos eventos se ejecuten en orden inverso.
-- «No pegar limpio ahí» cuenta como bypass en la sesión.
-- La frase «ninguna regla activa cambia caracteres» salía con los finales de
-  línea puestos, que sí los cambian.
-- Accesibilidad: el texto cubierto sale del árbol en su propio ítem; los
-  textos decorativos de la ilustración también; un botón deshabilitado no se
-  pulsa desde el lector; la cabecera sin detalle no lee «OmaPlain, Activo. ».
-- El vaho guarda un trazo por celda y mide lo limpiado por celdas, en vez de
-  acumular trazos sin tope y leer 147 píxeles por suelta. La ilustración del
-  tour vuelve a animar la transformación en el paso que la enseña.
-- `StatusHeader` declaraba una propiedad `state` encima de la que todo `Item`
-  ya tiene —la máquina de estados de QML—. Lo encontró el `qmllint` nuevo;
-  ahora se llama `serviceState`.
-- La documentación decía cosas que el código no hacía: que se retiraban las
-  marcas direccionales, que Quickshell nunca recibía el contenido, que «pegar
-  limpio» no hacía nada en una ventana excluida. Corregido en el README, el
-  SPEC, SECURITY y las decisiones afectadas.
-- **Una fila «no destapar nunca» se podía destapar a mano.** La cubierta
-  callaba la señal de «limpiado» cuando la fila estaba bajo llave, pero el
-  arrastre seguía abriendo huecos, y por los huecos se leía el texto de
-  debajo. Ahora bajo llave la cubierta no escucha al ratón, y la llave que
-  llega con el vaho a medio frotar lo devuelve entero.
-- **Un vistazo en vuelo al cerrar el panel devolvía el contenido a la
-  memoria**, después de que `forgetPeek` lo hubiera tirado: con el panel
-  cerrado, las filas volvían a existir y el vaho a animarse. Cada olvido
-  abre ahora una época, y lo que llega de una época cerrada se descarta.
-- **Una copia nueva sobre una fila cubierta y a medio frotar** enseñaba lo
-  nuevo por los huecos de lo viejo; si llegaba durante el remate, lo
-  descubría entero. Texto nuevo, cubierta nueva.
-- **El evento de nuestra propia reescritura marcaba «copia nueva».** La
-  marca se quedaba sin escribir y salía a disco con cualquier escritura
-  posterior —la caducidad de una omisión, una recarga—, y entonces el panel
-  volvía a cubrir las filas que acababas de destapar, sin que hubieras
-  copiado nada. Ese evento ya no se marca, y la marca lleva un contador
-  además de la hora, para que dos eventos en el mismo microsegundo o un
-  reloj que salte no se confundan con «nada nuevo».
-- **Aplicar con Enter dejaba el foco en el vacío**: el botón desaparece con
-  la acción, y con él se iba la retención del mensaje de resultado. El foco
-  pasa ahora a la siguiente acción viva.
-- **«Demasiado grande» se apuntaba como error** en un equipo cargado: la
-  espera al proceso ya matado tenía plazo y podía vencer.
-- Los plazos del cliente del socket cubren lo que el demonio puede tardar
-  con una fuente lenta; el de por defecto, 1,5 s, era menor que la lectura
-  que él mismo permite, así que el panel decía «no se pudo leer» de un
-  portapapeles que sólo estaba tardando. La comprobación previa a reescribir
-  va además con la mitad del plazo: la fuente ya demostró que sirve.
-- `status.json` deja de reescribirse dos veces por segundo para decir lo
-  mismo: el supervisor del watcher lo actualizaba con «running» cada medio
-  segundo, con su `fsync`.
-- **Una captura de pantalla no llegaba al demonio.** `wl-paste --type text
-  --watch` no ejecuta nada cuando la oferta no trae texto, así que una imagen
-  pura no generaba ningún evento: un panel abierto se quedaba enseñando la
-  copia anterior, los contadores de la sesión no veían una sola imagen, y la
-  atribución de origen de la copia anterior podía sobrevivir y dar un
-  veredicto equivocado. Ahora hay un segundo `wl-paste --watch`, sin tipo, que
-  avisa sólo cuando la oferta no trae texto: los dos vigilantes se reparten
-  el trabajo por el tipo, no por el reloj, así que no pueden contar la misma
-  copia dos veces. El general no limpia nunca. Medido de paso: una copia de
-  **archivos** sí llegaba, porque ofrece `text/uri-list` junto a `text/plain`.
+Everything in this entry landed after `0.2.0`, most of it out of a full review
+of helper, QML, docs and tests carried out on 2 September.
 
-### Retirado
+### Fixed
 
-- **El aviso de que OmaPlain ha dejado de vigilar ya no se puede silenciar.**
-  `notifyOnError` existía en la configuración, funcionaba y no había forma de
-  cambiarla: sin control en Ajustes y sin un solo test. Al mirar qué apagaba
-  —la única notificación que este producto manda en toda su vida, la que dice
-  que el vigilante del portapapeles se ha caído— dejó de tener sentido
-  exponerla. Este producto trabaja donde no lo miras, y un interruptor para
-  callar ese aviso es un interruptor para que falle en silencio. Quien no lo
-  quiera, apaga el servicio, que es explícito y se ve
-  ([`0019`](docs/decisions/0019-el-aviso-de-que-ha-dejado-de-vigilar-no-se-apaga.md)).
-- **«Ver el original» sale de la demostración del tour.** Se fue con la
-  tarjeta que lo envolvía —tres bordes concéntricos para enseñar una cadena—,
-  y con la caída el original ya es lo primero que se ve. El botón que queda
-  es «Verlo otra vez» con movimiento, y «Probar con un ejemplo» sin él, que
-  es la única vía que le queda a quien apagó las animaciones.
-- **«Omitir la próxima copia» se va entera**: del panel, del IPC, del CLI, del
-  helper y del demonio. Pedía adivinar el futuro —armarla antes de copiar y
-  acordarse de que estaba armada—, caducaba en silencio al minuto, y apagar
-  «Limpiar automáticamente» en Ajustes hace lo mismo sin reloj y a la vista.
-  Era además la única acción que le quedaba a la pantalla más vista, así que
-  la más marginal del producto ocupaba el sitio de la principal.
-  Con ella desaparece el `tick()` del demonio, que sólo existía para
-  caducarla, y la rama del bucle de `accept` que lo llamaba
-  ([`0016`](docs/decisions/0016-la-omision-de-una-copia-no-se-gana-su-sitio.md)).
+- **The preview follows the clipboard.** It was only requested when the panel
+  opened: after *Apply*, after a skip, or after copying something else, the rows
+  went on saying "this is what you would get" with the button still enabled. The
+  helper now records every event in `status.json` — with automatic cleaning off
+  too — and an open panel looks again as soon as it changes.
+- **Content dies with the panel.** `Service.forgetPeek` promised it and nobody
+  called it: the text stayed in memory, came back to the rows on reopening until
+  a fresh peek arrived, and the fog at 30 fps and the carousel kept running
+  inside a closed window.
+- **Reading the clipboard has a deadline.** A source application that never
+  served its offer left the daemon hung forever holding the lock: no events, no
+  manual clean, no peek. Two seconds for the read, one for short commands.
+- **A screenshot never reached the daemon.** `wl-paste --type text --watch` runs
+  nothing when the offer carries no text, so a pure image produced no event at
+  all: an open panel went on showing the previous copy, the session counters
+  never saw a single image, and the previous copy's source attribution could
+  survive and deliver a wrong verdict. There is now a second `wl-paste --watch`,
+  typeless, which fires only when the offer carries no text: the two watchers
+  split the work by type rather than by clock, so they cannot count the same
+  copy twice. The general one never cleans. Measured along the way: a **file**
+  copy did arrive, because it offers `text/uri-list` alongside `text/plain`.
+- **A "never uncover" row could be uncovered by hand.** The cover silenced the
+  "cleaned" signal while the row was locked, but dragging still opened gaps, and
+  the text underneath read through the gaps. Under lock the cover now ignores
+  the mouse, and a lock arriving mid-rub restores it whole.
+- **A peek in flight as the panel closed put the content back in memory**, after
+  `forgetPeek` had thrown it away: with the panel shut, the rows existed again
+  and the fog animated again. Every forget now opens an epoch, and anything
+  arriving from a closed epoch is discarded.
+- **A fresh copy onto a half-rubbed covered row** showed the new text through the
+  gaps of the old one; arriving during the finishing sweep, it uncovered it
+  entirely. New text, new cover.
+- **Our own rewrite event was marking "new copy".** The mark went unwritten and
+  reached disk on any later write — a skip expiring, a reload — and the panel
+  then re-covered the rows you had just uncovered, without you having copied
+  anything. That event is no longer marked, and the mark carries a counter
+  besides the timestamp, so two events in the same microsecond, or a clock that
+  jumps, are not mistaken for "nothing new".
+- **Applying with Enter left focus in the void**: the button disappears with the
+  action, and the result message's hold went with it. Focus now moves to the
+  next live action.
+- **"Too large" was recorded as an error** on a loaded machine: the wait on the
+  already-killed process had a deadline of its own and could expire.
+- Socket client deadlines now cover what the daemon can take with a slow source.
+  The 1.5 s default was shorter than the read the daemon itself allows, so the
+  panel reported "could not read" for a clipboard that was merely slow. The
+  check before rewriting gets half the deadline: the source has already proved
+  it serves.
+- **Secondary text now carries a contrast floor**
+  ([`0022`](docs/decisions/0022-la-tinta-atenuada-lleva-suelo.md)). The panel
+  dimmed its labels and prose with a fixed alpha, and a fixed alpha blends
+  toward the background without looking at the background — so it cannot promise
+  any ratio. Measured across the thirty installed themes, the four dimmed inks
+  fell below the 4.5:1 that WCAG AA asks of text on up to fourteen of them, the
+  worst always light themes. The requested dimming is now served with a floor
+  underneath: twenty-six of thirty themes keep exactly the ink they had, the
+  rest are lifted only as far as the floor.
+- `hyprctl activewindow` returning something that is not an object took down the
+  event thread. So did a JSON request to the socket that is not an object.
+- Rewriting for encoding alone — a BOM, UTF-16 text — was reported as "rich
+  formatting" in the breakdown; it is now called encoding. And accented Latin-1
+  text stopped being skipped as "would grow too much": the cap is measured
+  against the original already in UTF-8.
+- A clipboard of more than twenty-seven hundred emoji did not fit in the peek
+  reply and the panel reported an error.
+- `status.json` is written under lock: two threads could leave the older
+  snapshot on disk. The watcher's retry ladder returns to the start after a
+  healthy minute. Source attribution follows the newest copy even when two
+  events run out of order. And it stopped being rewritten twice a second to say
+  the same thing: the watcher's supervisor was refreshing it with "running"
+  every half second, `fsync` included.
+- "Do not paste clean there" counts as a bypass in the session.
+- The line "no active rule changes characters" appeared with line endings turned
+  on, which do change them.
+- Accessibility: covered text leaves the tree in its own item; the
+  illustration's decorative text too; a disabled button cannot be pressed from
+  the screen reader; a header with no detail no longer reads "OmaPlain, Active. ".
+- The fog keeps one stroke per cell and measures what has been cleared by cells,
+  instead of piling up strokes with no cap and reading 147 pixels per release.
+- `StatusHeader` declared a `state` property on top of the one every `Item`
+  already has — QML's own state machine. The new `qmllint` found it; it is now
+  `serviceState`.
+- The documentation said things the code did not do: that directional marks were
+  stripped, that Quickshell never received the content, that "paste clean" did
+  nothing in an excluded window. Corrected in the README, the SPEC, SECURITY and
+  the decisions affected.
 
-### Cambiado
+### Changed
 
-- **La marca sale de un solo fichero y llega a los tres sitios**
-  ([`0020`](docs/decisions/0020-la-marca-se-dibuja.md)). El icono de la barra
-  era `󰅌`, el «pegar en claro» de una Nerd Font: correcto y prestado.
-  Ahora la barra, el lanzador y la cabecera del panel llevan el mismo trazo,
-  con la misma `d` —un test la compara carácter por carácter—. En el shell se
-  dibuja con `QtQuick.Shapes`, así que el trazo va en la tinta del sitio y el
-  punto en el acento del tema; en el lanzador sigue siendo el fichero SVG, que
-  es lo único que el sistema de iconos sabe leer.
-- **El icono del lanzador puede seguir al tema**
-  ([`0020`](docs/decisions/0020-la-marca-se-dibuja.md), enmienda). Un hook de
-  `theme-set` opcional lo repinta con el `foreground` y el `accent` del tema
-  que acabas de poner, y sin baldosa: sólo la marca, que es el mismo dibujo
-  que la barra. Escribe en `~/.local/share/omaplain/icons/` y
-  cambia una línea de la entrada `.desktop`; sin entrada instalada no hace
-  nada. Cambia la **ruta** y no el contenido a propósito: el shell es un
-  proceso largo y Qt cachea el pixmap por la URL, así que reescribir el fichero
-  en su sitio no se ve hasta el siguiente arranque — las dos cosas están
-  medidas en la decisión.
-- **El logotipo escribe el nombre en minúscula, y siempre con el dibujo
-  delante.** «OmaPlain» en la cabecera era todo lo que había, y tenía que
-  gritar para identificar; con la marca delante, el texto baja la voz. Llega
-  también al manifiesto. En la prosa se sigue escribiendo `OmaPlain` —un
-  logotipo y un nombre propio son dos cosas distintas—, y en el lanzador,
-  `Omaplain`: ahí el nombre se lista junto a «Aether» y «Document Viewer», y
-  en esa columna una minúscula se lee como una errata y no como una marca.
-- **El dibujo de una imagen se lee como una imagen.** Era marco, sol y dos
-  barras horizontales, y el conjunto se leía como una ficha de contacto — y
-  se parecía demasiado a la hoja de texto, que es cuatro renglones. Ahora
-  lleva un perfil de montañas apoyado en el borde de dentro del marco.
-- **La pantalla de un bypass dice una cosa una vez.** El dibujo llevaba un pie
-  —«Byte for byte, exactly as you copied it.»— veinte píxeles debajo del
-  párrafo que ya lo decía, y el sello flotando al lado de la tarjeta. Ahora la
-  tarjeta ocupa el ancho entero, el sello va dentro y encima del grano, y el
-  pie se ha ido. El dibujo baja de 160 a 124 de alto: ésta no es una pantalla
-  de aprender, es la que sale al copiar una imagen. En español el sello va en
-  singular cuando rotula una sola copia.
-- **Las ilustraciones del panel cuentan lo que dicen, moviéndose.** Los
-  dibujos quietos que había explicaban el producto con una metáfora; ahora lo
-  demuestran con el gesto que hace.
-  - La **bienvenida** deja los dos naipes rotados con sus rótulos y la flecha
-    del medio, y enseña una dirección y su página, rectas y alineadas. Lo que
-    sobra se marca primero y se cierra después: se ve *qué* se va antes de que
-    se vaya.
-  - El **paso 1 del tour** pasa de tres tarjetas quietas a una cola de copias
-    que entra en un control de seguridad, pierde el dibujo bajo el ruido y
-    sale entera por el otro lado. Tres tarjetas quietas no decían «no se
-    tocan»: decían «aquí hay tres cosas».
-  - El **paso 2** suelta los caracteres que se retiran de una URL real: caen,
-    rebotan en el borde de la tarjeta y se apagan, y el resultado se cuenta
-    cuando ya ha pasado. La cadena es la misma que el motor limpia de verdad.
-    El paso deja de montar además la ilustración de la bienvenida.
-  - El **paso 3** enseña los cinco ajustes reales con sus valores de fábrica:
-    cuatro se encienden solos y el quinto se queda apagado, porque no viene
-    nada impuesto. La lista sube a enseñar que hay más y vuelve.
-  - Un **bypass** —una imagen, unos archivos, un secreto— enseña una sola
-    tarjeta con ruido quieto encima: es todo lo que OmaPlain llega a ver de
-    ella. En vez del inventario de tres filas, que hablaba de las tres cosas
-    cuando en el portapapeles hay una.
-  - Los **ejemplares del carrusel** y todas las tarjetas del panel bajan a un
-    mismo material de cristal, con su halo
+- **One mark, drawn, in all three places**
+  ([`0020`](docs/decisions/0020-la-marca-se-dibuja.md)). The bar icon used to be
+  `󰅌`, a Nerd Font's "paste as plain text": correct, and borrowed. The bar, the
+  launcher and the panel header now carry the same stroke, from the same path
+  data — a test compares it character by character. Inside the shell it is drawn
+  with `QtQuick.Shapes`, so the stroke takes the ink of wherever it sits and the
+  dot takes the theme's accent; in the launcher it is still the SVG file, which
+  is all the icon system knows how to read.
+- **The launcher icon can follow your theme**
+  ([`0020`](docs/decisions/0020-la-marca-se-dibuja.md), amendment). An optional
+  `theme-set` hook repaints it with the `foreground` and `accent` of the theme
+  you just applied, with no tile — just the mark, the same drawing as the bar.
+  It writes into `~/.local/share/omaplain/icons/` and changes one line of the
+  `.desktop` entry; with no entry installed it does nothing. It changes the
+  **path** rather than the contents deliberately: the shell is a long-lived
+  process and Qt caches the pixmap by URL, so rewriting the file in place is not
+  seen until the next start — both measured in the decision.
+- **The logotype writes the name in lower case, always with the drawing beside
+  it.** "OmaPlain" in the header was all there was, so it had to shout to
+  identify; with the mark in front, the text can lower its voice. In prose it is
+  still `OmaPlain` — a logotype and a proper noun are different things — and in
+  the launcher, `Omaplain`: there the name is listed beside "Aether" and
+  "Document Viewer", and in that column a lower-case initial reads as a typo
+  rather than as a brand.
+- **The panel's illustrations now show what they say, by moving.** The still
+  drawings explained the product with a metaphor; they now demonstrate it with
+  the gesture it makes.
+  - The **welcome** drops the two rotated cards with their labels and the arrow
+    between them, and shows an address and its page, straight and aligned. What
+    is going to go is marked first and closed after: you see *what* leaves
+    before it leaves.
+  - **Tour step 1** goes from three still cards to a queue of copies entering a
+    security check, losing their drawing under the noise, and coming out whole
+    on the other side. Three still cards did not say "these are not touched":
+    they said "here are three things".
+  - **Step 2** drops the characters being stripped from a real URL: they fall,
+    bounce off the card's edge and fade, and the result is counted once it has
+    happened. The string is the one the engine actually cleans.
+  - **Step 3** shows the five real settings at their factory values: four switch
+    themselves on and the fifth stays off, because nothing is imposed. The list
+    rides up to show there is more, and comes back.
+  - A **bypass** — an image, some files, a secret — shows a single card with
+    still noise on top: that is everything OmaPlain gets to see of it. Instead
+    of the three-row inventory, which talked about three things when the
+    clipboard holds one.
+  - The **carousel specimens** and every card in the panel drop to one glass
+    material, with its halo
     ([`0018`](docs/decisions/0018-el-material-del-panel.md)).
-  - Con **«Reducir movimiento»** puesto, las seis se pintan en su estado final
-    y ninguna pierde información.
-- **«Arrancando» deja de parecerse a «pausado».** Los dos enseñaban el mismo
-  punto quieto y sólo cambiaba el rótulo. Arrancando lleva ahora tres anillos
-  que salen y se pierden: el servicio no está haciendo esfuerzo, está a la
-  escucha. Se acaba solo, y la insignia no cambia de alto.
-- **El tipo MIME que se retira deja de ser lo más brillante de la fila.**
-  Llevaba tachado, color de acento **y** fondo de acento a la vez: tres
-  señales para lo único que no va a estar. Se queda con el color, que llega
-  cuando el panel se abre para que el ojo vaya ahí; en «sólo se retira el
-  formato» las dos filas de texto salen idénticas y los chips son lo único
-  que cuenta el cambio. Y los que sobreviven vuelven a la tinta normal del
-  panel: son justamente lo que sobrevive.
-- **La entrada del lanzador tiene icono propio.** `Icon=edit-paste` tomaba
-  prestado un icono del tema. Cambiaba con el tema y no decía qué hace esto.
-  Ahora hay un `io.github.r-bart.omaplain.svg` en la raíz: un trazo que
-  empieza ondulado y acaba recto, con un punto donde reposa. Se copia a mano,
-  igual que el `.desktop` y por la misma razón. El icono de la barra no se
-  toca: sigue siendo el glifo de la Nerd Font que pide `SPEC.md`.
-- **Repaso de los textos, en los dos idiomas.** Veintidós cadenas decían
-  algo distinto de lo que había debajo: el párrafo de «Aplicaciones»
-  explicaba el almacenamiento —herencia de cuando esa sección se llamaba
-  «Privacidad»—, el chip del desglose llamaba «Saltos» a lo que el ajuste
-  llama «Normalizar finales de línea», la tabla inglesa llevaba comillas
-  angulares españolas, un mensaje seguía hablando de aplicaciones
-  «excluidas» cuando ya no hay listas sino reglas, y el estado vacío
-  enseñaba la sigla «ZWSP» a quien acaba de llegar. La promesa de que nada
-  sale del equipo vuelve al panel, al cierre de los ajustes, que era donde
-  se había quedado sin decir.
-- **La pantalla frecuente no ofrece un botón muerto.** Con el automático
-  puesto, el texto llega limpio y «Apply» vivía gris casi siempre en la
-  pantalla más vista. Ahora sólo existe cuando hay algo que aplicar. La
-  omisión de la próxima copia pasa a una línea propia, sin borde, que dice
-  de qué habla —«Leave the next copy alone»— y sólo aparece con el
-  automático puesto
+  - With **Reduce motion** on, all six paint their final state and none loses
+    information.
+- **An image now looks like an image.** It was a frame, a sun and two horizontal
+  bars, and the whole read as a contact card — and looked too much like the text
+  sheet, which is four lines. It now carries a mountain profile resting on the
+  frame's inner edge.
+- **A bypass screen says one thing once.** The drawing carried a caption —
+  "Byte for byte, exactly as you copied it." — twenty pixels below the paragraph
+  that already said so, and the stamp floating beside the card. The card now
+  takes the full width, the stamp sits inside it and above the grain, and the
+  caption is gone. The drawing drops from 160 to 124 tall: this is not a screen
+  for learning, it is the one that comes up when you copy an image.
+- **"Starting" stops looking like "paused".** Both showed the same still dot with
+  only the label changing. Starting now carries three rings that leave and fade:
+  the service is not straining, it is listening. It ends on its own, and the
+  badge does not change height.
+- **The MIME type being dropped stops being the brightest thing in the row.** It
+  carried a strikethrough, the accent colour **and** an accent fill at once:
+  three signals for the one thing that will not be there. It keeps the colour,
+  which arrives as the panel opens so the eye goes to it; in "only formatting is
+  removed" the two text rows come out identical and the chips are the only thing
+  reporting the change. The survivors return to the panel's normal ink: they are
+  precisely what survives.
+- **The frequent screen offers no dead button.** With automatic cleaning on, the
+  text arrives clean and *Apply* sat greyed out almost always on the most-seen
+  screen. It now exists only when there is something to apply
   ([`0015`](docs/decisions/0015-la-pantalla-frecuente-no-ofrece-un-boton-muerto.md)).
-- **El vaho se remata solo.** Limpiar a mano toda la cubierta era trabajo
-  sin información: quien ha despejado un cuarto ya ha dicho que quiere ver.
-  Al soltar, el resto se despeja con un círculo que crece desde donde
-  estaba el dedo, en menos de 400 ms; con «reducir movimiento», de golpe.
-  Un clic suelto o un roce corto no bastan.
-- `tests/run.sh` se salta el validador de Omarchy cuando no está instalado y
-  falla ante cualquier `ResourceWarning`; la CI lo llama tal cual. La suite
-  pasa de 256 a 366 tests, con el demonio corriendo sobre un socket de verdad,
-  `clipboard.py` probado por primera vez, `Strings.js` ejecutado con `node`
-  un `qmllint` que carga cada fichero QML contra el shell instalado y, desde
-  hoy, **el QML ejecutado**: `tests/qml.sh` levanta un Hyprland anidado y
-  corre los componentes dentro de un Quickshell de verdad. `qmltestrunner`
-  no sirve —los tipos de Quickshell están enlazados dentro de su binario—,
-  así que ésta era la única vía. Dieciocho comprobaciones en medio segundo,
-  y probado que caza una regresión inyectada. La
-  cobertura de línea del helper queda en el 96 %, con los nueve subcomandos
-  del CLI —la frontera que el panel usa de verdad— probados de extremo a
-  extremo contra un demonio vivo.
+- **The fog finishes itself.** Rubbing the whole cover by hand was work without
+  information: someone who has cleared a quarter has already said they want to
+  see. On release the rest clears with a circle growing from where the finger
+  was, in under 400 ms; with reduce motion, at once. A stray click or a short
+  brush is not enough.
+- **The launcher entry has an icon of its own.** `Icon=edit-paste` borrowed one
+  from the theme: it changed with the theme and said nothing about what this
+  does.
+- **A pass over every string, in both languages.** Twenty-two of them said
+  something other than what sat underneath: the "Applications" paragraph
+  explained storage — inherited from when that section was called "Privacy" —
+  the breakdown chip called "Breaks" what the setting calls "Normalise line
+  endings", the English table carried Spanish angle quotes, one message still
+  spoke of "excluded" applications when there are rules rather than lists, and
+  the empty state showed the acronym "ZWSP" to someone who has just arrived. The
+  promise that nothing leaves the machine is back in the panel, at the foot of
+  the settings, which is where it had gone missing.
+- **Right-clicking the bar icon does nothing, and that is now a promise**
+  ([`0021`](docs/decisions/0021-el-clic-derecho-de-la-barra-queda-libre.md)). It
+  was left free pending a decision of its own; the decision is that it stays
+  free. `pasteClean` rewrites your clipboard, and rewriting it destroys the
+  original — there is no history to recover it from, by design. A gesture that
+  fires by accident cannot carry that.
+- **The README says which Omarchy this was tested against**
+  ([`0023`](docs/decisions/0023-a-que-omarchy-se-ata-la-1.0.md)): the 4.x series,
+  specifically the `4.0.1-1` package whose shell reports `4.0.0.alpha`. Outside
+  4.x nothing is promised — and nothing is blocked either. There is no version
+  gate, and there will not be one: the plugin manifest has no field for it, and
+  a gate of our own would turn every Omarchy release into a certain failure
+  rather than an uncertain one.
+
+### Removed
+
+- **The warning that OmaPlain has stopped watching can no longer be silenced.**
+  `notifyOnError` existed in the configuration, worked, and could not be changed:
+  no control in Settings and not one test. Looking at what it turned off — the
+  only notification this product ever sends, the one saying the clipboard
+  watcher has fallen over — it stopped making sense to expose it. This product
+  works where you are not looking, and a switch to mute that warning is a switch
+  to let it fail in silence. Anyone who does not want it turns the service off,
+  which is explicit and visible
+  ([`0019`](docs/decisions/0019-el-aviso-de-que-ha-dejado-de-vigilar-no-se-apaga.md)).
+- **"Skip the next copy" goes entirely**: from the panel, the IPC, the CLI, the
+  helper and the daemon. It asked you to predict the future — arm it before
+  copying, and remember it was armed — expired silently after a minute, and
+  turning off *Clean automatically* in Settings does the same thing with no
+  clock and in plain sight. It was also the only action left on the most-viewed
+  screen, so the most marginal thing in the product occupied the place of the
+  main one. With it goes the daemon's `tick()`, which existed only to expire it,
+  and the branch of the `accept` loop that called it
+  ([`0016`](docs/decisions/0016-la-omision-de-una-copia-no-se-gana-su-sitio.md)).
+- **"See the original" leaves the tour demonstration.** It went with the card
+  that wrapped it — three concentric borders to show one string — and with the
+  falling characters the original is now the first thing you see. The button
+  that remains is "Play it again" with motion, and "Try it with an example"
+  without, which is the only route left to anyone who turned animation off.
+
+### Testing and tooling
+
+- `tests/run.sh` is the whole suite in one command: unit tests with
+  `ResourceWarning` as an error, benchmark, soak, `qmllint` over every QML file
+  against the installed shell, the QML **executed** inside a real Quickshell,
+  and Omarchy's own validator. The last three skip themselves with no Omarchy in
+  front, so CI runs the same list.
+- The suite goes from 256 tests at `0.2.0` to **409**, plus 68 checks of QML
+  running inside a nested Hyprland. `qmltestrunner` cannot load Quickshell's
+  types — they are linked inside its binary — so that harness was the only route,
+  and it is proven to catch an injected regression. Helper line coverage sits at
+  96 %, with all nine CLI subcommands tested end to end against a live daemon.
+- **The compatibility matrix is now checked, not just written.** A test reads
+  the MIME blocks out of `docs/COMPATIBILITY.md`, runs them through the
+  classifier and asserts the documented decision comes back. The four
+  applications it cites were confirmed still to be at the versions recorded.
+- **Two accessibility defects in Omarchy's own kit are measured and written up**
+  for upstream, with the script that reproduces the numbers across every
+  installed theme (`docs/notes/UPSTREAM-2026-09-04.md`). Neither affects OmaPlain,
+  which draws its own focus ring and its own field hint.
 
 ## 0.2.0 — 2026-09-01
 

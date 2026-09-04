@@ -162,6 +162,20 @@ class ElReadmeNoMienteTests(unittest.TestCase):
         self.assertIn(seccion, {"left", "center", "right"})
         self.assertIn(f"the {seccion}-hand one", plano)
 
+    def test_la_version_tiene_sus_notas_de_publicacion(self) -> None:
+        # El `CHANGELOG` ya está atado a la versión del manifiesto. Las notas
+        # no lo estaban, y son lo que se enlaza al anunciar: el sitio donde
+        # más se nota que falten es justo el día que se publica.
+        import json
+        version = json.loads((REPO / "manifest.json").read_text(encoding="utf-8"))["version"]
+        notas = REPO / "docs" / f"RELEASE-NOTES-{version}.md"
+        self.assertTrue(notas.is_file(), f"faltan {notas.name}")
+        texto = notas.read_text(encoding="utf-8")
+        self.assertIn(f"# OmaPlain {version}", texto)
+        # Y dicen los límites, que es la mitad que se cae de las notas de
+        # publicación cuando hay prisa.
+        self.assertIn("Limits you should know about", texto)
+
     def test_declara_contra_que_omarchy_se_probo(self) -> None:
         # La 0023: fuera de 4.x no se promete nada, y eso se dice donde lo lee
         # quien instala. La versión va en dos formas porque el paquete y el

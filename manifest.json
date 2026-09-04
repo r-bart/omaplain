@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.r-bart.omaplain",
   "name": "omaplain",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "author": "OmaPlain contributors",
   "license": "GPL-3.0-or-later",
   "description": "Paste clean text by default while preserving files, images and secrets.",

@@ -203,14 +203,21 @@ Las «limitaciones conocidas», clasificadas el 2 de septiembre:
 | Una imagen o un archivo no genera evento | **Permanente**, es cómo funciona `wl-paste --type text`; documentada en README y COMPATIBILITY |
 | `maxBytes` sin control en la interfaz | **Fijo y documentado** («1 MiB» en el README); se expone sólo si alguien lo pide |
 
-Lo que sigue abierto:
+Lo que seguía abierto, **cerrado el 4 de septiembre**:
 
-- **El clic derecho del icono de la barra sigue libre** ([`0010`](docs/decisions/0010-como-se-abre-el-panel.md)).
-  Decidir si `pasteClean` se le cuelga o se deja libre para siempre.
-- **Dos defectos de plataforma anotados y no arreglados**: el borde en reposo
-  a 2,79:1 y la fórmula del `placeholderTextColor` del kit
-  ([`0012`](docs/decisions/0012-el-anillo-de-foco-y-donde-viven-los-ajustes.md)).
-  Decidir si se reportan a Omarchy antes de la 1.0.
+- **El clic derecho del icono de la barra** queda libre para siempre
+  ([`0021`](docs/decisions/0021-el-clic-derecho-de-la-barra-queda-libre.md)).
+  `pasteClean` reescribe el portapapeles y al reescribirlo el original deja de
+  existir; un gesto que se dispara sin querer no puede llevarlo colgado.
+- **Los dos defectos de plataforma se reportan**, escritos y medidos en
+  [`UPSTREAM-2026-09-04.md`](docs/notes/UPSTREAM-2026-09-04.md) con la
+  herramienta que reproduce los números en los treinta temas instalados.
+  Presentarlos en `basecamp/omarchy` es de Roberto y de su cuenta.
+
+  Medirlos destapó de paso que **el mismo defecto era nuestro**: el atenuado
+  del panel tampoco miraba al fondo, y no llegaba a la AA en cuatro de los
+  treinta temas. Arreglado con suelo de contraste
+  ([`0022`](docs/decisions/0022-la-tinta-atenuada-lleva-suelo.md)).
 
 ### `C.3` Compatibilidad
 
@@ -218,10 +225,17 @@ Omarchy va por **`4.0.0.alpha`**, y hoy mismo un cambio del kit nos costó un
 fallo silencioso: `updateEntryInline` escribe en `bar.layout` y el panel leía
 `plugins[]`, así que con el icono puesto no se guardaba ningún ajuste.
 
-- Declarar en el README la versión de Omarchy contra la que se probó.
-- Mantener y ampliar los tests que **vigilan el kit** —ya hay tres— porque son
-  lo único que avisa antes que el usuario.
-- Decidir la política: ¿la 1.0 se ata a Omarchy 4.x?
+**Resuelto el 4 de septiembre**, con la
+[`0023`](docs/decisions/0023-a-que-omarchy-se-ata-la-1.0.md):
+
+- El README declara la versión probada —4.x, paquete `4.0.1-1`, shell
+  `4.0.0.alpha`— y que fuera de ahí no se promete nada. Con test.
+- **No hay puerta de versión y no se construye.** El esquema del manifiesto no
+  tiene campo para declararla —comprobado sobre el validador instalado— y un
+  candado convertiría cada versión nueva de Omarchy en una avería segura.
+- Los tres tests que vigilan el kit se mantienen, y la decisión escribe la
+  regla de la que salieron: cada suposición que el panel copie del kit va con
+  su test.
 
 ### `C.4` La publicación
 
@@ -293,16 +307,23 @@ inyector de ratón; queda por probar a mano.
 
 ## Criterios de terminado
 
-- [ ] `main` tiene la 0.2.0 fusionada y etiquetada.
+- [ ] `main` tiene el trabajo fusionado y etiquetado. **Tuyo**: el trabajo se
+      queda en `develop` hasta que lo pruebes entero aquí.
 - [x] La raíz del repositorio se lee en diez segundos: sin planes cumplidos.
 - [x] Decisión `0014` escrita y aceptada; README y SECURITY en inglés, con test.
 - [x] CI en verde en cada push, con la versión mínima de Python declarada.
 - [x] README rehecho, con las cuatro capturas, y **sin una sola afirmación que
       el código contradiga** — repasado el 2 de septiembre.
 - [x] Cada «limitación conocida» está clasificada: arreglada o permanente.
-- [ ] `manifest.json` en `1.0.0`, `CHANGELOG` cerrado, notas de publicación,
-      tag `v1.0.0`.
-- [ ] Repositorio público.
+- [x] `manifest.json` en `1.0.0`, helper en `1.0.0`, `CHANGELOG` cerrado y
+      traducido al inglés como manda la `0014`, y
+      [`RELEASE-NOTES-1.0.0.md`](docs/RELEASE-NOTES-1.0.0.md) escritas. Un test
+      ata las tres versiones entre sí y otro exige que la versión del
+      manifiesto tenga sus notas.
+- [ ] Tag `v1.0.0`. **Tuyo**, después de la prueba.
+- [ ] Repositorio público. **Tuyo**, y es lo irreversible: la higiene de `A.5`
+      se repitió el 4 de septiembre y no hay ni una ruta personal ni un dato
+      en el árbol versionado.
 - [x] `omarchy plugin add` funciona desde una sesión limpia: probado el 2 de
       septiembre de punta a punta, incluida la primera ejecución y la
       persistencia de ajustes con la entrada sólo en `bar.layout`. Falta
