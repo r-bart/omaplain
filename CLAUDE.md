@@ -30,6 +30,16 @@ argumentado en [`SPEC.md`](SPEC.md) y en [`docs/decisions/`](docs/decisions).
 - **`pkill -f` con un patrón que diga «quickshell» u «omarchy» se mata a sí
   mismo**: la línea de órdenes del propio `bash -c` contiene el patrón. Se
   mata por PID.
+- **Y matarlo por PID no lo para: está supervisado y vuelve en un par de
+  segundos**, con PID nuevo. Así que «parar antes de tocar el directorio» no
+  se consigue con un `kill`; lo que se consigue es sincronizar mientras
+  arranca, que es el caso que la regla de arriba quería evitar. Sincroniza y
+  reinicia después con `omarchy restart shell`, contando con que el clon se
+  reescribe con el shell vivo.
+- **Esta máquina la comparten varias sesiones.** El shell puede reiniciarse
+  por su cuenta a mitad de una medida. Toda medida sobre `/proc/<pid>` tiene
+  que releer el PID al final y descartarse si cambió: si no, sale una cifra
+  negativa y parece un error de aritmética.
 - **Lo que se ve en el arnés depende del compositor de prueba.** Ahí
   `Style.cornerRadius` vale cero, así que ningún fallo de esquinas
   redondeadas se manifiesta; y un `ShellRoot` sin ventana no dibuja nada,
